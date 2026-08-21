@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pimpinan Cabang Muhammadiyah Ambulu — Portal Resmi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2C368B',
+                        secondary: '#079C4E',
+                        dark: '#0F172A',
+                        muted: '#475569',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-body text-dark bg-white antialiased selection:bg-secondary selection:text-white">
+
+    <!-- SECTION 1: HEADER -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-heading font-bold text-lg">M</div>
+                <div>
+                    <span class="block font-heading font-bold text-primary text-sm leading-tight">Muhammadiyah</span>
+                    <span class="block font-heading font-extrabold text-dark text-base leading-tight">PCM Ambulu</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-muted">
+                <a href="#beranda" class="hover:text-primary transition-colors">Beranda</a>
+                <a href="#profil" class="hover:text-primary transition-colors">Profil</a>
+                <a href="#program" class="hover:text-primary transition-colors">Program</a>
+                <a href="#berita" class="hover:text-primary transition-colors">Berita</a>
+                <a href="#agenda" class="hover:text-primary transition-colors">Agenda</a>
+                <a href="#jaringan" class="hover:text-primary transition-colors">Jaringan</a>
+                <a href="#kontak" class="hover:text-primary transition-colors">Kontak</a>
+            </nav>
+            <div class="hidden md:block">
+                <a href="#kontak" class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-all shadow-sm">
+                    Hubungi Kami
+                </a>
+            </div>
+            <button aria-label="Buka Menu" class="md:hidden p-2 text-dark">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- SECTION 2: HERO -->
+    <section id="beranda" class="py-16 lg:py-24 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="inline-block text-xs font-bold uppercase tracking-widest text-secondary bg-secondary/10 px-3 py-1 rounded-full">
+                        Persyarikatan Muhammadiyah
+                    </span>
+                    <h1 class="font-heading font-extrabold text-4xl sm:text-5xl lg:text-6xl text-dark leading-tight">
+                        Berkhidmat untuk Umat, <span class="text-primary">Memajukan Ambulu.</span>
+                    </h1>
+                    <p class="text-base sm:text-lg text-muted max-w-2xl leading-relaxed">
+                        Menggerakkan dakwah, pendidikan, sosial, dan pemberdayaan masyarakat melalui gerakan Muhammadiyah yang berkemajuan di wilayah Kecamatan Ambulu.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-4 pt-2">
+                        <a href="#profil" class="px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition shadow-sm">
+                            Kenali Kami
+                        </a>
+                        <a href="#program" class="px-6 py-3 rounded-lg border border-gray-300 text-dark font-medium hover:bg-gray-50 transition">
+                            Lihat Kegiatan
+                        </a>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 relative">
+                    <div class="relative z-10 rounded-xl overflow-hidden shadow-lg bg-gray-100 aspect-[4/5]">
+                        <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80" alt="Kegiatan Masyarakat Muhammadiyah Ambulu" class="w-full h-full object-cover">
+                        <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-sm border border-gray-100">
+                            <span class="block text-xs font-bold text-primary">Muhammadiyah Ambulu</span>
+                            <span class="block text-xs text-muted">Kecamatan Ambulu · Jember</span>
+                        </div>
+                    </div>
+                    <!-- Decorative Soft Backdrop -->
+                    <div class="absolute -bottom-6 -right-6 w-48 h-48 bg-secondary/10 rounded-xl -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: ORGANIZATION HIGHLIGHTS -->
+    <section class="py-12 bg-light border-y border-gray-200/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div class="p-4">
+                    <span class="block font-heading font-bold text-4xl lg:text-5xl text-primary">8</span>
+                    <span class="text-sm font-medium text-muted mt-1 block">Ranting Aktif</span>
+                </div>
+                <div class="p-4">
+                    <span class="block font-heading font-bold text-4xl lg:text-5xl text-primary">5</span>
+                    <span class="text-sm font-medium text-muted mt-1 block">Amal Usaha</span>
+                </div>
+                <div class="p-4">
+                    <span class="block font-heading font-bold text-4xl lg:text-5xl text-primary">12</span>
+                    <span class="text-sm font-medium text-muted mt-1 block">Program Berjalan</span>
+                </div>
+                <div class="p-4">
+                    <span class="block font-heading font-bold text-4xl lg:text-5xl text-primary">1930</span>
+                    <span class="text-sm font-medium text-muted mt-1 block">Awal Gerakan</span>
+                </div>
+            </div>
+            <p class="text-center text-xs text-gray-400 mt-6">*Data contoh — dapat diperbarui melalui CMS</p>
+        </div>
+    </section>
+
+    <!-- SECTION 4: TENTANG MUHAMMADIYAH AMBULU -->
+    <section id="profil" class="py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-6">
+                    <div class="rounded-xl overflow-hidden shadow-sm aspect-video bg-gray-100">
+                        <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=800&q=80" alt="Pengurus Muhammadiyah Ambulu" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="lg:col-span-6 space-y-6">
+                    <span class="text-xs font-bold uppercase tracking-widest text-secondary block">TENTANG KAMI</span>
+                    <h2 class="font-heading font-bold text-3xl lg:text-4xl text-primary leading-tight">
+                        Menggerakkan kebaikan dari tingkat akar rumput.
+                    </h2>
+                    <p class="text-muted leading-relaxed">
+                        Pimpinan Cabang Muhammadiyah Ambulu merupakan bagian dari Persyarikatan Muhammadiyah yang berkomitmen menggerakkan dakwah mencerahkan dan aksi sosial yang berorientasi pada kemajuan masyarakat di Kecamatan Ambulu.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 py-4 border-y border-gray-100">
+                        <div>
+                            <span class="text-xs text-muted block">Wilayah Kerja</span>
+                            <span class="text-sm font-semibold text-dark">Kec. Ambulu, Kab. Jember</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-muted block">Tingkat Organisasi</span>
+                            <span class="text-sm font-semibold text-dark">Pimpinan Cabang (PCM)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="#kontak" class="inline-flex items-center gap-2 font-semibold text-sm text-primary hover:text-secondary transition-colors">
+                            Selengkapnya tentang kami <span>&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: PROGRAM UNGGULAN -->
+    <section id="program" class="py-20 lg:py-28 bg-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center space-y-4 mb-16">
+                <h2 class="font-heading font-bold text-3xl lg:text-4xl text-primary">Gerakan yang Hadir dan Memberi Manfaat</h2>
+                <p class="text-muted">
+                    Berbagai program Muhammadiyah Ambulu hadir untuk menjawab kebutuhan masyarakat melalui dakwah, pendidikan, sosial, dan pemberdayaan.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Program 1 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm hover:shadow transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold mb-4">01</div>
+                        <h3 class="font-heading font-semibold text-xl text-dark mb-2">Dakwah & Kajian</h3>
+                        <p class="text-sm text-muted leading-relaxed mb-6">
+                            Penyelenggaraan kajian rutin keislaman, tarjih, dan pembinaan jamaah di masjid serta musala wilayah Ambulu.
+                        </p>
+                    </div>
+                    <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition inline-flex items-center gap-1">Lihat Program &rarr;</a>
+                </div>
+                <!-- Program 2 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm hover:shadow transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold mb-4">02</div>
+                        <h3 class="font-heading font-semibold text-xl text-dark mb-2">Pendidikan Berkualitas</h3>
+                        <p class="text-sm text-muted leading-relaxed mb-6">
+                            Pengelolaan sekolah dasar hingga menengah bermutu yang berfokus pada keilmuan mutakhir dan akhlak mulia.
+                        </p>
+                    </div>
+                    <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition inline-flex items-center gap-1">Lihat Program &rarr;</a>
+                </div>
+                <!-- Program 3 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm hover:shadow transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold mb-4">03</div>
+                        <h3 class="font-heading font-semibold text-xl text-dark mb-2">Sosial & Kemanusiaan</h3>
+                        <p class="text-sm text-muted leading-relaxed mb-6">
+                            Layanan tanggap darurat bencana, santunan kaum dhuafa, serta pemberdayaan ekonomi umat bersama Lazismu.
+                        </p>
+                    </div>
+                    <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition inline-flex items-center gap-1">Lihat Program &rarr;</a>
+                </div>
+                <!-- Program 4 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm hover:shadow transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold mb-4">04</div>
+                        <h3 class="font-heading font-semibold text-xl text-dark mb-2">Pemberdayaan Ekonomi</h3>
+                        <p class="text-sm text-muted leading-relaxed mb-6">
+                            Penguatan koperasi pergerakan, pendampingan UMKM warga, dan inkubasi wirausaha muda Muhammadiyah.
+                        </p>
+                    </div>
+                    <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition inline-flex items-center gap-1">Lihat Program &rarr;</a>
+                </div>
+                <!-- Program 5 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm hover:shadow transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold mb-4">05</div>
+                        <h3 class="font-heading font-semibold text-xl text-dark mb-2">Pembinaan Kader</h3>
+                        <p class="text-sm text-muted leading-relaxed mb-6">
+                            Baitul Arqam, Darul Arqam, dan perkaderan fungsional berkelanjutan guna menyiapkan kepemimpinan umat.
+                        </p>
+                    </div>
+                    <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition inline-flex items-center gap-1">Lihat Program &rarr;</a>
+                </div>
+                <!-- Program 6 -->
+                <div class="bg-white p-6 rounded-xl border border-gray-200/80 shadow-sm hover:shadow transition flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold mb-4">06</div>
+                        <h3 class="font-heading font-semibold text-xl text-dark mb-2">Kesehatan Masyarakat</h3>
+                        <p class="text-sm text-muted leading-relaxed mb-6">
+                            Layanan kesehatan dasar, sunatan massal, serta konsultasi medis bagi masyarakat umum secara berkala.
+                        </p>
+                    </div>
+                    <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition inline-flex items-center gap-1">Lihat Program &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: BERITA TERBARU -->
+    <section id="berita" class="py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <h2 class="font-heading font-bold text-3xl lg:text-4xl text-primary mb-2">Kabar Muhammadiyah Ambulu</h2>
+                    <p class="text-muted">Ikuti informasi, kegiatan, dan kabar terbaru dari gerakan Muhammadiyah.</p>
+                </div>
+                <a href="#" class="hidden md:inline-flex text-sm font-semibold text-primary hover:text-secondary transition">Lihat Semua Berita &rarr;</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Berita 1 -->
+                <article class="flex flex-col">
+                    <div class="rounded-xl overflow-hidden aspect-[16/10] bg-gray-100 mb-4">
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80" alt="Berita 1" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-muted mb-2">
+                        <span class="font-semibold text-secondary">DAKWAH</span>
+                        <span>&bull;</span>
+                        <time>12 Agustus 2026</time>
+                    </div>
+                    <h3 class="font-heading font-semibold text-lg text-dark mb-2 hover:text-primary transition">
+                        <a href="#">Muhammadiyah Ambulu Perkuat Gerakan Dakwah di Tengah Masyarakat</a>
+                    </h3>
+                    <p class="text-sm text-muted line-clamp-2 mb-4">
+                        Konsolidasi pengajian rutin tingkat cabang resmi digelar untuk menyamakan visi dakwah yang mencerahkan bagi seluruh warga...
+                    </p>
+                    <a href="#" class="text-xs font-semibold text-primary hover:underline mt-auto">Baca selengkapnya &rarr;</a>
+                </article>
+                <!-- Berita 2 -->
+                <article class="flex flex-col">
+                    <div class="rounded-xl overflow-hidden aspect-[16/10] bg-gray-100 mb-4">
+                        <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80" alt="Berita 2" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-muted mb-2">
+                        <span class="font-semibold text-secondary">SOSIAL</span>
+                        <span>&bull;</span>
+                        <time>8 Agustus 2026</time>
+                    </div>
+                    <h3 class="font-heading font-semibold text-lg text-dark mb-2 hover:text-primary transition">
+                        <a href="#">Pemuda Muhammadiyah Ambulu Gelar Kegiatan Bakti Sosial</a>
+                    </h3>
+                    <p class="text-sm text-muted line-clamp-2 mb-4">
+                        Berbekal semangat kepedulian umat, puluhan pemuda terjun langsung menyalurkan bantuan logistik kepada desa sekitar...
+                    </p>
+                    <a href="#" class="text-xs font-semibold text-primary hover:underline mt-auto">Baca selengkapnya &rarr;</a>
+                </article>
+                <!-- Berita 3 -->
+                <article class="flex flex-col">
+                    <div class="rounded-xl overflow-hidden aspect-[16/10] bg-gray-100 mb-4">
+                        <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80" alt="Berita 3" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-muted mb-2">
+                        <span class="font-semibold text-secondary">PENDIDIKAN</span>
+                        <span>&bull;</span>
+                        <time>3 Agustus 2026</time>
+                    </div>
+                    <h3 class="font-heading font-semibold text-lg text-dark mb-2 hover:text-primary transition">
+                        <a href="#">Kolaborasi AUM dan Ortom untuk Pemberdayaan Masyarakat</a>
+                    </h3>
+                    <p class="text-sm text-muted line-clamp-2 mb-4">
+                        Sekolah Muhammadiyah dan Nasyiatul 'Aisyiyah menandatangani kesepahaman program pengembangan literasi keluarga...
+                    </p>
+                    <a href="#" class="text-xs font-semibold text-primary hover:underline mt-auto">Baca selengkapnya &rarr;</a>
+                </article>
+            </div>
+            <div class="mt-8 text-center md:hidden">
+                <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition">Lihat Semua Berita &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: AGENDA TERDEKAT -->
+    <section id="agenda" class="py-20 lg:py-28 bg-light">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="font-heading font-bold text-3xl text-primary">Agenda Mendatang</h2>
+                <p class="text-muted mt-2">Daftar kegiatan dan agenda terdekat Pimpinan Cabang Muhammadiyah Ambulu.</p>
+            </div>
+            <div class="space-y-4">
+                <!-- Agenda Item 1 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-primary/10 text-primary rounded-lg p-3 text-center min-w-[64px]">
+                            <span class="block text-xl font-bold font-heading">18</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-wider">AGU</span>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-semibold text-dark">Kajian Ahad Pagi Pencerahan Cabang</h3>
+                            <p class="text-sm text-muted mt-1">06.00 WIB · Masjid Besar Muhammadiyah Ambulu</p>
+                        </div>
+                    </div>
+                    <a href="#" class="px-4 py-2 text-xs font-semibold text-primary border border-primary/20 rounded-lg hover:bg-primary hover:text-white transition text-center">Lihat Detail</a>
+                </div>
+                <!-- Agenda Item 2 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-primary/10 text-primary rounded-lg p-3 text-center min-w-[64px]">
+                            <span class="block text-xl font-bold font-heading">24</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-wider">AGU</span>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-semibold text-dark">Rapat Kerja Pimpinan Cabang Muhammadiyah</h3>
+                            <p class="text-sm text-muted mt-1">08.30 WIB · Gedung Dakwah Muhammadiyah Ambulu</p>
+                        </div>
+                    </div>
+                    <a href="#" class="px-4 py-2 text-xs font-semibold text-primary border border-primary/20 rounded-lg hover:bg-primary hover:text-white transition text-center">Lihat Detail</a>
+                </div>
+                <!-- Agenda Item 3 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-primary/10 text-primary rounded-lg p-3 text-center min-w-[64px]">
+                            <span class="block text-xl font-bold font-heading">01</span>
+                            <span class="block text-[10px] font-bold uppercase tracking-wider">SEP</span>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-semibold text-dark">Bakti Sosial Pemeriksaan Kesehatan Gratis</h3>
+                            <p class="text-sm text-muted mt-1">07.30 WIB · Lapangan Alun-Alun Ambulu</p>
+                        </div>
+                    </div>
+                    <a href="#" class="px-4 py-2 text-xs font-semibold text-primary border border-primary/20 rounded-lg hover:bg-primary hover:text-white transition text-center">Lihat Detail</a>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition">Lihat Semua Agenda &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: PESAN PIMPINAN -->
+    <section class="py-20 lg:py-28">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-light rounded-2xl border border-gray-200/80 p-8 sm:p-12 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                <div class="md:col-span-4 flex justify-center">
+                    <div class="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden border-4 border-white shadow-md">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80" alt="Ketua PCM Ambulu" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="md:col-span-8 space-y-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-secondary block">PESAN PIMPINAN</span>
+                    <blockquote class="font-heading text-xl sm:text-2xl text-dark font-medium leading-relaxed">
+                        "Muhammadiyah hadir bukan hanya untuk berbicara tentang perubahan, tetapi untuk menghadirkan perubahan yang memberi manfaat bagi masyarakat."
+                    </blockquote>
+                    <div>
+                        <span class="block font-heading font-bold text-dark">Dr. H. [Nama Ketua PCM], M.Pd.</span>
+                        <span class="block text-xs text-muted">Ketua Pimpinan Cabang Muhammadiyah Ambulu · Periode 2022–2027</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: STRUKTUR PIMPINAN -->
+    <section class="py-20 lg:py-28 bg-light border-t border-gray-200/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <h2 class="font-heading font-bold text-3xl lg:text-4xl text-primary mb-2">Pimpinan Muhammadiyah Ambulu</h2>
+                    <p class="text-muted">Pengurus Harian Pimpinan Cabang Muhammadiyah Ambulu Periode 2022–2027.</p>
+                </div>
+                <a href="#" class="hidden md:inline-flex text-sm font-semibold text-primary hover:text-secondary transition">Lihat Struktur Lengkap &rarr;</a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Leader 1 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 text-center shadow-sm">
+                    <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4 bg-gray-100">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80" alt="Ketua" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-heading font-bold text-dark">Dr. H. [Nama], M.Pd.</h3>
+                    <span class="text-xs font-semibold text-secondary mt-1 block">Ketua PCM</span>
+                </div>
+                <!-- Leader 2 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 text-center shadow-sm">
+                    <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4 bg-gray-100">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80" alt="Sekretaris" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-heading font-bold text-dark">[Nama], S.Ag.</h3>
+                    <span class="text-xs font-semibold text-secondary mt-1 block">Sekretaris</span>
+                </div>
+                <!-- Leader 3 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 text-center shadow-sm">
+                    <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4 bg-gray-100">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80" alt="Bendahara" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-heading font-bold text-dark">[Nama], S.E.</h3>
+                    <span class="text-xs font-semibold text-secondary mt-1 block">Bendahara</span>
+                </div>
+                <!-- Leader 4 -->
+                <div class="bg-white p-5 rounded-xl border border-gray-200/80 text-center shadow-sm">
+                    <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-4 bg-gray-100">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80" alt="Wakil Ketua" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-heading font-bold text-dark">[Nama], M.A.</h3>
+                    <span class="text-xs font-semibold text-secondary mt-1 block">Wakil Ketua Bid. Dakwah</span>
+                </div>
+            </div>
+            <div class="mt-8 text-center md:hidden">
+                <a href="#" class="text-sm font-semibold text-primary hover:text-secondary transition">Lihat Struktur Lengkap &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: JARINGAN MUHAMMADIYAH -->
+    <section id="jaringan" class="py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center space-y-4 mb-12">
+                <h2 class="font-heading font-bold text-3xl lg:text-4xl text-primary">Satu Gerakan, Banyak Kebaikan</h2>
+                <p class="text-muted">
+                    Kenali jaringan organisasi, Amal Usaha Muhammadiyah (AUM), dan Organisasi Otonom (Ortom) yang bergerak bersama di wilayah kami.
+                </p>
+                <!-- Static UI representation of Tabs -->
+                <div class="inline-flex p-1 rounded-lg bg-gray-100 border border-gray-200 mt-4">
+                    <button class="px-5 py-2 text-sm font-bold rounded-md bg-white text-primary shadow-sm">PRM</button>
+                    <button class="px-5 py-2 text-sm font-medium rounded-md text-muted hover:text-dark">AUM</button>
+                    <button class="px-5 py-2 text-sm font-medium rounded-md text-muted hover:text-dark">ORTOM</button>
+                </div>
+            </div>
+            <!-- Tab Contents (Showing PRM List Example) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-5 rounded-xl border border-gray-200/80 hover:border-primary/50 transition">
+                    <h3 class="font-heading font-semibold text-dark">PRM Ambulu</h3>
+                    <p class="text-xs text-muted mt-1">Ranting Muhammadiyah wilayah pusat perkotaan Ambulu.</p>
+                </div>
+                <div class="p-5 rounded-xl border border-gray-200/80 hover:border-primary/50 transition">
+                    <h3 class="font-heading font-semibold text-dark">PRM Sabrang</h3>
+                    <p class="text-xs text-muted mt-1">Ranting Muhammadiyah wilayah Desa Sabrang.</p>
+                </div>
+                <div class="p-5 rounded-xl border border-gray-200/80 hover:border-primary/50 transition">
+                    <h3 class="font-heading font-semibold text-dark">PRM Tegalsari</h3>
+                    <p class="text-xs text-muted mt-1">Ranting Muhammadiyah wilayah Desa Tegalsari.</p>
+                </div>
+                <div class="p-5 rounded-xl border border-gray-200/80 hover:border-primary/50 transition">
+                    <h3 class="font-heading font-semibold text-dark">PRM Pontang</h3>
+                    <p class="text-xs text-muted mt-1">Ranting Muhammadiyah wilayah Desa Pontang.</p>
+                </div>
+                <div class="p-5 rounded-xl border border-gray-200/80 hover:border-primary/50 transition">
+                    <h3 class="font-heading font-semibold text-dark">PRM Andongsari</h3>
+                    <p class="text-xs text-muted mt-1">Ranting Muhammadiyah wilayah Desa Andongsari.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11: CALL TO ACTION -->
+    <section class="py-16 bg-primary text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+            <h2 class="font-heading font-bold text-3xl sm:text-4xl">Mari Bergerak dan Memberi Manfaat Bersama.</h2>
+            <p class="text-white/80 max-w-xl mx-auto leading-relaxed">
+                Temukan kegiatan, program, dan ruang kolaborasi bersama Muhammadiyah Ambulu demi kemaslahatan masyarakat.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+                <a href="#kontak" class="px-6 py-3 rounded-lg bg-secondary text-white font-semibold hover:bg-secondary/90 transition shadow-sm">
+                    Hubungi Kami
+                </a>
+                <a href="#agenda" class="px-6 py-3 rounded-lg border border-white/40 text-white font-semibold hover:bg-white/10 transition">
+                    Lihat Agenda
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 12: KONTAK -->
+    <section id="kontak" class="py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div class="lg:col-span-5 space-y-8">
+                    <div>
+                        <h2 class="font-heading font-bold text-3xl text-primary mb-2">Mari Terhubung</h2>
+                        <p class="text-muted">Kunjungi sekretariat kami atau hubungi kami melalui kanal komunikasi resmi di bawah ini.</p>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <span class="block text-xs font-semibold text-muted uppercase">Sekretariat</span>
+                            <span class="font-semibold text-dark">Pimpinan Cabang Muhammadiyah Ambulu</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-muted uppercase">Alamat</span>
+                            <span class="text-muted">Jl. K.H. Ahmad Dahlan No. xx, Kec. Ambulu, Kab. Jember, Jawa Timur 68172</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-muted uppercase">WhatsApp Resmi</span>
+                            <span class="text-muted">+62 812-xxxx-xxxx</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-muted uppercase">Email</span>
+                            <span class="text-muted">info@pcmambulu.id</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-muted uppercase">Jam Layanan Sekretariat</span>
+                            <span class="text-muted">Senin–Sabtu · 08.00–16.00 WIB</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-7">
+                    <!-- Placeholder Embedded Map -->
+                    <div class="w-full h-80 lg:h-full min-h-[320px] rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center relative">
+                        <div class="text-center p-6">
+                            <span class="block font-semibold text-dark mb-1">Embedded Interactive Map</span>
+                            <span class="text-xs text-muted">Kecamatan Ambulu, Kabupaten Jember, Jawa Timur</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 13: FOOTER -->
+    <footer class="bg-dark text-white pt-16 pb-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 border-b border-gray-800">
+                <div class="md:col-span-5 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-sm">M</div>
+                        <span class="font-heading font-bold text-lg">PCM Ambulu</span>
+                    </div>
+                    <p class="text-sm text-gray-400 max-w-sm leading-relaxed">
+                        Bergerak bersama untuk dakwah, pendidikan, dan kemaslahatan umat di Kecamatan Ambulu, Kabupaten Jember.
+                    </p>
+                </div>
+                <div class="md:col-span-3 space-y-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Navigasi</span>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="#profil" class="hover:text-white transition">Profil</a></li>
+                        <li><a href="#program" class="hover:text-white transition">Program</a></li>
+                        <li><a href="#berita" class="hover:text-white transition">Berita</a></li>
+                        <li><a href="#agenda" class="hover:text-white transition">Agenda</a></li>
+                        <li><a href="#jaringan" class="hover:text-white transition">Jaringan</a></li>
+                        <li><a href="#kontak" class="hover:text-white transition">Kontak</a></li>
+                    </ul>
+                </div>
+                <div class="md:col-span-4 space-y-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Media Sosial Resmi</span>
+                    <div class="flex gap-4 text-sm text-gray-300">
+                        <a href="#" class="hover:text-white transition">Instagram</a>
+                        <a href="#" class="hover:text-white transition">Facebook</a>
+                        <a href="#" class="hover:text-white transition">YouTube</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <p>&copy; 2026 Pimpinan Cabang Muhammadiyah Ambulu. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-gray-400 transition">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-gray-400 transition">Syarat & Ketentuan</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Organization;
+use App\Models\OrganizationPage;
+use Illuminate\View\View;
+
+class OrganizationBuilderController extends Controller
+{
+    /**
+     * Show the page builder for an organization's page, ensuring it owns a home page
+     * (cloned from its template, or a blank "Beranda") on first visit.
+     */
+    public function edit(Organization $organization, ?OrganizationPage $page = null): View
+    {
+        $this->authorize('update', $organization);
+
+        $organization->ensureHomePageExists();
+        $organization->load('pages.sections');
+
+        $currentPage = $page ?? $organization->pages->firstWhere('is_home', true) ?? $organization->pages->first();
+
+        return view('organizations.builder.edit', [
+            'organization' => $organization,
+            'pages' => $organization->pages,
+            'currentPage' => $currentPage,
+            'sectionRegistry' => config('page-builder.sections'),
+        ]);
+    }
+
+    /**
+     * Render a page's sections as a standalone HTML document, in the organization's own
+     * brand colors (see Organization::primaryColor()/secondaryColor()). Loaded into the
+     * builder's canvas <iframe> — isolating it in its own document (rather than including
+     * it inline in the builder page) is what lets it use different Tailwind theme colors
+     * than the builder chrome around it, which stays platform-branded.
+     */
+    public function canvas(Organization $organization, OrganizationPage $page): View
+    {
+        $this->authorize('update', $organization);
+
+        $page->load('sections');
+
+        return view('organizations.builder.canvas', [
+            'organization' => $organization,
+            'page' => $page,
+        ]);
+    }
+}

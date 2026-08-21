@@ -1,0 +1,148 @@
+@extends('layouts.app')
+
+@section('title', ($officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus').' — '.$organization->name.' — Website-mu')
+
+@php
+    $fromBuilder = request('from') === 'builder';
+    $builderQuery = $fromBuilder ? '?from=builder'.(request('section') ? '&section='.request('section') : '') : '';
+@endphp
+
+@section('content')
+    <div class="max-w-3xl mx-auto" x-data="officerForm()">
+        <a href="{{ route('organizations.officers.index', $organization) }}{{ $builderQuery }}"
+           class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary transition-colors mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                <path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" />
+            </svg>
+            Kembali ke Pengurus
+        </a>
+        <h1 class="text-2xl font-extrabold text-primary mb-2">{{ $officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus' }}</h1>
+        <p class="text-sm text-gray-500 mb-8">{{ $organization->name }}</p>
+
+        <form action="{{ $officer->exists ? route('organizations.officers.update', [$organization, $officer]) : route('organizations.officers.store', $organization) }}"
+              method="POST">
+            @csrf
+            @if ($officer->exists) @method('PATCH') @endif
+            @if ($fromBuilder)
+                <input type="hidden" name="from" value="builder">
+                <input type="hidden" name="section" value="{{ request('section') }}">
+            @endif
+            <input type="hidden" name="photo" x-model="photoUrl">
+
+            <div class="bg-white rounded-2xl shadow-soft p-6 space-y-5">
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama</label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $officer->name) }}" required
+                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                </div>
+
+                <div>
+                    <label for="role" class="block text-sm font-semibold text-gray-700 mb-1">Jabatan</label>
+                    <input type="text" name="role" id="role" value="{{ old('role', $officer->role) }}" required
+                           placeholder="mis. Ketua, Sekretaris, Bendahara"
+                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Foto</label>
+                    <div class="rounded-xl border border-gray-200 bg-gray-50 aspect-square w-32 overflow-hidden flex items-center justify-center mb-2"
+                        x-show="photoUrl" x-cloak>
+                        <img :src="photoUrl" alt="" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" @click="openPicker()"
+                                class="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-600 hover:border-primary/40 hover:text-primary transition">
+                            <span x-text="photoUrl ? 'Ganti foto' : 'Pilih foto'"></span>
+                        </button>
+                        <button type="button" x-show="photoUrl" x-cloak @click="photoUrl = ''"
+                                class="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-400 hover:text-red-500 hover:border-red-200 transition">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <a href="{{ route('organizations.officers.index', $organization) }}{{ $builderQuery }}"
+                       class="px-5 py-2.5 rounded-full text-gray-600 text-sm font-semibold hover:bg-gray-100 transition-colors">
+                        Batal
+                    </a>
+                    <button type="submit" class="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold">
+                        Simpan
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div x-show="picker.open" x-cloak
+            class="fixed inset-0 z-50 bg-gray-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+            @keydown.escape.window="picker.open = false">
+            <div @click.outside="picker.open = false"
+                class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[85vh] flex flex-col shadow-2xl">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+                    <h3 class="font-bold text-gray-800">Pilih Foto</h3>
+                    <button type="button" @click="picker.open = false"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">&times;</button>
+                </div>
+                <div class="p-5 border-b border-gray-100 shrink-0">
+                    <label class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed border-gray-200 rounded-xl py-6 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition text-center">
+                        <span class="text-sm font-semibold text-gray-600">Unggah foto baru</span>
+                        <span class="text-xs text-gray-400">PNG, JPG, atau WebP. Maks 10MB.</span>
+                        <input type="file" accept="image/*" multiple class="hidden"
+                               @change="upload($event.target.files); $event.target.value = ''">
+                    </label>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <div x-show="picker.loading" class="text-center text-sm text-gray-400 py-8">Memuat…</div>
+                    <div x-show="!picker.loading && picker.items.length === 0" class="text-center text-sm text-gray-400 py-8">
+                        Belum ada gambar. Unggah gambar pertama di atas.
+                    </div>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" x-show="!picker.loading">
+                        <template x-for="item in picker.items" :key="item.id">
+                            <button type="button" @click="photoUrl = item.url; picker.open = false"
+                                    class="aspect-square rounded-xl overflow-hidden bg-gray-100 ring-1 ring-gray-200 hover:ring-2 hover:ring-primary transition">
+                                <img :src="item.url" :alt="item.original_name" class="w-full h-full object-cover">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('officerForm', () => ({
+                photoUrl: @json($officer->photo ?? ''),
+                picker: { open: false, loading: false, items: [], fetched: false },
+                async openPicker() {
+                    this.picker.open = true;
+                    if (this.picker.fetched) return;
+                    this.picker.loading = true;
+                    const res = await fetch(@json(route('organizations.media.index', $organization)), {
+                        headers: { Accept: 'application/json' },
+                    });
+                    this.picker.items = await res.json();
+                    this.picker.fetched = true;
+                    this.picker.loading = false;
+                },
+                async upload(files) {
+                    if (!files || !files.length) return;
+                    const formData = new FormData();
+                    [...files].forEach((file) => formData.append('files[]', file));
+                    this.picker.loading = true;
+                    const res = await fetch(@json(route('organizations.media.store', $organization)), {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-CSRF-TOKEN': @json(csrf_token()),
+                        },
+                        body: formData,
+                    });
+                    const uploaded = await res.json();
+                    this.picker.items = [...uploaded, ...this.picker.items];
+                    this.picker.loading = false;
+                },
+            }));
+        });
+    </script>
+@endsection
