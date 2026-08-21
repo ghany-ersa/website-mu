@@ -17,7 +17,7 @@ class OrganizationMediaTest extends TestCase
 
     public function test_member_can_upload_and_list_media(): void
     {
-        Storage::fake('public');
+        Storage::fake(config('media.disk'));
 
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
@@ -30,7 +30,7 @@ class OrganizationMediaTest extends TestCase
             ->assertRedirect();
 
         $this->assertSame(1, $organization->media()->count());
-        Storage::disk('public')->assertExists($organization->media()->first()->path);
+        Storage::disk(config('media.disk'))->assertExists($organization->media()->first()->path);
 
         $this->actingAs($user)
             ->getJson(route('organizations.media.index', $organization))
@@ -54,7 +54,7 @@ class OrganizationMediaTest extends TestCase
 
     public function test_member_can_delete_own_organization_media_but_not_another_organizations(): void
     {
-        Storage::fake('public');
+        Storage::fake(config('media.disk'));
 
         $user = User::factory()->create();
         $organizationA = Organization::factory()->create();

@@ -21,7 +21,7 @@ class MediaFactory extends Factory
         return [
             'organization_id' => Organization::factory(),
             'uploaded_by' => null,
-            'disk' => 'public',
+            'disk' => config('media.disk'),
             'path' => 'organizations/1/media/'.fake()->uuid().'.jpg',
             'original_name' => fake()->word().'.jpg',
             'mime_type' => 'image/jpeg',

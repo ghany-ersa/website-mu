@@ -54,19 +54,20 @@ class MediaController extends Controller
         ]);
 
         $manager = new ImageManager(new Driver);
+        $disk = config('media.disk');
 
-        $uploaded = collect($validated['files'])->map(function ($file) use ($organization, $request, $manager) {
+        $uploaded = collect($validated['files'])->map(function ($file) use ($organization, $request, $manager, $disk) {
             $image = $manager->decodePath($file->getRealPath());
             $image->scaleDown(width: self::MAX_DIMENSION, height: self::MAX_DIMENSION);
             $encoded = $image->encode(new WebpEncoder(quality: self::WEBP_QUALITY));
 
             $filename = Str::uuid().'.webp';
             $path = "organizations/{$organization->id}/media/{$filename}";
-            Storage::disk('public')->put($path, (string) $encoded);
+            Storage::disk($disk)->put($path, (string) $encoded, 'public');
 
             $media = $organization->media()->create([
                 'uploaded_by' => $request->user()->id,
-                'disk' => 'public',
+                'disk' => $disk,
                 'path' => $path,
                 'original_name' => $file->getClientOriginalName(),
                 'mime_type' => 'image/webp',
