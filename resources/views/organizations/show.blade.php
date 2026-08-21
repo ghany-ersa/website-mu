@@ -39,6 +39,10 @@
                    class="text-primary text-sm font-semibold hover:underline">
                     Brand Settings
                 </a>
+                <a href="{{ route('organizations.seo.edit', $organization) }}"
+                   class="text-primary text-sm font-semibold hover:underline">
+                    SEO & Subdomain
+                </a>
                 @if ($organization->template)
                     <a href="{{ route('templates.preview', $organization->template->slug) }}" target="_blank"
                        class="text-primary text-sm font-semibold hover:underline">

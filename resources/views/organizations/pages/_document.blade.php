@@ -10,6 +10,8 @@
     $primaryColor = $organization->primaryColor();
     $secondaryColor = $organization->secondaryColor();
     $heroImage = $page->sections->firstWhere('key', 'hero')?->content['image'] ?? null;
+    $metaTitle = $organization->name;
+    $metaDescription = $organization->description;
 
     $hexToRgb = function (string $hex): string {
         $hex = ltrim($hex, '#');
@@ -26,13 +28,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $organization->name }}</title>
+    <title>{{ $metaTitle }}</title>
+    @if ($metaDescription)
+        <meta name="description" content="{{ $metaDescription }}">
+    @endif
     @if ($organization->logo)
         <link rel="icon" href="{{ $organization->logo }}">
     @endif
-    <meta property="og:title" content="{{ $organization->name }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $metaTitle }}">
+    @if ($metaDescription)
+        <meta property="og:description" content="{{ $metaDescription }}">
+    @endif
     @if ($heroImage)
         <meta property="og:image" content="{{ $heroImage }}">
+    @endif
+    <meta name="twitter:card" content="{{ $heroImage ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $metaTitle }}">
+    @if ($metaDescription)
+        <meta name="twitter:description" content="{{ $metaDescription }}">
     @endif
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
