@@ -26,6 +26,13 @@ class MediaController extends Controller
     private const WEBP_QUALITY = 80;
 
     /**
+     * Valid values for the 'category' upload param, used as the storage
+     * subfolder under organizations/{id}/. Requests without a recognized
+     * category fall back to 'lainnya' rather than an arbitrary path segment.
+     */
+    private const CATEGORIES = ['berita', 'pengurus', 'galeri', 'brand', 'builder'];
+
+    /**
      * List an organization's media library as JSON, for the builder's image picker.
      */
     public function index(Organization $organization): JsonResponse
@@ -51,18 +58,20 @@ class MediaController extends Controller
         $validated = $request->validate([
             'files' => ['required', 'array'],
             'files.*' => ['image', 'max:10240'],
+            'category' => ['nullable', 'string', 'in:'.implode(',', self::CATEGORIES)],
         ]);
 
         $manager = new ImageManager(new Driver);
         $disk = config('media.disk');
+        $category = $validated['category'] ?? 'lainnya';
 
-        $uploaded = collect($validated['files'])->map(function ($file) use ($organization, $request, $manager, $disk) {
+        $uploaded = collect($validated['files'])->map(function ($file) use ($organization, $request, $manager, $disk, $category) {
             $image = $manager->decodePath($file->getRealPath());
             $image->scaleDown(width: self::MAX_DIMENSION, height: self::MAX_DIMENSION);
             $encoded = $image->encode(new WebpEncoder(quality: self::WEBP_QUALITY));
 
             $filename = Str::uuid().'.webp';
-            $path = "organizations/{$organization->id}/media/{$filename}";
+            $path = "organizations/{$organization->id}/{$category}/{$filename}";
             Storage::disk($disk)->put($path, (string) $encoded, 'public');
 
             $media = $organization->media()->create([

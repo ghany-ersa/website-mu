@@ -8,7 +8,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 /**
  * Rejects subdomains that must stay reserved for platform use and can't be claimed
  * by an organization (e.g. "admin.website-mu.test" would shadow our own panel).
- * Shared by StoreOrganizationRequest (initial slug) and OrganizationSeoController
+ * Shared by StoreOrganizationRequest (initial slug) and OrganizationEditController
  * (slug changes after creation) so the reserved list can't drift between the two.
  */
 class ReservedSlug implements ValidationRule

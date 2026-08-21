@@ -7,6 +7,7 @@ use App\Http\Controllers\OrganizationAnnouncementController;
 use App\Http\Controllers\OrganizationBrandController;
 use App\Http\Controllers\OrganizationBuilderController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\OrganizationEditController;
 use App\Http\Controllers\OrganizationGalleryController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\OrganizationNetworkController;
@@ -15,7 +16,6 @@ use App\Http\Controllers\OrganizationPageController;
 use App\Http\Controllers\OrganizationPostController;
 use App\Http\Controllers\OrganizationProgramController;
 use App\Http\Controllers\OrganizationSectionController;
-use App\Http\Controllers\OrganizationSeoController;
 use App\Http\Controllers\OrganizationSiteController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
@@ -108,10 +108,14 @@ Route::middleware('auth')->group(function () {
         Route::patch('organizations/{organization}/brand', [OrganizationBrandController::class, 'update'])
             ->name('organizations.brand.update');
 
-        Route::get('organizations/{organization}/seo', [OrganizationSeoController::class, 'edit'])
-            ->name('organizations.seo.edit');
-        Route::patch('organizations/{organization}/seo', [OrganizationSeoController::class, 'update'])
-            ->name('organizations.seo.update');
+        Route::get('organizations/{organization}/edit', [OrganizationEditController::class, 'edit'])
+            ->name('organizations.edit.edit');
+        Route::patch('organizations/{organization}/edit/name', [OrganizationEditController::class, 'updateName'])
+            ->name('organizations.edit.name.update');
+        Route::patch('organizations/{organization}/edit/slug', [OrganizationEditController::class, 'updateSlug'])
+            ->name('organizations.edit.slug.update');
+        Route::patch('organizations/{organization}/edit/description', [OrganizationEditController::class, 'updateDescription'])
+            ->name('organizations.edit.description.update');
     });
 
     Route::patch('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'update'])

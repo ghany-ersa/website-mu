@@ -94,10 +94,19 @@
                     </div>
                     <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" x-show="!picker.loading">
                         <template x-for="item in picker.items" :key="item.id">
-                            <button type="button" @click="photoUrl = item.url; picker.open = false"
-                                    class="aspect-square rounded-xl overflow-hidden bg-gray-100 ring-1 ring-gray-200 hover:ring-2 hover:ring-primary transition">
-                                <img :src="item.url" :alt="item.original_name" class="w-full h-full object-cover">
-                            </button>
+                            <div class="relative group">
+                                <button type="button" @click="photoUrl = item.url; picker.open = false"
+                                        class="aspect-square w-full rounded-xl overflow-hidden bg-gray-100 ring-1 ring-gray-200 hover:ring-2 hover:ring-primary transition">
+                                    <img :src="item.url" :alt="item.original_name" class="w-full h-full object-cover">
+                                </button>
+                                <button type="button" @click.stop="deleteMedia(item)"
+                                        class="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-gray-900/60 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-red-600 transition"
+                                        title="Hapus gambar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -125,6 +134,7 @@
                     if (!files || !files.length) return;
                     const formData = new FormData();
                     [...files].forEach((file) => formData.append('files[]', file));
+                    formData.append('category', 'galeri');
                     this.picker.loading = true;
                     const res = await fetch(@json(route('organizations.media.store', $organization)), {
                         method: 'POST',
@@ -137,6 +147,20 @@
                     const uploaded = await res.json();
                     this.picker.items = [...uploaded, ...this.picker.items];
                     this.picker.loading = false;
+                },
+                async deleteMedia(item) {
+                    if (!confirm('Hapus gambar ini dari galeri?')) return;
+                    if (this.photoUrl === item.url) this.photoUrl = '';
+                    const res = await fetch(`${@json(route('organizations.media.index', $organization))}/${item.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-CSRF-TOKEN': @json(csrf_token()),
+                        },
+                    });
+                    if (res.ok) {
+                        this.picker.items = this.picker.items.filter((i) => i.id !== item.id);
+                    }
                 },
             }));
         });
