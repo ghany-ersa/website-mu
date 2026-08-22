@@ -2,7 +2,7 @@
 
 <section class="py-16">
     <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10 items-center">
-        <div class="reveal aspect-square rounded-2xl overflow-hidden shadow-soft">
+        <div class="reveal aspect-square rounded-brand overflow-hidden shadow-soft">
             @if (! empty($content['photo']))
                 <img src="{{ $content['photo'] }}" alt="{{ $content['nama'] ?? '' }}" class="w-full h-full object-cover">
             @else

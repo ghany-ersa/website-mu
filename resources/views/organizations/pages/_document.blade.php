@@ -1,17 +1,27 @@
 {{--
-    Shared <html> scaffold for a fully-rendered organization page — brand colors (Organization::
-    primaryColor()/secondaryColor()), favicon, OG tags, Tailwind CDN config, reveal-scroll script.
+    Shared <html> scaffold for a fully-rendered organization page — brand colors/font/radius
+    (Organization::primaryColor()/secondaryColor()/fontFamily()/borderRadius(), tokens defined
+    in config('branding')), favicon, OG tags, Tailwind CDN config, reveal-scroll script.
     Used by both organizations/builder/canvas.blade.php (builder iframe) and organizations/public/
     show.blade.php (public tenant site) so the two documents can't silently drift apart. Callers
     pass $organization, $page, and a rendered $body string (the section markup to place inside
     #canvas-body) — this partial owns everything else.
+
+    Kept in sync deliberately with templates/preview.blade.php (same brand token injection, but
+    sourced from $template->structure['brand'] instead of $organization) — update both together.
 --}}
 @php
     $primaryColor = $organization->primaryColor();
     $secondaryColor = $organization->secondaryColor();
+    $fontKey = $organization->fontFamily();
+    $font = config("branding.fonts.$fontKey") ?? config('branding.fonts.'.array_key_first(config('branding.fonts')));
+    $radiusToken = $organization->borderRadius();
+    $radiusValue = config("branding.radii.$radiusToken") ?? config('branding.radii.'.array_key_first(config('branding.radii')));
     $heroImage = $page->sections->firstWhere('key', 'hero')?->content['image'] ?? null;
-    $metaTitle = $organization->name;
-    $metaDescription = $organization->description;
+    $metaTitle = $metaTitle ?? $organization->name;
+    $metaDescription = $metaDescription ?? $organization->description;
+    $metaImage = $metaImage ?? $heroImage;
+    $canonicalUrl = $canonicalUrl ?? url()->current();
 
     $hexToRgb = function (string $hex): string {
         $hex = ltrim($hex, '#');
@@ -32,6 +42,7 @@
     @if ($metaDescription)
         <meta name="description" content="{{ $metaDescription }}">
     @endif
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     @if ($organization->logo)
         <link rel="icon" href="{{ $organization->logo }}">
     @endif
@@ -40,10 +51,11 @@
     @if ($metaDescription)
         <meta property="og:description" content="{{ $metaDescription }}">
     @endif
-    @if ($heroImage)
-        <meta property="og:image" content="{{ $heroImage }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    @if ($metaImage)
+        <meta property="og:image" content="{{ $metaImage }}">
     @endif
-    <meta name="twitter:card" content="{{ $heroImage ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:card" content="{{ $metaImage ? 'summary_large_image' : 'summary' }}">
     <meta name="twitter:title" content="{{ $metaTitle }}">
     @if ($metaDescription)
         <meta name="twitter:description" content="{{ $metaDescription }}">
@@ -60,7 +72,10 @@
                         softBg: '#F8FAFC',
                     },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: [{!! collect(explode(',', $font['stack']))->map(fn ($f) => "'".trim($f, " '\"")."'")->implode(', ') !!}],
+                    },
+                    borderRadius: {
+                        brand: '{{ $radiusValue }}',
                     },
                     boxShadow: {
                         soft: '0 10px 40px -10px rgba(0,0,0,0.06)',
@@ -70,9 +85,9 @@
             },
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family={{ $font['google'] }}&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: {!! $font['stack'] !!}; }
 
         .reveal {
             opacity: 0;

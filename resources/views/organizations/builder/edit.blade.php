@@ -516,6 +516,44 @@
                                             Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
                                             <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
                                         </a>
+                                    @elseif ($field === 'stats' && $section->key === 'tentang-organisasi')
+                                        <div x-data="{ items: @js($section->content['stats'] ?? []) }" class="space-y-2">
+                                            <template x-for="(item, index) in items" :key="index">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="text" placeholder="Angka" x-model="item.value"
+                                                        :name="`content[stats][${index}][value]`"
+                                                        class="w-24 shrink-0 rounded-xl border border-gray-200 px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                                    <input type="text" placeholder="Label" x-model="item.label"
+                                                        :name="`content[stats][${index}][label]`"
+                                                        class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                                    <button type="button" @click="items.splice(index, 1)"
+                                                        class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <button type="button" :disabled="items.length >= 3"
+                                                @click="items.push({ value: '', label: '' })"
+                                                class="w-full rounded-xl border border-dashed border-gray-200 px-3.5 py-2.5 text-xs font-semibold text-gray-500 hover:border-primary/40 hover:text-primary transition disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500">
+                                                + Tambah statistik (maks 3)
+                                            </button>
+                                        </div>
+                                    @elseif ($field === 'times' && $section->key === 'jadwal-salat')
+                                        @php
+                                            $prayerLabels = ['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'];
+                                            $currentTimes = $section->content['times'] ?? [];
+                                        @endphp
+                                        <div class="space-y-2">
+                                            @foreach ($prayerLabels as $i => $label)
+                                                <div class="flex items-center gap-2">
+                                                    <input type="hidden" name="content[times][{{ $i }}][label]" value="{{ $label }}">
+                                                    <span class="w-20 shrink-0 text-sm text-gray-600">{{ $label }}</span>
+                                                    <input type="time" name="content[times][{{ $i }}][time]"
+                                                        value="{{ $currentTimes[$i]['time'] ?? '' }}"
+                                                        class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     @elseif (in_array($field, ['items', 'stats', 'times'], true))
                                         <div
                                             class="w-full rounded-xl border border-dashed border-gray-200 bg-gray-50 px-3.5 py-3 text-xs text-gray-400 flex items-center gap-2">

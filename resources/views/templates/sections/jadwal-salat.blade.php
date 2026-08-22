@@ -7,7 +7,7 @@
 
 <section class="py-10 -mt-1">
     <div class="max-w-6xl mx-auto px-6">
-        <div class="reveal bg-primary rounded-2xl p-6 shadow-float">
+        <div class="reveal bg-primary rounded-brand p-6 shadow-float">
             <div class="flex items-center justify-between mb-4 text-white/80 text-xs">
                 <span>{{ $content['title'] ?? 'Jadwal Salat Hari Ini' }}</span>
                 @if (! empty($content['location']))

@@ -1,10 +1,16 @@
 @php
-    // Each template can carry its own brand tokens (structure.brand.primary/secondary) so
-    // Ortom templates (NA, Pemuda, Tapak Suci, HW, IMM, IPM) render in their own identity
-    // colors instead of the default Muhammadiyah blue/green.
+    // Each template can carry its own brand tokens (structure.brand.primary/secondary/font/
+    // radius) so Ortom templates (NA, Pemuda, Tapak Suci, HW, IMM, IPM) render in their own
+    // identity instead of the default Muhammadiyah blue/green. Kept in sync deliberately with
+    // organizations/pages/_document.blade.php (same brand token injection, but sourced from
+    // $organization instead of $template->structure['brand']) — update both together.
     $brand = $template->structure['brand'] ?? [];
     $primaryColor = $brand['primary'] ?? '#2C368B';
     $secondaryColor = $brand['secondary'] ?? '#079C4E';
+    $fontKey = $brand['font'] ?? 'Plus Jakarta Sans';
+    $font = config("branding.fonts.$fontKey") ?? config('branding.fonts.'.array_key_first(config('branding.fonts')));
+    $radiusToken = $brand['radius'] ?? 'soft';
+    $radiusValue = config("branding.radii.$radiusToken") ?? config('branding.radii.'.array_key_first(config('branding.radii')));
 
     $hexToRgb = function (string $hex): string {
         $hex = ltrim($hex, '#');
@@ -34,7 +40,10 @@
                         softBg: '#F8FAFC',
                     },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: [{!! collect(explode(',', $font['stack']))->map(fn ($f) => "'".trim($f, " '\"")."'")->implode(', ') !!}],
+                    },
+                    borderRadius: {
+                        brand: '{{ $radiusValue }}',
                     },
                     boxShadow: {
                         soft: '0 10px 40px -10px rgba(0,0,0,0.06)',
@@ -44,9 +53,9 @@
             },
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family={{ $font['google'] }}&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: {!! $font['stack'] !!}; }
 
         /* Scroll-reveal: elements start hidden/offset, JS below flips them visible on entering the viewport. */
         .reveal {

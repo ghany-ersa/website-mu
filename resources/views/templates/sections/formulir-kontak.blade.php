@@ -12,11 +12,11 @@
         @endif
         <div class="reveal space-y-4 text-left" style="transition-delay: 120ms">
             <input type="text" disabled placeholder="Nama"
-                   class="w-full h-11 rounded-lg bg-white border border-gray-200 px-4 text-sm text-gray-400 transition-colors focus-within:border-primary">
+                   class="w-full h-11 rounded-brand bg-white border border-gray-200 px-4 text-sm text-gray-400 transition-colors focus-within:border-primary">
             <input type="text" disabled placeholder="Email"
-                   class="w-full h-11 rounded-lg bg-white border border-gray-200 px-4 text-sm text-gray-400">
+                   class="w-full h-11 rounded-brand bg-white border border-gray-200 px-4 text-sm text-gray-400">
             <textarea disabled placeholder="Pesan" rows="4"
-                      class="w-full rounded-lg bg-white border border-gray-200 px-4 py-3 text-sm text-gray-400"></textarea>
+                      class="w-full rounded-brand bg-white border border-gray-200 px-4 py-3 text-sm text-gray-400"></textarea>
             <button class="w-full py-3 rounded-full bg-primary text-white font-semibold transition-transform duration-200 hover:scale-[1.02]">
                 Kirim Pesan
             </button>

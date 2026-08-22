@@ -35,7 +35,7 @@
         </div>
 
         <div class="reveal relative" style="transition-delay: 120ms">
-            <div class="animate-float rounded-3xl overflow-hidden shadow-float">
+            <div class="animate-float rounded-brand overflow-hidden shadow-float">
                 @if (! empty($content['image']))
                     <img src="{{ $content['image'] }}" alt="{{ $content['headline'] ?? '' }}" class="w-full aspect-[4/3] object-cover">
                 @else

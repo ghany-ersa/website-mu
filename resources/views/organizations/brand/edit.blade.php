@@ -73,11 +73,38 @@
                     </div>
                 </div>
 
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label for="font_family" class="block text-sm font-semibold text-gray-700 mb-1">Jenis Font</label>
+                        <select name="font_family" id="font_family" x-model="fontFamily"
+                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
+                            @foreach (array_keys(config('branding.fonts')) as $font)
+                                <option value="{{ $font }}" style="font-family: {{ config("branding.fonts.$font.stack") }}">{{ $font }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Gaya Sudut</label>
+                        <div class="flex gap-2">
+                            @foreach (['sharp' => 'Tajam', 'soft' => 'Lembut', 'full' => 'Bulat'] as $token => $label)
+                                <button type="button" @click="borderRadius = '{{ $token }}'"
+                                        class="flex-1 px-3 py-2.5 border text-sm font-semibold transition"
+                                        :class="borderRadius === '{{ $token }}' ? 'border-primary text-primary bg-primary/5' : 'border-gray-200 text-gray-500 hover:border-gray-300'"
+                                        style="border-radius: {{ config("branding.radii.$token") }}">
+                                    {{ $label }}
+                                </button>
+                            @endforeach
+                        </div>
+                        <input type="hidden" name="border_radius" x-model="borderRadius">
+                    </div>
+                </div>
+
                 <div>
                     <p class="text-xs font-semibold text-gray-500 mb-2">Pratinjau</p>
-                    <div class="rounded-xl border border-gray-200 p-4 flex flex-wrap items-center gap-3">
-                        <span class="px-4 py-2 rounded-full text-white text-sm font-semibold" :style="`background-color: ${primaryColor}`">Tombol Primer</span>
-                        <span class="px-4 py-2 rounded-full text-white text-sm font-semibold" :style="`background-color: ${secondaryColor}`">Tombol Sekunder</span>
+                    <div class="rounded-xl border border-gray-200 p-4 flex flex-wrap items-center gap-3" :style="`font-family: ${fontStack()}`">
+                        <span class="px-4 py-2 text-white text-sm font-semibold" :style="`background-color: ${primaryColor}; border-radius: ${radiusValue()}`">Tombol Primer</span>
+                        <span class="px-4 py-2 text-white text-sm font-semibold" :style="`background-color: ${secondaryColor}; border-radius: ${radiusValue()}`">Tombol Sekunder</span>
                         <span class="text-sm font-bold" :style="`color: ${primaryColor}`">Contoh Judul</span>
                     </div>
                 </div>
@@ -180,6 +207,16 @@
                 logoUrl: @json($organization->logo ?? ''),
                 primaryColor: @json($organization->primaryColor()),
                 secondaryColor: @json($organization->secondaryColor()),
+                fontFamily: @json($organization->fontFamily()),
+                borderRadius: @json($organization->borderRadius()),
+                fontStacks: @json(collect(config('branding.fonts'))->map->stack),
+                radii: @json(config('branding.radii')),
+                fontStack() {
+                    return this.fontStacks[this.fontFamily] ?? this.fontStacks[Object.keys(this.fontStacks)[0]];
+                },
+                radiusValue() {
+                    return this.radii[this.borderRadius] ?? Object.values(this.radii)[0];
+                },
                 // Mirrors App\Rules\NotTooLightColor (WCAG relative luminance, same 0.85
                 // threshold) so the form warns before submit instead of only after a
                 // validation round-trip.

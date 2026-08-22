@@ -139,5 +139,8 @@ require __DIR__.'/auth.php';
 if ($tenantDomain = config('tenancy.domain')) {
     Route::domain('{organization_slug}.'.$tenantDomain)->group(function () {
         Route::get('/', [OrganizationSiteController::class, 'show'])->name('tenant.home');
+        Route::get('/berita/{post_slug}', [OrganizationSiteController::class, 'post'])->name('tenant.posts.show');
+        Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
+        Route::get('/agenda/{agenda}', [OrganizationSiteController::class, 'agenda'])->name('tenant.agendas.show');
     });
 }

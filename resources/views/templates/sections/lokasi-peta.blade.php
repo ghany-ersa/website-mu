@@ -10,7 +10,7 @@
         @else
             <div class="mb-8"></div>
         @endif
-        <div class="reveal aspect-[21/9] rounded-2xl flex items-center justify-center text-gray-400 text-sm overflow-hidden"
+        <div class="reveal aspect-[21/9] rounded-brand flex items-center justify-center text-gray-400 text-sm overflow-hidden"
              style="transition-delay: 120ms; background-color: #F3F4F6; background-image: radial-gradient(rgba(44,54,139,0.12) 1.5px, transparent 1.5px); background-size: 18px 18px;">
             Peta lokasi
         </div>

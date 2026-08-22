@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'primary_color',
     'secondary_color',
     'logo',
+    'font_family',
+    'border_radius',
     'phone',
     'email',
     'whatsapp',
@@ -81,6 +83,28 @@ class Organization extends Model
         return $this->secondary_color
             ?? $this->template?->structure['brand']['secondary'] ?? null
             ?? '#079C4E';
+    }
+
+    /**
+     * Effective font family key (see config('branding.fonts')) — same 3-tier fallback
+     * chain as primaryColor(): own override, then template default, then platform default.
+     */
+    public function fontFamily(): string
+    {
+        return $this->font_family
+            ?? $this->template?->structure['brand']['font'] ?? null
+            ?? 'Plus Jakarta Sans';
+    }
+
+    /**
+     * Effective border radius token (see config('branding.radii')) — same fallback chain
+     * as primaryColor()/fontFamily().
+     */
+    public function borderRadius(): string
+    {
+        return $this->border_radius
+            ?? $this->template?->structure['brand']['radius'] ?? null
+            ?? 'soft';
     }
 
     /**
@@ -183,8 +207,12 @@ class Organization extends Model
      * a logo is set, since logo (unlike the colors) is never auto-filled from a template.
      * Contact is "done" once any of phone/email/whatsapp is set — there's no single
      * required channel, any one of them is a meaningful signal the org filled this in.
-     * Officers isn't a checklist item: it's managed from within the builder (struktur-
-     * pengurus section's "Kelola Pengurus →" link) rather than a separate setup step.
+     * Content is "done" once at least one page has at least one section — this differs
+     * from "a page exists" (always true, not meaningful) because it only becomes true once
+     * the org has actually saved something in the builder (adding, editing, or keeping a
+     * cloned template section counts as saved intent). Officers isn't a checklist item:
+     * it's managed from within the builder (struktur-pengurus section's "Kelola Pengurus →"
+     * link) rather than a separate setup step.
      *
      * @return array<string, bool>
      */
@@ -193,6 +221,7 @@ class Organization extends Model
         return [
             'brand' => filled($this->logo),
             'contact' => filled($this->phone) || filled($this->email) || filled($this->whatsapp),
+            'content' => $this->pages()->whereHas('sections')->exists(),
             'published' => $this->status === OrganizationStatus::Published,
         ];
     }

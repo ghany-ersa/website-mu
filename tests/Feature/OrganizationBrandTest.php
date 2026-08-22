@@ -183,7 +183,7 @@ class OrganizationBrandTest extends TestCase
     {
         $organization = Organization::factory()->create(['logo' => null]);
         $this->assertSame(
-            ['brand' => false, 'contact' => false, 'published' => false],
+            ['brand' => false, 'contact' => false, 'content' => false, 'published' => false],
             $organization->onboardingChecklist()
         );
 
@@ -192,6 +192,52 @@ class OrganizationBrandTest extends TestCase
         $checklist = $organization->fresh()->onboardingChecklist();
         $this->assertTrue($checklist['brand']);
         $this->assertTrue($checklist['contact']);
+        $this->assertFalse($checklist['content']);
         $this->assertFalse($checklist['published']);
+    }
+
+    public function test_onboarding_checklist_content_is_done_once_a_page_has_a_section(): void
+    {
+        $organization = Organization::factory()->create();
+        $this->assertFalse($organization->onboardingChecklist()['content']);
+
+        $page = $organization->pages()->create(['name' => 'Beranda', 'slug' => 'beranda', 'order' => 0]);
+        $page->sections()->create(['key' => 'hero', 'content' => [], 'order' => 0]);
+
+        $this->assertTrue($organization->fresh()->onboardingChecklist()['content']);
+    }
+
+    public function test_font_family_and_border_radius_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.brand.update', $organization), [
+                'font_family' => 'Inter',
+                'border_radius' => 'sharp',
+            ])
+            ->assertRedirect()
+            ->assertSessionDoesntHaveErrors();
+
+        $organization->refresh();
+        $this->assertSame('Inter', $organization->font_family);
+        $this->assertSame('sharp', $organization->border_radius);
+        $this->assertSame('Inter', $organization->fontFamily());
+        $this->assertSame('sharp', $organization->borderRadius());
+    }
+
+    public function test_invalid_font_family_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.brand.update', $organization), [
+                'font_family' => 'Comic Sans',
+            ])
+            ->assertSessionHasErrors('font_family');
     }
 }

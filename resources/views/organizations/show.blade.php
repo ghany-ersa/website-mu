@@ -78,7 +78,7 @@
         $checklist = $organization->onboardingChecklist();
         $checklistDone = count(array_filter($checklist));
     @endphp
-    @unless ($checklist['brand'] && $checklist['contact'] && $checklist['published'])
+    @unless ($checklist['brand'] && $checklist['contact'] && $checklist['content'] && $checklist['published'])
         <div class="bg-white rounded-2xl shadow-soft p-6 mb-8">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-bold text-gray-800">Langkah Awal</h2>
@@ -111,11 +111,24 @@
                         <p class="text-xs text-gray-400">Telepon, WhatsApp, atau email untuk dihubungi pengunjung</p>
                     </div>
                 </a>
+                <a href="{{ route('organizations.builder.edit', $organization) }}"
+                    class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['content'] ? 'bg-secondary/5' : 'bg-gray-50 hover:bg-gray-100' }} transition">
+                    <span
+                        class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold {{ $checklist['content'] ? 'bg-secondary text-white' : 'bg-white border border-gray-300 text-gray-400' }}">
+                        {{ $checklist['content'] ? '✓' : '3' }}
+                    </span>
+                    <div class="min-w-0">
+                        <p
+                            class="text-sm font-semibold {{ $checklist['content'] ? 'text-gray-500 line-through' : 'text-gray-800' }}">
+                            Susun Halaman</p>
+                        <p class="text-xs text-gray-400">Kelola konten dan section situs Anda di builder</p>
+                    </div>
+                </a>
                 <div
                     class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['published'] ? 'bg-secondary/5' : 'bg-gray-50' }}">
                     <span
                         class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold {{ $checklist['published'] ? 'bg-secondary text-white' : 'bg-white border border-gray-300 text-gray-400' }}">
-                        {{ $checklist['published'] ? '✓' : '3' }}
+                        {{ $checklist['published'] ? '✓' : '4' }}
                     </span>
                     <div class="min-w-0 flex-1">
                         <p

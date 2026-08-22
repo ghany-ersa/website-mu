@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\PublishStatus;
+use App\Models\Agenda;
+use App\Models\Announcement;
 use App\Models\Organization;
 use Illuminate\View\View;
 
@@ -16,9 +19,7 @@ class OrganizationSiteController extends Controller
      */
     public function show(string $organization_slug): View
     {
-        $organization = Organization::where('slug', $organization_slug)
-            ->where('status', OrganizationStatus::Published)
-            ->firstOrFail();
+        $organization = $this->publishedOrganization($organization_slug);
 
         $organization->load('pages.sections');
         $page = $organization->pages->firstWhere('is_home', true) ?? $organization->pages->first();
@@ -28,5 +29,58 @@ class OrganizationSiteController extends Controller
             'organization' => $organization,
             'page' => $page,
         ]);
+    }
+
+    public function post(string $organization_slug, string $post_slug): View
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        $post = $organization->posts()
+            ->published()
+            ->where('slug', $post_slug)
+            ->firstOrFail();
+
+        return view('organizations.public.post', [
+            'organization' => $organization,
+            'post' => $post,
+        ]);
+    }
+
+    public function announcement(string $organization_slug, Announcement $announcement): View
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        abort_unless($announcement->organization_id === $organization->id, 404);
+        abort_unless($announcement->status === PublishStatus::Published, 404);
+
+        return view('organizations.public.announcement', [
+            'organization' => $organization,
+            'announcement' => $announcement,
+        ]);
+    }
+
+    public function agenda(string $organization_slug, Agenda $agenda): View
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        abort_unless($agenda->organization_id === $organization->id, 404);
+        abort_unless($agenda->status === PublishStatus::Published, 404);
+
+        return view('organizations.public.agenda', [
+            'organization' => $organization,
+            'agenda' => $agenda,
+        ]);
+    }
+
+    /**
+     * Shared published-organization lookup — status filter lives here so an
+     * unpublished organization's subdomain/detail pages 404 identically to
+     * one that was never claimed, instead of leaking its existence.
+     */
+    private function publishedOrganization(string $organization_slug): Organization
+    {
+        return Organization::where('slug', $organization_slug)
+            ->where('status', OrganizationStatus::Published)
+            ->firstOrFail();
     }
 }

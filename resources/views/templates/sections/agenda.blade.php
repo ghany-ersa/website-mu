@@ -13,6 +13,9 @@
             'date_year' => $agenda->starts_at->format('Y'),
             'location' => $agenda->location,
             'time' => $agenda->starts_at->format('H:i'),
+            'url' => \Illuminate\Support\Facades\Route::has('tenant.agendas.show')
+                ? route('tenant.agendas.show', ['organization_slug' => $organization->slug, 'agenda' => $agenda->id])
+                : '#',
         ])
         : ($content['items'] ?? array_fill(0, $limit, []));
 @endphp
@@ -24,9 +27,10 @@
         </h2>
         <div class="space-y-4">
             @foreach ($items as $item)
-                <div class="reveal bg-white rounded-2xl p-5 flex items-center gap-5 shadow-soft transition-all duration-300 hover:shadow-float hover:-translate-y-0.5"
-                     style="transition-delay: {{ $loop->index * 80 }}ms">
-                    <div class="w-14 h-14 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center leading-none">
+                <a href="{{ $item['url'] ?? '#' }}"
+                   class="reveal bg-white rounded-brand p-5 flex items-center gap-5 shadow-soft transition-all duration-300 hover:shadow-float hover:-translate-y-0.5"
+                   style="transition-delay: {{ $loop->index * 80 }}ms">
+                    <div class="w-14 h-14 shrink-0 rounded-brand bg-primary text-white flex flex-col items-center justify-center leading-none">
                         <span class="text-lg font-extrabold">{{ $item['date_day'] ?? (10 + $loop->iteration) }}</span>
                         <span class="text-[10px] uppercase">{{ $item['date_month'] ?? 'Bulan' }}</span>
                     </div>
@@ -38,7 +42,7 @@
                             @if (! empty($item['time'])) &middot; {{ $item['time'] }} @endif
                         </p>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     </div>

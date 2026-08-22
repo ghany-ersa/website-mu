@@ -25,7 +25,7 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             @foreach ($items as $item)
                 <div class="reveal group text-center" style="transition-delay: {{ $loop->index * 100 }}ms">
-                    <div class="aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-3 transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-float">
+                    <div class="aspect-square rounded-brand overflow-hidden bg-gray-100 mb-3 transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-float">
                         @if (! empty($item['photo']))
                             <img src="{{ $item['photo'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
                         @endif
