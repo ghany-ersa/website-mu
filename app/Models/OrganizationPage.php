@@ -41,4 +41,40 @@ class OrganizationPage extends Model
     {
         return $this->hasMany(OrganizationSection::class)->orderBy('order');
     }
+
+    /**
+     * Every page must always render exactly one footer, last, regardless of what the
+     * `order` column says — sorts non-footer sections by `order` first and appends the
+     * footer row itself, so a stray reorder request can never move it out of last place.
+     * Callers that need this (the render partial, the builder sidebar) should use this
+     * instead of the raw sections() relation.
+     *
+     * @return \Illuminate\Support\Collection<int, OrganizationSection>
+     */
+    public function sectionsWithFooterLast(): \Illuminate\Support\Collection
+    {
+        $sections = $this->sections;
+
+        return $sections->where('key', '!=', 'footer')
+            ->values()
+            ->concat($sections->where('key', 'footer')->values());
+    }
+
+    /**
+     * Create this page's footer section if it doesn't already have one. Safe to call
+     * repeatedly (e.g. on every page-creation path) — see config/page-builder.php's
+     * `locked` doc comment for why footer must always exist and can't be user-managed.
+     */
+    public function ensureFooter(): void
+    {
+        if ($this->sections()->where('key', 'footer')->exists()) {
+            return;
+        }
+
+        $this->sections()->create([
+            'key' => 'footer',
+            'content' => config('page-builder.sections.footer.defaults', []),
+            'order' => $this->sections()->max('order') + 1,
+        ]);
+    }
 }

@@ -174,4 +174,65 @@ class OrganizationBuilderTest extends TestCase
         $section = $page->sections()->first();
         $this->assertSame('Agenda Kegiatan', $section->content['title']);
     }
+
+    public function test_a_new_blank_page_is_seeded_with_a_footer(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->post(route('organizations.pages.store', $organization), ['name' => 'Kontak', 'slug' => 'kontak'])
+            ->assertRedirect();
+
+        $page = $organization->pages()->where('slug', 'kontak')->firstOrFail();
+        $this->assertTrue($page->sections()->where('key', 'footer')->exists());
+    }
+
+    public function test_footer_section_cannot_be_added_updated_duplicated_or_deleted(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $footer = $page->sections()->create(['key' => 'footer', 'content' => [], 'order' => 0]);
+
+        $this->actingAs($user)
+            ->post(route('organizations.sections.store', [$organization, $page]), ['key' => 'footer'])
+            ->assertSessionHasErrors('key');
+
+        $this->actingAs($user)
+            ->patch(route('organizations.sections.update', [$organization, $footer]), ['is_visible' => '0'])
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->post(route('organizations.sections.duplicate', [$organization, $footer]))
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->delete(route('organizations.sections.destroy', [$organization, $footer]))
+            ->assertForbidden();
+
+        $this->assertSame(1, $page->sections()->count());
+    }
+
+    public function test_footer_always_renders_last_regardless_of_reorder_request(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $footer = $page->sections()->create(['key' => 'footer', 'content' => [], 'order' => 1]);
+        $hero = $page->sections()->create(['key' => 'hero', 'content' => [], 'order' => 0]);
+
+        // Attempt to smuggle the footer to the front of the order.
+        $this->actingAs($user)
+            ->post(route('organizations.sections.reorder', [$organization, $page]), [
+                'section_ids' => [$footer->id, $hero->id],
+            ])
+            ->assertOk();
+
+        $orderedKeys = $page->sections()->get()->pluck('key')->all();
+        $this->assertSame(['hero', 'footer'], $orderedKeys);
+    }
 }

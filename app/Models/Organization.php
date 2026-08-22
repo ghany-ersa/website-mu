@@ -260,12 +260,14 @@ class Organization extends Model
             return;
         }
 
-        $this->pages()->create([
+        $page = $this->pages()->create([
             'name' => 'Beranda',
             'slug' => 'beranda',
             'order' => 0,
             'is_home' => true,
         ]);
+
+        $page->ensureFooter();
     }
 
     /**
@@ -296,5 +298,7 @@ class Organization extends Model
                 'order' => $sectionOrder,
             ]);
         }
+
+        $page->ensureFooter();
     }
 }

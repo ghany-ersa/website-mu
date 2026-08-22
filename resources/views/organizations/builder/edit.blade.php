@@ -316,8 +316,8 @@
                     </span>
                 </div>
 
-                <ul id="section-list" class="flex-1 overflow-y-auto px-2.5 pb-3 space-y-1">
-                    @foreach ($currentPage->sections as $section)
+                <ul id="section-list" class="flex-1 overflow-y-auto px-2.5 pt-2.5 pb-1 space-y-1">
+                    @foreach ($currentPage->sections->where('key', '!=', 'footer') as $section)
                         <li data-section-id="{{ $section->id }}"
                             data-is-visible="{{ $section->is_visible ? '1' : '0' }}"
                             @click="selectSection({{ $section->id }})"
@@ -390,12 +390,40 @@
                         </li>
                     @endforeach
 
-                    @if ($currentPage->sections->isEmpty())
+                    @if ($currentPage->sections->where('key', '!=', 'footer')->isEmpty())
                         <li class="px-3 py-10 text-center">
                             <p class="text-sm text-gray-400">Belum ada section.<br>Tambahkan dari dropdown di atas.</p>
                         </li>
                     @endif
                 </ul>
+
+                {{-- Footer is locked (config/page-builder.php) — always present, always last,
+                     not draggable/duplicable/deletable, so it's rendered outside #section-list
+                     (Sortable.js's container) with no drag handle or action buttons. --}}
+                @php $footerSection = $currentPage->sections->firstWhere('key', 'footer'); @endphp
+                @if ($footerSection)
+                    {{-- Not clickable (no selectSection() call) — footer has no editable fields
+                         and is locked server-side (OrganizationSectionController::ensureNotLocked()),
+                         so there's nothing a properties panel could usefully open here. --}}
+                    <div class="px-2.5 pb-2.5 pt-1 border-t border-gray-100">
+                        <div class="rounded-xl px-2.5 py-2.5 flex items-center gap-2 cursor-default opacity-70">
+                            <span class="shrink-0 px-0.5 text-gray-300" title="Selalu di posisi terakhir, tidak dapat dihapus">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                    <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                            <span class="section-icon-wrap shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-gray-100 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h9.5A2.25 2.25 0 0 1 17 4.25v11.5A2.25 2.25 0 0 1 14.75 18h-9.5A2.25 2.25 0 0 1 3 15.75V4.25ZM5.25 3.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h9.5a.75.75 0 0 0 .75-.75V4.25a.75.75 0 0 0-.75-.75h-9.5ZM6 7a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 6 7Zm0 3a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 6 10Zm0 3a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5A.75.75 0 0 1 6 13Z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                            <span class="flex-1 min-w-0 text-left text-sm font-semibold truncate text-gray-500">
+                                Footer
+                            </span>
+                            <span class="text-[10px] font-semibold text-gray-400 bg-gray-100 rounded-full px-2 py-0.5 shrink-0">Terkunci</span>
+                        </div>
+                    </div>
+                @endif
             </aside>
 
             {{-- Canvas: rendered in an isolated <iframe> so it can use the organization's own

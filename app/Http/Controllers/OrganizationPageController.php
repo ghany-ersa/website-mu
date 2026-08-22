@@ -27,6 +27,8 @@ class OrganizationPageController extends Controller
             'order' => $organization->pages()->max('order') + 1,
         ]);
 
+        $page->ensureFooter();
+
         return redirect()
             ->route('organizations.builder.page', [$organization, $page])
             ->with('status', 'Halaman berhasil dibuat.');

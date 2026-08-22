@@ -8,6 +8,11 @@
 // with the same fallback text the partial itself would render for an empty field — so a new
 // section already looks/reads right without the user having to retype what's effectively
 // already there, and the builder's edit form isn't misleadingly blank.
+//
+// `locked` (bool, default false), when true, marks a section the builder UI must not offer in
+// the "Tambah Section" picker and must not let the user delete, duplicate, or drag-reorder — see
+// OrganizationPage::footerSection()/ensureFooter() and OrganizationSectionController for the
+// enforcement. Currently only `footer` is locked: every page must always end with exactly one.
 return [
 
     'sections' => [
@@ -22,6 +27,7 @@ return [
         'footer' => [
             'label' => 'Footer',
             'fields' => [],
+            'locked' => true,
         ],
         'tentang-organisasi' => [
             'label' => 'Tentang Organisasi',

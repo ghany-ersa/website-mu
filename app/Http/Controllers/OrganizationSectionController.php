@@ -25,14 +25,29 @@ class OrganizationSectionController extends Controller
     }
 
     /**
+     * Locked sections (currently just `footer`, see config/page-builder.php) must always
+     * exist, stay last, and can't be edited into a different key/position by the user —
+     * so any mutation the builder normally allows (delete, duplicate, hide) is rejected here.
+     */
+    private function ensureNotLocked(OrganizationSection $section): void
+    {
+        abort_if(config('page-builder.sections.'.$section->key.'.locked', false), 403, 'Section ini tidak dapat diubah.');
+    }
+
+    /**
      * Append a new section of the given key to the page, using its registry defaults.
      */
     public function store(Request $request, Organization $organization, OrganizationPage $page): RedirectResponse
     {
         $this->authorize('update', $organization);
 
+        $addableKeys = array_keys(array_filter(
+            config('page-builder.sections'),
+            fn (array $meta) => empty($meta['locked'])
+        ));
+
         $validated = $request->validate([
-            'key' => ['required', 'string', 'in:'.implode(',', array_keys(config('page-builder.sections')))],
+            'key' => ['required', 'string', 'in:'.implode(',', $addableKeys)],
         ]);
 
         $page->sections()->create([
@@ -58,6 +73,7 @@ class OrganizationSectionController extends Controller
     {
         $this->authorize('update', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
+        $this->ensureNotLocked($section);
 
         $fields = config('page-builder.sections.'.$section->key.'.fields', []);
 
@@ -95,6 +111,7 @@ class OrganizationSectionController extends Controller
     {
         $this->authorize('update', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
+        $this->ensureNotLocked($section);
 
         $page = $section->page;
         $section->delete();
@@ -111,6 +128,7 @@ class OrganizationSectionController extends Controller
     {
         $this->authorize('update', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
+        $this->ensureNotLocked($section);
 
         $page = $section->page;
 
@@ -147,8 +165,22 @@ class OrganizationSectionController extends Controller
             'section_ids.*' => ['integer', 'exists:organization_sections,id'],
         ]);
 
-        foreach ($validated['section_ids'] as $index => $sectionId) {
+        // The footer is locked (see config/page-builder.php) and must always render last,
+        // so any footer id the client sends is silently dropped rather than being allowed
+        // to move it — the drag-and-drop UI shouldn't offer it as draggable in the first
+        // place, but this is the authoritative guard regardless of what the request sends.
+        $footerId = $page->sections()->where('key', 'footer')->value('id');
+        $orderedIds = array_values(array_filter(
+            $validated['section_ids'],
+            fn (int $id) => $id !== $footerId
+        ));
+
+        foreach ($orderedIds as $index => $sectionId) {
             $page->sections()->where('id', $sectionId)->update(['order' => $index]);
+        }
+
+        if ($footerId) {
+            $page->sections()->where('id', $footerId)->update(['order' => count($orderedIds)]);
         }
 
         $page->load('sections');
