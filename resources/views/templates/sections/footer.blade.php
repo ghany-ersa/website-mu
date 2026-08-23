@@ -33,9 +33,9 @@
         <div>
             <div class="flex items-center gap-3 mb-4">
                 @if ($orgLogo)
-                    <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-12 h-12 rounded-full object-contain bg-white ring-1 ring-white/10">
+                    <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-12 h-12 rounded-brand object-contain bg-white ring-1 ring-white/10">
                 @else
-                    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    <div class="w-12 h-12 rounded-brand bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
                         {{ mb_substr($orgName, 0, 1) }}
                     </div>
                 @endif
@@ -46,7 +46,7 @@
                 <div class="flex items-center gap-2.5">
                     @if ($instagramUrl)
                         <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" aria-label="Instagram {{ $orgName }}"
-                           class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
+                           class="w-9 h-9 rounded-brand bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                                 <path fill-rule="evenodd" d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.24 2.22.4.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.35 1.05.4 2.22.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.8-.4 2.22a3.7 3.7 0 0 1-.9 1.38 3.7 3.7 0 0 1-1.38.9c-.42.16-1.05.35-2.22.4-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.24-2.22-.4a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.35-1.05-.4-2.22-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.24-1.8.4-2.22.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.05-.35 2.22-.4C8.42 2.17 8.8 2.16 12 2.16Zm0 1.98c-3.14 0-3.5.01-4.74.07-.95.04-1.47.2-1.81.34-.46.18-.78.39-1.13.73-.34.35-.55.67-.73 1.13-.14.34-.3.86-.34 1.81-.06 1.24-.07 1.6-.07 4.74s.01 3.5.07 4.74c.04.95.2 1.47.34 1.81.18.46.39.78.73 1.13.35.34.67.55 1.13.73.34.14.86.3 1.81.34 1.24.06 1.6.07 4.74.07s3.5-.01 4.74-.07c.95-.04 1.47-.2 1.81-.34.46-.18.78-.39 1.13-.73.34-.35.55-.67.73-1.13.14-.34.3-.86.34-1.81.06-1.24.07-1.6.07-4.74s-.01-3.5-.07-4.74c-.04-.95-.2-1.47-.34-1.81a3.03 3.03 0 0 0-.73-1.13 3.03 3.03 0 0 0-1.13-.73c-.34-.14-.86-.3-1.81-.34-1.24-.06-1.6-.07-4.74-.07Zm0 3.37a5.49 5.49 0 1 1 0 10.98 5.49 5.49 0 0 1 0-10.98Zm0 9.05a3.56 3.56 0 1 0 0-7.12 3.56 3.56 0 0 0 0 7.12Zm6.99-9.27a1.28 1.28 0 1 1-2.57 0 1.28 1.28 0 0 1 2.57 0Z" clip-rule="evenodd" />
                             </svg>
@@ -54,7 +54,7 @@
                     @endif
                     @if ($facebookUrl)
                         <a href="{{ $facebookUrl }}" target="_blank" rel="noopener" aria-label="Facebook {{ $orgName }}"
-                           class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
+                           class="w-9 h-9 rounded-brand bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                                 <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.77l-.44 2.91h-2.33V22C18.34 21.24 22 17.08 22 12.06Z" />
                             </svg>
@@ -111,7 +111,7 @@
         <div class="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
             <span>&copy; {{ date('Y') }} {{ $orgName }}. Seluruh hak cipta dilindungi.</span>
             <a href="https://website-mu.id" target="_blank" rel="noopener"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-brand bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 text-secondary">
                     <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
                 </svg>

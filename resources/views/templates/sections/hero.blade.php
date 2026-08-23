@@ -7,7 +7,7 @@
     <div class="relative max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
             @if (! empty($content['badge']))
-                <span class="reveal inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4">
+                <span class="reveal inline-block px-3 py-1 rounded-brand bg-primary/10 text-primary text-xs font-semibold mb-4">
                     {{ $content['badge'] }}
                 </span>
             @endif
@@ -22,12 +22,12 @@
 
             <div class="reveal flex flex-wrap gap-3" style="transition-delay: 240ms">
                 @if (! empty($content['cta_label']))
-                    <button class="px-6 py-3 rounded-full bg-secondary text-white font-semibold shadow-float transition-transform duration-200 hover:scale-105">
+                    <button class="px-6 py-3 rounded-brand bg-secondary text-white font-semibold shadow-float transition-transform duration-200 hover:scale-105">
                         {{ $content['cta_label'] }}
                     </button>
                 @endif
                 @if (! empty($content['cta_secondary_label']))
-                    <button class="px-6 py-3 rounded-full border border-gray-300 text-gray-700 font-semibold transition-colors duration-200 hover:border-primary hover:text-primary">
+                    <button class="px-6 py-3 rounded-brand border border-gray-300 text-gray-700 font-semibold transition-colors duration-200 hover:border-primary hover:text-primary">
                         {{ $content['cta_secondary_label'] }}
                     </button>
                 @endif

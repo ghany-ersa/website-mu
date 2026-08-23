@@ -10,9 +10,9 @@
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
             @if ($orgLogo)
-                <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-9 h-9 rounded-full object-contain bg-white">
+                <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-9 h-9 rounded-brand object-contain bg-white">
             @else
-                <div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                <div class="w-9 h-9 rounded-brand bg-primary flex items-center justify-center text-white font-bold text-sm">
                     {{ mb_substr($orgName, 0, 1) }}
                 </div>
             @endif
@@ -26,7 +26,7 @@
                 </span>
             @endforeach
         </nav>
-        <button class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold transition-transform duration-200 hover:scale-105 hover:shadow-float">
+        <button class="px-4 py-2 rounded-brand bg-primary text-white text-sm font-semibold transition-transform duration-200 hover:scale-105 hover:shadow-float">
             Hubungi Kami
         </button>
     </div>

@@ -13,7 +13,7 @@
                 <p class="text-gray-600 mb-6">
                     {{ $content['body'] ?? 'Salurkan donasi melalui QRIS atau tautan Lazismu.' }}
                 </p>
-                <button class="px-6 py-3 rounded-full bg-secondary text-white font-semibold transition-transform duration-200 hover:scale-105">
+                <button class="px-6 py-3 rounded-brand bg-secondary text-white font-semibold transition-transform duration-200 hover:scale-105">
                     Donasi Sekarang
                 </button>
             </div>

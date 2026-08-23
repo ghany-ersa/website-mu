@@ -12,7 +12,7 @@
             <p class="reveal text-sm text-white/70 mb-6" style="transition-delay: 120ms">{{ $content['deadline'] }}</p>
         @endif
         @if (! empty($content['cta_label']))
-            <button class="reveal px-6 py-3 rounded-full bg-white text-secondary font-semibold transition-transform duration-200 hover:scale-105"
+            <button class="reveal px-6 py-3 rounded-brand bg-white text-secondary font-semibold transition-transform duration-200 hover:scale-105"
                     style="transition-delay: 160ms">
                 {{ $content['cta_label'] }}
             </button>
