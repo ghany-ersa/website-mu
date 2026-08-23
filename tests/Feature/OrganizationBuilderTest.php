@@ -216,6 +216,35 @@ class OrganizationBuilderTest extends TestCase
         $this->assertSame(1, $page->sections()->count());
     }
 
+    public function test_footer_shows_organization_contact_info_and_platform_watermark(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create([
+            'phone' => '024-1234567',
+            'email' => 'kontak@pcm-ambulu.test',
+            'whatsapp' => '081234567890',
+            'address' => 'Jl. Ambulu No. 1, Jember',
+            'instagram_url' => 'https://instagram.com/pcmambulu',
+            'facebook_url' => 'https://facebook.com/pcmambulu',
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'footer', 'content' => [], 'order' => 0]);
+
+        $response = $this->actingAs($user)
+            ->get(route('organizations.builder.canvas', [$organization, $page]));
+
+        $response->assertOk();
+        $response->assertSee('024-1234567');
+        $response->assertSee('kontak@pcm-ambulu.test');
+        $response->assertSee('081234567890');
+        $response->assertSee('Jl. Ambulu No. 1, Jember');
+        $response->assertSee('https://instagram.com/pcmambulu', false);
+        $response->assertSee('https://facebook.com/pcmambulu', false);
+        $response->assertSee('website-mu.id');
+        $response->assertSee('Seluruh hak cipta dilindungi');
+    }
+
     public function test_footer_always_renders_last_regardless_of_reorder_request(): void
     {
         $user = User::factory()->create();

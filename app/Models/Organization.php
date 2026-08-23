@@ -29,6 +29,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'phone',
     'email',
     'whatsapp',
+    'address',
+    'instagram_url',
+    'facebook_url',
 ])]
 class Organization extends Model
 {

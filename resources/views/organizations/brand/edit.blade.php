@@ -141,6 +141,39 @@
                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
                         @error('email') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="address" class="block text-sm font-semibold text-gray-700 mb-1">Alamat</label>
+                        <input type="text" name="address" id="address" value="{{ old('address', $organization->address) }}"
+                               placeholder="Jl. Contoh No. 1, Ambulu, Jember"
+                               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
+                        @error('address') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-soft p-6 space-y-6 mt-6">
+                <div>
+                    <h2 class="font-bold text-gray-800">Media Sosial</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Tautan resmi {{ $organization->name }}, ditampilkan sebagai ikon di footer situs.</p>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label for="instagram_url" class="block text-sm font-semibold text-gray-700 mb-1">Instagram</label>
+                        <input type="url" name="instagram_url" id="instagram_url" value="{{ old('instagram_url', $organization->instagram_url) }}"
+                               placeholder="https://instagram.com/organisasi"
+                               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
+                        @error('instagram_url') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="facebook_url" class="block text-sm font-semibold text-gray-700 mb-1">Facebook</label>
+                        <input type="url" name="facebook_url" id="facebook_url" value="{{ old('facebook_url', $organization->facebook_url) }}"
+                               placeholder="https://facebook.com/organisasi"
+                               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
+                        @error('facebook_url') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
 

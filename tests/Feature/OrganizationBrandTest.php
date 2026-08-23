@@ -59,6 +59,9 @@ class OrganizationBrandTest extends TestCase
                 'phone' => '0331 123456',
                 'email' => 'kontak@example.test',
                 'whatsapp' => '6281234567890',
+                'address' => 'Jl. Contoh No. 1, Ambulu, Jember',
+                'instagram_url' => 'https://instagram.com/example',
+                'facebook_url' => 'https://facebook.com/example',
             ])
             ->assertRedirect();
 
@@ -69,6 +72,9 @@ class OrganizationBrandTest extends TestCase
         $this->assertSame('0331 123456', $organization->phone);
         $this->assertSame('kontak@example.test', $organization->email);
         $this->assertSame('6281234567890', $organization->whatsapp);
+        $this->assertSame('Jl. Contoh No. 1, Ambulu, Jember', $organization->address);
+        $this->assertSame('https://instagram.com/example', $organization->instagram_url);
+        $this->assertSame('https://facebook.com/example', $organization->facebook_url);
     }
 
     public function test_invalid_email_is_rejected(): void
@@ -82,6 +88,20 @@ class OrganizationBrandTest extends TestCase
                 'email' => 'not-an-email',
             ])
             ->assertSessionHasErrors('email');
+    }
+
+    public function test_invalid_social_urls_are_rejected(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.brand.update', $organization), [
+                'instagram_url' => 'not-a-url',
+                'facebook_url' => 'also-not-a-url',
+            ])
+            ->assertSessionHasErrors(['instagram_url', 'facebook_url']);
     }
 
     public function test_non_member_cannot_view_or_update_brand_settings(): void
