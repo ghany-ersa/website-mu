@@ -3,7 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>website-mu.id - Platform Pembuatan Web & Landing Page Muhammadiyah</title>
+    <title>website-mu.id - Platform Bikin Website Organisasi Muhammadiyah Tanpa Coding</title>
+    <meta name="description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit — tanpa developer, tanpa coding. Pilih template, isi profil, terbitkan gratis ke subdomain website-mu.id atau domain sendiri.">
+    <meta name="keywords" content="website muhammadiyah, website pcm, website pdm, website prm, website masjid, website sekolah muhammadiyah, pembuat website organisasi, no-code website builder, cms muhammadiyah, aisyiyah, ortom">
+    <meta name="author" content="website-mu.id">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url('/') }}">
+
+    <!-- Open Graph / Facebook & WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:site_name" content="website-mu.id">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:title" content="website-mu.id - Platform Bikin Website Organisasi Muhammadiyah Tanpa Coding">
+    <meta property="og:description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit — tanpa developer, tanpa coding. Terbitkan gratis dalam 30 menit.">
+    <meta property="og:image" content="{{ asset('og-image.jpg') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="website-mu.id - Platform Bikin Website Organisasi Muhammadiyah Tanpa Coding">
+    <meta name="twitter:description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit — tanpa developer, tanpa coding.">
+    <meta name="twitter:image" content="{{ asset('og-image.jpg') }}">
+
+    <!-- Structured data: describes website-mu.id itself as a SaaS product, for rich results
+         (sitelinks search box eligibility, knowledge panel signals) — not tenant-site content.
+         Built via json_encode() rather than inline JSON so the schema.org "at"-prefixed keys
+         don't get parsed as Blade directives. -->
+    @php
+        $atContext = '@' . 'context';
+        $atType = '@' . 'type';
+        $structuredData = [
+            $atContext => 'https://schema.org',
+            $atType => 'SoftwareApplication',
+            'name' => 'website-mu.id',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'description' => 'Platform no-code untuk membuat, mengelola, dan menerbitkan website organisasi dalam ekosistem Muhammadiyah — PDM, PCM, PRM, Ortom, AUM sekolah, klinik, dan masjid.',
+            'url' => url('/'),
+            'offers' => [
+                $atType => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+                'description' => 'Paket gratis dengan subdomain website-mu.id',
+            ],
+            'provider' => [
+                $atType => 'Organization',
+                'name' => 'website-mu.id',
+                'url' => url('/'),
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>

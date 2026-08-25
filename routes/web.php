@@ -18,6 +18,7 @@ use App\Http\Controllers\OrganizationPostController;
 use App\Http\Controllers\OrganizationProgramController;
 use App\Http\Controllers\OrganizationSectionController;
 use App\Http\Controllers\OrganizationSiteController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
 use App\Models\Template;
@@ -30,6 +31,8 @@ Route::get('/', function () {
 
     return view('welcome', ['templates' => $templates]);
 });
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/templates/{template:slug}/preview/{page?}', [TemplatePreviewController::class, 'show'])
     ->name('templates.preview');
