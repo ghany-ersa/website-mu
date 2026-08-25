@@ -47,4 +47,36 @@ class OrganizationBuilderController extends Controller
             'page' => $page,
         ]);
     }
+
+    /**
+     * Render a single section type with its registry default content, in the organization's
+     * brand colors — used as the thumbnail preview in the "Tambah Section" dropdown
+     * (organizations/builder/edit.blade.php) so a user can see what a section looks like
+     * before adding it, instead of picking blind from a label-only list.
+     */
+    public function sectionPreview(Organization $organization, OrganizationPage $page, string $key): View
+    {
+        $this->authorize('update', $organization);
+
+        abort_unless(array_key_exists($key, config('page-builder.sections')), 404);
+
+        $content = config("page-builder.sections.{$key}.defaults", []);
+        foreach ($content as $field => $value) {
+            if (is_string($value)) {
+                $content[$field] = str_replace('{org_name}', $organization->name, $value);
+            }
+        }
+
+        return view('organizations.builder.section-preview', [
+            // Passed as `brand`, not `organization` — section partials branch on
+            // isset($organization) to decide whether to pull live DB data (posts, officers,
+            // programs, ...) instead of their built-in sample content (see the view's own
+            // comment below). @include inherits this view's whole data array, so naming it
+            // `organization` here would leak into the partial and blank out the preview for
+            // a brand-new org with no such data yet.
+            'brand' => $organization,
+            'key' => $key,
+            'section' => ['content' => $content],
+        ]);
+    }
 }

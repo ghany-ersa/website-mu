@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.builder.page');
         Route::get('organizations/{organization}/builder/{page:slug}/canvas', [OrganizationBuilderController::class, 'canvas'])
             ->name('organizations.builder.canvas');
+        Route::get('organizations/{organization}/builder/{page:slug}/sections/{key}/preview', [OrganizationBuilderController::class, 'sectionPreview'])
+            ->name('organizations.builder.section-preview');
 
         Route::post('organizations/{organization}/pages', [OrganizationPageController::class, 'store'])
             ->name('organizations.pages.store');

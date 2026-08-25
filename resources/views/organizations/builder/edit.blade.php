@@ -277,34 +277,101 @@
                  lg+: fixed-width column, always visible. --}}
             <aside :class="activePanel === 'sections' ? 'flex' : 'hidden'"
                 class="lg:flex w-full lg:w-80 bg-white lg:border-r border-gray-200/80 flex-col shrink-0">
-                <div class="p-4 border-b border-gray-100">
+                <div class="p-4 border-b border-gray-100" x-data="{
+                        open: false,
+                        previewKey: null,
+                        options: @js(collect($sectionRegistry)->filter(fn ($meta) => empty($meta['locked']))->map(fn ($meta, $key) => ['label' => $meta['label']])),
+                        openPicker() {
+                            this.previewKey = Object.keys(this.options)[0] ?? null;
+                            this.open = true;
+                        },
+                        choose(key) {
+                            this.previewKey = key;
+                            this.open = false;
+                            this.$refs.addForm.requestSubmit();
+                        },
+                        previewUrlFor(key) {
+                            return @js(route('organizations.builder.section-preview', [$organization, $currentPage, '__KEY__']))
+                                .replace('__KEY__', key);
+                        },
+                    }" @keydown.escape.window="open = false">
                     <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2.5">Tambah Section</p>
-                    <form action="{{ route('organizations.sections.store', [$organization, $currentPage]) }}"
-                        method="POST" class="flex gap-2">
+
+                    <button type="button" @click="openPicker()"
+                        class="w-full flex items-center justify-between rounded-xl border border-gray-200 pl-3 pr-2.5 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition">
+                        <span class="inline-flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-primary">
+                                <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                            </svg>
+                            Tambah Section
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400">
+                            <path fill-rule="evenodd"
+                                d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <form x-ref="addForm" action="{{ route('organizations.sections.store', [$organization, $currentPage]) }}" method="POST">
                         @csrf
-                        <div class="relative flex-1">
-                            <select name="key"
-                                class="appearance-none w-full rounded-xl border border-gray-200 pl-3 pr-8 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
-                                @foreach ($sectionRegistry as $key => $meta)
-                                    <option value="{{ $key }}">{{ $meta['label'] }}</option>
-                                @endforeach
-                            </select>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                class="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                                <path fill-rule="evenodd"
-                                    d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <button type="submit"
-                            class="w-10 h-10 shrink-0 rounded-xl bg-primary text-white flex items-center justify-center font-semibold shadow-sm hover:shadow-md hover:bg-primary/90 active:scale-95 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                class="w-4 h-4">
-                                <path
-                                    d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                            </svg>
-                        </button>
+                        <input type="hidden" name="key" :value="previewKey">
                     </form>
+
+                    {{-- Picker: a centered modal (not an inline dropdown) so the same markup works on both
+                         mobile (no hover) and desktop. Tapping/clicking a name in the list only swaps the
+                         preview pane — it never adds the section by itself — so browsing on a touch screen
+                         can't misfire an add. Desktop additionally previews on hover as a shortcut; both
+                         input methods still require the explicit "Pilih komponen ini" button to confirm. --}}
+                    <div x-show="open" x-cloak x-transition.opacity.duration.100ms
+                        class="fixed inset-0 z-[60] bg-gray-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+                        @click.self="open = false">
+                        <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl animate-pop-in overflow-hidden">
+                            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+                                <h3 class="font-bold text-gray-800">Pilih Komponen</h3>
+                                <button type="button" @click="open = false"
+                                    class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                        <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {{-- Preview pane sits above the list (stacked, not side-by-side) so it stays
+                                 readable at mobile widths without needing a separate mobile-only layout.
+                                 Scaled to 1/3 and given a tall-ish source viewport (3x the box height) so
+                                 a section's heading plus its first row of content both fit — most section
+                                 partials use generous top/bottom padding (py-16) before their actual
+                                 content starts, so a shallower crop tends to show only the heading. --}}
+                            <div class="p-4 pb-2 shrink-0">
+                                <div class="rounded-xl overflow-hidden ring-1 ring-black/5 bg-softBg" style="height: 14rem;">
+                                    <template x-if="open && previewKey">
+                                        <iframe :src="previewUrlFor(previewKey)" title="Pratinjau komponen"
+                                            class="w-full border-0 pointer-events-none"
+                                            style="width: 300%; height: 300%; transform: scale(.3333); transform-origin: top left;"
+                                            loading="lazy"></iframe>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <ul class="flex-1 overflow-y-auto px-2.5 pb-2">
+                                <template x-for="(meta, key) in options" :key="key">
+                                    <li>
+                                        <button type="button" @click="previewKey = key"
+                                            class="w-full text-left px-3 py-2.5 rounded-lg text-sm truncate transition"
+                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50'"
+                                            x-text="meta.label"></button>
+                                    </li>
+                                </template>
+                            </ul>
+
+                            <div class="p-4 border-t border-gray-100 shrink-0">
+                                <button type="button" @click="choose(previewKey)" :disabled="!previewKey"
+                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60">
+                                    Pilih komponen ini
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="px-4 pt-3.5 pb-1.5 flex items-center justify-between">
