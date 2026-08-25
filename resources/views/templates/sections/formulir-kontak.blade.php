@@ -1,25 +1,34 @@
-@php $content = $section['content'] ?? []; @endphp
+@php
+    $content = $section['content'] ?? [];
+    $waNumber = $content['wa_number'] ?? ($organization->whatsapp ?? null);
+    $orgName = $template->structure['sample_org_name'] ?? null
+        ?? $organization->name ?? null
+        ?? '[Nama Organisasi]';
+    $waMessage = $content['wa_message'] ?? config('page-builder.sections.formulir-kontak.defaults.wa_message');
+    $waMessage = str_replace('{org_name}', $orgName, $waMessage);
+    $waHref = \App\Services\WhatsAppNumber::href($waNumber, $waMessage);
+@endphp
 
 <section class="py-16 bg-softBg">
     <div class="max-w-xl mx-auto px-6 text-center">
         <h2 class="reveal text-3xl font-extrabold text-primary mb-2">
             {{ $content['title'] ?? 'Hubungi Kami' }}
         </h2>
-        @if (! empty($content['subtitle']))
-            <p class="reveal text-gray-500 mb-8" style="transition-delay: 60ms">{{ $content['subtitle'] }}</p>
+        <p class="reveal text-gray-500 mb-8" style="transition-delay: 60ms">
+            {{ $content['subtitle'] ?? 'Ada pertanyaan? Kirim pesan langsung ke kami melalui WhatsApp.' }}
+        </p>
+        @if ($waHref)
+            <a href="{{ $waHref }}" target="_blank" rel="noopener"
+                class="reveal inline-block w-full py-3 rounded-brand bg-primary text-white font-semibold transition-transform duration-200 hover:scale-[1.02]"
+                style="transition-delay: 120ms">
+                Hubungi via WhatsApp
+            </a>
         @else
-            <div class="mb-8"></div>
-        @endif
-        <div class="reveal space-y-4 text-left" style="transition-delay: 120ms">
-            <input type="text" disabled placeholder="Nama"
-                   class="w-full h-11 rounded-brand bg-white border border-gray-200 px-4 text-sm text-gray-400 transition-colors focus-within:border-primary">
-            <input type="text" disabled placeholder="Email"
-                   class="w-full h-11 rounded-brand bg-white border border-gray-200 px-4 text-sm text-gray-400">
-            <textarea disabled placeholder="Pesan" rows="4"
-                      class="w-full rounded-brand bg-white border border-gray-200 px-4 py-3 text-sm text-gray-400"></textarea>
-            <button class="w-full py-3 rounded-brand bg-primary text-white font-semibold transition-transform duration-200 hover:scale-[1.02]">
-                Kirim Pesan
+            <button type="button" disabled
+                class="reveal w-full py-3 rounded-brand bg-primary/40 text-white font-semibold cursor-not-allowed"
+                style="transition-delay: 120ms">
+                Hubungi via WhatsApp
             </button>
-        </div>
+        @endif
     </div>
 </section>

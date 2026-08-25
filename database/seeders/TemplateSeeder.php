@@ -235,8 +235,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Layanan Sosial', 'description' => 'Pemeriksaan gratis rutin bagi warga kurang mampu.', 'icon' => '❤️'],
                                     ],
                                 ]],
+                                ['key' => 'jadwal-praktik', 'content' => [
+                                    'title' => 'Jadwal Praktik Dokter',
+                                    'doctors' => [
+                                        ['name' => 'dr. Siti Rahma', 'specialty' => 'Dokter Umum', 'schedule' => 'Senin - Jumat, 08.00 - 14.00 WIB'],
+                                        ['name' => 'dr. Ahmad Fauzi', 'specialty' => 'Dokter Gigi', 'schedule' => 'Selasa & Kamis, 09.00 - 12.00 WIB'],
+                                        ['name' => 'dr. Nur Hidayah, Sp.A', 'specialty' => 'Dokter Anak', 'schedule' => 'Sabtu, 08.00 - 11.00 WIB'],
+                                    ],
+                                ]],
                                 ['key' => 'agenda', 'content' => [
-                                    'title' => 'Agenda dan Jadwal Layanan',
+                                    'title' => 'Agenda dan Kegiatan',
                                     'items' => [
                                         ['title' => 'Baksos Kesehatan Gratis', 'date_day' => '18', 'date_month' => 'Agt', 'time' => '08.00 WIB', 'location' => 'Balai Desa Ambulu'],
                                         ['title' => 'Donor Darah Bulanan', 'date_day' => '24', 'date_month' => 'Agt', 'time' => '09.00 WIB', 'location' => 'Klinik Muhammadiyah Sehati'],
@@ -684,11 +692,11 @@ class TemplateSeeder extends Seeder
                                     'title' => 'Jadwal Salat Hari Ini',
                                     'location' => 'Ambulu, Kabupaten Jember',
                                     'times' => [
-                                        ['name' => 'Subuh', 'time' => '04.15'],
-                                        ['name' => 'Dzuhur', 'time' => '11.35'],
-                                        ['name' => 'Ashar', 'time' => '14.55'],
-                                        ['name' => 'Maghrib', 'time' => '17.42'],
-                                        ['name' => 'Isya', 'time' => '18.55'],
+                                        ['label' => 'Subuh', 'time' => '04.15'],
+                                        ['label' => 'Dzuhur', 'time' => '11.35'],
+                                        ['label' => 'Ashar', 'time' => '14.55'],
+                                        ['label' => 'Maghrib', 'time' => '17.42'],
+                                        ['label' => 'Isya', 'time' => '18.55'],
                                     ],
                                 ]],
                                 ['key' => 'pengumuman', 'content' => [

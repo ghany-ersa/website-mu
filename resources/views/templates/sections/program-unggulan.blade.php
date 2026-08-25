@@ -4,13 +4,24 @@
      $programType = 'layanan' to pull from the same Program table's "layanan" pool instead. --}}
 @php
     $content = $section['content'] ?? [];
+    $dummyItems = ($programType ?? 'program') === 'layanan'
+        ? [
+            ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
+            ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
+            ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
+        ]
+        : [
+            ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
+            ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
+            ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
+        ];
     $items = isset($organization)
         ? $organization->programs()->ofType($programType ?? 'program')->get()->map(fn ($program) => [
             'title' => $program->title,
             'description' => $program->description,
             'icon' => $program->icon,
         ])
-        : ($content['items'] ?? ['Program 1', 'Program 2', 'Program 3']);
+        : ($content['items'] ?? $dummyItems);
 @endphp
 
 <section class="py-16 bg-softBg">

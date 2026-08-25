@@ -17,7 +17,7 @@
             <div class="grid grid-cols-5 gap-2 text-center text-white">
                 @foreach ($times as $item)
                     <div class="transition-transform duration-300 hover:-translate-y-1">
-                        <p class="text-xs uppercase text-white/70 mb-1">{{ $item['label'] }}</p>
+                        <p class="text-xs uppercase text-white/70 mb-1">{{ $item['label'] ?? '' }}</p>
                         <p class="font-bold">{{ $item['time'] ?? '--:--' }}</p>
                     </div>
                 @endforeach

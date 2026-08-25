@@ -477,18 +477,93 @@
 
                         <form action="{{ route('organizations.sections.update', [$organization, $section]) }}"
                             method="POST" class="p-5 space-y-4"
-                            x-data="{ saving: false, saved: false }"
+                            x-data="{
+                                saving: false,
+                                saved: false,
+                                ctaType: @js($section->content['cta_type'] ?? 'none'),
+                                ctaSecondaryType: @js($section->content['cta_secondary_type'] ?? 'none'),
+                            }"
                             @submit.prevent="saveSection($event.target, $data)">
                             @csrf
                             @method('PATCH')
 
                             @foreach ($sectionRegistry[$section->key]['fields'] ?? [] as $field)
+                                @continue(in_array($field, ['cta_section', 'cta_url', 'cta_wa_number', 'cta_wa_message', 'cta_secondary_section', 'cta_secondary_url', 'cta_secondary_wa_number', 'cta_secondary_wa_message'], true))
+                                @if (in_array($field, ['cta_type', 'cta_secondary_type'], true))
+                                    @php
+                                        $prefix = $field === 'cta_type' ? 'cta' : 'cta_secondary';
+                                        $stateVar = $field === 'cta_type' ? 'ctaType' : 'ctaSecondaryType';
+                                        $currentType = $section->content[$field] ?? 'none';
+                                        $currentSection = $section->content[$prefix.'_section'] ?? '';
+                                        $currentUrl = is_scalar($section->content[$prefix.'_url'] ?? null) ? $section->content[$prefix.'_url'] : '';
+                                        $currentWaNumber = is_scalar($section->content[$prefix.'_wa_number'] ?? null) ? $section->content[$prefix.'_wa_number'] : '';
+                                        $currentWaMessage = is_scalar($section->content[$prefix.'_wa_message'] ?? null) ? $section->content[$prefix.'_wa_message'] : '';
+                                        if ($currentWaMessage === '') {
+                                            $currentWaMessage = str_replace('{org_name}', $organization->name, config("page-builder.sections.{$section->key}.defaults.{$prefix}_wa_message", 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.'));
+                                        }
+                                    @endphp
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">
+                                            Aksi tombol {{ $prefix === 'cta' ? 'utama' : 'kedua' }}
+                                        </label>
+                                        <select name="content[{{ $field }}]" x-model="{{ $stateVar }}"
+                                            class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                            <option value="none" @selected($currentType === 'none' || $currentType === null)>Tidak ada</option>
+                                            <option value="whatsapp" @selected($currentType === 'whatsapp')>Buka WhatsApp</option>
+                                            <option value="scroll" @selected($currentType === 'scroll')>Scroll ke section lain</option>
+                                            <option value="url" @selected($currentType === 'url')>Buka URL/link</option>
+                                        </select>
+
+                                        <div x-show="{{ $stateVar }} === 'scroll'" x-cloak class="mt-2">
+                                            <select name="content[{{ $prefix }}_section]"
+                                                class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                                <option value="">Pilih section tujuan</option>
+                                                @foreach ($currentPage->sections as $targetSection)
+                                                    @continue($targetSection->id === $section->id)
+                                                    <option value="{{ $targetSection->id }}" @selected((string) $currentSection === (string) $targetSection->id)>
+                                                        {{ $sectionRegistry[$targetSection->key]['label'] ?? $targetSection->key }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div x-show="{{ $stateVar }} === 'url'" x-cloak class="mt-2">
+                                            <input type="url" name="content[{{ $prefix }}_url]" placeholder="https://..."
+                                                value="{{ $currentUrl }}"
+                                                class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                        </div>
+
+                                        <div x-show="{{ $stateVar }} === 'whatsapp'" x-cloak class="mt-2 space-y-2">
+                                            <input type="text" name="content[{{ $prefix }}_wa_number]" placeholder="Contoh: 6281234567890 (kosongkan untuk pakai nomor WA organisasi)"
+                                                value="{{ $currentWaNumber }}"
+                                                class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                            <textarea name="content[{{ $prefix }}_wa_message]" rows="3" placeholder="Pesan WhatsApp"
+                                                class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">{{ $currentWaMessage }}</textarea>
+                                        </div>
+                                    </div>
+                                    @continue
+                                @endif
                                 <div>
                                     <label
                                         class="block text-xs font-semibold text-gray-600 mb-1.5">{{ ucfirst(str_replace('_', ' ', $field)) }}</label>
-                                    @if (in_array($field, ['body', 'sambutan', 'subheadline'], true))
+                                    @if (in_array($field, ['body', 'sambutan', 'subheadline', 'wa_message'], true))
+                                        @php
+                                            $fieldValue = is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '';
+                                            if ($fieldValue === '') {
+                                                $fieldValue = (string) config("page-builder.sections.{$section->key}.defaults.{$field}", '');
+                                                $fieldValue = str_replace('{org_name}', $organization->name, $fieldValue);
+                                            }
+                                        @endphp
                                         <textarea name="content[{{ $field }}]" rows="3"
-                                            class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">{{ is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '' }}</textarea>
+                                            class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">{{ $fieldValue }}</textarea>
+                                        @if ($field === 'wa_message')
+                                            <p class="mt-1.5 text-xs text-gray-400">Pesan ini otomatis terisi saat pengunjung menekan tombol dan diarahkan ke WhatsApp.</p>
+                                        @endif
+                                    @elseif ($field === 'wa_number')
+                                        <input type="text" name="content[{{ $field }}]" placeholder="Contoh: 6281234567890 (kosongkan untuk pakai nomor WA organisasi)"
+                                            value="{{ is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '' }}"
+                                            class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                        <p class="mt-1.5 text-xs text-gray-400">Gunakan format nomor internasional tanpa tanda + atau spasi, mis. 6281234567890.</p>
                                     @elseif (in_array($field, ['image', 'photo'], true))
                                         @php
                                             $currentUrl = is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '';
@@ -544,7 +619,39 @@
                                             Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
                                             <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
                                         </a>
-                                    @elseif ($field === 'stats' && $section->key === 'tentang-organisasi')
+                                    @elseif ($field === 'map_embed')
+                                    <input type="url" name="content[{{ $field }}]" placeholder="Tempel link Google Maps, mis. https://maps.app.goo.gl/..."
+                                        value="{{ is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '' }}"
+                                        class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                    <p class="mt-1.5 text-xs text-gray-400">Buka lokasi di Google Maps, ketuk Bagikan, salin link-nya, lalu tempel di sini.</p>
+                                @elseif ($field === 'doctors' && $section->key === 'jadwal-praktik')
+                                    <div x-data="{ items: @js($section->content['doctors'] ?? []) }" class="space-y-3">
+                                        <template x-for="(item, index) in items" :key="index">
+                                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 space-y-2">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="text" placeholder="Nama dokter" x-model="item.name"
+                                                        :name="`content[doctors][${index}][name]`"
+                                                        class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition">
+                                                    <button type="button" @click="items.splice(index, 1)"
+                                                        class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                                <input type="text" placeholder="Spesialisasi, mis. Dokter Umum" x-model="item.specialty"
+                                                    :name="`content[doctors][${index}][specialty]`"
+                                                    class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition">
+                                                <input type="text" placeholder="Jadwal, mis. Senin - Jumat, 08.00 - 14.00 WIB" x-model="item.schedule"
+                                                    :name="`content[doctors][${index}][schedule]`"
+                                                    class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition">
+                                            </div>
+                                        </template>
+                                        <button type="button"
+                                            @click="items.push({ name: '', specialty: '', schedule: '' })"
+                                            class="w-full rounded-xl border border-dashed border-gray-200 px-3.5 py-2.5 text-xs font-semibold text-gray-500 hover:border-primary/40 hover:text-primary transition">
+                                            + Tambah dokter
+                                        </button>
+                                    </div>
+                                @elseif ($field === 'stats' && $section->key === 'tentang-organisasi')
                                         <div x-data="{ items: @js($section->content['stats'] ?? []) }" class="space-y-2">
                                             <template x-for="(item, index) in items" :key="index">
                                                 <div class="flex items-center gap-2">

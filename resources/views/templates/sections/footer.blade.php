@@ -24,7 +24,7 @@
     $address = $organization->address ?? null;
     $instagramUrl = $organization->instagram_url ?? null;
     $facebookUrl = $organization->facebook_url ?? null;
-    $whatsappHref = $whatsapp ? 'https://wa.me/'.preg_replace('/\D/', '', $whatsapp) : null;
+    $whatsappHref = \App\Services\WhatsAppNumber::href($whatsapp);
     $hasSocial = $instagramUrl || $facebookUrl;
 @endphp
 

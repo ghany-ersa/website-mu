@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
+use App\Services\CmsSampleDataSeeder;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -276,7 +277,10 @@ class Organization extends Model
     /**
      * Clone only the template's first (home) page into an owned page/sections — the
      * builder only supports one page for now, so the template's other pages (if any)
-     * aren't cloned yet.
+     * aren't cloned yet. Also seeds sample CMS records (see CmsSampleDataSeeder) for
+     * whichever CMS-backed sections (galeri, daftar-berita, struktur-pengurus, etc.) the
+     * cloned page has, so the builder and the org's own draft/public page show real, editable
+     * content immediately instead of an empty list the user has to populate from scratch.
      */
     private function seedPagesFromTemplate(): void
     {
@@ -293,6 +297,8 @@ class Organization extends Model
             'is_home' => true,
         ]);
 
+        $sectionKeys = [];
+
         foreach ($pageData['sections'] ?? [] as $sectionOrder => $sectionData) {
             $page->sections()->create([
                 'key' => $sectionData['key'],
@@ -300,8 +306,12 @@ class Organization extends Model
                 'content' => $sectionData['content'] ?? [],
                 'order' => $sectionOrder,
             ]);
+
+            $sectionKeys[] = $sectionData['key'];
         }
 
         $page->ensureFooter();
+
+        CmsSampleDataSeeder::seed($this, $sectionKeys);
     }
 }

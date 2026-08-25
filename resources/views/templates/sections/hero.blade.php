@@ -1,4 +1,26 @@
-@php $content = $section['content'] ?? []; @endphp
+@php
+    $content = $section['content'] ?? [];
+    $orgName = $template->structure['sample_org_name'] ?? null
+        ?? $organization->name ?? null
+        ?? '[Nama Organisasi]';
+
+    $resolveCtaHref = function (string $prefix) use ($content, $organization, $orgName) {
+        $type = $content[$prefix.'_type'] ?? null;
+
+        return match ($type) {
+            'whatsapp' => \App\Services\WhatsAppNumber::href(
+                $content[$prefix.'_wa_number'] ?? ($organization->whatsapp ?? null),
+                str_replace('{org_name}', $orgName, $content[$prefix.'_wa_message'] ?? config("page-builder.sections.hero.defaults.{$prefix}_wa_message", ''))
+            ),
+            'scroll' => filled($content[$prefix.'_section'] ?? null) ? '#canvas-section-'.$content[$prefix.'_section'] : null,
+            'url' => filled($content[$prefix.'_url'] ?? null) ? $content[$prefix.'_url'] : null,
+            default => null,
+        };
+    };
+
+    $ctaHref = $resolveCtaHref('cta');
+    $ctaSecondaryHref = $resolveCtaHref('cta_secondary');
+@endphp
 
 <section class="relative overflow-hidden bg-softBg">
     <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-primary/10 blur-3xl animate-blob"></div>
@@ -22,14 +44,28 @@
 
             <div class="reveal flex flex-wrap gap-3" style="transition-delay: 240ms">
                 @if (! empty($content['cta_label']))
-                    <button class="px-6 py-3 rounded-brand bg-secondary text-white font-semibold shadow-float transition-transform duration-200 hover:scale-105">
-                        {{ $content['cta_label'] }}
-                    </button>
+                    @if ($ctaHref)
+                        <a href="{{ $ctaHref }}" {{ ($content['cta_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
+                            class="px-6 py-3 rounded-brand bg-secondary text-white font-semibold shadow-float transition-transform duration-200 hover:scale-105">
+                            {{ $content['cta_label'] }}
+                        </a>
+                    @else
+                        <button type="button" class="px-6 py-3 rounded-brand bg-secondary text-white font-semibold shadow-float transition-transform duration-200 hover:scale-105">
+                            {{ $content['cta_label'] }}
+                        </button>
+                    @endif
                 @endif
                 @if (! empty($content['cta_secondary_label']))
-                    <button class="px-6 py-3 rounded-brand border border-gray-300 text-gray-700 font-semibold transition-colors duration-200 hover:border-primary hover:text-primary">
-                        {{ $content['cta_secondary_label'] }}
-                    </button>
+                    @if ($ctaSecondaryHref)
+                        <a href="{{ $ctaSecondaryHref }}" {{ ($content['cta_secondary_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
+                            class="px-6 py-3 rounded-brand border border-gray-300 text-gray-700 font-semibold transition-colors duration-200 hover:border-primary hover:text-primary">
+                            {{ $content['cta_secondary_label'] }}
+                        </a>
+                    @else
+                        <button type="button" class="px-6 py-3 rounded-brand border border-gray-300 text-gray-700 font-semibold transition-colors duration-200 hover:border-primary hover:text-primary">
+                            {{ $content['cta_secondary_label'] }}
+                        </button>
+                    @endif
                 @endif
             </div>
         </div>

@@ -12,7 +12,7 @@
             'image' => $photo->url,
             'caption' => $photo->caption,
         ])
-        : ($content['items'] ?? array_fill(0, 4, []));
+        : ($content['items'] ?? array_fill(0, 4, ['caption' => 'Foto kegiatan']));
 @endphp
 
 <section class="py-16 bg-softBg">
@@ -33,6 +33,10 @@
                                 {{ $item['caption'] }}
                             </span>
                         @endif
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                            {{ is_array($item) ? ($item['caption'] ?? 'Foto') : 'Foto' }}
+                        </div>
                     @endif
                 </div>
             @endforeach

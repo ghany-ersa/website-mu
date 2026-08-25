@@ -1,4 +1,11 @@
-@php $content = $section['content'] ?? []; @endphp
+@php
+    $content = $section['content'] ?? [];
+    $stats = $content['stats'] ?? [
+        ['value' => '10+', 'label' => 'Tahun Berdiri'],
+        ['value' => '100+', 'label' => 'Anggota'],
+        ['value' => '5+', 'label' => 'Program Aktif'],
+    ];
+@endphp
 
 <section class="py-16">
     <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
@@ -17,16 +24,14 @@
                 {{ $content['body'] ?? 'Deskripsi singkat sejarah, visi, dan misi organisasi.' }}
             </p>
 
-            @if (! empty($content['stats']))
-                <div class="grid grid-cols-3 gap-4">
-                    @foreach ($content['stats'] as $stat)
-                        <div>
-                            <p class="text-2xl font-extrabold text-secondary">{{ $stat['value'] }}</p>
-                            <p class="text-xs text-gray-500">{{ $stat['label'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+            <div class="grid grid-cols-3 gap-4">
+                @foreach ($stats as $stat)
+                    <div>
+                        <p class="text-2xl font-extrabold text-secondary">{{ $stat['value'] }}</p>
+                        <p class="text-xs text-gray-500">{{ $stat['label'] }}</p>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </section>

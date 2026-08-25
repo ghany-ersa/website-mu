@@ -6,7 +6,7 @@
 @foreach ($page->sectionsWithFooterLast() as $section)
     @if ($section->is_visible)
         <div id="canvas-section-{{ $section->id }}">
-            @includeFirst(['templates.sections.'.$section->key, 'templates.sections._missing'], ['section' => $section, 'organization' => $organization])
+            @includeFirst(['templates.sections.'.$section->key, 'templates.sections._missing'], ['section' => $section, 'organization' => $organization, 'page' => $page])
         </div>
     @endif
 @endforeach

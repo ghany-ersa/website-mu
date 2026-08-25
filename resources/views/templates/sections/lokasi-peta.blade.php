@@ -10,9 +10,16 @@
         @else
             <div class="mb-8"></div>
         @endif
-        <div class="reveal aspect-[21/9] rounded-brand flex items-center justify-center text-gray-400 text-sm overflow-hidden"
-             style="transition-delay: 120ms; background-color: #F3F4F6; background-image: radial-gradient(rgba(44,54,139,0.12) 1.5px, transparent 1.5px); background-size: 18px 18px;">
-            Peta lokasi
-        </div>
+        @if (! empty($content['map_embed']))
+            <div class="reveal aspect-[21/9] rounded-brand overflow-hidden" style="transition-delay: 120ms">
+                <iframe src="{{ $content['map_embed'] }}" class="w-full h-full border-0" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+            </div>
+        @else
+            <div class="reveal aspect-[21/9] rounded-brand flex items-center justify-center text-gray-400 text-sm overflow-hidden"
+                 style="transition-delay: 120ms; background-color: #F3F4F6; background-image: radial-gradient(rgba(44,54,139,0.12) 1.5px, transparent 1.5px); background-size: 18px 18px;">
+                Peta lokasi
+            </div>
+        @endif
     </div>
 </section>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use App\Models\OrganizationSection;
+use App\Services\GoogleMapsEmbedResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,9 +51,17 @@ class OrganizationSectionController extends Controller
             'key' => ['required', 'string', 'in:'.implode(',', $addableKeys)],
         ]);
 
+        $content = config('page-builder.sections.'.$validated['key'].'.defaults', []);
+
+        foreach ($content as $field => $value) {
+            if (is_string($value)) {
+                $content[$field] = str_replace('{org_name}', $organization->name, $value);
+            }
+        }
+
         $page->sections()->create([
             'key' => $validated['key'],
-            'content' => config('page-builder.sections.'.$validated['key'].'.defaults', []),
+            'content' => $content,
             'order' => $page->sections()->max('order') + 1,
         ]);
 
@@ -80,6 +89,19 @@ class OrganizationSectionController extends Controller
         $content = [];
         foreach ($fields as $field) {
             $content[$field] = $request->input("content.$field");
+        }
+
+        if (in_array('map_embed', $fields, true) && filled($content['map_embed'] ?? null)) {
+            $content['map_embed'] = GoogleMapsEmbedResolver::resolve($content['map_embed']) ?? $content['map_embed'];
+        }
+
+        foreach ($fields as $field) {
+            if (! str_ends_with($field, 'wa_message') || filled($content[$field] ?? null)) {
+                continue;
+            }
+
+            $default = config("page-builder.sections.{$section->key}.defaults.{$field}", '');
+            $content[$field] = str_replace('{org_name}', $organization->name, $default);
         }
 
         $section->update([

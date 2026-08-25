@@ -18,7 +18,16 @@ return [
     'sections' => [
         'hero' => [
             'label' => 'Hero',
-            'fields' => ['badge', 'headline', 'subheadline', 'cta_label', 'cta_secondary_label', 'image'],
+            'fields' => [
+                'badge', 'headline', 'subheadline',
+                'cta_label', 'cta_type', 'cta_section', 'cta_url', 'cta_wa_number', 'cta_wa_message',
+                'cta_secondary_label', 'cta_secondary_type', 'cta_secondary_section', 'cta_secondary_url', 'cta_secondary_wa_number', 'cta_secondary_wa_message',
+                'image',
+            ],
+            'defaults' => [
+                'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
+                'cta_secondary_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
+            ],
         ],
         'header' => [
             'label' => 'Header',
@@ -87,24 +96,38 @@ return [
             'label' => 'Jadwal Kajian',
             'fields' => [],
         ],
+        'jadwal-praktik' => [
+            'label' => 'Jadwal Praktik Dokter',
+            'fields' => ['title', 'doctors'],
+            'defaults' => ['title' => 'Jadwal Praktik Dokter'],
+        ],
         'donasi-zakat-infak' => [
             'label' => 'Donasi, Zakat & Infak',
-            'fields' => ['title', 'body', 'image'],
-            'defaults' => ['title' => 'Donasi, Zakat, dan Infak'],
+            'fields' => ['title', 'body', 'image', 'wa_number', 'wa_message'],
+            'defaults' => [
+                'title' => 'Donasi, Zakat, dan Infak',
+                'wa_message' => 'Assalamu\'alaikum, saya ingin berdonasi untuk {org_name}. Mohon informasi caranya ya',
+            ],
         ],
         'ppdb' => [
             'label' => 'PPDB',
-            'fields' => ['title', 'body', 'deadline', 'cta_label'],
-            'defaults' => ['title' => 'Penerimaan Peserta Didik Baru'],
+            'fields' => ['title', 'body', 'deadline', 'cta_label', 'wa_number', 'wa_message'],
+            'defaults' => [
+                'title' => 'Penerimaan Peserta Didik Baru',
+                'wa_message' => 'Assalamu\'alaikum, saya ingin mendaftar PPDB di {org_name}. Mohon informasi caranya ya',
+            ],
         ],
         'formulir-kontak' => [
             'label' => 'Formulir Kontak',
-            'fields' => ['title', 'subtitle'],
-            'defaults' => ['title' => 'Hubungi Kami'],
+            'fields' => ['title', 'subtitle', 'wa_number', 'wa_message'],
+            'defaults' => [
+                'title' => 'Hubungi Kami',
+                'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
+            ],
         ],
         'lokasi-peta' => [
             'label' => 'Lokasi & Peta',
-            'fields' => ['title', 'address'],
+            'fields' => ['title', 'address', 'map_embed'],
             'defaults' => ['title' => 'Lokasi'],
         ],
         'cta' => [
