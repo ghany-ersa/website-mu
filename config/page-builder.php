@@ -34,7 +34,7 @@ return [
         ],
         'header' => [
             'label' => 'Header',
-            'fields' => ['org_name'],
+            'fields' => [],
             'locked' => true,
         ],
         'footer' => [

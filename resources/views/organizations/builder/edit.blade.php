@@ -385,14 +385,17 @@
 
                 <ul id="section-list" class="flex-1 overflow-y-auto px-2.5 pt-2.5 pb-1 space-y-1">
                     @foreach ($currentPage->sections->where('key', '!=', 'footer') as $section)
-                        @php $isLocked = config('page-builder.sections.'.$section->key.'.locked', false); @endphp
+                        @php
+                            $isLocked = config('page-builder.sections.'.$section->key.'.locked', false);
+                            $hasFields = filled($sectionRegistry[$section->key]['fields'] ?? []);
+                        @endphp
                         <li data-section-id="{{ $section->id }}"
                             data-is-visible="{{ $section->is_visible ? '1' : '0' }}"
                             @if ($isLocked) data-locked @endif
-                            @click="selectSection({{ $section->id }})"
+                            @if ($hasFields) @click="selectSection({{ $section->id }})" @endif
                             :class="editingSectionId === {{ $section->id }} ? 'bg-primary/5 ring-1 ring-primary/20' :
-                                'hover:bg-gray-50'"
-                            class="group rounded-xl px-2.5 py-2.5 flex items-center gap-2 cursor-pointer transition {{ !$section->is_visible ? 'opacity-45' : '' }}">
+                                (({{ $hasFields ? 'true' : 'false' }}) ? 'hover:bg-gray-50' : '')"
+                            class="group rounded-xl px-2.5 py-2.5 flex items-center gap-2 transition {{ $hasFields ? 'cursor-pointer' : 'cursor-default' }} {{ !$section->is_visible ? 'opacity-45' : '' }}">
                             @if ($isLocked)
                                 <span class="shrink-0 px-0.5 text-gray-300" title="Selalu di posisi ini, tidak dapat dihapus/diduplikasi">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
