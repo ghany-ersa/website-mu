@@ -1,5 +1,6 @@
 @php
     $content = $section['content'] ?? [];
+    $organization = $organization ?? null;
     $orgName = $template->structure['sample_org_name'] ?? null
         ?? $organization->name ?? null
         ?? '[Nama Organisasi]';
