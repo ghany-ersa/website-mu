@@ -18,9 +18,7 @@ class TemplateSeeder extends Seeder
      * Each Ortom (NA, Pemuda Muhammadiyah, Tapak Suci, Hizbul Wathan, IMM, IPM) gets its
      * own template with tailored purpose/content and its own `structure.brand` color pair
      * instead of the default Muhammadiyah blue/green, since each has a distinct identity
-     * and audience. The Ortom colors here are a draft based on general association with
-     * each organization's visual identity, not verified official brand guidelines — swap
-     * them for the real hex codes when available.
+     * and audience.
      */
     public function run(): void
     {
@@ -273,7 +271,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk Nasyiatul Aisyiyah: menonjolkan citra perempuan muda berkemajuan, program keputrian, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Nasyiatul Aisyiyah Ambulu',
-                    'brand' => ['primary' => '#6B2C91', 'secondary' => '#EC4899'],
+                    'brand' => ['primary' => '#F4CE2A', 'secondary' => '#000000'],
                     'pages' => [
                         [
                             'slug' => 'home',
@@ -331,7 +329,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk Pemuda Muhammadiyah: menonjolkan citra organisasi, kaderisasi, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Pemuda Muhammadiyah Ambulu',
-                    'brand' => ['primary' => '#079C4E', 'secondary' => '#E8622C'],
+                    'brand' => ['primary' => '#E8242A', 'secondary' => '#079C4E'],
                     'pages' => [
                         [
                             'slug' => 'home',
@@ -389,7 +387,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk Tapak Suci: menonjolkan citra perguruan bela diri, prestasi atlet, dan ajakan bergabung latihan. Warna draf — sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Tapak Suci Putera Muhammadiyah Ambulu',
-                    'brand' => ['primary' => '#C1272D', 'secondary' => '#F4B400'],
+                    'brand' => ['primary' => '#E8242A', 'secondary' => '#F4CE2A'],
                     'pages' => [
                         [
                             'slug' => 'home',
@@ -447,7 +445,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk Hizbul Wathan: menonjolkan citra kepanduan, kegiatan alam, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Hizbul Wathan Qabilah Ambulu',
-                    'brand' => ['primary' => '#6F4E23', 'secondary' => '#079C4E'],
+                    'brand' => ['primary' => '#079C4E', 'secondary' => '#2C368B'],
                     'pages' => [
                         [
                             'slug' => 'home',
@@ -505,7 +503,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk IMM: menonjolkan citra gerakan intelektual mahasiswa, kaderisasi, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'IMM Komisariat Ambulu',
-                    'brand' => ['primary' => '#1A1A1A', 'secondary' => '#7A1F2B'],
+                    'brand' => ['primary' => '#E8242A', 'secondary' => '#000000'],
                     'pages' => [
                         [
                             'slug' => 'home',
@@ -563,7 +561,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk Aisyiyah: profil organisasi, program pemberdayaan perempuan, berita, dan ajakan bergabung.',
                 'structure' => [
                     'sample_org_name' => 'Pimpinan Cabang Aisyiyah Ambulu',
-                    'brand' => ['primary' => '#2C368B', 'secondary' => '#079C4E'],
+                    'brand' => ['primary' => '#F4CE2A', 'secondary' => '#079C4E'],
                     'pages' => [
                         [
                             'slug' => 'home',
@@ -736,7 +734,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk IPM: menonjolkan citra organisasi pelajar, kreativitas, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'IPM Ambulu',
-                    'brand' => ['primary' => '#2E7D32', 'secondary' => '#2C368B'],
+                    'brand' => ['primary' => '#F4CE2A', 'secondary' => '#EE942E'],
                     'pages' => [
                         [
                             'slug' => 'home',

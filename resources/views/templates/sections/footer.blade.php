@@ -28,12 +28,12 @@
     $hasSocial = $instagramUrl || $facebookUrl;
 @endphp
 
-<footer class="bg-gray-900 text-gray-400">
+<footer class="bg-primary text-white/70" style="background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))">
     <div class="max-w-6xl mx-auto px-6 py-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr]">
         <div>
             <div class="flex items-center gap-3 mb-4">
                 @if ($orgLogo)
-                    <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-12 h-12 rounded-brand object-contain bg-white ring-1 ring-white/10">
+                    <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-12 h-12 rounded-brand object-contain ring-white/10">
                 @else
                     <div class="w-12 h-12 rounded-brand bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
                         {{ mb_substr($orgName, 0, 1) }}
@@ -101,17 +101,17 @@
                     </li>
                 @endif
                 @if (! $address && ! $phone && ! $whatsapp && ! $email)
-                    <li class="text-gray-500">Informasi kontak belum ditambahkan.</li>
+                    <li class="text-white/50">Informasi kontak belum ditambahkan.</li>
                 @endif
             </ul>
         </div>
     </div>
 
     <div class="border-t border-white/10">
-        <div class="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+        <div class="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/60">
             <span>&copy; {{ date('Y') }} {{ $orgName }}. Seluruh hak cipta dilindungi.</span>
             <a href="https://website-mu.id" target="_blank" rel="noopener"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-brand bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-brand bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 text-secondary">
                     <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
                 </svg>

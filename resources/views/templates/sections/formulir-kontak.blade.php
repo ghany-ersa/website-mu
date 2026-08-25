@@ -19,13 +19,13 @@
         </p>
         @if ($waHref)
             <a href="{{ $waHref }}" target="_blank" rel="noopener"
-                class="reveal inline-block w-full py-3 rounded-brand bg-primary text-white font-semibold transition-transform duration-200 hover:scale-[1.02]"
+                class="reveal inline-block w-full py-3 rounded-brand bg-secondary text-white font-semibold transition-transform duration-200 hover:scale-[1.02]"
                 style="transition-delay: 120ms">
                 Hubungi via WhatsApp
             </a>
         @else
             <button type="button" disabled
-                class="reveal w-full py-3 rounded-brand bg-primary/40 text-white font-semibold cursor-not-allowed"
+                class="reveal w-full py-3 rounded-brand bg-secondary/40 text-white font-semibold cursor-not-allowed"
                 style="transition-delay: 120ms">
                 Hubungi via WhatsApp
             </button>

@@ -22,7 +22,7 @@
         </h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @foreach ($items as $item)
-                <div class="reveal group aspect-square rounded-brand overflow-hidden bg-gray-100 relative"
+                <div class="reveal group aspect-square rounded-brand overflow-hidden bg-gray-100 relative ring-2 ring-transparent transition-shadow duration-300 hover:ring-secondary"
                      style="transition-delay: {{ $loop->index * 80 }}ms">
                     @php $image = is_array($item) ? ($item['image'] ?? null) : $item; @endphp
                     @if ($image)

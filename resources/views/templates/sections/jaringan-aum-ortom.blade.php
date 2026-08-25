@@ -22,9 +22,9 @@
         </h2>
         <div class="grid md:grid-cols-3 gap-4">
             @foreach ($items as $item)
-                <div class="reveal border border-gray-200 rounded-brand p-4 flex items-center gap-3 transition-all duration-300 hover:border-primary/40 hover:shadow-soft hover:-translate-y-0.5"
+                <div class="reveal border border-gray-200 rounded-brand p-4 flex items-center gap-3 transition-all duration-300 hover:border-secondary/50 hover:shadow-soft hover:-translate-y-0.5"
                      style="transition-delay: {{ $loop->index * 60 }}ms">
-                    <div class="w-10 h-10 rounded-brand bg-primary/10 shrink-0"></div>
+                    <div class="w-10 h-10 rounded-brand bg-secondary/10 shrink-0"></div>
                     <div>
                         <p class="font-medium text-gray-700 text-sm">{{ $item['name'] }}</p>
                         @if (! empty($item['type']))

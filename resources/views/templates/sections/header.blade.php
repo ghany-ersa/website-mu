@@ -29,22 +29,22 @@
         ?? \App\Services\WhatsAppNumber::href($organization->whatsapp ?? null);
 @endphp
 
-<header id="top" class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+<header id="top" class="sticky top-0 z-40 bg-primary backdrop-blur">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <a href="{{ $homeHref ?? '#top' }}" class="flex items-center gap-2">
             @if ($orgLogo)
-                <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-9 h-9 rounded-brand object-contain bg-white">
+                <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-9 h-9 rounded-brand object-contain">
             @else
-                <div class="w-9 h-9 rounded-brand bg-primary flex items-center justify-center text-white font-bold text-sm">
+                <div class="w-9 h-9 rounded-brand bg-white flex items-center justify-center text-primary font-bold text-sm">
                     {{ mb_substr($orgName, 0, 1) }}
                 </div>
             @endif
-            <span class="font-extrabold text-primary tracking-tight">{{ $orgName }}</span>
+            <span class="font-extrabold text-white tracking-tight">{{ $orgName }}</span>
         </a>
         @if (! empty($navItems))
-            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-white/80">
                 @foreach ($navItems as $item)
-                    <a href="{{ $item['href'] }}" class="relative group">
+                    <a href="{{ $item['href'] }}" class="relative group hover:text-white transition-colors">
                         {{ $item['label'] }}
                         <span class="absolute left-0 -bottom-1 h-0.5 w-0 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                     </a>
@@ -53,7 +53,7 @@
         @endif
         @if ($contactHref)
             <a href="{{ $contactHref }}" {{ str_starts_with($contactHref, '#') ? '' : 'target=_blank rel=noopener' }}
-                class="px-4 py-2 rounded-brand bg-primary text-white text-sm font-semibold transition-transform duration-200 hover:scale-105 hover:shadow-float">
+                class="px-4 py-2 rounded-brand bg-white text-primary text-sm font-semibold transition-transform duration-200 hover:scale-105 hover:shadow-float">
                 Hubungi Kami
             </a>
         @endif

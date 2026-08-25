@@ -17,7 +17,7 @@
         : ($content['items'] ?? array_fill(0, $limit, []));
     $priorityColor = fn ($p) => match ($p) {
         'Tinggi' => 'border-red-400 bg-red-50',
-        'Sedang' => 'border-accent bg-amber-50',
+        'Sedang' => 'border-secondary bg-secondary/5',
         default => 'border-gray-300 bg-gray-50',
     };
 @endphp
