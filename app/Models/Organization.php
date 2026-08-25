@@ -136,6 +136,17 @@ class Organization extends Model
     }
 
     /**
+     * Whether any of this organization's builder pages contain a section with the given key
+     * (e.g. 'galeri', 'daftar-berita') — used to gate both the CMS sidebar/dashboard links and
+     * the underlying CRUD routes (organizations.gallery.*, organizations.posts.*, etc.) for
+     * content types the organization's template never gave it a section to display.
+     */
+    public function hasSection(string $key): bool
+    {
+        return $this->pages->flatMap->sections->pluck('key')->contains($key);
+    }
+
+    /**
      * @return HasMany<Media, $this>
      */
     public function media(): HasMany

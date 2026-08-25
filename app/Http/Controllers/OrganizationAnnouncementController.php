@@ -12,6 +12,7 @@ class OrganizationAnnouncementController extends Controller
 {
     public function index(Organization $organization): View
     {
+        abort_unless($organization->hasSection('pengumuman'), 404);
         $this->authorize('viewAny', [Announcement::class, $organization]);
 
         return view('organizations.announcements.index', [
@@ -22,6 +23,7 @@ class OrganizationAnnouncementController extends Controller
 
     public function create(Organization $organization): View
     {
+        abort_unless($organization->hasSection('pengumuman'), 404);
         $this->authorize('create', [Announcement::class, $organization]);
 
         return view('organizations.announcements.form', [
@@ -32,6 +34,7 @@ class OrganizationAnnouncementController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
+        abort_unless($organization->hasSection('pengumuman'), 404);
         $this->authorize('create', [Announcement::class, $organization]);
 
         $organization->announcements()->create($this->validated($request));

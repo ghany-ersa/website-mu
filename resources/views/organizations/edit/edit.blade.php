@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.organization')
 
 @section('title', 'Edit Organisasi — '.$organization->name.' — Website-mu')
 

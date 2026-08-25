@@ -12,6 +12,7 @@ class OrganizationOfficerController extends Controller
 {
     public function index(Organization $organization): View
     {
+        abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('viewAny', [Officer::class, $organization]);
 
         return view('organizations.officers.index', [
@@ -22,6 +23,7 @@ class OrganizationOfficerController extends Controller
 
     public function create(Organization $organization): View
     {
+        abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('create', [Officer::class, $organization]);
 
         return view('organizations.officers.form', [
@@ -32,6 +34,7 @@ class OrganizationOfficerController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
+        abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('create', [Officer::class, $organization]);
 
         $organization->officers()->create([

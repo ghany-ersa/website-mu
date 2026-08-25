@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.organization')
 
 @section('title', ($photo->exists ? 'Edit Foto' : 'Tambah Foto').' — '.$organization->name.' — Website-mu')
 

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.organization')
 
 @section('title', 'Brand Settings — '.$organization->name.' — Website-mu')
 

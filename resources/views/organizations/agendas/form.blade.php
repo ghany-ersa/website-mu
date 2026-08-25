@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.organization')
 
 @section('title', ($agenda->exists ? 'Edit Agenda' : 'Tambah Agenda').' — '.$organization->name.' — Website-mu')
 

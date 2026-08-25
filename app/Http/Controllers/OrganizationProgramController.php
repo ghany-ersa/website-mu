@@ -21,11 +21,17 @@ class OrganizationProgramController extends Controller
         return $request->query('type') === 'layanan' ? 'layanan' : 'program';
     }
 
+    private function sectionKey(string $type): string
+    {
+        return $type === 'layanan' ? 'layanan' : 'program-unggulan';
+    }
+
     public function index(Request $request, Organization $organization): View
     {
-        $this->authorize('viewAny', [Program::class, $organization]);
-
         $type = $this->type($request);
+        abort_unless($organization->hasSection($this->sectionKey($type)), 404);
+
+        $this->authorize('viewAny', [Program::class, $organization]);
 
         return view('organizations.programs.index', [
             'organization' => $organization,
@@ -36,20 +42,25 @@ class OrganizationProgramController extends Controller
 
     public function create(Request $request, Organization $organization): View
     {
+        $type = $this->type($request);
+        abort_unless($organization->hasSection($this->sectionKey($type)), 404);
+
         $this->authorize('create', [Program::class, $organization]);
 
         return view('organizations.programs.form', [
             'organization' => $organization,
-            'type' => $this->type($request),
+            'type' => $type,
             'program' => new Program,
         ]);
     }
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
-        $this->authorize('create', [Program::class, $organization]);
 
         $type = $this->type($request);
+        abort_unless($organization->hasSection($this->sectionKey($type)), 404);
+
+        $this->authorize('create', [Program::class, $organization]);
 
         $organization->programs()->create([
             ...$this->validated($request),
@@ -59,7 +70,7 @@ class OrganizationProgramController extends Controller
 
         return redirect()
             ->route('organizations.programs.index', $this->indexParams($request, $organization, $type))
-            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program').' berhasil ditambahkan.');
+            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program') . ' berhasil ditambahkan.');
     }
 
     public function edit(Organization $organization, Program $program): View
@@ -83,7 +94,7 @@ class OrganizationProgramController extends Controller
 
         return redirect()
             ->route('organizations.programs.index', $this->indexParams($request, $organization, $program->type))
-            ->with('status', ($program->type === 'layanan' ? 'Layanan' : 'Program').' berhasil diperbarui.');
+            ->with('status', ($program->type === 'layanan' ? 'Layanan' : 'Program') . ' berhasil diperbarui.');
     }
 
     public function destroy(Request $request, Organization $organization, Program $program): RedirectResponse
@@ -96,7 +107,7 @@ class OrganizationProgramController extends Controller
 
         return redirect()
             ->route('organizations.programs.index', $this->indexParams($request, $organization, $type))
-            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program').' berhasil dihapus.');
+            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program') . ' berhasil dihapus.');
     }
 
     /**

@@ -12,6 +12,7 @@ class OrganizationGalleryController extends Controller
 {
     public function index(Organization $organization): View
     {
+        abort_unless($organization->hasSection('galeri'), 404);
         $this->authorize('viewAny', [GalleryPhoto::class, $organization]);
 
         return view('organizations.gallery.index', [
@@ -22,6 +23,7 @@ class OrganizationGalleryController extends Controller
 
     public function create(Organization $organization): View
     {
+        abort_unless($organization->hasSection('galeri'), 404);
         $this->authorize('create', [GalleryPhoto::class, $organization]);
 
         return view('organizations.gallery.form', [
@@ -32,6 +34,7 @@ class OrganizationGalleryController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
+        abort_unless($organization->hasSection('galeri'), 404);
         $this->authorize('create', [GalleryPhoto::class, $organization]);
 
         $organization->photos()->create([

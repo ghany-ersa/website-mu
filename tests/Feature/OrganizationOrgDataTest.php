@@ -22,6 +22,8 @@ class OrganizationOrgDataTest extends TestCase
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'struktur-pengurus', 'content' => [], 'order' => 0]);
 
         $this->actingAs($user)
             ->post(route('organizations.officers.store', $organization), [
@@ -59,6 +61,9 @@ class OrganizationOrgDataTest extends TestCase
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'program-unggulan', 'content' => [], 'order' => 0]);
+        $page->sections()->create(['key' => 'layanan', 'content' => [], 'order' => 1]);
 
         $this->actingAs($user)
             ->post(route('organizations.programs.store', $organization).'?type=program', [
@@ -81,6 +86,8 @@ class OrganizationOrgDataTest extends TestCase
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'jaringan-aum-ortom', 'content' => [], 'order' => 0]);
 
         $this->actingAs($user)
             ->post(route('organizations.networks.store', $organization), [
@@ -103,6 +110,8 @@ class OrganizationOrgDataTest extends TestCase
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'galeri', 'content' => [], 'order' => 0]);
 
         $this->actingAs($user)
             ->post(route('organizations.gallery.store', $organization), [
@@ -139,6 +148,11 @@ class OrganizationOrgDataTest extends TestCase
     {
         $stranger = User::factory()->create();
         $organization = Organization::factory()->create();
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'struktur-pengurus', 'content' => [], 'order' => 0]);
+        $page->sections()->create(['key' => 'program-unggulan', 'content' => [], 'order' => 1]);
+        $page->sections()->create(['key' => 'jaringan-aum-ortom', 'content' => [], 'order' => 2]);
+        $page->sections()->create(['key' => 'galeri', 'content' => [], 'order' => 3]);
 
         $this->actingAs($stranger)->get(route('organizations.officers.index', $organization))->assertForbidden();
         $this->actingAs($stranger)->get(route('organizations.programs.index', $organization))->assertForbidden();

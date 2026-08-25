@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.organization')
 
 @php
     $type = $program->exists ? $program->type : $type;

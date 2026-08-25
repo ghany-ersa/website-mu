@@ -21,6 +21,8 @@ class OrganizationCmsTest extends TestCase
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'daftar-berita', 'content' => [], 'order' => 0]);
 
         $this->actingAs($user)
             ->post(route('organizations.posts.store', $organization), [
@@ -55,6 +57,10 @@ class OrganizationCmsTest extends TestCase
     {
         $stranger = User::factory()->create();
         $organization = Organization::factory()->create();
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'daftar-berita', 'content' => [], 'order' => 0]);
+        $page->sections()->create(['key' => 'agenda', 'content' => [], 'order' => 1]);
+        $page->sections()->create(['key' => 'pengumuman', 'content' => [], 'order' => 2]);
 
         $this->actingAs($stranger)->get(route('organizations.posts.index', $organization))->assertForbidden();
         $this->actingAs($stranger)->get(route('organizations.agendas.index', $organization))->assertForbidden();
@@ -81,6 +87,9 @@ class OrganizationCmsTest extends TestCase
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'agenda', 'content' => [], 'order' => 0]);
+        $page->sections()->create(['key' => 'pengumuman', 'content' => [], 'order' => 1]);
 
         $this->actingAs($user)
             ->post(route('organizations.agendas.store', $organization), [

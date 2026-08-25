@@ -1,4 +1,4 @@
-@extends('layouts.account')
+@extends('layouts.organization')
 
 @section('title', $organization->name . ' — Website-mu')
 
@@ -154,63 +154,77 @@
         </div>
     @endunless
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-        <a href="{{ route('organizations.posts.index', $organization) }}"
-            class="bg-white rounded-2xl shadow-soft p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all">
-            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg class="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9l5 5v9a2 2 0 0 1-2 2Z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M9 16h6M9 8h2" />
-                </svg>
-            </div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Konten</p>
-            <p class="font-bold text-gray-800 text-sm sm:text-base">Berita</p>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ $organization->posts()->count() }} berita</p>
-        </a>
-        <a href="{{ route('organizations.agendas.index', $organization) }}"
-            class="bg-white rounded-2xl shadow-soft p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all">
-            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg class="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
-                </svg>
-            </div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Konten</p>
-            <p class="font-bold text-gray-800 text-sm sm:text-base">Agenda</p>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ $organization->agendas()->count() }} agenda</p>
-        </a>
-        <a href="{{ route('organizations.announcements.index', $organization) }}"
-            class="bg-white rounded-2xl shadow-soft p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all">
-            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg class="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" />
-                </svg>
-            </div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Konten</p>
-            <p class="font-bold text-gray-800 text-sm sm:text-base">Pengumuman</p>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ $organization->announcements()->count() }} pengumuman
-            </p>
-        </a>
-        <a href="{{ route('organizations.gallery.index', $organization) }}"
-            class="bg-white rounded-2xl shadow-soft p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all">
-            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg class="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L17.5 10 20 12.5M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5" />
-                    <circle cx="8.5" cy="8.5" r="1.25" />
-                </svg>
-            </div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Konten</p>
-            <p class="font-bold text-gray-800 text-sm sm:text-base">Galeri</p>
-            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ $organization->photos()->count() }} foto</p>
-        </a>
-    </div>
+    @php
+        // Only show a content quick-link if the organization's builder pages actually contain
+        // that section — an org whose template never included e.g. galeri shouldn't see a
+        // content shortcut for something it has no section to display (see also the sidebar
+        // filter in layouts/organization.blade.php, which applies the same rule).
+        $activeSectionKeys = $organization->pages->flatMap->sections->pluck('key')->unique();
+
+        $contentLinks = collect([
+            [
+                'route' => 'organizations.posts.index',
+                'section' => 'daftar-berita',
+                'label' => 'Berita',
+                'count' => $organization->posts()->count(),
+                'countLabel' => 'berita',
+                'paths' => [
+                    'M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9l5 5v9a2 2 0 0 1-2 2Z',
+                    'M9 12h6M9 16h6M9 8h2',
+                ],
+            ],
+            [
+                'route' => 'organizations.agendas.index',
+                'section' => 'agenda',
+                'label' => 'Agenda',
+                'count' => $organization->agendas()->count(),
+                'countLabel' => 'agenda',
+                'paths' => ['M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z'],
+            ],
+            [
+                'route' => 'organizations.announcements.index',
+                'section' => 'pengumuman',
+                'label' => 'Pengumuman',
+                'count' => $organization->announcements()->count(),
+                'countLabel' => 'pengumuman',
+                'paths' => ['M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9'],
+            ],
+            [
+                'route' => 'organizations.gallery.index',
+                'section' => 'galeri',
+                'label' => 'Galeri',
+                'count' => $organization->photos()->count(),
+                'countLabel' => 'foto',
+                'paths' => ['M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L17.5 10 20 12.5M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5'],
+                'circle' => ['cx' => '8.5', 'cy' => '8.5', 'r' => '1.25'],
+            ],
+        ])->filter(fn ($item) => $activeSectionKeys->contains($item['section']));
+    @endphp
+
+    @if ($contentLinks->isNotEmpty())
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+            @foreach ($contentLinks as $item)
+                <a href="{{ route($item['route'], $organization) }}"
+                    class="bg-white rounded-2xl shadow-soft p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+                    <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                        <svg class="w-4.5 h-4.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            @foreach ($item['paths'] as $d)
+                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $d }}" />
+                            @endforeach
+                            @isset($item['circle'])
+                                <circle cx="{{ $item['circle']['cx'] }}" cy="{{ $item['circle']['cy'] }}"
+                                    r="{{ $item['circle']['r'] }}" />
+                            @endisset
+                        </svg>
+                    </div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Konten</p>
+                    <p class="font-bold text-gray-800 text-sm sm:text-base">{{ $item['label'] }}</p>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ $item['count'] }} {{ $item['countLabel'] }}</p>
+                </a>
+            @endforeach
+        </div>
+    @endif
 
     <div class="bg-white rounded-2xl shadow-soft p-6 mb-8">
         <div class="flex items-center justify-between mb-4">

@@ -12,6 +12,7 @@ class OrganizationAgendaController extends Controller
 {
     public function index(Organization $organization): View
     {
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('viewAny', [Agenda::class, $organization]);
 
         return view('organizations.agendas.index', [
@@ -22,6 +23,7 @@ class OrganizationAgendaController extends Controller
 
     public function create(Organization $organization): View
     {
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
 
         return view('organizations.agendas.form', [
@@ -32,6 +34,7 @@ class OrganizationAgendaController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
 
         $organization->agendas()->create($this->validated($request));

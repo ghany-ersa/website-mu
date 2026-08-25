@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.organization')
 
 @section('title', ($network->exists ? 'Edit Jaringan' : 'Tambah Jaringan').' — '.$organization->name.' — Website-mu')
 

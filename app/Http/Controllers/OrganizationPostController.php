@@ -14,6 +14,7 @@ class OrganizationPostController extends Controller
 {
     public function index(Organization $organization): View
     {
+        abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('viewAny', [Post::class, $organization]);
 
         return view('organizations.posts.index', [
@@ -24,6 +25,7 @@ class OrganizationPostController extends Controller
 
     public function create(Organization $organization): View
     {
+        abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('create', [Post::class, $organization]);
 
         return view('organizations.posts.form', [
@@ -34,6 +36,7 @@ class OrganizationPostController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
+        abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('create', [Post::class, $organization]);
 
         $validated = $this->validated($request);

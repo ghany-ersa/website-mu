@@ -12,6 +12,7 @@ class OrganizationNetworkController extends Controller
 {
     public function index(Organization $organization): View
     {
+        abort_unless($organization->hasSection('jaringan-aum-ortom'), 404);
         $this->authorize('viewAny', [OrganizationNetwork::class, $organization]);
 
         return view('organizations.networks.index', [
@@ -22,6 +23,7 @@ class OrganizationNetworkController extends Controller
 
     public function create(Organization $organization): View
     {
+        abort_unless($organization->hasSection('jaringan-aum-ortom'), 404);
         $this->authorize('create', [OrganizationNetwork::class, $organization]);
 
         return view('organizations.networks.form', [
@@ -32,6 +34,7 @@ class OrganizationNetworkController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
+        abort_unless($organization->hasSection('jaringan-aum-ortom'), 404);
         $this->authorize('create', [OrganizationNetwork::class, $organization]);
 
         $organization->networks()->create([
