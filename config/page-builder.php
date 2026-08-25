@@ -13,9 +13,9 @@
 // the "Tambah Section" picker and must not let the user delete, duplicate, or drag-reorder — see
 // OrganizationPage::footerSection()/ensureFooter() and OrganizationSectionController for the
 // enforcement. `header` and `footer` are locked: every page must always start with exactly one
-// header and end with exactly one footer. Unlike footer, header still has editable fields
-// (org_name) and stays clickable in the builder sidebar — only its position/delete/duplicate
-// are locked, not its properties panel.
+// header and end with exactly one footer. Both have no editable `fields` — they always show the
+// organization's own name (see header.blade.php/footer.blade.php) with no override — so neither
+// is clickable in the builder sidebar (see edit.blade.php's $hasFields guard).
 return [
 
     'sections' => [
