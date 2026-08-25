@@ -12,7 +12,10 @@
 // `locked` (bool, default false), when true, marks a section the builder UI must not offer in
 // the "Tambah Section" picker and must not let the user delete, duplicate, or drag-reorder — see
 // OrganizationPage::footerSection()/ensureFooter() and OrganizationSectionController for the
-// enforcement. Currently only `footer` is locked: every page must always end with exactly one.
+// enforcement. `header` and `footer` are locked: every page must always start with exactly one
+// header and end with exactly one footer. Unlike footer, header still has editable fields
+// (org_name) and stays clickable in the builder sidebar — only its position/delete/duplicate
+// are locked, not its properties panel.
 return [
 
     'sections' => [
@@ -32,6 +35,7 @@ return [
         'header' => [
             'label' => 'Header',
             'fields' => ['org_name'],
+            'locked' => true,
         ],
         'footer' => [
             'label' => 'Footer',

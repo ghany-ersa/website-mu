@@ -26,13 +26,26 @@ class OrganizationSectionController extends Controller
     }
 
     /**
-     * Locked sections (currently just `footer`, see config/page-builder.php) must always
-     * exist, stay last, and can't be edited into a different key/position by the user —
-     * so any mutation the builder normally allows (delete, duplicate, hide) is rejected here.
+     * Locked sections (header, footer — see config/page-builder.php) must always exist and
+     * stay in their pinned position (header first, footer last), so delete/duplicate is
+     * rejected here regardless of which locked section it is.
      */
     private function ensureNotLocked(OrganizationSection $section): void
     {
         abort_if(config('page-builder.sections.'.$section->key.'.locked', false), 403, 'Section ini tidak dapat diubah.');
+    }
+
+    /**
+     * Unlike delete/duplicate, editing content is only blocked for locked sections that have
+     * no editable fields at all (currently just `footer`) — header is locked in position but
+     * still exposes `org_name`, which the user must be able to edit from the builder.
+     */
+    private function ensureContentEditable(OrganizationSection $section): void
+    {
+        $locked = config('page-builder.sections.'.$section->key.'.locked', false);
+        $hasFields = filled(config('page-builder.sections.'.$section->key.'.fields', []));
+
+        abort_if($locked && ! $hasFields, 403, 'Section ini tidak dapat diubah.');
     }
 
     /**
@@ -82,7 +95,7 @@ class OrganizationSectionController extends Controller
     {
         $this->authorize('update', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
-        $this->ensureNotLocked($section);
+        $this->ensureContentEditable($section);
 
         $fields = config('page-builder.sections.'.$section->key.'.fields', []);
 
@@ -187,22 +200,28 @@ class OrganizationSectionController extends Controller
             'section_ids.*' => ['integer', 'exists:organization_sections,id'],
         ]);
 
-        // The footer is locked (see config/page-builder.php) and must always render last,
-        // so any footer id the client sends is silently dropped rather than being allowed
-        // to move it — the drag-and-drop UI shouldn't offer it as draggable in the first
-        // place, but this is the authoritative guard regardless of what the request sends.
+        // Header and footer are locked (see config/page-builder.php) and must always stay
+        // first/last respectively, so any of their ids the client sends is silently dropped
+        // rather than being allowed to move — the drag-and-drop UI shouldn't offer them as
+        // draggable in the first place, but this is the authoritative guard regardless of
+        // what the request sends.
+        $headerId = $page->sections()->where('key', 'header')->value('id');
         $footerId = $page->sections()->where('key', 'footer')->value('id');
         $orderedIds = array_values(array_filter(
             $validated['section_ids'],
-            fn (int $id) => $id !== $footerId
+            fn (int $id) => $id !== $headerId && $id !== $footerId
         ));
 
+        if ($headerId) {
+            $page->sections()->where('id', $headerId)->update(['order' => 0]);
+        }
+
         foreach ($orderedIds as $index => $sectionId) {
-            $page->sections()->where('id', $sectionId)->update(['order' => $index]);
+            $page->sections()->where('id', $sectionId)->update(['order' => $index + 1]);
         }
 
         if ($footerId) {
-            $page->sections()->where('id', $footerId)->update(['order' => count($orderedIds)]);
+            $page->sections()->where('id', $footerId)->update(['order' => count($orderedIds) + 1]);
         }
 
         $page->load('sections');

@@ -1,6 +1,6 @@
 {{--
     Locked section — always present, always last, not user-editable (see config/page-builder.php
-    and OrganizationPage::ensureFooter()/sectionsWithFooterLast()). Renders both in tenant-page
+    and OrganizationPage::ensureFooter()/sectionsInDisplayOrder()). Renders both in tenant-page
     context ($organization set, template-preview context has none) and template-preview context
     ($template set instead) — every field below falls back gracefully when $organization is absent.
 

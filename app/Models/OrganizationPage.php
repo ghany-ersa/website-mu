@@ -43,20 +43,20 @@ class OrganizationPage extends Model
     }
 
     /**
-     * Every page must always render exactly one footer, last, regardless of what the
-     * `order` column says — sorts non-footer sections by `order` first and appends the
-     * footer row itself, so a stray reorder request can never move it out of last place.
-     * Callers that need this (the render partial, the builder sidebar) should use this
-     * instead of the raw sections() relation.
+     * Every page must always render exactly one header first and one footer last,
+     * regardless of what the `order` column says — pulls the header/footer rows out and
+     * pins them to the front/back, so a stray reorder request can never move either out
+     * of place. Callers that need this (the render partial, the builder sidebar) should
+     * use this instead of the raw sections() relation.
      *
      * @return \Illuminate\Support\Collection<int, OrganizationSection>
      */
-    public function sectionsWithFooterLast(): \Illuminate\Support\Collection
+    public function sectionsInDisplayOrder(): \Illuminate\Support\Collection
     {
         $sections = $this->sections;
 
-        return $sections->where('key', '!=', 'footer')
-            ->values()
+        return $sections->where('key', 'header')->values()
+            ->concat($sections->whereNotIn('key', ['header', 'footer'])->values())
             ->concat($sections->where('key', 'footer')->values());
     }
 

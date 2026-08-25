@@ -318,19 +318,29 @@
 
                 <ul id="section-list" class="flex-1 overflow-y-auto px-2.5 pt-2.5 pb-1 space-y-1">
                     @foreach ($currentPage->sections->where('key', '!=', 'footer') as $section)
+                        @php $isLocked = config('page-builder.sections.'.$section->key.'.locked', false); @endphp
                         <li data-section-id="{{ $section->id }}"
                             data-is-visible="{{ $section->is_visible ? '1' : '0' }}"
+                            @if ($isLocked) data-locked @endif
                             @click="selectSection({{ $section->id }})"
                             :class="editingSectionId === {{ $section->id }} ? 'bg-primary/5 ring-1 ring-primary/20' :
                                 'hover:bg-gray-50'"
                             class="group rounded-xl px-2.5 py-2.5 flex items-center gap-2 cursor-pointer transition {{ !$section->is_visible ? 'opacity-45' : '' }}">
-                            <span class="cursor-move text-gray-300 hover:text-gray-500 shrink-0 px-0.5 touch-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                    class="w-4 h-4">
-                                    <path
-                                        d="M7 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6-11a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-                                </svg>
-                            </span>
+                            @if ($isLocked)
+                                <span class="shrink-0 px-0.5 text-gray-300" title="Selalu di posisi ini, tidak dapat dihapus/diduplikasi">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            @else
+                                <span class="cursor-move text-gray-300 hover:text-gray-500 shrink-0 px-0.5 touch-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        class="w-4 h-4">
+                                        <path
+                                            d="M7 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6-11a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                                    </svg>
+                                </span>
+                            @endif
 
                             <span class="section-icon-wrap shrink-0 w-7 h-7 rounded-lg flex items-center justify-center"
                                 :class="editingSectionId === {{ $section->id }} ? 'bg-primary text-white' :
@@ -356,37 +366,41 @@
                                     d="m10.748 13.93 2.523 2.523a9.987 9.987 0 0 1-3.27.547c-4.258 0-7.894-2.66-9.337-6.41a1.651 1.651 0 0 1 0-1.186A10.007 10.007 0 0 1 2.839 6.02L6.07 9.252a4 4 0 0 0 4.678 4.678Z" />
                             </svg>
 
-                            <div class="flex items-center shrink-0 opacity-0 group-hover:opacity-100 transition">
-                                <form
-                                    action="{{ route('organizations.sections.duplicate', [$organization, $section]) }}"
-                                    method="POST" @click.stop>
-                                    @csrf
-                                    <button type="submit" title="Duplikasi"
-                                        class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-primary hover:bg-primary/10 transition">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                            fill="currentColor" class="w-3.5 h-3.5">
-                                            <path
-                                                d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" />
-                                            <path
-                                                d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h8a1.5 1.5 0 0 0 1.5-1.5V10.62a1.5 1.5 0 0 0-.44-1.06L10.44 6.44A1.5 1.5 0 0 0 9.38 6H4.5Z" />
-                                        </svg>
-                                    </button>
-                                </form>
-                                <form
-                                    action="{{ route('organizations.sections.destroy', [$organization, $section]) }}"
-                                    method="POST" onsubmit="return confirm('Hapus section ini?');" @click.stop>
-                                    @csrf @method('DELETE')
-                                    <button type="submit" title="Hapus"
-                                        class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                            fill="currentColor" class="w-3.5 h-3.5">
-                                            <path fill-rule="evenodd"
-                                                d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
+                            @if (! $isLocked)
+                                <div class="flex items-center shrink-0 opacity-0 group-hover:opacity-100 transition">
+                                    <form
+                                        action="{{ route('organizations.sections.duplicate', [$organization, $section]) }}"
+                                        method="POST" @click.stop>
+                                        @csrf
+                                        <button type="submit" title="Duplikasi"
+                                            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-primary hover:bg-primary/10 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                fill="currentColor" class="w-3.5 h-3.5">
+                                                <path
+                                                    d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" />
+                                                <path
+                                                    d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h8a1.5 1.5 0 0 0 1.5-1.5V10.62a1.5 1.5 0 0 0-.44-1.06L10.44 6.44A1.5 1.5 0 0 0 9.38 6H4.5Z" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <form
+                                        action="{{ route('organizations.sections.destroy', [$organization, $section]) }}"
+                                        method="POST" onsubmit="return confirm('Hapus section ini?');" @click.stop>
+                                        @csrf @method('DELETE')
+                                        <button type="submit" title="Hapus"
+                                            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                fill="currentColor" class="w-3.5 h-3.5">
+                                                <path fill-rule="evenodd"
+                                                    d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <span class="text-[10px] font-semibold text-gray-400 bg-gray-100 rounded-full px-2 py-0.5 shrink-0">Terkunci</span>
+                            @endif
                         </li>
                     @endforeach
 
@@ -922,6 +936,8 @@
 
             new Sortable(document.getElementById('section-list'), {
                 handle: '.cursor-move',
+                filter: '[data-locked]',
+                preventOnFilter: false,
                 animation: 150,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
