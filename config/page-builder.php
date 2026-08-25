@@ -45,7 +45,18 @@ return [
         'tentang-organisasi' => [
             'label' => 'Tentang Organisasi',
             'fields' => ['title', 'body', 'image', 'stats'],
-            'defaults' => ['title' => 'Tentang Organisasi'],
+            'defaults' => [
+                'title' => 'Tentang Organisasi',
+                // Same fallback templates/sections/tentang-organisasi.blade.php already shows
+                // when `stats` is empty — seeded here too so a newly-added section starts with
+                // editable rows in the builder's properties panel instead of an empty stats
+                // editor that doesn't match what the canvas is actually rendering.
+                'stats' => [
+                    ['value' => '10+', 'label' => 'Tahun Berdiri'],
+                    ['value' => '100+', 'label' => 'Anggota'],
+                    ['value' => '5+', 'label' => 'Program Aktif'],
+                ],
+            ],
         ],
         'sambutan-ketua' => [
             'label' => 'Sambutan Ketua',
@@ -136,8 +147,14 @@ return [
         ],
         'cta' => [
             'label' => 'CTA',
-            'fields' => ['title', 'subtitle', 'cta_label'],
-            'defaults' => ['title' => 'Mari Bergabung'],
+            'fields' => [
+                'title', 'subtitle',
+                'cta_label', 'cta_type', 'cta_section', 'cta_url', 'cta_wa_number', 'cta_wa_message',
+            ],
+            'defaults' => [
+                'title' => 'Mari Bergabung',
+                'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
+            ],
         ],
     ],
 

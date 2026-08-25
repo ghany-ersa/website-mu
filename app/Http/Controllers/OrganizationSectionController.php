@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use App\Models\OrganizationSection;
+use App\Services\CmsSampleDataSeeder;
 use App\Services\GoogleMapsEmbedResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -50,6 +51,16 @@ class OrganizationSectionController extends Controller
 
     /**
      * Append a new section of the given key to the page, using its registry defaults.
+     *
+     * For a CMS-backed section (struktur-pengurus, program-unggulan, layanan, daftar-berita,
+     * agenda, pengumuman, jaringan-aum-ortom, galeri — see CmsSampleDataSeeder), the section
+     * partial renders live from the organization's CMS tables rather than from `content`
+     * (see e.g. templates/sections/daftar-berita.blade.php), so a freshly-added section on an
+     * organization with no CMS data yet would otherwise render empty in the canvas. Reusing
+     * CmsSampleDataSeeder — the same seeding Organization::seedPagesFromTemplate() runs for a
+     * brand-new organization's starter sections — fills it with editable sample rows instead,
+     * but only if that CMS table is still empty, so it never touches real content the user has
+     * since added.
      */
     public function store(Request $request, Organization $organization, OrganizationPage $page): RedirectResponse
     {
@@ -77,6 +88,8 @@ class OrganizationSectionController extends Controller
             'content' => $content,
             'order' => $page->sections()->max('order') + 1,
         ]);
+
+        CmsSampleDataSeeder::seed($organization, [$validated['key']]);
 
         return redirect()
             ->route('organizations.builder.page', [$organization, $page])
