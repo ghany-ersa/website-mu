@@ -41,6 +41,9 @@
                 @auth
                     <a href="{{ route('organizations.index') }}" class="text-gray-600 hover:text-primary transition-colors">Organisasi Saya</a>
                     <a href="{{ route('organizations.create') }}" class="text-gray-600 hover:text-primary transition-colors">+ Buat Organisasi</a>
+                    @if (auth()->user()->is_admin)
+                        <a href="{{ route('admin.templates.index') }}" class="text-gray-600 hover:text-primary transition-colors">Admin</a>
+                    @endif
                     <span class="h-4 w-px bg-gray-200"></span>
                     <span class="text-gray-500">{{ auth()->user()->name }}</span>
                     <form action="{{ route('logout') }}" method="POST">
@@ -83,6 +86,9 @@
                 <span class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">{{ auth()->user()->name }}</span>
                 <a href="{{ route('organizations.index') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">Organisasi Saya</a>
                 <a href="{{ route('organizations.create') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">+ Buat Organisasi</a>
+                @if (auth()->user()->is_admin)
+                    <a href="{{ route('admin.templates.index') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">Admin</a>
+                @endif
                 <form action="{{ route('logout') }}" method="POST" class="mt-1">
                     @csrf
                     <button type="submit" class="w-full text-left px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors">Keluar</button>

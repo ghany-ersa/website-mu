@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrganizationAgendaController;
@@ -126,8 +127,9 @@ Route::middleware('auth')->group(function () {
         ->name('organizations.sections.duplicate');
 });
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('templates', TemplateController::class)->except(['show']);
+    Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
 });
 
 require __DIR__.'/auth.php';
