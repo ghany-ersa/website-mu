@@ -47,10 +47,19 @@ class OrganizationController extends Controller
 
     /**
      * Store a newly created organization and attach the creator as Owner.
+     *
+     * Defaults to plan_id 1 (Starter, the cheapest paid plan) rather than leaving it null —
+     * there's no free tier, so every organization needs a real plan from the moment it's
+     * created, not just once an admin later approves a PlanChangeRequest. Hardcoded to id 1
+     * rather than looked up by key: this app has exactly one database, so the id is stable,
+     * and PlanSeeder always creates the Starter plan first.
      */
     public function store(StoreOrganizationRequest $request): RedirectResponse
     {
-        $organization = Organization::create($request->validated());
+        $organization = Organization::create([
+            ...$request->validated(),
+            'plan_id' => 1,
+        ]);
 
         $organization->members()->attach(Auth::id(), ['role' => OrganizationRole::Owner->value]);
 
@@ -80,11 +89,13 @@ class OrganizationController extends Controller
      * Toggle the organization's publish status. Any member may do this (same tier as
      * brand settings) — no product requirement yet for restricting it to the Owner.
      *
-     * Publishing (not un-publishing) requires a plan that's been paid for and isn't expired —
-     * an org that never had a plan approved, or whose plan_expires_at has lapsed, is redirected
-     * to the subscription page instead. Un-publishing is always allowed regardless of plan
-     * state, and a site already published before its plan expired stays live (no auto-teardown
-     * — see Organization::planIsExpired()).
+     * Publishing (not un-publishing) requires a plan that's been paid for, isn't expired, and
+     * whose usage doesn't exceed the plan's limits — an org that never had a plan approved,
+     * whose plan_expires_at has lapsed, or that's over its content/component limits (see
+     * Organization::planViolations()) is redirected to the subscription page instead.
+     * Un-publishing is always allowed regardless of plan state, and a site already published
+     * before it started violating its plan stays live (no auto-teardown — the public page
+     * shows a violation badge instead, see organizations/pages/_document.blade.php).
      */
     public function publish(Organization $organization): RedirectResponse
     {
@@ -92,10 +103,10 @@ class OrganizationController extends Controller
 
         $publishing = $organization->status !== OrganizationStatus::Published;
 
-        if ($publishing && (blank($organization->plan_id) || $organization->planIsExpired())) {
+        if ($publishing && (blank($organization->plan_id) || $organization->violatesPlanRules())) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('error', 'Situs belum bisa dipublikasikan. Selesaikan pembayaran paket langganan terlebih dahulu.');
+                ->with('error', 'Situs belum bisa dipublikasikan. Selesaikan pembayaran atau sesuaikan konten dengan batas paket terlebih dahulu.');
         }
 
         $organization->publish($publishing);

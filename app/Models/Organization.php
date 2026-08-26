@@ -173,10 +173,136 @@ class Organization extends Model
      * decision, an expired plan keeps its existing limits (see PlanLimitService) rather than
      * falling back to a free tier; this only drives the public site's renewal-reminder badge
      * (see organizations/pages/_document.blade.php).
+     *
+     * A null plan_expires_at is NOT treated as expired here — a brand-new organization has
+     * never had a plan_expires_at set at all, which is a different situation ("never paid",
+     * see hasPaidForCurrentPlan()) from "was paid, that period is now over". Both drive
+     * violation badges, just with a different message.
      */
     public function planIsExpired(): bool
     {
         return $this->plan_expires_at !== null && $this->plan_expires_at->isPast();
+    }
+
+    /**
+     * Whether there's a currently-valid payment behind this organization's plan_id — i.e. an
+     * Approved PlanChangeRequest for the plan this organization is on, whose paid-for period
+     * (plan_expires_at) hasn't lapsed yet.
+     *
+     * Organizations are created with plan_id already set (see OrganizationController::store())
+     * so they can use the CMS/builder immediately, but that's not the same as having paid:
+     * plan_expires_at stays null until a PlanChangeRequest for it is actually approved. This
+     * is what plan_expires_at === null really means — "never paid" — as opposed to
+     * planIsExpired()'s "was paid, that period lapsed."
+     */
+    public function hasPaidForCurrentPlan(): bool
+    {
+        return $this->plan_expires_at !== null && $this->plan_expires_at->isFuture();
+    }
+
+    /**
+     * The Approved PlanChangeRequest currently backing this organization's plan_id/
+     * plan_expires_at, if hasPaidForCurrentPlan() is true — i.e. the payment that's actually
+     * in force right now, not just the most recent one on file (a later request for a
+     * different plan could exist as Pending/Rejected without having taken effect).
+     *
+     * PlanLimitService reads this request's limits_snapshot (frozen at approval time) instead
+     * of the plan's live limits, so an org that already paid isn't affected if an admin edits
+     * the plan's limits afterward — see PlanChangeRequestService::approve().
+     */
+    public function currentApprovedPlanChangeRequest(): ?PlanChangeRequest
+    {
+        if (! $this->hasPaidForCurrentPlan()) {
+            return null;
+        }
+
+        return $this->planChangeRequests
+            ->where('status', PlanChangeRequestStatus::Approved)
+            ->where('requested_plan_id', $this->plan_id)
+            ->sortByDesc('reviewed_at')
+            ->first();
+    }
+
+    /**
+     * Human-readable list of ways this organization currently breaks its own plan's rules —
+     * derived fresh on every call rather than stored, since content counts and plan_expires_at
+     * change independently of each other. Three kinds of violation:
+     *
+     *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) — happens after a
+     *    downgrade, since PlanLimitService::canCreate() only blocks *new* creation and never
+     *    deletes existing over-limit content.
+     *  - Total page-builder sections over 'sections_total' — same downgrade scenario, for
+     *    components instead of CMS records.
+     *  - The paid period has lapsed (see planIsExpired()), or has never started at all (see
+     *    hasPaidForCurrentPlan()) — e.g. a newly created organization, which gets plan_id set
+     *    immediately (see OrganizationController::store()) but no plan_expires_at until an
+     *    admin approves its first PlanChangeRequest.
+     *
+     * Used by OrganizationController::publish() to block publishing while any of these hold,
+     * and by the public tenant page (_document.blade.php) to show a violation badge on an
+     * already-published site instead of silently taking it offline.
+     *
+     * @return array<int, string>
+     */
+    public function planViolations(): array
+    {
+        // key => [relation method, label]
+        $resources = [
+            'posts' => ['posts', 'Berita'],
+            'agendas' => ['agendas', 'Agenda'],
+            'announcements' => ['announcements', 'Pengumuman'],
+            'officers' => ['officers', 'Data Pengurus'],
+            'programs' => ['programs', 'Program/Layanan'],
+            'gallery_photos' => ['photos', 'Foto Galeri'],
+        ];
+
+        // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
+        // honored here too — otherwise an org that's protected from a plan's limits being
+        // lowered post-payment (see PlanLimitService::effectiveLimit()) would still get
+        // flagged as violating rules it never agreed to.
+        $service = app(\App\Services\PlanLimitService::class);
+        $violations = [];
+
+        foreach ($resources as $key => [$relation, $label]) {
+            $limit = $service->effectiveLimit($this, $key);
+
+            if ($limit === null) {
+                continue;
+            }
+
+            $over = $this->{$relation}()->count() - $limit;
+
+            if ($over > 0) {
+                $violations[] = "{$label} melebihi batas paket ({$over} kelebihan)";
+            }
+        }
+
+        $sectionsLimit = $service->effectiveLimit($this, 'sections_total');
+
+        if ($sectionsLimit !== null) {
+            $sectionsOver = $service->countedSectionsTotal($this) - $sectionsLimit;
+
+            if ($sectionsOver > 0) {
+                $violations[] = "Jumlah komponen situs melebihi batas paket ({$sectionsOver} kelebihan)";
+            }
+        }
+
+        if ($this->planIsExpired()) {
+            $violations[] = 'Masa aktif paket langganan telah berakhir';
+        } elseif (! $this->hasPaidForCurrentPlan()) {
+            $violations[] = 'Pembayaran paket langganan belum dikonfirmasi';
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Shortcut for planViolations() !== [] — use this for a plain yes/no gate (e.g. disabling
+     * the publish button); use planViolations() when the specific reasons need to be shown.
+     */
+    public function violatesPlanRules(): bool
+    {
+        return $this->planViolations() !== [];
     }
 
     /**

@@ -31,6 +31,12 @@ class PlanChangeRequestService
             'reviewed_by_user_id' => $admin->id,
             'reviewed_at' => now(),
             'admin_note' => $note,
+            // Freezes the plan's limits as they exist right now — if an admin edits the plan's
+            // limits later, an org that already paid keeps what it paid for (see
+            // PlanLimitService::effectiveLimit()) rather than being silently squeezed or
+            // loosened by a change it never agreed to. A future renewal/upgrade approves a new
+            // request, which takes its own fresh snapshot.
+            'limits_snapshot' => $request->requestedPlan->limits->pluck('max_count', 'key')->all(),
         ]);
     }
 

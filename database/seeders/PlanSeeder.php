@@ -15,14 +15,14 @@ class PlanSeeder extends Seeder
 {
     public function run(): void
     {
-        $free = Plan::create([
-            'key' => 'free',
-            'name' => 'Free',
-            'description' => '',
-            'price_monthly' => 0,
+        $starter = Plan::create([
+            'key' => 'starter',
+            'name' => 'Starter',
+            'description' => 'Paket dasar untuk memulai situs organisasi.',
+            'price_monthly' => 6000,
         ]);
 
-        $free->limits()->createMany([
+        $starter->limits()->createMany([
             ['key' => 'posts', 'max_count' => 0],
             ['key' => 'agendas', 'max_count' => 3],
             ['key' => 'announcements', 'max_count' => 0],
@@ -36,7 +36,7 @@ class PlanSeeder extends Seeder
             'key' => 'organization',
             'name' => 'Organization',
             'description' => 'Domain kustom, CMS penuh, tanpa branding platform.',
-            'price_monthly' => 9900,
+            'price_monthly' => 12500,
         ]);
 
         $organization->limits()->createMany([

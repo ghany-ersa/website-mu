@@ -82,7 +82,26 @@ class PlanLimitService
             ->count();
     }
 
-    private function effectiveLimit(Organization $organization, string $key): ?int
+    /**
+     * The limit actually in force for this key. Resolution order:
+     *
+     *  1. Tenant override (OrganizationLimitOverride) — a negotiated per-tenant exception
+     *     always wins over anything plan-derived.
+     *  2. The paid-for plan's frozen limits_snapshot (see
+     *     Organization::currentApprovedPlanChangeRequest() and
+     *     PlanChangeRequestService::approve()) — so an org that already paid keeps what it
+     *     paid for even if an admin edits the plan's limits afterward. An org whose payment
+     *     predates this snapshot feature has a null snapshot and falls through to (3).
+     *  3. The plan's current live limits (Plan::limitFor()) — used for orgs that haven't
+     *     paid yet (limits_snapshot doesn't exist until an admin approves a payment) and as
+     *     the fallback for pre-snapshot approvals.
+     *
+     * Null means unlimited. Exposed publicly (not just via canCreate()/remaining()) so
+     * callers that need to compare it against currentCount() directly — e.g. rendering "3
+     * over the limit of 5" on the subscription page — don't have to re-derive it from a
+     * clamped remaining() value.
+     */
+    public function effectiveLimit(Organization $organization, string $key): ?int
     {
         $override = $organization->limitOverrides->firstWhere('key', $key);
 
@@ -90,10 +109,21 @@ class PlanLimitService
             return $override->max_count;
         }
 
+        $snapshot = $organization->currentApprovedPlanChangeRequest()?->limits_snapshot;
+
+        if ($snapshot !== null && array_key_exists($key, $snapshot)) {
+            return $snapshot[$key];
+        }
+
         return $this->effectivePlan($organization)?->limitFor($key);
     }
 
-    private function currentCount(Organization $organization, string $key): int
+    /**
+     * Actual count of records the organization has for this resource key — unclamped, so
+     * unlike remaining() (which floors at 0) this can be compared against effectiveLimit()
+     * to tell "at the limit" apart from "over the limit by N".
+     */
+    public function currentCount(Organization $organization, string $key): int
     {
         if ($key === 'sections_total') {
             return $this->countedSectionsTotal($organization);

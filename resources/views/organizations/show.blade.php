@@ -15,22 +15,32 @@
                 </p>
             </div>
 
-            <form action="{{ route('organizations.publish', $organization) }}" method="POST" class="shrink-0"
-                x-data @submit.prevent="if (await confirmAction('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
-                @csrf
-                @method('PATCH')
-                <button type="submit"
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ring-1 ring-inset transition cursor-pointer {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-secondary text-white ring-secondary hover:bg-secondary/90' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50' }}">
-                    <span
-                        class="w-1.5 h-1.5 rounded-full {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-white' : 'bg-gray-400' }}"></span>
-                    {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Published' : 'Draft' }}
-                    <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
-            </form>
+            @php
+                $blockedFromPublishing = $organization->status !== \App\Enums\OrganizationStatus::Published && $organization->violatesPlanRules();
+            @endphp
+            <div class="shrink-0 flex flex-col items-end gap-1.5">
+                <form action="{{ route('organizations.publish', $organization) }}" method="POST"
+                    x-data @submit.prevent="if (await confirmAction('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" {{ $blockedFromPublishing ? 'disabled' : '' }}
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ring-1 ring-inset transition {{ $blockedFromPublishing ? 'bg-gray-50 text-gray-400 ring-gray-200 cursor-not-allowed' : 'cursor-pointer '.($organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-secondary text-white ring-secondary hover:bg-secondary/90' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50') }}">
+                        <span
+                            class="w-1.5 h-1.5 rounded-full {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-white' : 'bg-gray-400' }}"></span>
+                        {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Published' : 'Draft' }}
+                        <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
+                </form>
+                @if ($blockedFromPublishing)
+                    <a href="{{ route('organizations.plan.edit', $organization) }}" class="text-xs font-semibold text-amber-600 hover:underline whitespace-nowrap">
+                        ⚠ Batasi paket dilanggar
+                    </a>
+                @endif
+            </div>
         </div>
 
         {{-- Primary action: full-width, unmissable, distinct from the settings row below. --}}

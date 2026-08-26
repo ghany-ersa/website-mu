@@ -26,8 +26,15 @@ class OrganizationPlanController extends Controller
         return view('organizations.plan.edit', [
             'organization' => $organization,
             'plans' => $plans,
+            // used/limit are the raw, unclamped figures (unlike remaining(), which floors at
+            // 0) so the view can tell "at the limit" apart from "N over the limit" — see
+            // PlanLimitService::currentCount()/effectiveLimit().
             'usage' => collect($usageKeys)->mapWithKeys(fn (string $key) => [
-                $key => $planLimitService->remaining($organization, $key),
+                $key => [
+                    'used' => $planLimitService->currentCount($organization, $key),
+                    'limit' => $planLimitService->effectiveLimit($organization, $key),
+                    'remaining' => $planLimitService->remaining($organization, $key),
+                ],
             ]),
             'pendingRequest' => $organization->pendingPlanChangeRequest(),
             // Plain array (not a Collection) so it round-trips through @json() as a JS object
@@ -62,7 +69,11 @@ class OrganizationPlanController extends Controller
             'duration_months' => ['required', 'integer', Rule::in([3, 6, 12])],
         ]);
 
-        if ((int) $validated['plan_id'] === $organization->plan_id) {
+        // Only block re-requesting the same plan once it's actually paid for — a brand-new
+        // organization already has plan_id set (see OrganizationController::store()) but
+        // hasn't paid yet (plan_expires_at is still null), so its very first payment request
+        // is for the plan it's already "on," and that has to be allowed through.
+        if ((int) $validated['plan_id'] === $organization->plan_id && $organization->hasPaidForCurrentPlan()) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
                 ->with('warning', 'Paket tersebut sudah menjadi paket aktif Anda.');

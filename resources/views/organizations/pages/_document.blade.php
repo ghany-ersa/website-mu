@@ -89,6 +89,13 @@
     <style>
         body { font-family: {!! $font['stack'] !!}; }
 
+        @if ($organization->planIsExpired() || $organization->violatesPlanRules())
+            /* Header sections render `sticky top-0` (see templates/sections/header.blade.php)
+               — the plan-violation banner sits fixed above it, so this pushes both the header
+               and the rest of the page down by the banner's own height instead of overlapping. */
+            body { padding-top: var(--plan-banner-height, 0px); }
+        @endif
+
         .reveal {
             opacity: 0;
             transform: translateY(28px);
@@ -114,10 +121,37 @@
     </style>
 </head>
 <body class="bg-white text-gray-800">
-    @if ($organization->planIsExpired())
-        <div class="bg-amber-50 border-b border-amber-200 text-amber-800 text-xs sm:text-sm text-center py-2 px-4">
-            Masa aktif paket situs ini telah berakhir. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
+    @if ($organization->planIsExpired() || $organization->violatesPlanRules())
+        {{-- Fixed (not sticky) so it stays pinned above the header section's own `sticky
+             top-0` (see templates/sections/header.blade.php) rather than competing with it
+             for the same scroll-anchored slot — the body's padding-top above makes room. --}}
+        <div id="plan-banner" class="fixed top-0 inset-x-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
+            <div class="max-w-6xl mx-auto flex items-center gap-2.5 px-4 py-2 text-xs sm:text-sm font-medium text-center sm:text-left">
+                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <span class="min-w-0">
+                    @if ($organization->planIsExpired())
+                        Masa aktif paket situs ini telah berakhir. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
+                    @elseif (! $organization->hasPaidForCurrentPlan())
+                        Pembayaran paket situs ini belum dikonfirmasi. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
+                    @else
+                        Situs ini melebihi batas paket yang berlaku. Sebagian konten mungkin perlu disesuaikan oleh pengelola.
+                    @endif
+                </span>
+            </div>
         </div>
+        <script>
+            // Measures the banner's actual rendered height (varies by viewport width as the
+            // text wraps) and feeds it to --plan-banner-height so the body's padding-top
+            // (see the <style> block above) always clears it exactly, with no magic number.
+            (function () {
+                const banner = document.getElementById('plan-banner');
+                const setHeight = () => document.documentElement.style.setProperty('--plan-banner-height', banner.offsetHeight + 'px');
+                setHeight();
+                window.addEventListener('resize', setHeight);
+            })();
+        </script>
     @endif
 
     {{-- The builder swaps this div's innerHTML after an AJAX section save/reorder (see

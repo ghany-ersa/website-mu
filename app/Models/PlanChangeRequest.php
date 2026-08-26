@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['organization_id', 'requested_plan_id', 'duration_months', 'payment_confirmed_at', 'requested_by_user_id', 'status', 'reviewed_by_user_id', 'reviewed_at', 'admin_note'])]
+#[Fillable(['organization_id', 'requested_plan_id', 'duration_months', 'limits_snapshot', 'payment_confirmed_at', 'requested_by_user_id', 'status', 'reviewed_by_user_id', 'reviewed_at', 'admin_note'])]
 class PlanChangeRequest extends Model
 {
     /**
@@ -19,6 +19,7 @@ class PlanChangeRequest extends Model
             'status' => PlanChangeRequestStatus::class,
             'reviewed_at' => 'datetime',
             'payment_confirmed_at' => 'datetime',
+            'limits_snapshot' => 'array',
         ];
     }
 

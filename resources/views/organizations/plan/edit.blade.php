@@ -41,7 +41,7 @@
 
         {{-- Usage overview: visual progress bars instead of plain numbers, so a near-full quota is obvious at a glance. --}}
         <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-soft border border-gray-100 p-5 sm:p-6 md:p-8 mb-6 sm:mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
                 <div class="min-w-0">
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Paket Aktif</p>
                     <p class="text-lg sm:text-xl font-extrabold text-gradient truncate">{{ $organization->plan?->name ?? 'Belum Diatur' }}</p>
@@ -51,29 +51,66 @@
                 @endif
             </div>
 
+            @if ($organization->plan)
+                <div class="mb-6">
+                    @if ($organization->hasPaidForCurrentPlan())
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 text-secondary text-xs font-bold px-3 py-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            Aktif sampai {{ $organization->plan_expires_at->translatedFormat('d M Y') }}
+                        </span>
+                    @elseif ($organization->planIsExpired())
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 text-red-700 text-xs font-bold px-3 py-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                            Berakhir sejak {{ $organization->plan_expires_at->translatedFormat('d M Y') }}
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                                <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            Menunggu Konfirmasi Pembayaran
+                        </span>
+                    @endif
+                </div>
+            @endif
+
             <div class="grid sm:grid-cols-2 gap-4">
-                @foreach ($usage as $key => $remaining)
+                @foreach ($usage as $key => $stat)
                     @php
-                        $limit = $organization->plan?->limitFor($key);
-                        $used = $limit !== null ? max(0, $limit - $remaining) : null;
-                        $pct = ($limit && $limit > 0) ? min(100, round(($used / $limit) * 100)) : 0;
-                        $isNearFull = $remaining !== null && $remaining <= 1;
+                        $used = $stat['used'];
+                        $limit = $stat['limit'];
+                        $remaining = $stat['remaining'];
+                        $isOverLimit = $limit !== null && $used > $limit;
+                        $isNearFull = ! $isOverLimit && $remaining !== null && $remaining <= 1;
+                        $pct = ($limit && $limit > 0) ? min(100, round(($used / $limit) * 100)) : ($isOverLimit ? 100 : 0);
                     @endphp
-                    <div class="rounded-2xl bg-gray-50/80 px-4 py-3.5">
+                    <div class="rounded-2xl px-4 py-3.5 {{ $isOverLimit ? 'bg-red-50 ring-1 ring-red-200' : 'bg-gray-50/80' }}">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <span class="inline-flex items-center gap-2 text-sm font-semibold {{ $isOverLimit ? 'text-red-700' : 'text-gray-700' }}">
+                                <svg class="w-4 h-4 {{ $isOverLimit ? 'text-red-400' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $usageIcons[$key] ?? '' }}" />
                                 </svg>
                                 {{ $usageLabels[$key] ?? $key }}
                             </span>
-                            <span class="text-xs font-bold {{ $isNearFull ? 'text-red-500' : 'text-gray-500' }}">
-                                {{ $remaining === null ? 'Tanpa Batas' : "Sisa {$remaining}" }}
+                            <span class="inline-flex items-center gap-1 text-xs font-bold {{ $isOverLimit ? 'text-red-600' : ($isNearFull ? 'text-red-500' : 'text-gray-500') }}">
+                                @if ($isOverLimit)
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ $used }}/{{ $limit }} &mdash; {{ $used - $limit }} kelebihan
+                                @else
+                                    {{ $remaining === null ? 'Tanpa Batas' : "Sisa {$remaining}" }}
+                                @endif
                             </span>
                         </div>
-                        @if ($remaining !== null)
+                        @if ($limit !== null)
                             <div class="h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                                <div class="h-full rounded-full transition-all {{ $isNearFull ? 'bg-red-400' : 'bg-gradient-to-r from-primary to-secondary' }}"
+                                <div class="h-full rounded-full transition-all {{ $isOverLimit ? 'bg-red-500' : ($isNearFull ? 'bg-red-400' : 'bg-gradient-to-r from-primary to-secondary') }}"
                                      style="width: {{ $pct }}%"></div>
                             </div>
                         @else
