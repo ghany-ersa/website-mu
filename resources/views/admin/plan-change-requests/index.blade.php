@@ -32,13 +32,20 @@
                             <p class="text-xs text-gray-400">{{ $request->requestedBy->email }}</p>
                         </td>
                         <td class="px-5 py-4 font-semibold text-gray-800">
-                            {{ $request->requestedPlan->name }}
-                            <p class="text-xs font-normal text-gray-400">Rp {{ number_format($request->requestedPlan->price_monthly, 0, ',', '.') }}/bulan</p>
+                            {{ $request->requestedPlan->name }} &times; {{ $request->duration_months }} bulan
+                            <p class="text-xs font-normal text-gray-400">
+                                {{ $request->requestedPlan->formattedPrice() }}
+                                &mdash; Total Rp {{ number_format($request->totalPrice(), 0, ',', '.') }}
+                            </p>
                         </td>
                         <td class="px-5 py-4">
                             @switch($request->status)
                                 @case(\App\Enums\PlanChangeRequestStatus::Pending)
                                     <span class="px-2 py-1 rounded-full bg-amber-100 text-amber-600 text-xs font-semibold">{{ $request->status->label() }}</span>
+                                    @break
+                                @case(\App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
+                                    <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">{{ $request->status->label() }}</span>
+                                    <p class="text-xs text-gray-400 mt-1">Dikonfirmasi {{ $request->payment_confirmed_at?->translatedFormat('d M Y, H:i') }}</p>
                                     @break
                                 @case(\App\Enums\PlanChangeRequestStatus::Approved)
                                     <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-semibold">{{ $request->status->label() }}</span>
@@ -51,7 +58,7 @@
                             {{ $request->created_at->translatedFormat('d M Y, H:i') }}
                         </td>
                         <td class="px-5 py-4 text-right">
-                            @if ($request->status === \App\Enums\PlanChangeRequestStatus::Pending)
+                            @if (in_array($request->status, [\App\Enums\PlanChangeRequestStatus::Pending, \App\Enums\PlanChangeRequestStatus::PaymentConfirmed]))
                                 <div class="flex items-center justify-end gap-2">
                                     <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
                                           x-data @submit.prevent="if (await confirmAction('Tolak permintaan ini?')) $el.submit()">

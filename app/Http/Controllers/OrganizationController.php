@@ -79,12 +79,26 @@ class OrganizationController extends Controller
     /**
      * Toggle the organization's publish status. Any member may do this (same tier as
      * brand settings) — no product requirement yet for restricting it to the Owner.
+     *
+     * Publishing (not un-publishing) requires a plan that's been paid for and isn't expired —
+     * an org that never had a plan approved, or whose plan_expires_at has lapsed, is redirected
+     * to the subscription page instead. Un-publishing is always allowed regardless of plan
+     * state, and a site already published before its plan expired stays live (no auto-teardown
+     * — see Organization::planIsExpired()).
      */
     public function publish(Organization $organization): RedirectResponse
     {
         $this->authorize('update', $organization);
 
-        $organization->publish($organization->status !== OrganizationStatus::Published);
+        $publishing = $organization->status !== OrganizationStatus::Published;
+
+        if ($publishing && (blank($organization->plan_id) || $organization->planIsExpired())) {
+            return redirect()
+                ->route('organizations.plan.edit', $organization)
+                ->with('error', 'Situs belum bisa dipublikasikan. Selesaikan pembayaran paket langganan terlebih dahulu.');
+        }
+
+        $organization->publish($publishing);
 
         return back()->with('status', $organization->status === OrganizationStatus::Published
             ? 'Situs berhasil dipublikasikan.'

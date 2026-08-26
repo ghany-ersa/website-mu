@@ -376,10 +376,10 @@
                 $featuredPlanKey = $plans->last()?->key;
             @endphp
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div class="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
                 @foreach ($plans as $plan)
                     @php $featured = $plan->key === $featuredPlanKey; @endphp
-                    <div class="bg-white p-8 md:p-10 rounded-[2.5rem] {{ $featured ? 'shadow-float border-2 border-secondary relative' : 'shadow-soft border border-gray-100' }} flex flex-col justify-between">
+                    <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)] bg-white p-8 md:p-10 rounded-[2.5rem] {{ $featured ? 'shadow-float border-2 border-secondary relative' : 'shadow-soft border border-gray-100' }} flex flex-col justify-between">
                         @if ($featured)
                             <span class="absolute -top-4 right-8 bg-secondary text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider">Paling Direkomendasikan</span>
                         @endif
@@ -387,17 +387,24 @@
                             <span class="text-xs font-bold uppercase tracking-wider {{ $featured ? 'text-secondary bg-green-50' : 'text-gray-400 bg-gray-100' }} px-3 py-1 rounded-full">{{ $plan->name }}</span>
                             <h3 class="text-2xl font-bold text-gray-800 mt-4">{{ $planSubtitles[$plan->key] ?? $plan->name }}</h3>
                             <div class="mt-4 mb-1 flex items-center gap-3">
-                                <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
-                                <span class="text-sm text-gray-400">/bulan</span>
+                                @if ($plan->price_monthly === 0)
+                                    <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Gratis</span>
+                                @else
+                                    <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
+                                    <span class="text-sm text-gray-400">/bulan</span>
+                                @endif
                             </div>
                             <p class="text-xs text-gray-400 mb-6">{{ $plan->description }}</p>
-                            <ul class="space-y-4 text-sm text-gray-600 mb-8">
+                            <ul class="space-y-4 text-sm mb-8">
                                 @foreach ($plan->pricingFeatures() as $feature)
-                                    <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> {{ $feature }}</li>
+                                    <li class="flex items-center {{ $feature['available'] ? 'text-gray-600' : 'text-gray-400' }}">
+                                        <span class="{{ $feature['available'] ? 'text-secondary' : 'text-red-400' }} font-bold mr-3">{{ $feature['available'] ? '✓' : '✕' }}</span>
+                                        {{ $feature['label'] }}
+                                    </li>
                                 @endforeach
                             </ul>
                         </div>
-                        <a href="#kontak" class="w-full {{ $featured ? 'bg-secondary hover:bg-green-700 text-white shadow-md' : 'bg-gray-100 hover:bg-gray-200 text-gray-800' }} font-bold py-3.5 rounded-2xl text-center block transition">Pilih {{ $plan->name }}</a>
+                        <a href="https://wa.me/6285183220977?text={{ urlencode('Assalamualaikum, saya tertarik dengan paket '.$plan->name.' di website-mu.id.') }}" target="_blank" rel="noopener" class="w-full {{ $featured ? 'bg-secondary hover:bg-green-700 text-white shadow-md' : 'bg-gray-100 hover:bg-gray-200 text-gray-800' }} font-bold py-3.5 rounded-2xl text-center block transition">Pilih {{ $plan->name }}</a>
                     </div>
                 @endforeach
             </div>

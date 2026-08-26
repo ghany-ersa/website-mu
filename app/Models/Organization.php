@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
+use App\Enums\PlanChangeRequestStatus;
 use App\Services\CmsSampleDataSeeder;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'organization_type_id',
     'template_id',
     'plan_id',
+    'plan_expires_at',
     'name',
     'slug',
     'region',
@@ -48,6 +50,7 @@ class Organization extends Model
         return [
             'status' => OrganizationStatus::class,
             'published_at' => 'datetime',
+            'plan_expires_at' => 'datetime',
         ];
     }
 
@@ -145,14 +148,6 @@ class Organization extends Model
     }
 
     /**
-     * @return HasMany<OrganizationComponentOverride, $this>
-     */
-    public function componentOverrides(): HasMany
-    {
-        return $this->hasMany(OrganizationComponentOverride::class);
-    }
-
-    /**
      * @return HasMany<PlanChangeRequest, $this>
      */
     public function planChangeRequests(): HasMany
@@ -161,15 +156,27 @@ class Organization extends Model
     }
 
     /**
-     * The most recent plan change still awaiting admin approval, if any — a new request
-     * submitted via OrganizationPlanController::store() is blocked while one is pending, so
-     * there's never more than one at a time.
+     * The most recent plan change still awaiting payment/admin action, if any — covers both
+     * Pending (just submitted) and PaymentConfirmed (org says they've paid) since neither is
+     * final yet. A new request submitted via OrganizationPlanController::store() is blocked
+     * while one of these exists, so there's never more than one in flight at a time.
      */
     public function pendingPlanChangeRequest(): ?PlanChangeRequest
     {
         return $this->planChangeRequests
-            ->where('status', \App\Enums\PlanChangeRequestStatus::Pending)
+            ->whereIn('status', [PlanChangeRequestStatus::Pending, PlanChangeRequestStatus::PaymentConfirmed])
             ->first();
+    }
+
+    /**
+     * Whether the current plan's paid-for period has lapsed. Informational only — per product
+     * decision, an expired plan keeps its existing limits (see PlanLimitService) rather than
+     * falling back to a free tier; this only drives the public site's renewal-reminder badge
+     * (see organizations/pages/_document.blade.php).
+     */
+    public function planIsExpired(): bool
+    {
+        return $this->plan_expires_at !== null && $this->plan_expires_at->isPast();
     }
 
     /**

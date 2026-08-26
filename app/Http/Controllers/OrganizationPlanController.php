@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\PlanChangeRequestStatus;
 use App\Models\Organization;
 use App\Models\Plan;
+use App\Models\PlanChangeRequest;
 use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class OrganizationPlanController extends Controller
 
         $usageKeys = ['posts', 'agendas', 'announcements', 'officers', 'programs', 'gallery_photos', 'sections_total'];
 
-        $plans = Plan::with(['limits', 'components'])->where('is_active', true)->orderBy('price_monthly')->get();
+        $plans = Plan::with('limits')->where('is_active', true)->orderBy('price_monthly')->get();
 
         return view('organizations.plan.edit', [
             'organization' => $organization,
@@ -35,6 +36,7 @@ class OrganizationPlanController extends Controller
                 $plan->id => [
                     'name' => $plan->name,
                     'price' => number_format($plan->price_monthly, 0, ',', '.'),
+                    'priceRaw' => $plan->price_monthly,
                 ],
             ])->all(),
         ]);
@@ -57,6 +59,7 @@ class OrganizationPlanController extends Controller
 
         $validated = $request->validate([
             'plan_id' => ['required', Rule::exists('plans', 'id')->where('is_active', true)],
+            'duration_months' => ['required', 'integer', Rule::in([3, 6, 12])],
         ]);
 
         if ((int) $validated['plan_id'] === $organization->plan_id) {
@@ -67,12 +70,36 @@ class OrganizationPlanController extends Controller
 
         $organization->planChangeRequests()->create([
             'requested_plan_id' => $validated['plan_id'],
+            'duration_months' => $validated['duration_months'],
             'requested_by_user_id' => Auth::id(),
             'status' => PlanChangeRequestStatus::Pending,
         ]);
 
         return redirect()
             ->route('organizations.plan.edit', $organization)
-            ->with('status', 'Permintaan pergantian paket berhasil dikirim. Menunggu konfirmasi pembayaran oleh admin.');
+            ->with('status', 'Permintaan pergantian paket berhasil dikirim. Silakan lakukan pembayaran dan konfirmasi di bawah.');
+    }
+
+    /**
+     * Org owner confirms they've sent the transfer — only flips a status/timestamp so the
+     * admin's approval queue can tell "just submitted" apart from "claims to have paid,
+     * please verify." No payment gateway is involved; the admin still verifies manually
+     * before approving (see PlanChangeRequestService::approve()).
+     */
+    public function confirmPayment(Organization $organization, PlanChangeRequest $planChangeRequest): RedirectResponse
+    {
+        $this->authorize('manageBilling', $organization);
+
+        abort_unless($planChangeRequest->organization_id === $organization->id, 404);
+        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+
+        $planChangeRequest->update([
+            'status' => PlanChangeRequestStatus::PaymentConfirmed,
+            'payment_confirmed_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('organizations.plan.edit', $organization)
+            ->with('status', 'Konfirmasi pembayaran diterima. Menunggu verifikasi admin.');
     }
 }

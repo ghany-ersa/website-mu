@@ -29,14 +29,6 @@ class Plan extends Model
     }
 
     /**
-     * @return HasMany<PlanComponent, $this>
-     */
-    public function components(): HasMany
-    {
-        return $this->hasMany(PlanComponent::class);
-    }
-
-    /**
      * @return HasMany<Organization, $this>
      */
     public function organizations(): HasMany
@@ -53,24 +45,28 @@ class Plan extends Model
     }
 
     /**
-     * Whether a section key is allowed for this plan. Sections without a plan_components row
-     * are allowed by default (opt-out model) — only restricted sections need a row.
+     * "Gratis" for a free plan rather than the confusing "Rp 0/bulan" — used everywhere the
+     * price is shown to an organization/visitor (landing page, subscription page). Admin forms
+     * still use the raw price_monthly integer since they need an editable value, not this.
      */
-    public function allowsComponent(string $componentKey): bool
+    public function formattedPrice(): string
     {
-        return $this->components->firstWhere('component_key', $componentKey)?->is_allowed ?? true;
+        return $this->price_monthly === 0
+            ? 'Gratis'
+            : 'Rp '.number_format($this->price_monthly, 0, ',', '.').'/bulan';
     }
 
     /**
      * Human-readable feature bullets for pricing UI (e.g. the landing page), generated from
-     * this plan's limits/components rather than hand-written copy, so the list stays accurate
-     * as plan_limits/plan_components rows change. Labels for CMS resource keys are singular
-     * Indonesian nouns matched to PlanLimitService::RESOURCE_RELATIONS; a null max_count reads
-     * as "Unlimited". Only components explicitly allowed (is_allowed = true rows — i.e. ones
-     * this plan unlocks that aren't already allowed-by-default) are listed as exclusive
-     * features, since opt-out sections with no row are already implied by "penuh".
+     * this plan's limits rather than hand-written copy, so the list stays accurate as
+     * plan_limits rows change. Labels for CMS resource keys are singular Indonesian nouns
+     * matched to PlanLimitService::RESOURCE_RELATIONS; a null max_count reads as "Unlimited".
      *
-     * @return array<int, string>
+     * Each entry carries `available` so the view can render a cross icon instead of a
+     * checkmark for a max_count of 0 — a plain "0 Berita" bullet reads as ambiguous (can I
+     * make one or not?), so it needs a visibly different marker, not just different wording.
+     *
+     * @return array<int, array{label: string, available: bool}>
      */
     public function pricingFeatures(): array
     {
@@ -83,32 +79,23 @@ class Plan extends Model
             'gallery_photos' => 'Foto Galeri',
         ];
 
-        $componentLabels = [
-            'donasi-zakat-infak' => 'Donasi/Zakat',
-            'ppdb' => 'PPDB',
-            'formulir-kontak' => 'Formulir Kontak',
-            'jadwal-praktik' => 'Jadwal Praktik',
-        ];
-
         $features = [];
 
         foreach ($resourceLabels as $key => $label) {
             $max = $this->limitFor($key);
-            $features[] = $max === null ? "{$label} Unlimited" : "{$max} {$label}";
+            $features[] = match (true) {
+                $max === null => ['label' => "{$label} Unlimited", 'available' => true],
+                $max === 0 => ['label' => "{$label} Tidak Tersedia", 'available' => false],
+                default => ['label' => "{$max} {$label}", 'available' => true],
+            };
         }
 
-        if ($sectionsTotal = $this->limitFor('sections_total')) {
-            $features[] = "Maks. {$sectionsTotal} Komponen per Situs";
-        }
+        $sectionsTotal = $this->limitFor('sections_total');
 
-        $exclusive = $this->components
-            ->where('is_allowed', true)
-            ->pluck('component_key')
-            ->map(fn (string $key) => $componentLabels[$key] ?? $key)
-            ->all();
-
-        if ($exclusive) {
-            $features[] = 'Komponen Eksklusif: '.implode(', ', $exclusive);
+        if ($sectionsTotal !== null && $sectionsTotal > 0) {
+            $features[] = ['label' => "Maks. {$sectionsTotal} Komponen per Situs", 'available' => true];
+        } elseif ($sectionsTotal === 0) {
+            $features[] = ['label' => 'Komponen Situs Tidak Tersedia', 'available' => false];
         }
 
         return $features;

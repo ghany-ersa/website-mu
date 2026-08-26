@@ -7,6 +7,7 @@ use App\Enums\PublishStatus;
 use App\Models\Agenda;
 use App\Models\Announcement;
 use App\Models\Organization;
+use App\Models\OrganizationPage;
 use Illuminate\View\View;
 
 class OrganizationSiteController extends Controller
@@ -28,6 +29,27 @@ class OrganizationSiteController extends Controller
         return view('organizations.public.show', [
             'organization' => $organization,
             'page' => $page,
+        ]);
+    }
+
+    /**
+     * Preview a page exactly as it renders on the tenant subdomain, without going through
+     * that subdomain — for owners/admins checking a page (published or not) from the main
+     * app domain, e.g. in local dev where wildcard subdomains aren't routable. Reuses the
+     * same public view as show(), so this stays a faithful preview rather than a
+     * lookalike that can drift from the real tenant output.
+     */
+    public function preview(Organization $organization, ?OrganizationPage $page = null): View
+    {
+        $this->authorize('update', $organization);
+
+        $organization->load('pages.sections');
+        $currentPage = $page ?? $organization->pages->firstWhere('is_home', true) ?? $organization->pages->first();
+        abort_if($currentPage === null, 404);
+
+        return view('organizations.public.show', [
+            'organization' => $organization,
+            'page' => $currentPage,
         ]);
     }
 

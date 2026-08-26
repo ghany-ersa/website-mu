@@ -114,6 +114,12 @@
     </style>
 </head>
 <body class="bg-white text-gray-800">
+    @if ($organization->planIsExpired())
+        <div class="bg-amber-50 border-b border-amber-200 text-amber-800 text-xs sm:text-sm text-center py-2 px-4">
+            Masa aktif paket situs ini telah berakhir. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
+        </div>
+    @endif
+
     {{-- The builder swaps this div's innerHTML after an AJAX section save/reorder (see
          swapCanvas() in organizations/builder/edit.blade.php) — the reveal-observer script
          below deliberately sits outside it, so re-rendering the sections doesn't wipe out

@@ -7,6 +7,7 @@ use App\Enums\OrganizationStatus;
 use App\Models\GalleryPhoto;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -71,7 +72,13 @@ class OrganizationPublishingTest extends TestCase
     public function test_member_can_publish_and_unpublish_organization(): void
     {
         $user = User::factory()->create();
-        $organization = Organization::factory()->create(['status' => OrganizationStatus::Draft, 'published_at' => null]);
+        $plan = Plan::create(['key' => 'test-plan', 'name' => 'Test Plan', 'price_monthly' => 0]);
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Draft,
+            'published_at' => null,
+            'plan_id' => $plan->id,
+            'plan_expires_at' => now()->addMonth(),
+        ]);
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
 
         $this->actingAs($user)
@@ -98,6 +105,62 @@ class OrganizationPublishingTest extends TestCase
         $organization->refresh();
         $this->assertSame(OrganizationStatus::Published, $organization->status);
         $this->assertEquals($firstPublishedAt, $organization->published_at);
+    }
+
+    public function test_publish_is_blocked_without_an_active_plan(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Draft,
+            'plan_id' => null,
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.publish', $organization))
+            ->assertRedirect(route('organizations.plan.edit', $organization));
+
+        $organization->refresh();
+        $this->assertSame(OrganizationStatus::Draft, $organization->status);
+    }
+
+    public function test_publish_is_blocked_when_plan_has_expired(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::create(['key' => 'expired-test-plan', 'name' => 'Expired Test Plan', 'price_monthly' => 0]);
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Draft,
+            'plan_id' => $plan->id,
+            'plan_expires_at' => now()->subDay(),
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.publish', $organization))
+            ->assertRedirect(route('organizations.plan.edit', $organization));
+
+        $organization->refresh();
+        $this->assertSame(OrganizationStatus::Draft, $organization->status);
+    }
+
+    public function test_unpublish_is_allowed_even_when_plan_has_expired(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::create(['key' => 'expired-unpublish-plan', 'name' => 'Expired Unpublish Plan', 'price_monthly' => 0]);
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Published,
+            'published_at' => now(),
+            'plan_id' => $plan->id,
+            'plan_expires_at' => now()->subDay(),
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.publish', $organization))
+            ->assertRedirect();
+
+        $organization->refresh();
+        $this->assertSame(OrganizationStatus::Draft, $organization->status);
     }
 
     public function test_non_member_cannot_publish_organization(): void

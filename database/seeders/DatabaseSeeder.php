@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             OrganizationTypeSeeder::class,
             TemplateSeeder::class,
+            OrganizationSeeder::class,
         ]);
     }
 }

@@ -78,12 +78,6 @@ class OrganizationSectionController extends Controller
             'key' => ['required', 'string', 'in:'.implode(',', $addableKeys)],
         ]);
 
-        if (! $this->planLimitService->canUseSection($organization, $validated['key'])) {
-            return redirect()
-                ->route('organizations.builder.page', [$organization, $page])
-                ->with('warning', 'Komponen ini hanya tersedia di paket yang lebih tinggi. Upgrade paket untuk menggunakannya.');
-        }
-
         if (! $this->planLimitService->canCreate($organization, 'sections_total')) {
             return redirect()
                 ->route('organizations.builder.page', [$organization, $page])

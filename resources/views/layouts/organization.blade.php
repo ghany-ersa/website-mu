@@ -50,7 +50,8 @@
 
         $orgMenu = [
             ['route' => 'organizations.show', 'pattern' => 'organizations.show', 'label' => 'Dashboard', 'icon' => 'M3.75 12l8.25-8.25L20.25 12M5.25 9.75V19.5a.75.75 0 0 0 .75.75h4.5v-6h3v6h4.5a.75.75 0 0 0 .75-.75V9.75'],
-            // ['route' => 'organizations.brand.edit', 'pattern' => 'organizations.brand.*', 'label' => 'Brand Settings', 'icon' => 'M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M4.098 19.902a3.75 3.75 0 0 1 0-5.304l6.401-6.402m-6.401 6.402L14.802 4.5a3.75 3.75 0 1 1 5.304 5.304l-9.594 9.594'],
+            ['route' => 'organizations.builder.edit', 'pattern' => 'organizations.builder.*', 'label' => 'Page Builder', 'icon' => 'M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5'],
+            ['route' => 'organizations.brand.edit', 'pattern' => 'organizations.brand.*', 'label' => 'Brand Settings', 'icon' => 'M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M4.098 19.902a3.75 3.75 0 0 1 0-5.304l6.401-6.402m-6.401 6.402L14.802 4.5a3.75 3.75 0 1 1 5.304 5.304l-9.594 9.594'],
             // ['route' => 'organizations.edit.edit', 'pattern' => 'organizations.edit.*', 'label' => 'Edit Organisasi', 'icon' => 'M16.862 4.487 18.549 2.8a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125'],
             [
                 'route' => 'organizations.posts.index',
@@ -193,6 +194,12 @@
                         </a>
                     </div>
                 </div>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="mb-6 rounded-lg bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
+                {{ session('error') }}
             </div>
         @endif
 

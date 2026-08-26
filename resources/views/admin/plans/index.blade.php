@@ -6,7 +6,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div>
             <h1 class="text-2xl font-extrabold text-primary">Paket Langganan</h1>
-            <p class="text-sm text-gray-500 mt-1">Kelola harga, limit konten, dan komponen eksklusif tiap paket.</p>
+            <p class="text-sm text-gray-500 mt-1">Kelola harga dan limit konten tiap paket.</p>
         </div>
         <a href="{{ route('admin.plans.create') }}" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
             + Paket Baru
@@ -32,7 +32,7 @@
                             <p class="text-xs text-gray-400 font-mono">{{ $plan->key }}</p>
                         </td>
                         <td class="px-5 py-4 text-gray-600">
-                            Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}/bulan
+                            {{ $plan->formattedPrice() }}
                         </td>
                         <td class="px-5 py-4 text-gray-600">
                             {{ $plan->organizations()->count() }} organisasi

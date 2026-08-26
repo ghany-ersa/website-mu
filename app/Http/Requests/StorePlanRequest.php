@@ -28,8 +28,6 @@ class StorePlanRequest extends FormRequest
             'is_active' => ['nullable', 'boolean'],
             'limits' => ['required', 'array'],
             'limits.*' => ['nullable', 'integer', 'min:0'],
-            'components' => ['nullable', 'array'],
-            'components.*' => ['nullable', 'string'],
         ];
     }
 }

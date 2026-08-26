@@ -8,14 +8,23 @@ use App\Models\User;
 
 /**
  * Approving/rejecting a plan change request. organizations.plan_id is never touched by the
- * request itself (see OrganizationPlanController::store()) — only approve() flips it, which
- * is what triggers OrganizationObserver::updated() to re-sync gated sections.
+ * request itself (see OrganizationPlanController::store()) — only approve() flips it.
  */
 class PlanChangeRequestService
 {
     public function approve(PlanChangeRequest $request, User $admin, ?string $note = null): void
     {
-        $request->organization->update(['plan_id' => $request->requested_plan_id]);
+        // Extend from the current expiry if it's still in the future (renewing before it
+        // lapses), otherwise start fresh from now — so a timely renewal doesn't lose paid-for
+        // time, matching how hosting renewals work.
+        $baseline = $request->organization->plan_expires_at?->isFuture()
+            ? $request->organization->plan_expires_at
+            : now();
+
+        $request->organization->update([
+            'plan_id' => $request->requested_plan_id,
+            'plan_expires_at' => $baseline->copy()->addMonths($request->duration_months),
+        ]);
 
         $request->update([
             'status' => PlanChangeRequestStatus::Approved,

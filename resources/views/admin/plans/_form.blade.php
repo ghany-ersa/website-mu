@@ -9,7 +9,6 @@
 @endif
 
 @php
-    $deniedKeys = ($plan ?? null)?->components->pluck('component_key')->all() ?? [];
     $limitFor = fn (string $key) => old("limits.$key", ($plan ?? null)?->limits->firstWhere('key', $key)?->max_count);
 @endphp
 
@@ -63,25 +62,6 @@
                        value="{{ $limitFor($key) }}"
                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
             </div>
-        @endforeach
-    </div>
-</div>
-
-<div class="bg-white rounded-2xl shadow-soft p-6">
-    <h2 class="font-bold text-gray-800">Komponen Terkunci</h2>
-    <p class="text-xs text-gray-400 mt-0.5 mb-4">
-        Centang komponen builder yang <span class="font-semibold">tidak</span> boleh dipakai organisasi dengan paket ini.
-        Komponen yang tidak dicentang otomatis diizinkan.
-    </p>
-
-    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-        @foreach ($sectionKeys as $key => $label)
-            <label class="flex items-center gap-2 text-sm text-gray-600 rounded-lg border border-gray-100 px-3 py-2 hover:bg-gray-50 cursor-pointer">
-                <input type="checkbox" name="components[]" value="{{ $key }}"
-                       @checked(collect(old('components', $deniedKeys))->contains($key))
-                       class="rounded border-gray-300 text-primary focus:ring-primary/30">
-                {{ $label }}
-            </label>
         @endforeach
     </div>
 </div>

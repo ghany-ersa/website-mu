@@ -33,7 +33,7 @@ class PlanController extends Controller
      */
     public function index(): View
     {
-        $plans = Plan::with(['limits', 'components'])->orderBy('price_monthly')->get();
+        $plans = Plan::with('limits')->orderBy('price_monthly')->get();
 
         return view('admin.plans.index', ['plans' => $plans]);
     }
@@ -45,7 +45,6 @@ class PlanController extends Controller
     {
         return view('admin.plans.create', [
             'limitKeys' => self::LIMIT_KEYS,
-            'sectionKeys' => $this->gatableSectionKeys(),
         ]);
     }
 
@@ -58,7 +57,6 @@ class PlanController extends Controller
             $plan = Plan::create($this->prepare($request));
 
             $this->syncLimits($plan, $request->validated('limits', []));
-            $this->syncComponents($plan, $request->validated('components', []));
 
             return $plan;
         });
@@ -73,12 +71,11 @@ class PlanController extends Controller
      */
     public function edit(Plan $plan): View
     {
-        $plan->load(['limits', 'components']);
+        $plan->load('limits');
 
         return view('admin.plans.edit', [
             'plan' => $plan,
             'limitKeys' => self::LIMIT_KEYS,
-            'sectionKeys' => $this->gatableSectionKeys(),
         ]);
     }
 
@@ -91,7 +88,6 @@ class PlanController extends Controller
             $plan->update($this->prepare($request));
 
             $this->syncLimits($plan, $request->validated('limits', []));
-            $this->syncComponents($plan, $request->validated('components', []));
         });
 
         return redirect()
@@ -140,40 +136,5 @@ class PlanController extends Controller
                 'max_count' => filled($limits[$key] ?? null) ? (int) $limits[$key] : null,
             ])->all()
         );
-    }
-
-    /**
-     * Replaces the plan's component gates. Only the section keys submitted as "not allowed"
-     * get a row — everything else stays allowed by default (opt-out model, see
-     * PlanComponent migration / PlanLimitService::canUseSection()).
-     *
-     * @param  array<int, string>  $deniedComponentKeys
-     */
-    private function syncComponents(Plan $plan, array $deniedComponentKeys): void
-    {
-        $plan->components()->delete();
-
-        $validKeys = array_intersect($deniedComponentKeys, array_keys($this->gatableSectionKeys()));
-
-        $plan->components()->createMany(
-            collect($validKeys)->map(fn (string $key) => [
-                'component_key' => $key,
-                'is_allowed' => false,
-            ])->all()
-        );
-    }
-
-    /**
-     * Section keys the builder can gate — every registry entry except locked ones
-     * (header/footer), which PlanLimitService::canUseSection() always allows regardless.
-     *
-     * @return array<string, string>
-     */
-    private function gatableSectionKeys(): array
-    {
-        return collect(config('page-builder.sections'))
-            ->reject(fn (array $section) => $section['locked'] ?? false)
-            ->map(fn (array $section) => $section['label'])
-            ->all();
     }
 }

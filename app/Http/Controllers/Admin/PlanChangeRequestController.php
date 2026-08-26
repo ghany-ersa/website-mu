@@ -27,7 +27,7 @@ class PlanChangeRequestController extends Controller
 
     public function approve(Request $request, PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): RedirectResponse
     {
-        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+        abort_unless($this->isActionable($planChangeRequest), 409, 'Permintaan ini sudah diproses.');
 
         $validated = $request->validate([
             'admin_note' => ['nullable', 'string', 'max:500'],
@@ -42,7 +42,7 @@ class PlanChangeRequestController extends Controller
 
     public function reject(Request $request, PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): RedirectResponse
     {
-        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+        abort_unless($this->isActionable($planChangeRequest), 409, 'Permintaan ini sudah diproses.');
 
         $validated = $request->validate([
             'admin_note' => ['nullable', 'string', 'max:500'],
@@ -53,5 +53,17 @@ class PlanChangeRequestController extends Controller
         return redirect()
             ->route('admin.plan-change-requests.index')
             ->with('status', 'Permintaan pergantian paket ditolak.');
+    }
+
+    /**
+     * Approve/reject are allowed from Pending (admin verified payment out of band without
+     * waiting for the org to click "Saya Sudah Bayar") or PaymentConfirmed (the normal path).
+     */
+    private function isActionable(PlanChangeRequest $planChangeRequest): bool
+    {
+        return in_array($planChangeRequest->status, [
+            PlanChangeRequestStatus::Pending,
+            PlanChangeRequestStatus::PaymentConfirmed,
+        ], true);
     }
 }

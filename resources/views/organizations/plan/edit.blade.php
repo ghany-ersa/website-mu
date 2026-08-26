@@ -47,7 +47,7 @@
                     <p class="text-lg sm:text-xl font-extrabold text-gradient truncate">{{ $organization->plan?->name ?? 'Belum Diatur' }}</p>
                 </div>
                 @if ($organization->plan)
-                    <span class="text-xs font-bold text-gray-400 shrink-0">Rp {{ number_format($organization->plan->price_monthly, 0, ',', '.') }}/bulan</span>
+                    <span class="text-xs font-bold text-gray-400 shrink-0">{{ $organization->plan->formattedPrice() }}</span>
                 @endif
             </div>
 
@@ -84,25 +84,77 @@
             </div>
         </div>
 
-        @if ($pendingRequest)
-            <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/70 flex items-start gap-4">
-                <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-500 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
-                        <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+        @if ($pendingRequest && $pendingRequest->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
+            <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/70 flex items-start gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-500 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="font-bold text-amber-900">Menunggu Persetujuan Pembayaran</p>
-                    <p class="text-sm text-amber-700 mt-1 leading-relaxed">
-                        Permintaan pindah ke paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span> sedang diperiksa admin.
-                        Paket akan aktif otomatis begitu pembayaran dikonfirmasi — biasanya dalam 1x24 jam.
+                    <p class="font-bold text-blue-900">Menunggu Verifikasi Admin</p>
+                    <p class="text-sm text-blue-700 mt-1 leading-relaxed">
+                        Terima kasih, konfirmasi pembayaran Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                        ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }})
+                        sudah kami terima dan sedang diverifikasi admin. Paket akan aktif begitu diverifikasi &mdash; biasanya dalam 1x24 jam.
                     </p>
                 </div>
             </div>
+        @elseif ($pendingRequest)
+            <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/70">
+                <div class="flex items-start gap-4 mb-5">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-500 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-amber-900">Selesaikan Pembayaran</p>
+                        <p class="text-sm text-amber-700 mt-1 leading-relaxed">
+                            Permintaan pindah ke paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                            ({{ $pendingRequest->duration_months }} bulan) telah dibuat. Selesaikan pembayaran berikut, lalu konfirmasi di bawah.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 rounded-2xl p-5 space-y-4" x-data="{ copied: null }">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-amber-800 uppercase tracking-wide">Total Tagihan</span>
+                        <span class="text-lg font-extrabold text-amber-900">Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        @foreach (config('billing.bank_transfers', []) as $i => $account)
+                            <div class="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 border border-amber-100">
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-500">{{ $account['bank'] }} &middot; a.n. {{ $account['account_name'] }}</p>
+                                    <p class="font-mono font-semibold text-gray-800 truncate">{{ $account['account_number'] }}</p>
+                                </div>
+                                <button type="button"
+                                    @click="navigator.clipboard.writeText('{{ $account['account_number'] }}'); copied = {{ $i }}; setTimeout(() => copied = null, 1500)"
+                                    class="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors">
+                                    <span x-show="copied !== {{ $i }}">Salin</span>
+                                    <span x-show="copied === {{ $i }}" x-cloak>Tersalin!</span>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <form action="{{ route('organizations.plan.confirm-payment', [$organization, $pendingRequest]) }}" method="POST"
+                    x-data @submit.prevent="if (await confirmAction('Konfirmasi bahwa Anda sudah melakukan pembayaran sejumlah Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}?', { danger: false, confirmLabel: 'Ya, Sudah Bayar' })) $el.submit()"
+                    class="mt-5">
+                    @csrf
+                    <button type="submit"
+                        class="w-full sm:w-auto px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-soft transition-colors">
+                        Saya Sudah Bayar
+                    </button>
+                </form>
+            </div>
         @else
             <form action="{{ route('organizations.plan.store', $organization) }}" method="POST"
-                  x-data='{ "selected": {{ $organization->plan_id ?? 'null' }}, "confirming": false, "plans": @json($plansForConfirm) }'>
+                  x-data='{ "selected": {{ $organization->plan_id ?? 'null' }}, "confirming": false, "plans": @json($plansForConfirm), "duration": 3 }'>
                 @csrf
 
                 {{-- Mobile: horizontal snap-scroll carousel (one card per swipe). Desktop (sm+): plain 2-col grid, no scrolling needed. --}}
@@ -144,18 +196,28 @@
                             </div>
 
                             <p class="text-3xl sm:text-4xl font-extrabold {{ $isFeatured ? 'text-white' : 'text-gray-900' }}">
-                                Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}
-                                <span class="text-xs sm:text-sm font-semibold {{ $isFeatured ? 'text-white/70' : 'text-gray-400' }}">/bulan</span>
+                                @if ($plan->price_monthly === 0)
+                                    Gratis
+                                @else
+                                    Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}
+                                    <span class="text-xs sm:text-sm font-semibold {{ $isFeatured ? 'text-white/70' : 'text-gray-400' }}">/bulan</span>
+                                @endif
                             </p>
                             <p class="text-sm mt-2 mb-5 sm:mb-6 {{ $isFeatured ? 'text-white/80' : 'text-gray-500' }}">{{ $plan->description }}</p>
 
                             <ul class="space-y-2.5 sm:space-y-3 text-sm mb-6 sm:mb-8 flex-1">
                                 @foreach ($plan->pricingFeatures() as $feature)
-                                    <li class="flex items-start gap-2.5 {{ $isFeatured ? 'text-white/90' : 'text-gray-600' }}">
-                                        <svg class="w-4 h-4 mt-0.5 shrink-0 {{ $isFeatured ? 'text-white' : 'text-secondary' }}" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-                                        </svg>
-                                        <span class="min-w-0">{{ $feature }}</span>
+                                    <li class="flex items-start gap-2.5 {{ $feature['available'] ? ($isFeatured ? 'text-white/90' : 'text-gray-600') : ($isFeatured ? 'text-white/50' : 'text-gray-400') }}">
+                                        @if ($feature['available'])
+                                            <svg class="w-4 h-4 mt-0.5 shrink-0 {{ $isFeatured ? 'text-white' : 'text-secondary' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 mt-0.5 shrink-0 {{ $isFeatured ? 'text-white/50' : 'text-red-400' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" clip-rule="evenodd" />
+                                            </svg>
+                                        @endif
+                                        <span class="min-w-0">{{ $feature['label'] }}</span>
                                     </li>
                                 @endforeach
                             </ul>
@@ -186,7 +248,25 @@
                     @endforeach
                 </div>
 
+                {{-- Duration: how many months the requested plan is paid for — shown to the admin
+                     as the total figure to match against the payment they're confirming. --}}
+                <div class="mt-6 sm:mt-8">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">Durasi Langganan</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        @foreach ([3, 6, 12] as $months)
+                            <label
+                                @click="duration = {{ $months }}"
+                                class="flex items-center justify-center gap-1.5 rounded-xl border-2 py-3 text-sm font-bold cursor-pointer transition-colors"
+                                :class="duration === {{ $months }} ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-500 hover:border-gray-300'">
+                                <input type="radio" name="duration_months" value="{{ $months }}" class="sr-only" {{ $months === 3 ? 'checked' : '' }}>
+                                {{ $months }} Bulan
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 @error('plan_id') <p class="text-xs text-red-500 mt-4">{{ $message }}</p> @enderror
+                @error('duration_months') <p class="text-xs text-red-500 mt-4">{{ $message }}</p> @enderror
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-6 sm:mt-8 bg-gray-50 rounded-2xl px-5 sm:px-6 py-4">
                     <p class="text-xs text-gray-500 text-center sm:text-left">
@@ -199,7 +279,7 @@
                         </a>
                         <button type="button" @click="confirming = true" :disabled="!selected"
                                 class="flex-1 sm:flex-initial px-6 py-2.5 rounded-full bg-primary hover:bg-secondary text-white text-sm font-bold shadow-soft hover:shadow-float transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:hover:shadow-soft">
-                            Ajukan <span class="hidden sm:inline">Perubahan</span> Paket
+                            Ajukan Paket
                         </button>
                     </div>
                 </div>
@@ -221,7 +301,8 @@
                             <p class="text-sm text-gray-500 mb-6">
                                 Anda akan mengajukan perubahan ke paket
                                 <span class="font-semibold text-gray-800" x-text="plans[selected]?.name"></span>
-                                (Rp <span x-text="plans[selected]?.price"></span>/bulan).
+                                selama <span class="font-semibold text-gray-800" x-text="duration"></span> bulan —
+                                total <span class="font-semibold text-gray-800" x-text="plans[selected]?.priceRaw === 0 ? 'Gratis' : ('Rp ' + (plans[selected]?.priceRaw * duration).toLocaleString('id-ID'))"></span>.
                                 Permintaan ini menunggu konfirmasi pembayaran dari admin sebelum aktif.
                             </p>
                         </template>

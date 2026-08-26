@@ -33,7 +33,7 @@ Route::get('/', function () {
         ->orderBy('name')
         ->get();
 
-    $plans = Plan::with(['limits', 'components'])
+    $plans = Plan::with('limits')
         ->where('is_active', true)
         ->orderBy('price_monthly')
         ->get();
@@ -76,6 +76,11 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.builder.canvas');
         Route::get('organizations/{organization}/builder/{page:slug}/sections/{key}/preview', [OrganizationBuilderController::class, 'sectionPreview'])
             ->name('organizations.builder.section-preview');
+
+        Route::get('organizations/{organization}/preview', [OrganizationSiteController::class, 'preview'])
+            ->name('organizations.preview');
+        Route::get('organizations/{organization}/preview/{page:slug}', [OrganizationSiteController::class, 'preview'])
+            ->name('organizations.preview.page');
 
         Route::post('organizations/{organization}/pages', [OrganizationPageController::class, 'store'])
             ->name('organizations.pages.store');
@@ -136,6 +141,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.plan.edit');
         Route::post('organizations/{organization}/plan', [OrganizationPlanController::class, 'store'])
             ->name('organizations.plan.store');
+        Route::post('organizations/{organization}/plan/{planChangeRequest}/confirm-payment', [OrganizationPlanController::class, 'confirmPayment'])
+            ->name('organizations.plan.confirm-payment');
     });
 
     Route::patch('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'update'])

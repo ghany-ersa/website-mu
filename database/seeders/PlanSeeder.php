@@ -6,14 +6,32 @@ use App\Models\Plan;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the two paid plans and their limits/component gates. The numbers below are initial
- * defaults, not a final business decision — adjust via a follow-up seeder once real pricing
- * and usage data are settled.
+ * Seeds the three plans and their limits, mirroring what's actually in the dev database. The
+ * numbers below are initial defaults, not a final business decision — adjust via a follow-up
+ * seeder once real pricing and usage data are settled. Every component/section is available on
+ * every plan; only the total number of sections a plan allows is limited (sections_total).
  */
 class PlanSeeder extends Seeder
 {
     public function run(): void
     {
+        $free = Plan::create([
+            'key' => 'free',
+            'name' => 'Free',
+            'description' => '',
+            'price_monthly' => 0,
+        ]);
+
+        $free->limits()->createMany([
+            ['key' => 'posts', 'max_count' => 0],
+            ['key' => 'agendas', 'max_count' => 3],
+            ['key' => 'announcements', 'max_count' => 0],
+            ['key' => 'officers', 'max_count' => 3],
+            ['key' => 'programs', 'max_count' => 3],
+            ['key' => 'gallery_photos', 'max_count' => 3],
+            ['key' => 'sections_total', 'max_count' => 5],
+        ]);
+
         $organization = Plan::create([
             'key' => 'organization',
             'name' => 'Organization',
@@ -29,13 +47,6 @@ class PlanSeeder extends Seeder
             ['key' => 'programs', 'max_count' => 4],
             ['key' => 'gallery_photos', 'max_count' => 8],
             ['key' => 'sections_total', 'max_count' => 8],
-        ]);
-
-        $organization->components()->createMany([
-            ['component_key' => 'donasi-zakat-infak', 'is_allowed' => false],
-            ['component_key' => 'ppdb', 'is_allowed' => false],
-            ['component_key' => 'formulir-kontak', 'is_allowed' => false],
-            ['component_key' => 'jadwal-praktik', 'is_allowed' => false],
         ]);
 
         $professional = Plan::create([
@@ -54,8 +65,5 @@ class PlanSeeder extends Seeder
             ['key' => 'gallery_photos', 'max_count' => 40],
             ['key' => 'sections_total', 'max_count' => 25],
         ]);
-
-        // No plan_components rows: every section, including the 4 gated on 'organization',
-        // is allowed by default (opt-out model — see PlanComponent migration).
     }
 }
