@@ -7,6 +7,7 @@ use App\Models\OrganizationPage;
 use App\Models\OrganizationSection;
 use App\Services\CmsSampleDataSeeder;
 use App\Services\GoogleMapsEmbedResolver;
+use App\Services\PlanLimitService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrganizationSectionController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     /**
      * {section} is a grandchild of {organization} (Organization -> Page -> Section), which
      * Laravel's scopeBindings() naming convention can't reach, so routes taking both params
@@ -74,6 +77,18 @@ class OrganizationSectionController extends Controller
         $validated = $request->validate([
             'key' => ['required', 'string', 'in:'.implode(',', $addableKeys)],
         ]);
+
+        if (! $this->planLimitService->canUseSection($organization, $validated['key'])) {
+            return redirect()
+                ->route('organizations.builder.page', [$organization, $page])
+                ->with('warning', 'Komponen ini hanya tersedia di paket yang lebih tinggi. Upgrade paket untuk menggunakannya.');
+        }
+
+        if (! $this->planLimitService->canCreate($organization, 'sections_total')) {
+            return redirect()
+                ->route('organizations.builder.page', [$organization, $page])
+                ->with('warning', 'Batas jumlah komponen paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $content = config('page-builder.sections.'.$validated['key'].'.defaults', []);
 

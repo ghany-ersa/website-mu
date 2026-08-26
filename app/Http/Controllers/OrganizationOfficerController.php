@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Officer;
 use App\Models\Organization;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class OrganizationOfficerController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     public function index(Organization $organization): View
     {
         abort_unless($organization->hasSection('struktur-pengurus'), 404);
@@ -21,10 +24,16 @@ class OrganizationOfficerController extends Controller
         ]);
     }
 
-    public function create(Organization $organization): View
+    public function create(Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('create', [Officer::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'officers')) {
+            return redirect()
+                ->route('organizations.officers.index', $organization)
+                ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         return view('organizations.officers.form', [
             'organization' => $organization,
@@ -36,6 +45,12 @@ class OrganizationOfficerController extends Controller
     {
         abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('create', [Officer::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'officers')) {
+            return redirect()
+                ->route('organizations.officers.index', $organization)
+                ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $organization->officers()->create([
             ...$this->validated($request),

@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\GalleryPhoto;
 use App\Models\Organization;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class OrganizationGalleryController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     public function index(Organization $organization): View
     {
         abort_unless($organization->hasSection('galeri'), 404);
@@ -21,10 +24,16 @@ class OrganizationGalleryController extends Controller
         ]);
     }
 
-    public function create(Organization $organization): View
+    public function create(Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('galeri'), 404);
         $this->authorize('create', [GalleryPhoto::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'gallery_photos')) {
+            return redirect()
+                ->route('organizations.gallery.index', $organization)
+                ->with('warning', 'Batas jumlah foto galeri paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         return view('organizations.gallery.form', [
             'organization' => $organization,
@@ -36,6 +45,12 @@ class OrganizationGalleryController extends Controller
     {
         abort_unless($organization->hasSection('galeri'), 404);
         $this->authorize('create', [GalleryPhoto::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'gallery_photos')) {
+            return redirect()
+                ->route('organizations.gallery.index', $organization)
+                ->with('warning', 'Batas jumlah foto galeri paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $organization->photos()->create([
             ...$this->validated($request),

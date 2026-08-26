@@ -199,8 +199,8 @@
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Target Waktu Terbit</p>
                         </div>
                         <div>
-                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp0</p>
-                            <p class="text-xs md:text-sm text-gray-500 font-medium">Untuk Mulai Coba</p>
+                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp{{ number_format(($plans->first()->price_monthly ?? 9900) / 1000, 1, ',', '.') }}rb</p>
+                            <p class="text-xs md:text-sm text-gray-500 font-medium">Mulai dari /bulan</p>
                         </div>
                     </div>
                 </div>
@@ -362,60 +362,44 @@
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Investasi Dakwah</span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Paket Pembuatan Web Terjangkau</h2>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Paket Berlangganan Bulanan</h2>
                 <p class="text-gray-500 mt-2">Didesain khusus agar ramah anggaran untuk Ranting, Cabang, maupun AUM.</p>
-                <p class="text-secondary font-bold text-sm mt-4">🎉 Harga peluncuran ini berlaku selama masa promo terbatas</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <!-- Basic Plan -->
-                <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-soft border border-gray-100 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-xs font-bold uppercase tracking-wider text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Paket Ranting / Landing Page</span>
-                            <span class="text-xs font-bold uppercase tracking-wider text-white bg-primary px-3 py-1 rounded-full whitespace-nowrap">Hemat 37%</span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-4">Landing Page PRM / AUM</h3>
-                        <div class="mt-4 mb-1 flex items-center gap-3">
-                            <span class="text-base text-gray-400 line-through">Rp 160.000</span>
-                            <span class="text-4xl font-extrabold text-primary">Rp 100.000</span>
-                        </div>
-                        <p class="text-xs text-gray-400 mb-6">Sekali bayar &middot; setara Rp 8rb/bulan selama setahun</p>
-                        <ul class="space-y-4 text-sm text-gray-600 mb-8">
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> 1 Halaman Landing Page Kompleks</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Free Subdomain .website-mu.id</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Carousel Foto & Profil Pimpinan</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Integrasi Tombol Kontak WhatsApp</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Optimasi Tampilan HP / Tablet</li>
-                        </ul>
-                    </div>
-                    <a href="#kontak" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3.5 rounded-2xl text-center block transition">Pilih Paket Ranting</a>
-                </div>
+            @php
+                // Marketing subtitle per plan key — not stored in the plans table since it's
+                // copywriting, not a limit/price the app enforces.
+                $planSubtitles = [
+                    'organization' => 'Untuk Ranting & Cabang',
+                    'professional' => 'Untuk AUM & Sekolah',
+                ];
+                $featuredPlanKey = $plans->last()?->key;
+            @endphp
 
-                <!-- Pro Plan (Featured) -->
-                <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-float border-2 border-secondary relative flex flex-col justify-between">
-                    <span class="absolute -top-4 right-8 bg-secondary text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider">Paling Direkomendasikan</span>
-                    <div>
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-xs font-bold uppercase tracking-wider text-secondary bg-green-50 px-3 py-1 rounded-full">Paket Cabang / AUM Pro</span>
-                            <span class="text-xs font-bold uppercase tracking-wider text-white bg-secondary px-3 py-1 rounded-full whitespace-nowrap">Hemat 36%</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                @foreach ($plans as $plan)
+                    @php $featured = $plan->key === $featuredPlanKey; @endphp
+                    <div class="bg-white p-8 md:p-10 rounded-[2.5rem] {{ $featured ? 'shadow-float border-2 border-secondary relative' : 'shadow-soft border border-gray-100' }} flex flex-col justify-between">
+                        @if ($featured)
+                            <span class="absolute -top-4 right-8 bg-secondary text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider">Paling Direkomendasikan</span>
+                        @endif
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider {{ $featured ? 'text-secondary bg-green-50' : 'text-gray-400 bg-gray-100' }} px-3 py-1 rounded-full">{{ $plan->name }}</span>
+                            <h3 class="text-2xl font-bold text-gray-800 mt-4">{{ $planSubtitles[$plan->key] ?? $plan->name }}</h3>
+                            <div class="mt-4 mb-1 flex items-center gap-3">
+                                <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
+                                <span class="text-sm text-gray-400">/bulan</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mb-6">{{ $plan->description }}</p>
+                            <ul class="space-y-4 text-sm text-gray-600 mb-8">
+                                @foreach ($plan->pricingFeatures() as $feature)
+                                    <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> {{ $feature }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-4">Website PCM / Sekolah</h3>
-                        <div class="mt-4 mb-1 flex items-center gap-3">
-                            <span class="text-base text-gray-400 line-through">Rp 240.000</span>
-                            <span class="text-4xl font-extrabold text-secondary">Rp 150.000</span>
-                        </div>
-                        <p class="text-xs text-gray-400 mb-6">Per tahun &middot; setara Rp 12,5rb/bulan</p>
-                        <ul class="space-y-4 text-sm text-gray-600 mb-8">
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Fitur Paket Ranting Lengkap</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Multi-Halaman (Berita, Agenda, Galeri)</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Subdomain Khusus .website-mu.id</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Pendampingan Kelola Konten</li>
-                            <li class="flex items-center"><span class="text-secondary font-bold mr-3">✓</span> Keamanan SSL & Server Cepat</li>
-                        </ul>
+                        <a href="#kontak" class="w-full {{ $featured ? 'bg-secondary hover:bg-green-700 text-white shadow-md' : 'bg-gray-100 hover:bg-gray-200 text-gray-800' }} font-bold py-3.5 rounded-2xl text-center block transition">Pilih {{ $plan->name }}</a>
                     </div>
-                    <a href="#kontak" class="w-full bg-secondary hover:bg-green-700 text-white font-bold py-3.5 rounded-2xl text-center block transition shadow-md">Pilih Paket Cabang</a>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>

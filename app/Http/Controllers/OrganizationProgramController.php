@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\Program;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class OrganizationProgramController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     /**
      * Program and Layanan are the same entity (type column), both rendered by the same
      * templates/sections/program-unggulan.blade.php partial — see prd.md for the rationale.
@@ -40,12 +43,18 @@ class OrganizationProgramController extends Controller
         ]);
     }
 
-    public function create(Request $request, Organization $organization): View
+    public function create(Request $request, Organization $organization): View|RedirectResponse
     {
         $type = $this->type($request);
         abort_unless($organization->hasSection($this->sectionKey($type)), 404);
 
         $this->authorize('create', [Program::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'programs')) {
+            return redirect()
+                ->route('organizations.programs.index', ['organization' => $organization, 'type' => $type])
+                ->with('warning', ($type === 'layanan' ? 'Batas jumlah layanan' : 'Batas jumlah program').' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         return view('organizations.programs.form', [
             'organization' => $organization,
@@ -61,6 +70,12 @@ class OrganizationProgramController extends Controller
         abort_unless($organization->hasSection($this->sectionKey($type)), 404);
 
         $this->authorize('create', [Program::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'programs')) {
+            return redirect()
+                ->route('organizations.programs.index', ['organization' => $organization, 'type' => $type])
+                ->with('warning', ($type === 'layanan' ? 'Batas jumlah layanan' : 'Batas jumlah program').' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $organization->programs()->create([
             ...$this->validated($request),

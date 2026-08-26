@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            PlanSeeder::class,
             OrganizationTypeSeeder::class,
             TemplateSeeder::class,
         ]);

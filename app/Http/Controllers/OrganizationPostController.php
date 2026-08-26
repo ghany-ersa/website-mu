@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\PublishStatus;
 use App\Models\Organization;
 use App\Models\Post;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,8 @@ use Illuminate\View\View;
 
 class OrganizationPostController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     public function index(Organization $organization): View
     {
         abort_unless($organization->hasSection('daftar-berita'), 404);
@@ -23,10 +26,16 @@ class OrganizationPostController extends Controller
         ]);
     }
 
-    public function create(Organization $organization): View
+    public function create(Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('create', [Post::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'posts')) {
+            return redirect()
+                ->route('organizations.posts.index', $organization)
+                ->with('warning', 'Batas jumlah berita paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         return view('organizations.posts.form', [
             'organization' => $organization,
@@ -38,6 +47,12 @@ class OrganizationPostController extends Controller
     {
         abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('create', [Post::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'posts')) {
+            return redirect()
+                ->route('organizations.posts.index', $organization)
+                ->with('warning', 'Batas jumlah berita paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $validated = $this->validated($request);
 

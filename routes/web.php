@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
+use App\Http\Controllers\Admin\PlanChangeRequestController;
+use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrganizationAgendaController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\OrganizationNetworkController;
 use App\Http\Controllers\OrganizationOfficerController;
 use App\Http\Controllers\OrganizationPageController;
+use App\Http\Controllers\OrganizationPlanController;
 use App\Http\Controllers\OrganizationPostController;
 use App\Http\Controllers\OrganizationProgramController;
 use App\Http\Controllers\OrganizationSectionController;
@@ -21,6 +24,7 @@ use App\Http\Controllers\OrganizationSiteController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
+use App\Models\Plan;
 use App\Models\Template;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +33,12 @@ Route::get('/', function () {
         ->orderBy('name')
         ->get();
 
-    return view('welcome', ['templates' => $templates]);
+    $plans = Plan::with(['limits', 'components'])
+        ->where('is_active', true)
+        ->orderBy('price_monthly')
+        ->get();
+
+    return view('welcome', ['templates' => $templates, 'plans' => $plans]);
 });
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
@@ -122,6 +131,11 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.edit.slug.update');
         Route::patch('organizations/{organization}/edit/description', [OrganizationEditController::class, 'updateDescription'])
             ->name('organizations.edit.description.update');
+
+        Route::get('organizations/{organization}/plan', [OrganizationPlanController::class, 'edit'])
+            ->name('organizations.plan.edit');
+        Route::post('organizations/{organization}/plan', [OrganizationPlanController::class, 'store'])
+            ->name('organizations.plan.store');
     });
 
     Route::patch('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'update'])
@@ -134,7 +148,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('templates', TemplateController::class)->except(['show']);
+    Route::resource('plans', AdminPlanController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
+
+    Route::get('plan-change-requests', [PlanChangeRequestController::class, 'index'])->name('plan-change-requests.index');
+    Route::post('plan-change-requests/{planChangeRequest}/approve', [PlanChangeRequestController::class, 'approve'])->name('plan-change-requests.approve');
+    Route::post('plan-change-requests/{planChangeRequest}/reject', [PlanChangeRequestController::class, 'reject'])->name('plan-change-requests.reject');
 });
 
 require __DIR__.'/auth.php';

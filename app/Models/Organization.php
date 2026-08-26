@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'organization_type_id',
     'template_id',
+    'plan_id',
     'name',
     'slug',
     'region',
@@ -125,6 +126,50 @@ class Organization extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(Template::class);
+    }
+
+    /**
+     * @return BelongsTo<Plan, $this>
+     */
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * @return HasMany<OrganizationLimitOverride, $this>
+     */
+    public function limitOverrides(): HasMany
+    {
+        return $this->hasMany(OrganizationLimitOverride::class);
+    }
+
+    /**
+     * @return HasMany<OrganizationComponentOverride, $this>
+     */
+    public function componentOverrides(): HasMany
+    {
+        return $this->hasMany(OrganizationComponentOverride::class);
+    }
+
+    /**
+     * @return HasMany<PlanChangeRequest, $this>
+     */
+    public function planChangeRequests(): HasMany
+    {
+        return $this->hasMany(PlanChangeRequest::class);
+    }
+
+    /**
+     * The most recent plan change still awaiting admin approval, if any — a new request
+     * submitted via OrganizationPlanController::store() is blocked while one is pending, so
+     * there's never more than one at a time.
+     */
+    public function pendingPlanChangeRequest(): ?PlanChangeRequest
+    {
+        return $this->planChangeRequests
+            ->where('status', \App\Enums\PlanChangeRequestStatus::Pending)
+            ->first();
     }
 
     /**

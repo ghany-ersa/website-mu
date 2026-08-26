@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Agenda;
 use App\Models\Organization;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class OrganizationAgendaController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     public function index(Organization $organization): View
     {
         abort_unless($organization->hasSection('agenda'), 404);
@@ -21,10 +24,16 @@ class OrganizationAgendaController extends Controller
         ]);
     }
 
-    public function create(Organization $organization): View
+    public function create(Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'agendas')) {
+            return redirect()
+                ->route('organizations.agendas.index', $organization)
+                ->with('warning', 'Batas jumlah agenda paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         return view('organizations.agendas.form', [
             'organization' => $organization,
@@ -36,6 +45,12 @@ class OrganizationAgendaController extends Controller
     {
         abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'agendas')) {
+            return redirect()
+                ->route('organizations.agendas.index', $organization)
+                ->with('warning', 'Batas jumlah agenda paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $organization->agendas()->create($this->validated($request));
 

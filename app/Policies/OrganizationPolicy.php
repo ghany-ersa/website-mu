@@ -46,4 +46,13 @@ class OrganizationPolicy
     {
         return $organization->roleFor($user) === \App\Enums\OrganizationRole::Owner;
     }
+
+    /**
+     * Only the Owner can view/change the organization's subscription plan — it's a billing
+     * decision, unlike the general settings any member can touch via update().
+     */
+    public function manageBilling(User $user, Organization $organization): bool
+    {
+        return $organization->roleFor($user) === \App\Enums\OrganizationRole::Owner;
+    }
 }

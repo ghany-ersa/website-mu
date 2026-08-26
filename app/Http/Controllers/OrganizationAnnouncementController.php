@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Announcement;
 use App\Models\Organization;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class OrganizationAnnouncementController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     public function index(Organization $organization): View
     {
         abort_unless($organization->hasSection('pengumuman'), 404);
@@ -21,10 +24,16 @@ class OrganizationAnnouncementController extends Controller
         ]);
     }
 
-    public function create(Organization $organization): View
+    public function create(Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('pengumuman'), 404);
         $this->authorize('create', [Announcement::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'announcements')) {
+            return redirect()
+                ->route('organizations.announcements.index', $organization)
+                ->with('warning', 'Batas jumlah pengumuman paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         return view('organizations.announcements.form', [
             'organization' => $organization,
@@ -36,6 +45,12 @@ class OrganizationAnnouncementController extends Controller
     {
         abort_unless($organization->hasSection('pengumuman'), 404);
         $this->authorize('create', [Announcement::class, $organization]);
+
+        if (! $this->planLimitService->canCreate($organization, 'announcements')) {
+            return redirect()
+                ->route('organizations.announcements.index', $organization)
+                ->with('warning', 'Batas jumlah pengumuman paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+        }
 
         $organization->announcements()->create($this->validated($request));
 
