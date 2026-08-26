@@ -9,6 +9,8 @@
     <meta name="author" content="website-mu.id">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
     <!-- Open Graph / Facebook & WhatsApp -->
     <meta property="og:type" content="website">
@@ -115,7 +117,7 @@
     <div class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4" x-data="{ mobileOpen: false }">
         <nav class="bg-white/90 backdrop-blur-md shadow-soft rounded-full px-6 py-3 flex justify-between items-center w-full max-w-6xl border border-gray-100 relative">
             <a href="#" class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-extrabold text-sm">WM</div>
+                <img src="{{ asset('logo.png') }}" alt="website-mu.id" class="h-11 w-auto">
                 <span class="text-xl font-extrabold text-primary tracking-tight">website-mu<span class="text-secondary">.id</span></span>
             </a>
 
