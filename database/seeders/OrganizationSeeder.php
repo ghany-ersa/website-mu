@@ -30,21 +30,21 @@ class OrganizationSeeder extends Seeder
 {
     public function run(): void
     {
-        $plans = Plan::whereIn('key', ['free', 'organization', 'professional'])->get()->keyBy('key');
+        $plans = Plan::whereIn('key', ['starter', 'organization', 'professional'])->get()->keyBy('key');
 
         $organizations = [
             ['template' => 'muhammadiyah', 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
             ['template' => 'aisyiyah', 'name' => 'PCA Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
             ['template' => 'aum-pendidikan', 'name' => 'SD Muhammadiyah 1 Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true],
             ['template' => 'aum-kesehatan-sosial', 'name' => 'Klinik Muhammadiyah Sehati', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true],
-            ['template' => 'aum-sosial', 'name' => 'Panti Asuhan Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'free', 'published' => false],
-            ['template' => 'masjid-mushola', 'name' => 'Masjid Al-Ikhlas Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'free', 'published' => true],
-            ['template' => 'pemuda-muhammadiyah', 'name' => 'Pemuda Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'free', 'published' => false],
-            ['template' => 'nasyiatul-aisyiyah', 'name' => 'Nasyiatul Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'free', 'published' => false],
+            ['template' => 'aum-sosial', 'name' => 'Panti Asuhan Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
+            ['template' => 'masjid-mushola', 'name' => 'Masjid Al-Ikhlas Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => true],
+            ['template' => 'pemuda-muhammadiyah', 'name' => 'Pemuda Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
+            ['template' => 'nasyiatul-aisyiyah', 'name' => 'Nasyiatul Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
             ['template' => 'imm', 'name' => 'IMM Komisariat Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
-            ['template' => 'ipm', 'name' => 'IPM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'free', 'published' => false],
+            ['template' => 'ipm', 'name' => 'IPM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
             ['template' => 'tapak-suci', 'name' => 'Tapak Suci Putera Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
-            ['template' => 'hizbul-wathan', 'name' => 'Hizbul Wathan Qabilah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'free', 'published' => false],
+            ['template' => 'hizbul-wathan', 'name' => 'Hizbul Wathan Qabilah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
         ];
 
         foreach ($organizations as $spec) {
