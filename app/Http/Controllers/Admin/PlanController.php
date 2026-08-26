@@ -127,7 +127,7 @@ class PlanController extends Controller
     private function prepare(StorePlanRequest|UpdatePlanRequest $request): array
     {
         return [
-            ...$request->safe()->only(['key', 'name', 'description', 'price_monthly']),
+            ...$request->safe()->only(['key', 'name', 'description', 'price_monthly', 'discount_percent_6', 'discount_percent_12']),
             'is_active' => $request->boolean('is_active'),
             'hide_branding' => $request->boolean('hide_branding'),
             'has_exclusive_templates' => $request->boolean('has_exclusive_templates'),

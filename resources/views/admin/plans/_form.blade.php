@@ -36,6 +36,25 @@
     </div>
 
     <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Diskon Langganan Jangka Panjang</label>
+        <p class="text-xs text-gray-400 mb-2">Potongan harga (%) dibanding harga 3 bulan, otomatis diterapkan saat organisasi memilih durasi ini. Kosongkan/0 untuk tanpa diskon.</p>
+        <div class="grid grid-cols-2 gap-4 max-w-md">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1" for="discount_percent_6">Diskon 6 Bulan (%)</label>
+                <input type="number" name="discount_percent_6" id="discount_percent_6" min="0" max="100" step="1"
+                       value="{{ old('discount_percent_6', $plan->discount_percent_6 ?? 0) }}"
+                       class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1" for="discount_percent_12">Diskon 12 Bulan (%)</label>
+                <input type="number" name="discount_percent_12" id="discount_percent_12" min="0" max="100" step="1"
+                       value="{{ old('discount_percent_12', $plan->discount_percent_12 ?? 0) }}"
+                       class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+            </div>
+        </div>
+    </div>
+
+    <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1" for="description">Deskripsi</label>
         <p class="text-xs text-gray-400 mb-2">Tampil sebagai tagline singkat di halaman langganan &amp; landing page.</p>
         <textarea name="description" id="description" rows="2"

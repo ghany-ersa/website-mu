@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['key', 'name', 'description', 'price_monthly', 'is_active', 'hide_branding', 'has_exclusive_templates'])]
+#[Fillable(['key', 'name', 'description', 'price_monthly', 'discount_percent_6', 'discount_percent_12', 'is_active', 'hide_branding', 'has_exclusive_templates'])]
 class Plan extends Model
 {
     /**
@@ -16,6 +16,8 @@ class Plan extends Model
     {
         return [
             'price_monthly' => 'integer',
+            'discount_percent_6' => 'integer',
+            'discount_percent_12' => 'integer',
             'is_active' => 'boolean',
             'hide_branding' => 'boolean',
             'has_exclusive_templates' => 'boolean',
@@ -56,6 +58,32 @@ class Plan extends Model
         return $this->price_monthly === 0
             ? 'Gratis'
             : 'Rp '.number_format($this->price_monthly, 0, ',', '.').'/bulan';
+    }
+
+    /**
+     * Duration discount percentage for a given billing period — 0 for the 3-month baseline
+     * (and for any duration outside the three offered), configured per-plan by an admin.
+     */
+    public function discountPercentFor(int $months): int
+    {
+        return match ($months) {
+            6 => $this->discount_percent_6,
+            12 => $this->discount_percent_12,
+            default => 0,
+        };
+    }
+
+    /**
+     * Total price for subscribing at this plan for the given number of months, after applying
+     * this plan's duration discount (if any) — the single source of truth for subtotal
+     * calculations, used by both PlanChangeRequest::subtotal() and the plan picker UI.
+     */
+    public function priceForDuration(int $months): int
+    {
+        $base = $this->price_monthly * $months;
+        $discount = $this->discountPercentFor($months);
+
+        return $discount > 0 ? (int) round($base * (100 - $discount) / 100) : $base;
     }
 
     /**

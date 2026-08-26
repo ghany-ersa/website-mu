@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\PlanChangeRequestController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
@@ -162,6 +163,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('templates', TemplateController::class)->except(['show']);
     Route::resource('plans', AdminPlanController::class)->except(['show']);
+    Route::resource('discount-codes', DiscountCodeController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
 
     Route::get('plan-change-requests', [PlanChangeRequestController::class, 'index'])->name('plan-change-requests.index');

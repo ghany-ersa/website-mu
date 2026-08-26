@@ -191,7 +191,23 @@
             </div>
         @else
             <form action="{{ route('organizations.plan.store', $organization) }}" method="POST"
-                  x-data='{ "selected": {{ $organization->plan_id ?? 'null' }}, "confirming": false, "plans": @json($plansForConfirm), "duration": 3 }'>
+                  x-data='{
+                      "selected": {{ $organization->plan_id ?? 'null' }},
+                      "confirming": false,
+                      "plans": @json($plansForConfirm),
+                      "duration": 3,
+                      "discountCode": "",
+                      "planExpiresAt": {{ $planExpiresAt ? '"'.$planExpiresAt.'"' : 'null' }},
+                      price(id) { return this.plans[id]?.prices?.[this.duration] ?? 0; },
+                      discountPercent(id, months = this.duration) { return this.plans[id]?.discounts?.[months] ?? 0; },
+                      savings(id) { return this.plans[id]?.savings?.[this.duration] ?? 0; },
+                      formatRupiah(n) { return n === 0 ? "Gratis" : ("Rp " + n.toLocaleString("id-ID")); },
+                      activeUntilLabel() {
+                          const baseline = (this.planExpiresAt && new Date(this.planExpiresAt) > new Date()) ? new Date(this.planExpiresAt) : new Date();
+                          baseline.setMonth(baseline.getMonth() + this.duration);
+                          return baseline.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+                      }
+                  }'>
                 @csrf
 
                 {{-- Mobile: horizontal snap-scroll carousel (one card per swipe). Desktop (sm+): plain 2-col grid, no scrolling needed. --}}
@@ -240,6 +256,15 @@
                                     <span class="text-xs sm:text-sm font-semibold {{ $isFeatured ? 'text-white/70' : 'text-gray-400' }}">/bulan</span>
                                 @endif
                             </p>
+                            @if ($plan->price_monthly > 0)
+                                <p class="text-xs {{ $isFeatured ? 'text-white/70' : 'text-gray-400' }} mt-0.5">
+                                    Total <span x-text="duration"></span> bulan:
+                                    <span class="font-semibold" x-text="formatRupiah(price({{ $plan->id }}))"></span>
+                                    <template x-if="discountPercent({{ $plan->id }}) > 0">
+                                        <span class="font-bold {{ $isFeatured ? 'text-white' : 'text-secondary' }}" x-text="' — hemat ' + discountPercent({{ $plan->id }}) + '%'"></span>
+                                    </template>
+                                </p>
+                            @endif
                             <p class="text-sm mt-2 mb-5 sm:mb-6 {{ $isFeatured ? 'text-white/80' : 'text-gray-500' }}">{{ $plan->description }}</p>
 
                             <ul class="space-y-2.5 sm:space-y-3 text-sm mb-6 sm:mb-8 flex-1">
@@ -285,21 +310,57 @@
                     @endforeach
                 </div>
 
-                {{-- Duration: how many months the requested plan is paid for — shown to the admin
-                     as the total figure to match against the payment they're confirming. --}}
-                <div class="mt-6 sm:mt-8">
+                {{-- Duration + voucher + live total, shown after the plan is picked so the
+                     summary always reflects a concrete plan rather than an empty placeholder. --}}
+                <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-soft border border-gray-100 p-5 sm:p-6 md:p-8 mt-6 sm:mt-8">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">Durasi Langganan</p>
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
                         @foreach ([3, 6, 12] as $months)
                             <label
                                 @click="duration = {{ $months }}"
-                                class="flex items-center justify-center gap-1.5 rounded-xl border-2 py-3 text-sm font-bold cursor-pointer transition-colors"
+                                class="relative flex flex-col items-center justify-center gap-1 rounded-xl border-2 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-center cursor-pointer transition-colors"
                                 :class="duration === {{ $months }} ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 text-gray-500 hover:border-gray-300'">
                                 <input type="radio" name="duration_months" value="{{ $months }}" class="sr-only" {{ $months === 3 ? 'checked' : '' }}>
                                 {{ $months }} Bulan
+                                <template x-if="selected && discountPercent(selected, {{ $months }}) > 0">
+                                    <span class="text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary" x-text="'Hemat ' + discountPercent(selected, {{ $months }}) + '%'"></span>
+                                </template>
                             </label>
                         @endforeach
                     </div>
+
+                    <div class="mt-5">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2" for="discount_code">
+                            Kode Voucher <span class="font-normal normal-case text-gray-400">(opsional)</span>
+                        </label>
+                        <input type="text" name="discount_code" id="discount_code" x-model="discountCode"
+                               value="{{ old('discount_code') }}"
+                               placeholder="Masukkan kode jika ada"
+                               class="w-full sm:w-64 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        @error('discount_code') <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Live summary for whichever plan is currently selected — this is the
+                         "how much, until when" preview that used to only appear inside the
+                         confirmation modal after the fact. Stacked (not side-by-side) below sm
+                         so neither the price nor the date gets squeezed on narrow screens. --}}
+                    <template x-if="selected">
+                        <div class="mt-5 pt-5 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <p class="text-xs text-gray-400">Total untuk <span x-text="plans[selected]?.name"></span> &middot; <span x-text="duration"></span> bulan</p>
+                                <p class="text-xl font-extrabold text-gray-900 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                                    <span x-text="formatRupiah(price(selected))"></span>
+                                    <template x-if="savings(selected) > 0">
+                                        <span class="text-xs font-bold text-secondary" x-text="'Hemat Rp ' + savings(selected).toLocaleString('id-ID')"></span>
+                                    </template>
+                                </p>
+                            </div>
+                            <div class="sm:text-right">
+                                <p class="text-xs text-gray-400">Aktif sampai</p>
+                                <p class="text-sm font-bold text-secondary" x-text="activeUntilLabel()"></p>
+                            </div>
+                        </div>
+                    </template>
                 </div>
 
                 @error('plan_id') <p class="text-xs text-red-500 mt-4">{{ $message }}</p> @enderror
@@ -335,13 +396,30 @@
                         </div>
                         <h3 class="font-bold text-gray-800 mb-1">Konfirmasi Perubahan Paket</h3>
                         <template x-if="selected">
-                            <p class="text-sm text-gray-500 mb-6">
-                                Anda akan mengajukan perubahan ke paket
-                                <span class="font-semibold text-gray-800" x-text="plans[selected]?.name"></span>
-                                selama <span class="font-semibold text-gray-800" x-text="duration"></span> bulan —
-                                total <span class="font-semibold text-gray-800" x-text="plans[selected]?.priceRaw === 0 ? 'Gratis' : ('Rp ' + (plans[selected]?.priceRaw * duration).toLocaleString('id-ID'))"></span>.
-                                Permintaan ini menunggu konfirmasi pembayaran dari admin sebelum aktif.
-                            </p>
+                            <div class="text-sm text-gray-500 mb-6 text-left space-y-3">
+                                <p>
+                                    Anda akan mengajukan perubahan ke paket
+                                    <span class="font-semibold text-gray-800" x-text="plans[selected]?.name"></span>
+                                    selama <span class="font-semibold text-gray-800" x-text="duration"></span> bulan.
+                                </p>
+                                <div class="bg-gray-50 rounded-xl p-3.5 space-y-1.5">
+                                    <div class="flex items-center justify-between">
+                                        <span>Subtotal</span>
+                                        <span class="font-semibold text-gray-800" x-text="formatRupiah(price(selected))"></span>
+                                    </div>
+                                    <template x-if="discountCode.trim() !== ''">
+                                        <div class="flex items-center justify-between text-xs text-amber-600">
+                                            <span>Kode voucher "<span x-text="discountCode.toUpperCase()"></span>"</span>
+                                            <span>diverifikasi saat pengajuan</span>
+                                        </div>
+                                    </template>
+                                    <div class="flex items-center justify-between pt-1.5 border-t border-gray-200">
+                                        <span class="font-semibold text-gray-700">Aktif sampai</span>
+                                        <span class="font-semibold text-secondary" x-text="activeUntilLabel()"></span>
+                                    </div>
+                                </div>
+                                <p class="text-xs">Permintaan ini menunggu konfirmasi pembayaran dari admin sebelum aktif.</p>
+                            </div>
                         </template>
                         <div class="flex items-center justify-center gap-3">
                             <button type="button" @click="confirming = false"

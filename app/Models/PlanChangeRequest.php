@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['organization_id', 'requested_plan_id', 'duration_months', 'limits_snapshot', 'payment_confirmed_at', 'requested_by_user_id', 'status', 'reviewed_by_user_id', 'reviewed_at', 'admin_note'])]
+#[Fillable(['organization_id', 'requested_plan_id', 'duration_months', 'discount_code_id', 'discount_amount', 'limits_snapshot', 'payment_confirmed_at', 'requested_by_user_id', 'status', 'reviewed_by_user_id', 'reviewed_at', 'admin_note'])]
 class PlanChangeRequest extends Model
 {
     /**
@@ -40,6 +40,14 @@ class PlanChangeRequest extends Model
     }
 
     /**
+     * @return BelongsTo<DiscountCode, $this>
+     */
+    public function discountCode(): BelongsTo
+    {
+        return $this->belongsTo(DiscountCode::class);
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function requestedBy(): BelongsTo
@@ -56,11 +64,19 @@ class PlanChangeRequest extends Model
     }
 
     /**
+     * Price for the chosen plan/duration before any voucher discount is applied.
+     */
+    public function subtotal(): int
+    {
+        return $this->requestedPlan->priceForDuration($this->duration_months);
+    }
+
+    /**
      * Total amount the requester owes for the chosen duration — the figure an admin matches
      * against the payment they're confirming before approving.
      */
     public function totalPrice(): int
     {
-        return $this->requestedPlan->price_monthly * $this->duration_months;
+        return max(0, $this->subtotal() - $this->discount_amount);
     }
 }
