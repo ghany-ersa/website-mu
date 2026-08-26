@@ -5,13 +5,24 @@
 @section('content')
     <div class="mb-8">
         <h1 class="text-2xl font-extrabold text-primary">Permintaan Pergantian Paket</h1>
-        <p class="text-sm text-gray-500 mt-1">Setujui setelah pembayaran dikonfirmasi manual di luar sistem.</p>
+        <p class="text-sm text-gray-500 mt-1">{{ $requests->total() }} permintaan &mdash; setujui setelah pembayaran dikonfirmasi manual di luar sistem.</p>
     </div>
+
+    <x-crud.search-form placeholder="Cari nama organisasi atau pemohon...">
+        <select name="status" onchange="this.form.submit()"
+                class="px-4 py-2.5 rounded-full border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+            <option value="">Semua Status</option>
+            @foreach ($statuses as $statusOption)
+                <option value="{{ $statusOption->value }}" @selected(request('status') === $statusOption->value)>{{ $statusOption->label() }}</option>
+            @endforeach
+        </select>
+    </x-crud.search-form>
 
     <div class="bg-white rounded-2xl shadow-soft overflow-x-auto">
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
                 <tr>
+                    <th class="px-5 py-3">#</th>
                     <th class="px-5 py-3">Organisasi</th>
                     <th class="px-5 py-3">Diajukan Oleh</th>
                     <th class="px-5 py-3">Paket Diminta</th>
@@ -23,6 +34,9 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($requests as $request)
                     <tr>
+                        <td class="px-5 py-4 text-gray-400">
+                            {{ $requests->firstItem() + $loop->index }}
+                        </td>
                         <td class="px-5 py-4">
                             <p class="font-semibold text-gray-800">{{ $request->organization->name }}</p>
                             <p class="text-xs text-gray-400">Paket saat ini: {{ $request->organization->plan?->name ?? '—' }}</p>
@@ -84,12 +98,20 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-5 py-10 text-center text-gray-400">
-                            Belum ada permintaan pergantian paket.
+                        <td colspan="7" class="px-5 py-10 text-center text-gray-400">
+                            @if (request('q') || request('status'))
+                                Tidak ada permintaan yang cocok dengan pencarian.
+                            @else
+                                Belum ada permintaan pergantian paket.
+                            @endif
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $requests->onEachSide(1)->links() }}
     </div>
 @endsection

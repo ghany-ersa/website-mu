@@ -15,13 +15,30 @@ class PlanChangeRequestController extends Controller
 {
     public function index(): View
     {
-        $requests = PlanChangeRequest::with(['organization', 'requestedPlan', 'requestedBy'])
+        $search = trim((string) request('q'));
+        $status = request('status');
+
+        $requests = PlanChangeRequest::query()
+            ->with(['organization', 'requestedPlan', 'requestedBy'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereHas('organization', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    })->orWhereHas('requestedBy', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                });
+            })
+            ->when($status, fn ($query) => $query->where('status', $status))
             ->orderByRaw("status = 'pending' desc")
             ->latest()
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.plan-change-requests.index', [
             'requests' => $requests,
+            'statuses' => PlanChangeRequestStatus::cases(),
         ]);
     }
 

@@ -5,34 +5,42 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OrganizationRole;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
+use App\Models\OrganizationType;
 use Illuminate\View\View;
 
 class OrganizationController extends Controller
 {
     /**
-     * Display a listing of all registered organizations, grouped either by owner
-     * account or by organization type depending on the `group_by` query param.
+     * Display a listing of all registered organizations as a searchable, filterable,
+     * paginated table.
      */
     public function index(): View
     {
-        $groupBy = request('group_by') === 'type' ? 'type' : 'owner';
+        $search = trim((string) request('q'));
+        $typeId = request('organization_type_id');
 
-        $organizations = Organization::with(['organizationType', 'members' => function ($query) {
-            $query->wherePivot('role', OrganizationRole::Owner->value);
-        }])->orderBy('name')->get();
-
-        $groups = $groupBy === 'type'
-            ? $organizations->groupBy(fn (Organization $organization) => $organization->organizationType?->name ?? 'Tanpa Jenis')
-            : $organizations->groupBy(function (Organization $organization) {
-                $owner = $organization->members->first();
-
-                return $owner ? "{$owner->name} ({$owner->email})" : 'Tanpa Owner';
-            });
+        $organizations = Organization::query()
+            ->with(['organizationType', 'members' => function ($query) {
+                $query->wherePivot('role', OrganizationRole::Owner->value);
+            }])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhereHas('members', function ($query) use ($search) {
+                            $query->where('users.name', 'like', "%{$search}%")
+                                ->orWhere('users.email', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->when($typeId, fn ($query) => $query->where('organization_type_id', $typeId))
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.organizations.index', [
-            'groups' => $groups,
-            'groupBy' => $groupBy,
-            'total' => $organizations->count(),
+            'organizations' => $organizations,
+            'organizationTypes' => OrganizationType::orderBy('name')->get(),
         ]);
     }
 }

@@ -6,17 +6,20 @@
     <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div>
             <h1 class="text-2xl font-extrabold text-primary">Paket Langganan</h1>
-            <p class="text-sm text-gray-500 mt-1">Kelola harga dan limit konten tiap paket.</p>
+            <p class="text-sm text-gray-500 mt-1">{{ $plans->total() }} paket &mdash; kelola harga dan limit konten tiap paket.</p>
         </div>
         <a href="{{ route('admin.plans.create') }}" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
             + Paket Baru
         </a>
     </div>
 
+    <x-crud.search-form placeholder="Cari nama atau key paket..." />
+
     <div class="bg-white rounded-2xl shadow-soft overflow-x-auto">
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
                 <tr>
+                    <th class="px-5 py-3">#</th>
                     <th class="px-5 py-3">Paket</th>
                     <th class="px-5 py-3">Harga</th>
                     <th class="px-5 py-3">Organisasi</th>
@@ -27,6 +30,9 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($plans as $plan)
                     <tr>
+                        <td class="px-5 py-4 text-gray-400">
+                            {{ $plans->firstItem() + $loop->index }}
+                        </td>
                         <td class="px-5 py-4">
                             <p class="font-semibold text-gray-800">{{ $plan->name }}</p>
                             <p class="text-xs text-gray-400 font-mono">{{ $plan->key }}</p>
@@ -56,10 +62,20 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-5 py-10 text-center text-gray-400">Belum ada paket.</td>
+                        <td colspan="6" class="px-5 py-10 text-center text-gray-400">
+                            @if (request('q'))
+                                Tidak ada paket yang cocok dengan pencarian.
+                            @else
+                                Belum ada paket.
+                            @endif
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $plans->onEachSide(1)->links() }}
     </div>
 @endsection

@@ -33,7 +33,19 @@ class PlanController extends Controller
      */
     public function index(): View
     {
-        $plans = Plan::with('limits')->orderBy('price_monthly')->get();
+        $search = trim((string) request('q'));
+
+        $plans = Plan::query()
+            ->with('limits')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('key', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('price_monthly')
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.plans.index', ['plans' => $plans]);
     }

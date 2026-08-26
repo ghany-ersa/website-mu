@@ -17,9 +17,26 @@ class TemplateController extends Controller
      */
     public function index(): View
     {
-        $templates = Template::with('organizationType')->orderBy('name')->get();
+        $search = trim((string) request('q'));
+        $typeId = request('organization_type_id');
 
-        return view('admin.templates.index', ['templates' => $templates]);
+        $templates = Template::query()
+            ->with('organizationType')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%");
+                });
+            })
+            ->when($typeId, fn ($query) => $query->where('organization_type_id', $typeId))
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.templates.index', [
+            'templates' => $templates,
+            'organizationTypes' => OrganizationType::orderBy('name')->get(),
+        ]);
     }
 
     /**

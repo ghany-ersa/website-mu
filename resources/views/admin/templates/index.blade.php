@@ -4,16 +4,30 @@
 
 @section('content')
     <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-        <h1 class="text-2xl font-extrabold text-primary">Template</h1>
+        <div>
+            <h1 class="text-2xl font-extrabold text-primary">Template</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ $templates->total() }} template.</p>
+        </div>
         <a href="{{ route('admin.templates.create') }}" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
             + Template Baru
         </a>
     </div>
 
+    <x-crud.search-form placeholder="Cari nama atau slug template...">
+        <select name="organization_type_id" onchange="this.form.submit()"
+                class="px-4 py-2.5 rounded-full border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+            <option value="">Semua Jenis</option>
+            @foreach ($organizationTypes as $type)
+                <option value="{{ $type->id }}" @selected(request('organization_type_id') == $type->id)>{{ $type->name }}</option>
+            @endforeach
+        </select>
+    </x-crud.search-form>
+
     <div class="bg-white rounded-2xl shadow-soft overflow-x-auto">
         <table class="w-full text-sm text-left">
             <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
                 <tr>
+                    <th class="px-5 py-3">#</th>
                     <th class="px-5 py-3">Nama</th>
                     <th class="px-5 py-3">Jenis Organisasi</th>
                     <th class="px-5 py-3">Status</th>
@@ -23,6 +37,9 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($templates as $template)
                     <tr>
+                        <td class="px-5 py-4 text-gray-400">
+                            {{ $templates->firstItem() + $loop->index }}
+                        </td>
                         <td class="px-5 py-4">
                             <p class="font-semibold text-gray-800">{{ $template->name }}</p>
                             <p class="text-xs text-gray-400">{{ $template->slug }}</p>
@@ -53,10 +70,20 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="px-5 py-10 text-center text-gray-400">Belum ada template.</td>
+                        <td colspan="5" class="px-5 py-10 text-center text-gray-400">
+                            @if (request('q') || request('organization_type_id'))
+                                Tidak ada template yang cocok dengan pencarian.
+                            @else
+                                Belum ada template.
+                            @endif
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $templates->onEachSide(1)->links() }}
     </div>
 @endsection
