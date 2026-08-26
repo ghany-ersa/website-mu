@@ -63,4 +63,10 @@
                class="rounded border-gray-300 text-primary focus:ring-primary/30">
         Aktif
     </label>
+
+    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <input type="checkbox" name="is_exclusive" value="1" @checked(old('is_exclusive', $template->is_exclusive ?? false))
+               class="rounded border-gray-300 text-primary focus:ring-primary/30">
+        Eksklusif <span class="font-normal text-gray-400">(hanya untuk organisasi dengan paket yang mendukung template eksklusif)</span>
+    </label>
 </div>

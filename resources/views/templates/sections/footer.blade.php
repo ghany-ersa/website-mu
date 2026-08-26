@@ -10,7 +10,9 @@
 
     The "Dibuat dengan website-mu.id" badge is deliberate platform branding/attribution, not
     editable content — it stays regardless of what content fields this section does or doesn't
-    have, by the same lock that keeps the rest of the footer from being deleted.
+    have, by the same lock that keeps the rest of the footer from being deleted. It's hidden
+    only for organizations on a plan with hide_branding (see Plan::hide_branding) — a paid
+    entitlement, not something the org can toggle itself.
 --}}
 @php
     $orgName = $section['content']['org_name']
@@ -26,6 +28,7 @@
     $facebookUrl = $organization->facebook_url ?? null;
     $whatsappHref = \App\Services\WhatsAppNumber::href($whatsapp);
     $hasSocial = $instagramUrl || $facebookUrl;
+    $hideBranding = $organization->plan?->hide_branding ?? false;
 @endphp
 
 <footer class="bg-primary text-white/70" style="background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))">
@@ -110,14 +113,16 @@
     <div class="border-t border-white/10">
         <div class="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/60">
             <span>&copy; {{ date('Y') }} {{ $orgName }}. Seluruh hak cipta dilindungi.</span>
-            <a href="https://website-mu.id" target="_blank" rel="noopener"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-brand bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 text-secondary">
-                    <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
-                </svg>
-                Dibuat dengan
-                <span class="font-semibold text-white">website-mu.id</span>
-            </a>
+            @unless ($hideBranding)
+                <a href="https://website-mu.id" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-brand bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 text-secondary">
+                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                    </svg>
+                    Dibuat dengan
+                    <span class="font-semibold text-white">website-mu.id</span>
+                </a>
+            @endunless
         </div>
     </div>
 </footer>

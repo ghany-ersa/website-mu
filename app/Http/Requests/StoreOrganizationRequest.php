@@ -26,7 +26,7 @@ class StoreOrganizationRequest extends FormRequest
     {
         return [
             'organization_type_id' => ['required', 'exists:organization_types,id'],
-            'template_id' => ['nullable', 'exists:templates,id'],
+            'template_id' => ['nullable', 'exists:templates,id', Rule::notIn($this->exclusiveTemplateIds())],
             'name' => ['required', 'string', 'max:255'],
             'slug' => [
                 'required',
@@ -54,7 +54,22 @@ class StoreOrganizationRequest extends FormRequest
             'slug.unique' => 'Slug ini sudah digunakan oleh organisasi lain.',
             'slug.min' => 'Slug minimal terdiri dari :min karakter.',
             'slug.max' => 'Slug maksimal terdiri dari :max karakter.',
+            'template_id.not_in' => 'Template ini eksklusif untuk paket Professional. Organisasi baru selalu dimulai dari paket Starter — upgrade paket lalu ganti template dari halaman pengaturan organisasi.',
         ];
+    }
+
+    /**
+     * Every organization is created on the Starter plan (see OrganizationController::store()),
+     * so a Template::is_exclusive template can never be legitimately chosen at creation time —
+     * not via the auto-pick below, and not via a template_id smuggled in from
+     * TemplateUseController's "Gunakan Template" flow either. The only path onto an exclusive
+     * template is switching after upgrading (see OrganizationTemplateController).
+     *
+     * @return array<int, int>
+     */
+    private function exclusiveTemplateIds(): array
+    {
+        return Template::where('is_exclusive', true)->pluck('id')->all();
     }
 
     /**
@@ -81,6 +96,7 @@ class StoreOrganizationRequest extends FormRequest
         if (! $this->filled('template_id') && $this->filled('organization_type_id')) {
             $template = Template::where('organization_type_id', $this->input('organization_type_id'))
                 ->where('is_active', true)
+                ->where('is_exclusive', false)
                 ->first();
 
             if ($template) {

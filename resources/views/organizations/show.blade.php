@@ -71,6 +71,14 @@
                 </svg>
                 Edit Organisasi
             </a>
+            <a href="{{ route('organizations.template.edit', $organization) }}"
+                class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
+                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 8.25v8.25a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V8.25m-18 0V6a1.5 1.5 0 0 1 1.5-1.5h15a1.5 1.5 0 0 1 1.5 1.5v2.25m-18 0h18M9.75 6.75h.008v.008H9.75V6.75Z" />
+                </svg>
+                Ganti Template
+            </a>
             @can('manageBilling', $organization)
                 <a href="{{ route('organizations.plan.edit', $organization) }}"
                     class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">

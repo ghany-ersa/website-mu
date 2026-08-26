@@ -26,6 +26,8 @@ class StorePlanRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:1000'],
             'price_monthly' => ['required', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
+            'hide_branding' => ['nullable', 'boolean'],
+            'has_exclusive_templates' => ['nullable', 'boolean'],
             'limits' => ['required', 'array'],
             'limits.*' => ['nullable', 'integer', 'min:0'],
         ];

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['organization_type_id', 'name', 'slug', 'description', 'thumbnail_path', 'structure', 'is_active'])]
+#[Fillable(['organization_type_id', 'name', 'slug', 'description', 'thumbnail_path', 'structure', 'is_active', 'is_exclusive'])]
 class Template extends Model
 {
     /** @use HasFactory<TemplateFactory> */
@@ -23,6 +23,7 @@ class Template extends Model
         return [
             'structure' => 'array',
             'is_active' => 'boolean',
+            'is_exclusive' => 'boolean',
         ];
     }
 

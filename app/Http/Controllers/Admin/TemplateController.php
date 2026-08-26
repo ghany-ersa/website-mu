@@ -85,9 +85,10 @@ class TemplateController extends Controller
     private function prepare(StoreTemplateRequest|UpdateTemplateRequest $request): array
     {
         return [
-            ...$request->safe()->except(['structure', 'is_active']),
+            ...$request->safe()->except(['structure', 'is_active', 'is_exclusive']),
             'structure' => json_decode((string) $request->validated('structure'), true),
             'is_active' => $request->boolean('is_active'),
+            'is_exclusive' => $request->boolean('is_exclusive'),
         ];
     }
 }

@@ -10,6 +10,10 @@ use Illuminate\Database\Seeder;
  * numbers below are initial defaults, not a final business decision — adjust via a follow-up
  * seeder once real pricing and usage data are settled. Every component/section is available on
  * every plan; only the total number of sections a plan allows is limited (sections_total).
+ *
+ * Descriptions only name entitlements that actually exist in code (hide_branding,
+ * has_exclusive_templates) — earlier copy referenced custom domains and AI content that were
+ * never built, which is the kind of over-promise this plan intentionally avoids repeating.
  */
 class PlanSeeder extends Seeder
 {
@@ -19,13 +23,13 @@ class PlanSeeder extends Seeder
             'key' => 'starter',
             'name' => 'Starter',
             'description' => 'Paket dasar untuk memulai situs organisasi.',
-            'price_monthly' => 6000,
+            'price_monthly' => 10000,
         ]);
 
         $starter->limits()->createMany([
-            ['key' => 'posts', 'max_count' => 0],
+            ['key' => 'posts', 'max_count' => 5],
             ['key' => 'agendas', 'max_count' => 3],
-            ['key' => 'announcements', 'max_count' => 0],
+            ['key' => 'announcements', 'max_count' => 2],
             ['key' => 'officers', 'max_count' => 3],
             ['key' => 'programs', 'max_count' => 3],
             ['key' => 'gallery_photos', 'max_count' => 3],
@@ -35,8 +39,10 @@ class PlanSeeder extends Seeder
         $organization = Plan::create([
             'key' => 'organization',
             'name' => 'Organization',
-            'description' => 'Domain kustom, CMS penuh, tanpa branding platform.',
-            'price_monthly' => 12500,
+            'description' => 'Untuk organisasi dengan aktivitas publikasi rutin.',
+            'price_monthly' => 18000,
+            'hide_branding' => false,
+            'has_exclusive_templates' => false,
         ]);
 
         $organization->limits()->createMany([
@@ -44,7 +50,7 @@ class PlanSeeder extends Seeder
             ['key' => 'agendas', 'max_count' => 4],
             ['key' => 'announcements', 'max_count' => 3],
             ['key' => 'officers', 'max_count' => 7],
-            ['key' => 'programs', 'max_count' => 4],
+            ['key' => 'programs', 'max_count' => 5],
             ['key' => 'gallery_photos', 'max_count' => 8],
             ['key' => 'sections_total', 'max_count' => 8],
         ]);
@@ -52,8 +58,10 @@ class PlanSeeder extends Seeder
         $professional = Plan::create([
             'key' => 'professional',
             'name' => 'Professional',
-            'description' => 'Multi-editor, AI content, analytics lanjutan, komponen lebih banyak.',
-            'price_monthly' => 16500,
+            'description' => 'Kapasitas penuh, tampil tanpa watermark dengan pilihan template eksklusif.',
+            'price_monthly' => 25000,
+            'hide_branding' => true,
+            'has_exclusive_templates' => true,
         ]);
 
         $professional->limits()->createMany([

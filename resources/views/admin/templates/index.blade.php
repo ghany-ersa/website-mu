@@ -30,11 +30,14 @@
                         <td class="px-5 py-4 text-gray-600">
                             {{ $template->organizationType?->name ?? '—' }}
                         </td>
-                        <td class="px-5 py-4">
+                        <td class="px-5 py-4 space-x-1.5">
                             @if ($template->is_active)
                                 <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-semibold">Aktif</span>
                             @else
                                 <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">Nonaktif</span>
+                            @endif
+                            @if ($template->is_exclusive)
+                                <span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">Eksklusif</span>
                             @endif
                         </td>
                         <td class="px-5 py-4 text-right space-x-3">

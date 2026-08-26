@@ -30,13 +30,19 @@ class OrganizationController extends Controller
      *
      * Accepts an optional ?template=slug (set by TemplateUseController's "Gunakan
      * Template" flow) to pre-select the template and its matching organization type.
+     *
+     * Excludes Template::is_exclusive templates: every new organization is created on the
+     * Starter plan (see store()), which never has has_exclusive_templates, so an exclusive
+     * template can never legitimately be picked here — falling through to null instead of
+     * pre-selecting one avoids a dead-end where the form looks fine but submission always
+     * fails validation (see StoreOrganizationRequest::exclusiveTemplateIds()).
      */
     public function create(Request $request): View
     {
         $this->authorize('create', Organization::class);
 
         $selectedTemplate = $request->filled('template')
-            ? Template::where('slug', $request->query('template'))->where('is_active', true)->first()
+            ? Template::where('slug', $request->query('template'))->where('is_active', true)->where('is_exclusive', false)->first()
             : null;
 
         return view('organizations.create', [

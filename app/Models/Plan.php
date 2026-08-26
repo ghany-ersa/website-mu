@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['key', 'name', 'description', 'price_monthly', 'is_active'])]
+#[Fillable(['key', 'name', 'description', 'price_monthly', 'is_active', 'hide_branding', 'has_exclusive_templates'])]
 class Plan extends Model
 {
     /**
@@ -17,6 +17,8 @@ class Plan extends Model
         return [
             'price_monthly' => 'integer',
             'is_active' => 'boolean',
+            'hide_branding' => 'boolean',
+            'has_exclusive_templates' => 'boolean',
         ];
     }
 
@@ -97,6 +99,14 @@ class Plan extends Model
         } elseif ($sectionsTotal === 0) {
             $features[] = ['label' => 'Komponen Situs Tidak Tersedia', 'available' => false];
         }
+
+        $features[] = $this->hide_branding
+            ? ['label' => 'Tanpa Watermark website-mu', 'available' => true]
+            : ['label' => 'Watermark website-mu Tampil', 'available' => false];
+
+        $features[] = $this->has_exclusive_templates
+            ? ['label' => 'Akses Template Eksklusif', 'available' => true]
+            : ['label' => 'Template Eksklusif Tidak Tersedia', 'available' => false];
 
         return $features;
     }

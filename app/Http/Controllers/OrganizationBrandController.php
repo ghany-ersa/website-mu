@@ -41,7 +41,7 @@ class OrganizationBrandController extends Controller
         $organization->update($validated);
 
         return redirect()
-            ->route('organizations.brand.edit', $organization)
+            ->route('organizations.show', $organization)
             ->with('status', 'Brand settings berhasil disimpan.');
     }
 }

@@ -26,31 +26,41 @@ use App\Models\Program;
  * Only called once, right after Organization::seedPagesFromTemplate() clones the
  * template's sections — never touches an organization that already has any of a given
  * table's rows, so it can't clobber real content a user has since replaced or deleted.
+ *
+ * Every sample count below is capped to the organization's own plan limit (see
+ * PlanLimitService::effectiveLimit()) — every organization is created on the Starter plan
+ * (see OrganizationController::store()), whose limits are tighter than these samples'
+ * original fixed counts (e.g. 3 announcements vs. Starter's limit of 2), so seeding the
+ * fixed count unconditionally used to leave a brand-new organization already in violation
+ * of its own plan (see Organization::planViolations()) before the owner had touched
+ * anything. A limit of 0 skips that resource's samples entirely rather than seeding one
+ * record a Starter org isn't allowed to have at all.
  */
 class CmsSampleDataSeeder
 {
     public static function seed(Organization $organization, array $sectionKeys): void
     {
         $keys = array_unique($sectionKeys);
+        $limits = app(PlanLimitService::class);
 
         if (in_array('daftar-berita', $keys, true)) {
-            self::seedPosts($organization);
+            self::seedPosts($organization, $limits);
         }
 
         if (in_array('pengumuman', $keys, true)) {
-            self::seedAnnouncements($organization);
+            self::seedAnnouncements($organization, $limits);
         }
 
         if (in_array('agenda', $keys, true) || in_array('jadwal-kajian', $keys, true)) {
-            self::seedAgendas($organization);
+            self::seedAgendas($organization, $limits);
         }
 
         if (in_array('galeri', $keys, true)) {
-            self::seedGalleryPhotos($organization);
+            self::seedGalleryPhotos($organization, $limits);
         }
 
         if (in_array('struktur-pengurus', $keys, true)) {
-            self::seedOfficers($organization);
+            self::seedOfficers($organization, $limits);
         }
 
         if (in_array('jaringan-aum-ortom', $keys, true)) {
@@ -58,15 +68,28 @@ class CmsSampleDataSeeder
         }
 
         if (in_array('program-unggulan', $keys, true)) {
-            self::seedPrograms($organization, 'program');
+            self::seedPrograms($organization, 'program', $limits);
         }
 
         if (in_array('layanan', $keys, true)) {
-            self::seedPrograms($organization, 'layanan');
+            self::seedPrograms($organization, 'layanan', $limits);
         }
     }
 
-    private static function seedPosts(Organization $organization): void
+    /**
+     * How many of a fixed sample list to actually insert: the smaller of the list's own
+     * length and the organization's plan limit for that resource key, or the full list when
+     * the plan has no limit (null = unlimited). Never negative — a limit of 0 (or an
+     * organization already somehow past it) yields 0, i.e. skip entirely.
+     */
+    private static function sampleCount(Organization $organization, PlanLimitService $limits, string $key, int $available): int
+    {
+        $limit = $limits->effectiveLimit($organization, $key);
+
+        return $limit === null ? $available : max(0, min($available, $limit));
+    }
+
+    private static function seedPosts(Organization $organization, PlanLimitService $limits): void
     {
         if ($organization->posts()->exists()) {
             return;
@@ -77,6 +100,12 @@ class CmsSampleDataSeeder
             ['title' => 'Contoh Berita Pengumuman Program', 'category' => 'Program', 'excerpt' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
             ['title' => 'Contoh Berita Sosial Kemasyarakatan', 'category' => 'Sosial', 'excerpt' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
         ];
+
+        $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'posts', count($samples)));
+
+        if ($samples === []) {
+            return;
+        }
 
         $now = now();
 
@@ -94,7 +123,7 @@ class CmsSampleDataSeeder
         ], $samples, array_keys($samples)));
     }
 
-    private static function seedAnnouncements(Organization $organization): void
+    private static function seedAnnouncements(Organization $organization, PlanLimitService $limits): void
     {
         if ($organization->announcements()->exists()) {
             return;
@@ -105,6 +134,12 @@ class CmsSampleDataSeeder
             ['title' => 'Contoh Pengumuman Kegiatan', 'priority' => 'Sedang'],
             ['title' => 'Contoh Pengumuman Umum', 'priority' => 'Rendah'],
         ];
+
+        $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'announcements', count($samples)));
+
+        if ($samples === []) {
+            return;
+        }
 
         $now = now();
 
@@ -120,7 +155,7 @@ class CmsSampleDataSeeder
         ], $samples));
     }
 
-    private static function seedAgendas(Organization $organization): void
+    private static function seedAgendas(Organization $organization, PlanLimitService $limits): void
     {
         if ($organization->agendas()->exists()) {
             return;
@@ -131,6 +166,12 @@ class CmsSampleDataSeeder
             ['title' => 'Contoh Rapat Koordinasi', 'days' => 14],
             ['title' => 'Contoh Kegiatan Sosial', 'days' => 21],
         ];
+
+        $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'agendas', count($samples)));
+
+        if ($samples === []) {
+            return;
+        }
 
         $now = now();
 
@@ -153,9 +194,15 @@ class CmsSampleDataSeeder
      */
     private const PLACEHOLDER_PHOTO_URL = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect width="400" height="400" fill="%23e5e7eb"/%3E%3C/svg%3E';
 
-    private static function seedGalleryPhotos(Organization $organization): void
+    private static function seedGalleryPhotos(Organization $organization, PlanLimitService $limits): void
     {
         if ($organization->photos()->exists()) {
+            return;
+        }
+
+        $count = self::sampleCount($organization, $limits, 'gallery_photos', 4);
+
+        if ($count === 0) {
             return;
         }
 
@@ -168,16 +215,22 @@ class CmsSampleDataSeeder
             'order' => $index,
             'created_at' => $now,
             'updated_at' => $now,
-        ], range(1, 4)));
+        ], range(1, $count)));
     }
 
-    private static function seedOfficers(Organization $organization): void
+    private static function seedOfficers(Organization $organization, PlanLimitService $limits): void
     {
         if ($organization->officers()->exists()) {
             return;
         }
 
         $roles = ['Ketua', 'Sekretaris', 'Bendahara', 'Anggota'];
+        $roles = array_slice($roles, 0, self::sampleCount($organization, $limits, 'officers', count($roles)));
+
+        if ($roles === []) {
+            return;
+        }
+
         $now = now();
 
         Officer::insert(array_map(fn ($role, $index) => [
@@ -190,6 +243,11 @@ class CmsSampleDataSeeder
         ], $roles, array_keys($roles)));
     }
 
+    /**
+     * Not plan-limited: 'jaringan-aum-ortom' isn't a PlanLimitService resource key (it has no
+     * per-plan quota, unlike the CMS resources above), so there's no limit to cap this
+     * against.
+     */
     private static function seedNetworks(Organization $organization): void
     {
         if ($organization->networks()->exists()) {
@@ -208,7 +266,7 @@ class CmsSampleDataSeeder
         ], range(1, 3)));
     }
 
-    private static function seedPrograms(Organization $organization, string $type): void
+    private static function seedPrograms(Organization $organization, string $type, PlanLimitService $limits): void
     {
         if ($organization->programs()->ofType($type)->exists()) {
             return;
@@ -225,6 +283,15 @@ class CmsSampleDataSeeder
                 ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
                 ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
             ];
+
+        // 'programs' is the plan_limits/PlanLimitService key for both types (program and
+        // layanan aren't tracked separately there) — see PlanLimitService::RESOURCE_RELATIONS
+        // and Organization::programs(), which counts both together.
+        $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'programs', count($samples)));
+
+        if ($samples === []) {
+            return;
+        }
 
         $now = now();
 

@@ -199,7 +199,7 @@
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Target Waktu Terbit</p>
                         </div>
                         <div>
-                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp{{ number_format(($plans->first()->price_monthly ?? 6500) / 1000, 1, ',', '.') }}rb</p>
+                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp{{ number_format(($plans->first()->price_monthly ?? 10000) / 1000, 1, ',', '.') }}rb</p>
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Mulai dari /bulan</p>
                         </div>
                     </div>
@@ -370,8 +370,8 @@
                 // Marketing subtitle per plan key — not stored in the plans table since it's
                 // copywriting, not a limit/price the app enforces.
                 $planSubtitles = [
-                    'organization' => 'Untuk Ranting & Cabang',
-                    'professional' => 'Untuk AUM & Sekolah',
+                    'organization' => 'Ranting & Cabang',
+                    'professional' => 'AUM & Daerah',
                 ];
                 $featuredPlanKey = $plans->last()?->key;
             @endphp
@@ -391,7 +391,7 @@
                                     <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Gratis</span>
                                 @else
                                     <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
-                                    <span class="text-sm text-gray-400">/bulan</span>
+                                    <span class="text-sm text-gray-400">/bln</span>
                                 @endif
                             </div>
                             <p class="text-xs text-gray-400 mb-6">{{ $plan->description }}</p>

@@ -117,6 +117,8 @@ class PlanController extends Controller
         return [
             ...$request->safe()->only(['key', 'name', 'description', 'price_monthly']),
             'is_active' => $request->boolean('is_active'),
+            'hide_branding' => $request->boolean('hide_branding'),
+            'has_exclusive_templates' => $request->boolean('has_exclusive_templates'),
         ];
     }
 

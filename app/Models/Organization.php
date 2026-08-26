@@ -6,6 +6,7 @@ use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Enums\PlanChangeRequestStatus;
 use App\Services\CmsSampleDataSeeder;
+use App\Services\PlanLimitService;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -260,7 +261,7 @@ class Organization extends Model
         // honored here too — otherwise an org that's protected from a plan's limits being
         // lowered post-payment (see PlanLimitService::effectiveLimit()) would still get
         // flagged as violating rules it never agreed to.
-        $service = app(\App\Services\PlanLimitService::class);
+        $service = app(PlanLimitService::class);
         $violations = [];
 
         foreach ($resources as $key => [$relation, $label]) {
@@ -303,6 +304,22 @@ class Organization extends Model
     public function violatesPlanRules(): bool
     {
         return $this->planViolations() !== [];
+    }
+
+    /**
+     * Whether this organization's plan grants access to templates marked
+     * Template::is_exclusive — used to gate the "Ganti Template" picker
+     * (see OrganizationTemplateController) so a Starter/Organization-plan org can't
+     * switch onto a Professional-only design.
+     *
+     * Reloads the plan relation (plan()->first(), not the cached $this->plan) for the same
+     * reason PlanLimitService::effectivePlan() does: belongsTo's cache isn't invalidated by
+     * updating this model's own plan_id, so a just-upgraded instance would otherwise still
+     * report the previous plan's entitlement.
+     */
+    public function canUseExclusiveTemplates(): bool
+    {
+        return (bool) $this->plan()->first()?->has_exclusive_templates;
     }
 
     /**
@@ -470,6 +487,16 @@ class Organization extends Model
      * whichever CMS-backed sections (galeri, daftar-berita, struktur-pengurus, etc.) the
      * cloned page has, so the builder and the org's own draft/public page show real, editable
      * content immediately instead of an empty list the user has to populate from scratch.
+     *
+     * The cloned sections are capped to the org's plan's 'sections_total' limit (excluding
+     * locked keys, same as PlanLimitService::countedSectionsTotal() — locked sections like
+     * header/footer were never optional and shouldn't eat into the quota). Every organization
+     * is created on the Starter plan (see OrganizationController::store()), whose
+     * sections_total is tighter than what any current template actually contains, so cloning
+     * every section unconditionally used to leave a brand-new organization already over its
+     * own plan's limit — see Organization::planViolations() — before the owner had touched
+     * anything. Trailing (non-locked) sections are dropped first so the template's opening
+     * sections (hero, etc. — the first impression) survive the cut.
      */
     private function seedPagesFromTemplate(): void
     {
@@ -486,9 +513,35 @@ class Organization extends Model
             'is_home' => true,
         ]);
 
+        $lockedKeys = collect(config('page-builder.sections'))
+            ->filter(fn (array $section) => $section['locked'] ?? false)
+            ->keys();
+
+        $sections = collect($pageData['sections'] ?? []);
+        $limit = app(PlanLimitService::class)->effectiveLimit($this, 'sections_total');
+
+        if ($limit !== null) {
+            $unlockedCount = $sections->filter(fn (array $s) => ! $lockedKeys->contains($s['key']))->count();
+            $overBy = max(0, $unlockedCount - $limit);
+
+            if ($overBy > 0) {
+                $dropped = 0;
+
+                $sections = $sections->reverse()->reject(function (array $section) use ($lockedKeys, $overBy, &$dropped) {
+                    if ($dropped >= $overBy || $lockedKeys->contains($section['key'])) {
+                        return false;
+                    }
+
+                    $dropped++;
+
+                    return true;
+                })->reverse()->values();
+            }
+        }
+
         $sectionKeys = [];
 
-        foreach ($pageData['sections'] ?? [] as $sectionOrder => $sectionData) {
+        foreach ($sections as $sectionOrder => $sectionData) {
             $page->sections()->create([
                 'key' => $sectionData['key'],
                 'variant' => $sectionData['variant'] ?? null,

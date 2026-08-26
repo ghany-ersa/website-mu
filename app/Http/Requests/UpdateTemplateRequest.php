@@ -28,6 +28,7 @@ class UpdateTemplateRequest extends FormRequest
             'thumbnail_path' => ['nullable', 'string', 'max:255'],
             'structure' => ['required', 'json'],
             'is_active' => ['nullable', 'boolean'],
+            'is_exclusive' => ['nullable', 'boolean'],
         ];
     }
 }

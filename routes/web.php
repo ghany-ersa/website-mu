@@ -21,6 +21,7 @@ use App\Http\Controllers\OrganizationPostController;
 use App\Http\Controllers\OrganizationProgramController;
 use App\Http\Controllers\OrganizationSectionController;
 use App\Http\Controllers\OrganizationSiteController;
+use App\Http\Controllers\OrganizationTemplateController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
@@ -136,6 +137,11 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.edit.slug.update');
         Route::patch('organizations/{organization}/edit/description', [OrganizationEditController::class, 'updateDescription'])
             ->name('organizations.edit.description.update');
+
+        Route::get('organizations/{organization}/template', [OrganizationTemplateController::class, 'edit'])
+            ->name('organizations.template.edit');
+        Route::patch('organizations/{organization}/template', [OrganizationTemplateController::class, 'update'])
+            ->name('organizations.template.update');
 
         Route::get('organizations/{organization}/plan', [OrganizationPlanController::class, 'edit'])
             ->name('organizations.plan.edit');

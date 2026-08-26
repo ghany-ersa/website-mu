@@ -47,6 +47,18 @@
                class="rounded border-gray-300 text-primary focus:ring-primary/30">
         Aktif (ditawarkan ke organisasi)
     </label>
+
+    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <input type="checkbox" name="hide_branding" value="1" @checked(old('hide_branding', $plan->hide_branding ?? false))
+               class="rounded border-gray-300 text-primary focus:ring-primary/30">
+        Sembunyikan watermark "Dibuat dengan website-mu.id" di situs publik
+    </label>
+
+    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <input type="checkbox" name="has_exclusive_templates" value="1" @checked(old('has_exclusive_templates', $plan->has_exclusive_templates ?? false))
+               class="rounded border-gray-300 text-primary focus:ring-primary/30">
+        Akses ke template eksklusif (Template::is_exclusive)
+    </label>
 </div>
 
 <div class="bg-white rounded-2xl shadow-soft p-6 mb-6">
