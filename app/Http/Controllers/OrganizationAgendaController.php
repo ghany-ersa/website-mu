@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\BuilderAware;
 use App\Models\Agenda;
 use App\Models\Organization;
 use App\Services\PlanLimitService;
@@ -11,9 +12,11 @@ use Illuminate\View\View;
 
 class OrganizationAgendaController extends Controller
 {
+    use BuilderAware;
+
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
-    public function index(Organization $organization): View
+    public function index(Request $request, Organization $organization): View
     {
         abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('viewAny', [Agenda::class, $organization]);
@@ -21,10 +24,11 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.index', [
             'organization' => $organization,
             'agendas' => $organization->agendas()->get(),
+            ...$this->builderViewData($request),
         ]);
     }
 
-    public function create(Organization $organization): View|RedirectResponse
+    public function create(Request $request, Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
@@ -38,6 +42,7 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.form', [
             'organization' => $organization,
             'agenda' => new Agenda,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -55,11 +60,11 @@ class OrganizationAgendaController extends Controller
         $organization->agendas()->create($this->validated($request));
 
         return redirect()
-            ->route('organizations.agendas.index', $this->indexParams($request, $organization))
+            ->route('organizations.agendas.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Agenda berhasil disimpan.');
     }
 
-    public function edit(Organization $organization, Agenda $agenda): View
+    public function edit(Request $request, Organization $organization, Agenda $agenda): View
     {
         $this->authorize('update', $agenda);
         $this->ensureBelongsToOrganization($organization, $agenda);
@@ -67,6 +72,7 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.form', [
             'organization' => $organization,
             'agenda' => $agenda,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -78,7 +84,7 @@ class OrganizationAgendaController extends Controller
         $agenda->update($this->validated($request));
 
         return redirect()
-            ->route('organizations.agendas.index', $this->indexParams($request, $organization))
+            ->route('organizations.agendas.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Agenda berhasil diperbarui.');
     }
 
@@ -90,7 +96,7 @@ class OrganizationAgendaController extends Controller
         $agenda->delete();
 
         return redirect()
-            ->route('organizations.agendas.index', $this->indexParams($request, $organization))
+            ->route('organizations.agendas.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Agenda berhasil dihapus.');
     }
 
@@ -113,15 +119,5 @@ class OrganizationAgendaController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, Agenda $agenda): void
     {
         abort_unless($agenda->organization_id === $organization->id, 404);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function indexParams(Request $request, Organization $organization): array
-    {
-        return $request->input('from') === 'builder'
-            ? ['organization' => $organization, 'from' => 'builder', 'section' => $request->input('section')]
-            : ['organization' => $organization];
     }
 }

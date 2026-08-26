@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\BuilderAware;
 use App\Models\Officer;
 use App\Models\Organization;
 use App\Services\PlanLimitService;
@@ -11,9 +12,11 @@ use Illuminate\View\View;
 
 class OrganizationOfficerController extends Controller
 {
+    use BuilderAware;
+
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
-    public function index(Organization $organization): View
+    public function index(Request $request, Organization $organization): View
     {
         abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('viewAny', [Officer::class, $organization]);
@@ -21,10 +24,11 @@ class OrganizationOfficerController extends Controller
         return view('organizations.officers.index', [
             'organization' => $organization,
             'officers' => $organization->officers()->get(),
+            ...$this->builderViewData($request),
         ]);
     }
 
-    public function create(Organization $organization): View|RedirectResponse
+    public function create(Request $request, Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('struktur-pengurus'), 404);
         $this->authorize('create', [Officer::class, $organization]);
@@ -38,6 +42,7 @@ class OrganizationOfficerController extends Controller
         return view('organizations.officers.form', [
             'organization' => $organization,
             'officer' => new Officer,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -58,11 +63,11 @@ class OrganizationOfficerController extends Controller
         ]);
 
         return redirect()
-            ->route('organizations.officers.index', $this->indexParams($request, $organization))
+            ->route('organizations.officers.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Pengurus berhasil ditambahkan.');
     }
 
-    public function edit(Organization $organization, Officer $officer): View
+    public function edit(Request $request, Organization $organization, Officer $officer): View
     {
         $this->authorize('update', $officer);
         $this->ensureBelongsToOrganization($organization, $officer);
@@ -70,6 +75,7 @@ class OrganizationOfficerController extends Controller
         return view('organizations.officers.form', [
             'organization' => $organization,
             'officer' => $officer,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -81,7 +87,7 @@ class OrganizationOfficerController extends Controller
         $officer->update($this->validated($request));
 
         return redirect()
-            ->route('organizations.officers.index', $this->indexParams($request, $organization))
+            ->route('organizations.officers.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Pengurus berhasil diperbarui.');
     }
 
@@ -93,7 +99,7 @@ class OrganizationOfficerController extends Controller
         $officer->delete();
 
         return redirect()
-            ->route('organizations.officers.index', $this->indexParams($request, $organization))
+            ->route('organizations.officers.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Pengurus berhasil dihapus.');
     }
 
@@ -133,15 +139,5 @@ class OrganizationOfficerController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, Officer $officer): void
     {
         abort_unless($officer->organization_id === $organization->id, 404);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function indexParams(Request $request, Organization $organization): array
-    {
-        return $request->input('from') === 'builder'
-            ? ['organization' => $organization, 'from' => 'builder', 'section' => $request->input('section')]
-            : ['organization' => $organization];
     }
 }

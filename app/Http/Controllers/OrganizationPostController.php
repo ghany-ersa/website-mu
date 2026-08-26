@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PublishStatus;
+use App\Http\Controllers\Concerns\BuilderAware;
 use App\Models\Organization;
 use App\Models\Post;
 use App\Services\PlanLimitService;
@@ -13,9 +14,11 @@ use Illuminate\View\View;
 
 class OrganizationPostController extends Controller
 {
+    use BuilderAware;
+
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
-    public function index(Organization $organization): View
+    public function index(Request $request, Organization $organization): View
     {
         abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('viewAny', [Post::class, $organization]);
@@ -23,10 +26,11 @@ class OrganizationPostController extends Controller
         return view('organizations.posts.index', [
             'organization' => $organization,
             'posts' => $organization->posts()->get(),
+            ...$this->builderViewData($request),
         ]);
     }
 
-    public function create(Organization $organization): View|RedirectResponse
+    public function create(Request $request, Organization $organization): View|RedirectResponse
     {
         abort_unless($organization->hasSection('daftar-berita'), 404);
         $this->authorize('create', [Post::class, $organization]);
@@ -40,6 +44,7 @@ class OrganizationPostController extends Controller
         return view('organizations.posts.form', [
             'organization' => $organization,
             'post' => new Post,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -64,11 +69,11 @@ class OrganizationPostController extends Controller
         ]);
 
         return redirect()
-            ->route('organizations.posts.index', $this->indexParams($request, $organization))
+            ->route('organizations.posts.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Berita berhasil disimpan.');
     }
 
-    public function edit(Organization $organization, Post $post): View
+    public function edit(Request $request, Organization $organization, Post $post): View
     {
         $this->authorize('update', $post);
         $this->ensureBelongsToOrganization($organization, $post);
@@ -76,6 +81,7 @@ class OrganizationPostController extends Controller
         return view('organizations.posts.form', [
             'organization' => $organization,
             'post' => $post,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -94,7 +100,7 @@ class OrganizationPostController extends Controller
         ]);
 
         return redirect()
-            ->route('organizations.posts.index', $this->indexParams($request, $organization))
+            ->route('organizations.posts.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Berita berhasil diperbarui.');
     }
 
@@ -106,7 +112,7 @@ class OrganizationPostController extends Controller
         $post->delete();
 
         return redirect()
-            ->route('organizations.posts.index', $this->indexParams($request, $organization))
+            ->route('organizations.posts.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Berita berhasil dihapus.');
     }
 
@@ -141,15 +147,5 @@ class OrganizationPostController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, Post $post): void
     {
         abort_unless($post->organization_id === $organization->id, 404);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function indexParams(Request $request, Organization $organization): array
-    {
-        return $request->input('from') === 'builder'
-            ? ['organization' => $organization, 'from' => 'builder', 'section' => $request->input('section')]
-            : ['organization' => $organization];
     }
 }

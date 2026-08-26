@@ -606,12 +606,9 @@
                                         $stateVar = $field === 'cta_type' ? 'ctaType' : 'ctaSecondaryType';
                                         $currentType = $section->content[$field] ?? 'none';
                                         $currentSection = $section->content[$prefix.'_section'] ?? '';
-                                        $currentUrl = is_scalar($section->content[$prefix.'_url'] ?? null) ? $section->content[$prefix.'_url'] : '';
-                                        $currentWaNumber = is_scalar($section->content[$prefix.'_wa_number'] ?? null) ? $section->content[$prefix.'_wa_number'] : '';
-                                        $currentWaMessage = is_scalar($section->content[$prefix.'_wa_message'] ?? null) ? $section->content[$prefix.'_wa_message'] : '';
-                                        if ($currentWaMessage === '') {
-                                            $currentWaMessage = str_replace('{org_name}', $organization->name, config("page-builder.sections.{$section->key}.defaults.{$prefix}_wa_message", 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.'));
-                                        }
+                                        $currentUrl = $section->scalarContent($prefix.'_url');
+                                        $currentWaNumber = $section->scalarContent($prefix.'_wa_number');
+                                        $currentWaMessage = $section->scalarContent($prefix.'_wa_message') ?: str_replace('{org_name}', $organization->name, config("page-builder.sections.{$section->key}.defaults.{$prefix}_wa_message", 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.'));
                                     @endphp
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1.5">
@@ -659,11 +656,7 @@
                                         class="block text-xs font-semibold text-gray-600 mb-1.5">{{ ucfirst(str_replace('_', ' ', $field)) }}</label>
                                     @if (in_array($field, ['body', 'sambutan', 'subheadline', 'wa_message'], true))
                                         @php
-                                            $fieldValue = is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '';
-                                            if ($fieldValue === '') {
-                                                $fieldValue = (string) config("page-builder.sections.{$section->key}.defaults.{$field}", '');
-                                                $fieldValue = str_replace('{org_name}', $organization->name, $fieldValue);
-                                            }
+                                            $fieldValue = $section->resolvedFieldValue($field, $organization->name);
                                         @endphp
                                         <textarea name="content[{{ $field }}]" rows="3"
                                             class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">{{ $fieldValue }}</textarea>
@@ -672,12 +665,12 @@
                                         @endif
                                     @elseif ($field === 'wa_number')
                                         <input type="text" name="content[{{ $field }}]" placeholder="Contoh: 6281234567890 (kosongkan untuk pakai nomor WA organisasi)"
-                                            value="{{ is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '' }}"
+                                            value="{{ $section->scalarContent($field) }}"
                                             class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                         <p class="mt-1.5 text-xs text-gray-400">Gunakan format nomor internasional tanpa tanda + atau spasi, mis. 6281234567890.</p>
                                     @elseif (in_array($field, ['image', 'photo'], true))
                                         @php
-                                            $currentUrl = is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '';
+                                            $currentUrl = $section->scalarContent($field);
                                         @endphp
                                         <div x-data="{ url: @js($currentUrl) }" class="space-y-2">
                                             <input type="hidden" name="content[{{ $field }}]" x-model="url">
@@ -697,32 +690,11 @@
                                                 </button>
                                             </div>
                                         </div>
-                                    @elseif ($field === 'items' && array_key_exists($section->key, [
-                                        'daftar-berita' => true, 'agenda' => true, 'pengumuman' => true,
-                                        'struktur-pengurus' => true, 'program-unggulan' => true, 'layanan' => true, 'jaringan-aum-ortom' => true,
-                                        'galeri' => true,
-                                    ]))
+                                    @elseif ($field === 'items' && config("page-builder.sections.{$section->key}.cms"))
                                         @php
-                                            $cmsUrl = match ($section->key) {
-                                                'daftar-berita' => route('organizations.posts.index', $organization),
-                                                'agenda' => route('organizations.agendas.index', $organization),
-                                                'pengumuman' => route('organizations.announcements.index', $organization),
-                                                'struktur-pengurus' => route('organizations.officers.index', $organization),
-                                                'program-unggulan' => route('organizations.programs.index', $organization).'?type=program',
-                                                'layanan' => route('organizations.programs.index', $organization).'?type=layanan',
-                                                'jaringan-aum-ortom' => route('organizations.networks.index', $organization),
-                                                'galeri' => route('organizations.gallery.index', $organization),
-                                            };
-                                            $cmsLabel = match ($section->key) {
-                                                'daftar-berita' => 'Berita',
-                                                'agenda' => 'Agenda',
-                                                'pengumuman' => 'Pengumuman',
-                                                'struktur-pengurus' => 'Pengurus',
-                                                'program-unggulan' => 'Program',
-                                                'layanan' => 'Layanan',
-                                                'jaringan-aum-ortom' => 'Jaringan AUM/Ortom',
-                                                'galeri' => 'Galeri',
-                                            };
+                                            $cmsConfig = config("page-builder.sections.{$section->key}.cms");
+                                            $cmsUrl = route($cmsConfig['route'], ['organization' => $organization, ...$cmsConfig['params'] ?? []]);
+                                            $cmsLabel = $cmsConfig['label'];
                                             $cmsSeparator = str_contains($cmsUrl, '?') ? '&' : '?';
                                         @endphp
                                         <a href="{{ $cmsUrl }}{{ $cmsSeparator }}from=builder&amp;section={{ $section->id }}"
@@ -732,7 +704,7 @@
                                         </a>
                                     @elseif ($field === 'map_embed')
                                     <input type="url" name="content[{{ $field }}]" placeholder="Tempel link Google Maps, mis. https://maps.app.goo.gl/..."
-                                        value="{{ is_scalar($section->content[$field] ?? null) ? $section->content[$field] : '' }}"
+                                        value="{{ $section->scalarContent($field) }}"
                                         class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                     <p class="mt-1.5 text-xs text-gray-400">Buka lokasi di Google Maps, ketuk Bagikan, salin link-nya, lalu tempel di sini.</p>
                                 @elseif ($field === 'doctors' && $section->key === 'jadwal-praktik')

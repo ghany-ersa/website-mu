@@ -1,38 +1,27 @@
 @extends('layouts.organization')
 
-@php
-    $label = $type === 'layanan' ? 'Layanan' : 'Program Unggulan';
-@endphp
-
 @section('title', $label.' — '.$organization->name.' — Website-mu')
 
 @php
-    $fromBuilder = request('from') === 'builder';
     $builderQuery = '?type='.$type.($fromBuilder ? '&from=builder'.(request('section') ? '&section='.request('section') : '') : '');
 @endphp
 
 @section('content')
     <div class="max-w-3xl mx-auto">
-        <a href="{{ $fromBuilder ? route('organizations.builder.edit', array_filter(['organization' => $organization, 'section' => request('section')])) : route('organizations.show', $organization) }}"
-           class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary transition-colors mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                <path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" />
-            </svg>
-            {{ $fromBuilder ? 'Kembali ke Page Builder' : 'Kembali ke '.$organization->name }}
-        </a>
+        <x-crud.back-link
+            :href="$fromBuilder ? route('organizations.builder.edit', array_filter(['organization' => $organization, 'section' => request('section')])) : route('organizations.show', $organization)"
+            :label="$fromBuilder ? 'Kembali ke Page Builder' : 'Kembali ke '.$organization->name" />
 
-        <div class="flex items-center justify-between gap-4 mb-8">
-            <div>
-                <h1 class="text-2xl font-extrabold text-primary">{{ $label }}</h1>
-                <p class="text-sm text-gray-500">{{ $organization->name }}</p>
-            </div>
-            <a href="{{ route('organizations.programs.create', $organization) }}{{ $builderQuery }}"
-               class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:opacity-90 shrink-0">
-                + Tambah {{ $type === 'layanan' ? 'Layanan' : 'Program' }}
-            </a>
-        </div>
+        <x-crud.index-header :title="$label" :subtitle="$organization->name">
+            <x-slot:actions>
+                <a href="{{ route('organizations.programs.create', $organization) }}{{ $builderQuery }}"
+                   class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:opacity-90 shrink-0">
+                    + Tambah {{ $type === 'layanan' ? 'Layanan' : 'Program' }}
+                </a>
+            </x-slot:actions>
+        </x-crud.index-header>
 
-        <div class="bg-white rounded-2xl shadow-soft divide-y divide-gray-100">
+        <x-ui.list-panel>
             @forelse ($programs as $program)
                 <div class="p-5 flex items-center gap-4">
                     @if ($program->icon)
@@ -46,24 +35,16 @@
                             <p class="text-sm text-gray-500 truncate">{{ $program->description }}</p>
                         @endif
                     </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <a href="{{ route('organizations.programs.edit', [$organization, $program]) }}{{ $builderQuery }}"
-                           class="text-primary text-sm font-semibold hover:underline">Edit</a>
-                        <form action="{{ route('organizations.programs.destroy', [$organization, $program]) }}" method="POST"
-                              x-data @submit.prevent="if (await confirmAction('Hapus item ini?')) $el.submit()">
-                            @csrf
-                            @method('DELETE')
-                            @if ($fromBuilder)
-                                <input type="hidden" name="from" value="builder">
-                                <input type="hidden" name="section" value="{{ request('section') }}">
-                            @endif
-                            <button type="submit" class="text-red-500 text-sm font-medium hover:underline">Hapus</button>
-                        </form>
-                    </div>
+                    <x-crud.row-actions
+                        :edit-href="route('organizations.programs.edit', [$organization, $program]).$builderQuery"
+                        :delete-action="route('organizations.programs.destroy', [$organization, $program])"
+                        confirm-message="Hapus item ini?"
+                        :from-builder="$fromBuilder"
+                        :section="request('section')" />
                 </div>
             @empty
-                <p class="p-8 text-center text-sm text-gray-400">Belum ada {{ strtolower($label) }}. Tambahkan yang pertama.</p>
+                <x-ui.empty-state :message="'Belum ada '.strtolower($label).'. Tambahkan yang pertama.'" />
             @endforelse
-        </div>
+        </x-ui.list-panel>
     </div>
 @endsection

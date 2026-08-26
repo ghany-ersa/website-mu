@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\BuilderAware;
 use App\Models\Organization;
 use App\Models\OrganizationNetwork;
 use Illuminate\Http\RedirectResponse;
@@ -10,7 +11,9 @@ use Illuminate\View\View;
 
 class OrganizationNetworkController extends Controller
 {
-    public function index(Organization $organization): View
+    use BuilderAware;
+
+    public function index(Request $request, Organization $organization): View
     {
         abort_unless($organization->hasSection('jaringan-aum-ortom'), 404);
         $this->authorize('viewAny', [OrganizationNetwork::class, $organization]);
@@ -18,10 +21,11 @@ class OrganizationNetworkController extends Controller
         return view('organizations.networks.index', [
             'organization' => $organization,
             'networks' => $organization->networks()->get(),
+            ...$this->builderViewData($request),
         ]);
     }
 
-    public function create(Organization $organization): View
+    public function create(Request $request, Organization $organization): View
     {
         abort_unless($organization->hasSection('jaringan-aum-ortom'), 404);
         $this->authorize('create', [OrganizationNetwork::class, $organization]);
@@ -29,6 +33,7 @@ class OrganizationNetworkController extends Controller
         return view('organizations.networks.form', [
             'organization' => $organization,
             'network' => new OrganizationNetwork,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -43,11 +48,11 @@ class OrganizationNetworkController extends Controller
         ]);
 
         return redirect()
-            ->route('organizations.networks.index', $this->indexParams($request, $organization))
+            ->route('organizations.networks.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Jaringan AUM/Ortom berhasil ditambahkan.');
     }
 
-    public function edit(Organization $organization, OrganizationNetwork $network): View
+    public function edit(Request $request, Organization $organization, OrganizationNetwork $network): View
     {
         $this->authorize('update', $network);
         $this->ensureBelongsToOrganization($organization, $network);
@@ -55,6 +60,7 @@ class OrganizationNetworkController extends Controller
         return view('organizations.networks.form', [
             'organization' => $organization,
             'network' => $network,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -66,7 +72,7 @@ class OrganizationNetworkController extends Controller
         $network->update($this->validated($request));
 
         return redirect()
-            ->route('organizations.networks.index', $this->indexParams($request, $organization))
+            ->route('organizations.networks.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Jaringan AUM/Ortom berhasil diperbarui.');
     }
 
@@ -78,7 +84,7 @@ class OrganizationNetworkController extends Controller
         $network->delete();
 
         return redirect()
-            ->route('organizations.networks.index', $this->indexParams($request, $organization))
+            ->route('organizations.networks.index', $this->builderIndexParams($request, ['organization' => $organization]))
             ->with('status', 'Jaringan AUM/Ortom berhasil dihapus.');
     }
 
@@ -96,15 +102,5 @@ class OrganizationNetworkController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, OrganizationNetwork $network): void
     {
         abort_unless($network->organization_id === $organization->id, 404);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function indexParams(Request $request, Organization $organization): array
-    {
-        return $request->input('from') === 'builder'
-            ? ['organization' => $organization, 'from' => 'builder', 'section' => $request->input('section')]
-            : ['organization' => $organization];
     }
 }

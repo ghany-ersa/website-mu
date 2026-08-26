@@ -2,46 +2,28 @@
 
 @section('title', ($officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus').' — '.$organization->name.' — Website-mu')
 
-@php
-    $fromBuilder = request('from') === 'builder';
-    $builderQuery = $fromBuilder ? '?from=builder'.(request('section') ? '&section='.request('section') : '') : '';
-@endphp
-
 @section('content')
     <div class="max-w-3xl mx-auto" x-data="officerForm()">
-        <a href="{{ route('organizations.officers.index', $organization) }}{{ $builderQuery }}"
-           class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary transition-colors mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                <path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" />
-            </svg>
-            Kembali ke Pengurus
-        </a>
-        <h1 class="text-2xl font-extrabold text-primary mb-2">{{ $officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus' }}</h1>
-        <p class="text-sm text-gray-500 mb-8">{{ $organization->name }}</p>
+        <x-crud.back-link
+            :href="route('organizations.officers.index', $organization).$builderQuery"
+            label="Kembali ke Pengurus" />
 
-        <form action="{{ $officer->exists ? route('organizations.officers.update', [$organization, $officer]) : route('organizations.officers.store', $organization) }}"
-              method="POST">
-            @csrf
-            @if ($officer->exists) @method('PATCH') @endif
-            @if ($fromBuilder)
-                <input type="hidden" name="from" value="builder">
-                <input type="hidden" name="section" value="{{ request('section') }}">
-            @endif
+        <x-crud.page-header
+            :title="$officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus'"
+            :subtitle="$organization->name" />
+
+        <x-form.shell
+            :action="$officer->exists ? route('organizations.officers.update', [$organization, $officer]) : route('organizations.officers.store', $organization)"
+            :method="$officer->exists ? 'PATCH' : 'POST'"
+            :from-builder="$fromBuilder"
+            :section="request('section')">
             <input type="hidden" name="photo" x-model="photoUrl">
 
-            <div class="bg-white rounded-2xl shadow-soft p-6 space-y-5">
-                <div>
-                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $officer->name) }}" required
-                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                </div>
+            <x-ui.card>
+                <x-form.field name="name" label="Nama" :value="$officer->name" required />
 
-                <div>
-                    <label for="role" class="block text-sm font-semibold text-gray-700 mb-1">Jabatan</label>
-                    <input type="text" name="role" id="role" value="{{ old('role', $officer->role) }}" required
-                           placeholder="mis. Ketua, Sekretaris, Bendahara"
-                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                </div>
+                <x-form.field name="role" label="Jabatan" :value="$officer->role" required
+                    placeholder="mis. Ketua, Sekretaris, Bendahara" />
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Foto</label>
@@ -70,8 +52,8 @@
                         Simpan
                     </button>
                 </div>
-            </div>
-        </form>
+            </x-ui.card>
+        </x-form.shell>
 
         <div x-show="picker.open" x-cloak
             class="fixed inset-0 z-50 bg-gray-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"

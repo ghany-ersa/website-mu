@@ -268,7 +268,14 @@ class CmsSampleDataSeeder
 
     private static function seedPrograms(Organization $organization, string $type, PlanLimitService $limits): void
     {
-        if ($organization->programs()->ofType($type)->exists()) {
+        // Guards on the combined 'programs' resource (both types together), not
+        // ofType($type) alone: 'program' and 'layanan' share one plan_limits quota (see the
+        // comment below), so seeding 'layanan' samples on top of already-seeded 'program'
+        // samples — e.g. after switching to a template with a different section via
+        // OrganizationTemplateController, which drops pages/sections but never deletes CMS
+        // records — would push the organization over its own plan's limit even though this
+        // method never lets a single call insert more samples than that limit allows.
+        if ($organization->programs()->exists()) {
             return;
         }
 

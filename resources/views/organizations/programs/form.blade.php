@@ -2,13 +2,11 @@
 
 @php
     $type = $program->exists ? $program->type : $type;
-    $label = $type === 'layanan' ? 'Layanan' : 'Program';
 @endphp
 
 @section('title', ($program->exists ? 'Edit '.$label : 'Tambah '.$label).' — '.$organization->name.' — Website-mu')
 
 @php
-    $fromBuilder = request('from') === 'builder';
     $indexQuery = '?type='.$type.($fromBuilder ? '&from=builder'.(request('section') ? '&section='.request('section') : '') : '');
 @endphp
 
@@ -18,37 +16,24 @@
             icon: @js(old('icon', $program->icon ?? '')),
             options: ['📚', '🎓', '🏫', '✏️', '📖', '🕌', '🕋', '📿', '🤲', '☪️', '🏥', '⚕️', '💊', '🩺', '❤️', '🤝', '🧕', '👨‍👩‍👧‍👦', '🍲', '🤲🏽', '💰', '🎁', '📦', '🚑', '🏠', '🌱', '♻️', '💧', '🎯', '⭐', '🏆', '📢', '📅', '⏰', '💻', '📱', '🎨', '⚽', '🏃', '🧘'],
         }">
-        <a href="{{ route('organizations.programs.index', $organization) }}{{ $indexQuery }}"
-           class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary transition-colors mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                <path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd" />
-            </svg>
-            Kembali ke {{ $label === 'Layanan' ? 'Layanan' : 'Program Unggulan' }}
-        </a>
-        <h1 class="text-2xl font-extrabold text-primary mb-2">{{ $program->exists ? 'Edit '.$label : 'Tambah '.$label }}</h1>
-        <p class="text-sm text-gray-500 mb-8">{{ $organization->name }}</p>
+        <x-crud.back-link
+            :href="route('organizations.programs.index', $organization).$indexQuery"
+            :label="'Kembali ke '.($label === 'Layanan' ? 'Layanan' : 'Program Unggulan')" />
 
-        <form action="{{ $program->exists ? route('organizations.programs.update', [$organization, $program]) : route('organizations.programs.store', $organization).'?type='.$type }}"
-              method="POST">
-            @csrf
-            @if ($program->exists) @method('PATCH') @endif
-            @if ($fromBuilder)
-                <input type="hidden" name="from" value="builder">
-                <input type="hidden" name="section" value="{{ request('section') }}">
-            @endif
+        <x-crud.page-header
+            :title="$program->exists ? 'Edit '.$label : 'Tambah '.$label"
+            :subtitle="$organization->name" />
 
-            <div class="bg-white rounded-2xl shadow-soft p-6 space-y-5">
-                <div>
-                    <label for="title" class="block text-sm font-semibold text-gray-700 mb-1">Judul</label>
-                    <input type="text" name="title" id="title" value="{{ old('title', $program->title) }}" required
-                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                </div>
+        <x-form.shell
+            :action="$program->exists ? route('organizations.programs.update', [$organization, $program]) : route('organizations.programs.store', $organization).'?type='.$type"
+            :method="$program->exists ? 'PATCH' : 'POST'"
+            :from-builder="$fromBuilder"
+            :section="request('section')">
 
-                <div>
-                    <label for="description" class="block text-sm font-semibold text-gray-700 mb-1">Deskripsi</label>
-                    <textarea name="description" id="description" rows="3"
-                              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('description', $program->description) }}</textarea>
-                </div>
+            <x-ui.card>
+                <x-form.field name="title" label="Judul" :value="$program->title" required />
+
+                <x-form.textarea-field name="description" label="Deskripsi" :value="$program->description" />
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Ikon (opsional)</label>
@@ -84,7 +69,7 @@
                         Simpan
                     </button>
                 </div>
-            </div>
-        </form>
+            </x-ui.card>
+        </x-form.shell>
     </div>
 @endsection

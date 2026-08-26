@@ -16,6 +16,12 @@
 // header and end with exactly one footer. Both have no editable `fields` — they always show the
 // organization's own name (see header.blade.php/footer.blade.php) with no override — so neither
 // is clickable in the builder sidebar (see edit.blade.php's $hasFields guard).
+//
+// `cms`, when present, is the single source of truth for a section whose `items` field is backed
+// by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
+// inline in the builder) — both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
+// sidebar menu read `cms.route`/`cms.label`/`cms.params` from here instead of each hardcoding
+// their own section-key -> route/label map.
 return [
 
     'sections' => [
@@ -66,41 +72,49 @@ return [
             'label' => 'Struktur Pengurus',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Struktur Pengurus'],
+            'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
         ],
         'program-unggulan' => [
             'label' => 'Program Unggulan',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Program Unggulan'],
+            'cms' => ['route' => 'organizations.programs.index', 'label' => 'Program', 'params' => ['type' => 'program']],
         ],
         'layanan' => [
             'label' => 'Layanan',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Layanan'],
+            'cms' => ['route' => 'organizations.programs.index', 'label' => 'Layanan', 'params' => ['type' => 'layanan']],
         ],
         'jaringan-aum-ortom' => [
             'label' => 'Jaringan AUM/Ortom',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Jaringan AUM & Ortom'],
+            'cms' => ['route' => 'organizations.networks.index', 'label' => 'Jaringan AUM/Ortom'],
         ],
         'daftar-berita' => [
             'label' => 'Daftar Berita',
             'fields' => ['title', 'items', 'limit'],
             'defaults' => ['title' => 'Berita Terbaru'],
+            'cms' => ['route' => 'organizations.posts.index', 'label' => 'Berita'],
         ],
         'agenda' => [
             'label' => 'Agenda',
             'fields' => ['title', 'items', 'limit'],
             'defaults' => ['title' => 'Agenda Kegiatan'],
+            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda'],
         ],
         'pengumuman' => [
             'label' => 'Pengumuman',
             'fields' => ['title', 'items', 'limit'],
             'defaults' => ['title' => 'Pengumuman'],
+            'cms' => ['route' => 'organizations.announcements.index', 'label' => 'Pengumuman'],
         ],
         'galeri' => [
             'label' => 'Galeri',
             'fields' => ['title', 'items', 'limit'],
             'defaults' => ['title' => 'Galeri'],
+            'cms' => ['route' => 'organizations.gallery.index', 'label' => 'Galeri'],
         ],
         'jadwal-salat' => [
             'label' => 'Jadwal Salat',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\BuilderAware;
 use App\Models\Organization;
 use App\Models\Program;
 use App\Services\PlanLimitService;
@@ -11,6 +12,8 @@ use Illuminate\View\View;
 
 class OrganizationProgramController extends Controller
 {
+    use BuilderAware;
+
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
     /**
@@ -29,6 +32,16 @@ class OrganizationProgramController extends Controller
         return $type === 'layanan' ? 'layanan' : 'program-unggulan';
     }
 
+    private function indexLabel(string $type): string
+    {
+        return $type === 'layanan' ? 'Layanan' : 'Program Unggulan';
+    }
+
+    private function formLabel(string $type): string
+    {
+        return $type === 'layanan' ? 'Layanan' : 'Program';
+    }
+
     public function index(Request $request, Organization $organization): View
     {
         $type = $this->type($request);
@@ -39,7 +52,9 @@ class OrganizationProgramController extends Controller
         return view('organizations.programs.index', [
             'organization' => $organization,
             'type' => $type,
+            'label' => $this->indexLabel($type),
             'programs' => $organization->programs()->ofType($type)->get(),
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -59,7 +74,9 @@ class OrganizationProgramController extends Controller
         return view('organizations.programs.form', [
             'organization' => $organization,
             'type' => $type,
+            'label' => $this->formLabel($type),
             'program' => new Program,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -84,11 +101,11 @@ class OrganizationProgramController extends Controller
         ]);
 
         return redirect()
-            ->route('organizations.programs.index', $this->indexParams($request, $organization, $type))
-            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program') . ' berhasil ditambahkan.');
+            ->route('organizations.programs.index', $this->builderIndexParams($request, ['organization' => $organization, 'type' => $type]))
+            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program').' berhasil ditambahkan.');
     }
 
-    public function edit(Organization $organization, Program $program): View
+    public function edit(Request $request, Organization $organization, Program $program): View
     {
         $this->authorize('update', $program);
         $this->ensureBelongsToOrganization($organization, $program);
@@ -96,7 +113,9 @@ class OrganizationProgramController extends Controller
         return view('organizations.programs.form', [
             'organization' => $organization,
             'type' => $program->type,
+            'label' => $this->formLabel($program->type),
             'program' => $program,
+            ...$this->builderViewData($request),
         ]);
     }
 
@@ -108,8 +127,8 @@ class OrganizationProgramController extends Controller
         $program->update($this->validated($request));
 
         return redirect()
-            ->route('organizations.programs.index', $this->indexParams($request, $organization, $program->type))
-            ->with('status', ($program->type === 'layanan' ? 'Layanan' : 'Program') . ' berhasil diperbarui.');
+            ->route('organizations.programs.index', $this->builderIndexParams($request, ['organization' => $organization, 'type' => $program->type]))
+            ->with('status', ($program->type === 'layanan' ? 'Layanan' : 'Program').' berhasil diperbarui.');
     }
 
     public function destroy(Request $request, Organization $organization, Program $program): RedirectResponse
@@ -121,8 +140,8 @@ class OrganizationProgramController extends Controller
         $program->delete();
 
         return redirect()
-            ->route('organizations.programs.index', $this->indexParams($request, $organization, $type))
-            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program') . ' berhasil dihapus.');
+            ->route('organizations.programs.index', $this->builderIndexParams($request, ['organization' => $organization, 'type' => $type]))
+            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program').' berhasil dihapus.');
     }
 
     /**
@@ -140,15 +159,5 @@ class OrganizationProgramController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, Program $program): void
     {
         abort_unless($program->organization_id === $organization->id, 404);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function indexParams(Request $request, Organization $organization, string $type): array
-    {
-        return $request->input('from') === 'builder'
-            ? ['organization' => $organization, 'type' => $type, 'from' => 'builder', 'section' => $request->input('section')]
-            : ['organization' => $organization, 'type' => $type];
     }
 }
