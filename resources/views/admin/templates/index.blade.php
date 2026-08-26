@@ -41,7 +41,7 @@
                             <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary font-medium hover:underline">Preview</a>
                             <a href="{{ route('admin.templates.edit', $template) }}" class="text-gray-600 font-medium hover:underline">Edit</a>
                             <form action="{{ route('admin.templates.destroy', $template) }}" method="POST" class="inline"
-                                  onsubmit="return confirm('Hapus template {{ $template->name }}?');">
+                                  x-data @submit.prevent="if (await confirmAction(`Hapus template ${@json($template->name)}?`)) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 font-medium hover:underline">Hapus</button>

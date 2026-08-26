@@ -46,7 +46,7 @@
                         <a href="{{ route('organizations.gallery.edit', [$organization, $photo]) }}{{ $builderQuery }}"
                            class="text-primary text-sm font-semibold hover:underline">Edit</a>
                         <form action="{{ route('organizations.gallery.destroy', [$organization, $photo]) }}" method="POST"
-                              onsubmit="return confirm('Hapus foto ini?');">
+                              x-data @submit.prevent="if (await confirmAction('Hapus foto ini?')) $el.submit()">
                             @csrf
                             @method('DELETE')
                             @if ($fromBuilder)

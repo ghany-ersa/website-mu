@@ -33,6 +33,9 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -105,6 +108,12 @@
                 'icon' => 'M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437 5.87 8.293c.288.288.657.469 1.052.535m-8.03-8.03-8.03 8.03',
                 'section' => 'layanan',
             ],
+            [
+                'route' => 'organizations.plan.edit',
+                'pattern' => 'organizations.plan.*',
+                'label' => 'Langganan',
+                'icon' => 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z',
+            ],
         ];
 
         $orgMenu = array_filter(
@@ -160,6 +169,33 @@
             </div>
         @endif
 
+        @if (session('warning'))
+            <div x-data="{ open: true }" x-show="open" x-cloak
+                class="fixed inset-0 z-[100] bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4"
+                @keydown.escape.window="open = false">
+                <div @click.outside="open = false"
+                    class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
+                    <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-1">Batas Paket Tercapai</h3>
+                    <p class="text-sm text-gray-500 mb-6">{{ session('warning') }}</p>
+                    <div class="flex items-center justify-center gap-3">
+                        <button type="button" @click="open = false"
+                            class="px-4 py-2.5 rounded-full text-gray-600 text-sm font-semibold hover:bg-gray-100 transition-colors">
+                            Nanti Saja
+                        </button>
+                        <a href="{{ route('organizations.plan.edit', $organization) }}"
+                            class="px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors">
+                            Upgrade Paket
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="mb-6 rounded-lg bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
                 <ul class="list-disc list-inside space-y-1">
@@ -172,6 +208,8 @@
 
         @yield('content')
     </main>
+
+    @include('partials.confirm-modal')
 
 </body>
 

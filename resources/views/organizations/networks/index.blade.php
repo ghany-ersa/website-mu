@@ -41,7 +41,7 @@
                         <a href="{{ route('organizations.networks.edit', [$organization, $network]) }}{{ $builderQuery }}"
                            class="text-primary text-sm font-semibold hover:underline">Edit</a>
                         <form action="{{ route('organizations.networks.destroy', [$organization, $network]) }}" method="POST"
-                              onsubmit="return confirm('Hapus item ini?');">
+                              x-data @submit.prevent="if (await confirmAction('Hapus item ini?')) $el.submit()">
                             @csrf
                             @method('DELETE')
                             @if ($fromBuilder)

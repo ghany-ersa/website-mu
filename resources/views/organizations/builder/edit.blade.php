@@ -184,7 +184,7 @@
                 this.items = [...uploaded, ...this.items];
             },
             async deleteMedia(item) {
-                if (!confirm('Hapus gambar ini dari galeri?')) return;
+                if (!(await confirmAction('Hapus gambar ini dari galeri?'))) return;
                 const res = await fetch(`${window.mediaIndexUrl}/${item.id}`, {
                     method: 'DELETE',
                     headers: {
@@ -256,6 +256,33 @@
                     clip-rule="evenodd" />
             </svg>
             {{ session('status') }}
+        </div>
+    @endif
+
+    @if (session('warning'))
+        <div x-data="{ open: true }" x-show="open" x-cloak
+            class="fixed inset-0 z-[100] bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4"
+            @keydown.escape.window="open = false">
+            <div @click.outside="open = false"
+                class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-1">Batas Paket Tercapai</h3>
+                <p class="text-sm text-gray-500 mb-6">{{ session('warning') }}</p>
+                <div class="flex items-center justify-center gap-3">
+                    <button type="button" @click="open = false"
+                        class="px-4 py-2.5 rounded-full text-gray-600 text-sm font-semibold hover:bg-gray-100 transition-colors">
+                        Nanti Saja
+                    </button>
+                    <a href="{{ route('organizations.plan.edit', $organization) }}"
+                        class="px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors">
+                        Upgrade Paket
+                    </a>
+                </div>
+            </div>
         </div>
     @endif
 
@@ -455,7 +482,7 @@
                                     </form>
                                     <form
                                         action="{{ route('organizations.sections.destroy', [$organization, $section]) }}"
-                                        method="POST" onsubmit="return confirm('Hapus section ini?');" @click.stop>
+                                        method="POST" x-data @submit.prevent="if (await confirmAction('Hapus section ini?')) $el.submit()" @click.stop>
                                         @csrf @method('DELETE')
                                         <button type="submit" title="Hapus"
                                             class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
@@ -1032,6 +1059,8 @@
             });
         </script>
     @endif
+
+    @include('partials.confirm-modal')
 
 </body>
 

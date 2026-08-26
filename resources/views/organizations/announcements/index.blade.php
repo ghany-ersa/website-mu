@@ -49,7 +49,7 @@
                         <a href="{{ route('organizations.announcements.edit', [$organization, $announcement]) }}{{ $builderQuery }}"
                            class="text-primary text-sm font-semibold hover:underline">Edit</a>
                         <form action="{{ route('organizations.announcements.destroy', [$organization, $announcement]) }}" method="POST"
-                              onsubmit="return confirm('Hapus pengumuman ini?');">
+                              x-data @submit.prevent="if (await confirmAction('Hapus pengumuman ini?')) $el.submit()">
                             @csrf
                             @method('DELETE')
                             @if ($fromBuilder)

@@ -26,7 +26,11 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body class="bg-softBg text-gray-800 min-h-screen lg:flex">
 
@@ -34,6 +38,7 @@
         $adminMenu = [
             ['route' => 'admin.templates.index', 'pattern' => 'admin.templates.*', 'label' => 'Template', 'icon' => 'M9 3v18M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z'],
             ['route' => 'admin.organizations.index', 'pattern' => 'admin.organizations.*', 'label' => 'Organisasi', 'icon' => 'M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1'],
+            ['route' => 'admin.plan-change-requests.index', 'pattern' => 'admin.plan-change-requests.*', 'label' => 'Permintaan Paket', 'icon' => 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z'],
         ];
     @endphp
 
@@ -84,6 +89,8 @@
 
         @yield('content')
     </main>
+
+    @include('partials.confirm-modal')
 
 </body>
 </html>

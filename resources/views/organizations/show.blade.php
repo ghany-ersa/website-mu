@@ -16,7 +16,7 @@
             </div>
 
             <form action="{{ route('organizations.publish', $organization) }}" method="POST" class="shrink-0"
-                onsubmit="return confirm('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}');">
+                x-data @submit.prevent="if (await confirmAction('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
                 @csrf
                 @method('PATCH')
                 <button type="submit"
@@ -61,6 +61,16 @@
                 </svg>
                 Edit Organisasi
             </a>
+            @can('manageBilling', $organization)
+                <a href="{{ route('organizations.plan.edit', $organization) }}"
+                    class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                    </svg>
+                    Langganan — {{ $organization->plan?->name ?? 'Belum Diatur' }}
+                </a>
+            @endcan
             @if ($organization->status === \App\Enums\OrganizationStatus::Published && $tenantDomain)
                 <a href="https://{{ $organization->slug }}.{{ $tenantDomain }}" target="_blank"
                     class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-secondary/30 text-secondary text-sm font-semibold hover:bg-secondary/5 transition-colors">
@@ -141,7 +151,7 @@
                         @endif
                     </div>
                     <form action="{{ route('organizations.publish', $organization) }}" method="POST" class="shrink-0"
-                        onsubmit="return confirm('{{ $checklist['published'] ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}');">
+                        x-data @submit.prevent="if (await confirmAction('{{ $checklist['published'] ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
                         @csrf
                         @method('PATCH')
                         <button type="submit"
@@ -256,7 +266,7 @@
                             </form>
                             <form action="{{ route('organizations.members.destroy', [$organization, $member]) }}"
                                 method="POST"
-                                onsubmit="return confirm('Hapus {{ $member->name }} dari organisasi ini?');">
+                                x-data @submit.prevent="if (await confirmAction(`Hapus ${@json($member->name)} dari organisasi ini?`)) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -298,7 +308,7 @@
                 dibatalkan.
             </p>
             <form action="{{ route('organizations.destroy', $organization) }}" method="POST"
-                onsubmit="return confirm('Hapus organisasi &quot;{{ $organization->name }}&quot;? Tindakan ini tidak dapat dibatalkan.');">
+                x-data @submit.prevent="if (await confirmAction(`Hapus organisasi &quot;${@json($organization->name)}&quot;? Tindakan ini tidak dapat dibatalkan.`)) $el.submit()">
                 @csrf
                 @method('DELETE')
                 <button type="submit"

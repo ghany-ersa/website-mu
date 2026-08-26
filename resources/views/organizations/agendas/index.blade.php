@@ -47,7 +47,7 @@
                         <a href="{{ route('organizations.agendas.edit', [$organization, $agenda]) }}{{ $builderQuery }}"
                            class="text-primary text-sm font-semibold hover:underline">Edit</a>
                         <form action="{{ route('organizations.agendas.destroy', [$organization, $agenda]) }}" method="POST"
-                              onsubmit="return confirm('Hapus agenda ini?');">
+                              x-data @submit.prevent="if (await confirmAction('Hapus agenda ini?')) $el.submit()">
                             @csrf
                             @method('DELETE')
                             @if ($fromBuilder)

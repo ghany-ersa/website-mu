@@ -176,7 +176,7 @@
                     this.picker.loading = false;
                 },
                 async deleteMedia(item) {
-                    if (!confirm('Hapus gambar ini dari galeri?')) return;
+                    if (!(await confirmAction('Hapus gambar ini dari galeri?'))) return;
                     if (this.imageUrl === item.url) this.imageUrl = '';
                     const res = await fetch(`${@json(route('organizations.media.index', $organization))}/${item.id}`, {
                         method: 'DELETE',
