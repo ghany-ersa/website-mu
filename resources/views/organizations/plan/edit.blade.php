@@ -110,7 +110,7 @@
                         </div>
                         @if ($limit !== null)
                             <div class="h-1.5 rounded-full bg-gray-200 overflow-hidden">
-                                <div class="h-full rounded-full transition-all {{ $isOverLimit ? 'bg-red-500' : ($isNearFull ? 'bg-red-400' : 'bg-gradient-to-r from-primary to-secondary') }}"
+                                <div class="h-full rounded-full transition-all {{ $isOverLimit ? 'bg-red-500' : ($isNearFull ? 'bg-red-300' : 'bg-gradient-to-r from-primary to-secondary') }}"
                                      style="width: {{ $pct }}%"></div>
                             </div>
                         @else
