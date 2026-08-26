@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\PlanChangeRequestController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
-use App\Http\Controllers\Admin\TemplateController;
+use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrganizationAgendaController;
 use App\Http\Controllers\OrganizationAnnouncementController;
@@ -24,6 +24,7 @@ use App\Http\Controllers\OrganizationSectionController;
 use App\Http\Controllers\OrganizationSiteController;
 use App\Http\Controllers\OrganizationTemplateController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
 use App\Models\Plan;
@@ -31,9 +32,25 @@ use App\Models\Template;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    // Curated set, not the full catalog: one representative per organization-type grouping
+    // so the homepage grid stays a short, skimmable preview instead of all ~13 templates
+    // (most of which only differ from a sibling by brand color/copy — see templates.index for
+    // the full, filterable list). 'muhammadiyah-eksekutif' stands in for Persyarikatan instead
+    // of the standard 'muhammadiyah' template, since both target the same PDM/PCM/PRM audience
+    // and showing both here would look like duplication rather than distinct choices.
+    $homepageTemplateSlugs = [
+        'muhammadiyah-eksekutif',
+        'pemuda-muhammadiyah',
+        'aum-pendidikan',
+        'aum-kesehatan-sosial',
+        'masjid-mushola',
+    ];
+
     $templates = Template::where('is_active', true)
-        ->orderBy('name')
-        ->get();
+        ->whereIn('slug', $homepageTemplateSlugs)
+        ->get()
+        ->sortBy(fn ($template) => array_search($template->slug, $homepageTemplateSlugs))
+        ->values();
 
     $plans = Plan::with('limits')
         ->where('is_active', true)
@@ -44,6 +61,8 @@ Route::get('/', function () {
 });
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
 
 Route::get('/templates/{template:slug}/preview/{page?}', [TemplatePreviewController::class, 'show'])
     ->name('templates.preview');
@@ -161,7 +180,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('templates', TemplateController::class)->except(['show']);
+    Route::resource('templates', AdminTemplateController::class)->except(['show']);
     Route::resource('plans', AdminPlanController::class)->except(['show']);
     Route::resource('discount-codes', DiscountCodeController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');

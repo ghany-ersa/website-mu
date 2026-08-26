@@ -288,6 +288,7 @@
                 @php
                     $templateImages = [
                         'muhammadiyah' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=800&q=80',
+                        'muhammadiyah-eksekutif' => 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&w=800&q=80',
                         'aum-pendidikan' => 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
                         'aum-kesehatan-sosial' => 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
                         'nasyiatul-aisyiyah' => 'https://images.unsplash.com/photo-1594708767771-a7502209ff51?auto=format&fit=crop&w=800&q=80',
@@ -304,7 +305,13 @@
                 @endphp
 
                 @forelse ($templates as $template)
-                    <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-soft border border-gray-100 group hover:shadow-float transition-all duration-300 flex flex-col">
+                    <div class="relative bg-white rounded-[2.5rem] overflow-hidden shadow-soft border {{ $template->is_exclusive ? 'border-amber-300 ring-2 ring-amber-300/50' : 'border-gray-100' }} group hover:shadow-float transition-all duration-300 flex flex-col">
+                        @if ($template->is_exclusive)
+                            <span class="absolute top-4 right-4 z-10 flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-extrabold px-3 py-1.5 rounded-full shadow-md">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.39 5.51 6 .59-4.5 4.02 1.32 5.88L10 14.6l-5.21 2.9 1.32-5.88-4.5-4.02 6-.59L10 1.5z"/></svg>
+                                Eksklusif
+                            </span>
+                        @endif
                         <div class="relative overflow-hidden h-56 bg-gray-100">
                             <img src="{{ $templateImages[$template->slug] ?? $defaultImage }}" alt="Template {{ $template->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             <span class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">{{ $template->organizationType->name ?? $template->name }}</span>
@@ -315,8 +322,12 @@
                                 <p class="text-gray-500 text-sm mb-6">{{ $template->description }}</p>
                             </div>
                             <div class="flex items-center justify-between border-t border-gray-100 pt-4 gap-2">
-                                <a href="{{ route('templates.preview', $template->slug) }}" class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat Preview</a>
-                                <a href="{{ route('templates.use', $template->slug) }}" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">Gunakan Template</a>
+                                @if ($template->is_exclusive)
+                                    <a href="{{ route('templates.preview', $template->slug) }}" class="w-full text-center bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition">Lihat Detail Template</a>
+                                @else
+                                    <a href="{{ route('templates.preview', $template->slug) }}" class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat Preview</a>
+                                    <a href="{{ route('templates.use', $template->slug) }}" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">Gunakan Template</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -324,6 +335,13 @@
                     <p class="text-gray-500 col-span-full text-center">Belum ada template tersedia.</p>
                 @endforelse
 
+            </div>
+
+            <div class="text-center mt-10">
+                <a href="{{ route('templates.index') }}" class="inline-flex items-center gap-2 text-primary hover:text-secondary font-bold text-sm transition">
+                    Lihat Semua Template
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
             </div>
         </div>
     </section>

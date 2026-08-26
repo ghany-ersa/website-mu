@@ -787,6 +787,8 @@ class TemplateSeeder extends Seeder
             ],
         ];
 
+        $templates = [...$templates, ...$this->exclusiveTemplates()];
+
         foreach ($templates as $template) {
             $organizationType = OrganizationType::where('slug', $template['organization_type_slug'])->first();
 
@@ -798,8 +800,179 @@ class TemplateSeeder extends Seeder
                     'description' => $template['description'],
                     'structure' => $template['structure'],
                     'is_active' => true,
+                    'is_exclusive' => $template['is_exclusive'] ?? false,
                 ],
             );
         }
+    }
+
+    /**
+     * Exclusive templates, gated behind `Plan::has_exclusive_templates` (see
+     * Organization::canUseExclusiveTemplates() and prd-status.md §2.5/§2.8). These reuse the
+     * exact same section partials/fields as the standard templates above — no new component
+     * capability — but combine a richer section lineup, a distinct brand pairing (serif `Lora`
+     * + `sharp` radius, instead of the platform default `Plus Jakarta Sans` + `soft`), and more
+     * elaborate sample copy so they read as a premium tier rather than a reskin.
+     *
+     * Deliberately single-page (`pages` has exactly one entry): Organization::seedPagesFromTemplate()
+     * only ever clones `structure['pages'][0]` into a new tenant — a template-preview-only second
+     * or third page (as some standard templates above have) would render in the preview tool but
+     * never reach a real organization, which would be a misleading structure for the flagship
+     * exclusive tier to model. "Tentang" content (struktur-pengurus, jaringan-aum-ortom) is a
+     * section further down this same page rather than a separate page for that reason.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function exclusiveTemplates(): array
+    {
+        return [
+            [
+                'organization_type_slug' => 'muhammadiyah',
+                'name' => 'Muhammadiyah Eksekutif',
+                'slug' => 'muhammadiyah-eksekutif',
+                'description' => 'Template eksklusif untuk PDM/PCM/PRM: identitas serif yang berwibawa, narasi kepemimpinan yang lebih dalam, dan struktur section lengkap untuk organisasi dengan jaringan AUM/Ortom yang besar. Khusus paket dengan entitlement template eksklusif.',
+                'is_exclusive' => true,
+                'structure' => [
+                    'sample_org_name' => 'PDM Kabupaten Jember',
+                    // Drives the distinct "exclusive" visual variant several section partials
+                    // branch on (see hero.blade.php's $isExclusive resolution) — separate from
+                    // Template::is_exclusive (the plan-entitlement gate on who can pick this
+                    // template at all) since a future exclusive template could still opt to use
+                    // the standard section look, or vice versa.
+                    'exclusive' => true,
+                    'brand' => [
+                        'primary' => '#1E2761',
+                        'secondary' => '#0B7A3E',
+                        'font' => 'Lora',
+                        'radius' => 'sharp',
+                    ],
+                    'pages' => [
+                        [
+                            'slug' => 'home',
+                            'name' => 'Beranda',
+                            'sections' => [
+                                ['key' => 'header'],
+                                ['key' => 'hero', 'content' => [
+                                    'badge' => 'Pimpinan Daerah Muhammadiyah Kabupaten Jember',
+                                    'headline' => 'Berkemajuan dalam Amal, Teguh dalam Ikhtiar',
+                                    'subheadline' => 'PDM Kabupaten Jember memimpin dan menaungi jaringan cabang, ranting, Ortom, serta Amal Usaha Muhammadiyah di seluruh wilayah Jember dalam dakwah, pendidikan, kesehatan, dan pemberdayaan umat.',
+                                    'cta_label' => 'Profil Kepengurusan',
+                                    'cta_type' => 'scroll',
+                                    'cta_section' => 'struktur-pengurus',
+                                    'cta_secondary_label' => 'Jaringan Amal Usaha',
+                                    'cta_secondary_type' => 'scroll',
+                                    'cta_secondary_section' => 'jaringan-aum-ortom',
+                                    'image' => 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&w=1400&q=80',
+                                ]],
+                                ['key' => 'sambutan-ketua', 'content' => [
+                                    'nama' => 'Prof. Dr. H. Muhammad Sholihin, M.Ag.',
+                                    'jabatan' => 'Ketua PDM Kabupaten Jember periode 2022–2027',
+                                    'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Muhammadiyah Kabupaten Jember hadir sebagai gerakan dakwah amar makruf nahi mungkar yang berikhtiar hadir di setiap lini kehidupan masyarakat — dari mimbar masjid hingga ruang kelas, dari klinik hingga panti asuhan. Melalui kanal digital ini, kami ingin setiap warga Muhammadiyah dan masyarakat Jember dapat mengikuti, mendukung, dan turut serta dalam setiap langkah dakwah dan amal usaha yang kami jalankan bersama seluruh Pimpinan Cabang, Ranting, Ortom, dan Amal Usaha di wilayah ini.',
+                                    'photo' => 'https://randomuser.me/api/portraits/men/52.jpg',
+                                ]],
+                                ['key' => 'tentang-organisasi', 'content' => [
+                                    'title' => 'Muhammadiyah di Bumi Pandalungan',
+                                    'body' => 'Sejak berdiri pada 1930, Muhammadiyah Kabupaten Jember telah tumbuh menjadi salah satu pimpinan daerah terbesar di Jawa Timur, menaungi puluhan cabang dan ratusan ranting yang tersebar dari dataran tinggi hingga pesisir selatan. Gerakan ini menyatukan dakwah, pendidikan, kesehatan, dan pemberdayaan sosial dalam satu ikhtiar berkemajuan bagi masyarakat Jember.',
+                                    'image' => 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=1000&q=80',
+                                    'stats' => [
+                                        ['value' => '31', 'label' => 'Pimpinan Cabang'],
+                                        ['value' => '94', 'label' => 'Tahun Berkiprah'],
+                                        ['value' => '120+', 'label' => 'Amal Usaha'],
+                                    ],
+                                ]],
+                                ['key' => 'program-unggulan', 'content' => [
+                                    'title' => 'Program Strategis Daerah',
+                                    'items' => [
+                                        ['title' => 'Konsolidasi Cabang dan Ranting', 'description' => 'Penguatan kapasitas kepemimpinan dan organisasi di seluruh tingkat cabang dan ranting se-Kabupaten Jember.', 'icon' => '🏛️'],
+                                        ['title' => 'Tata Kelola Amal Usaha', 'description' => 'Pembinaan mutu dan akuntabilitas AUM Pendidikan, Kesehatan, dan Sosial di bawah koordinasi PDM.', 'icon' => '📊'],
+                                        ['title' => 'Dakwah Digital dan Kaderisasi', 'description' => 'Pengembangan dai muda dan konten dakwah yang menjangkau generasi digital.', 'icon' => '🕌'],
+                                        ['title' => 'Ketahanan Pangan dan Ekonomi Umat', 'description' => 'Program lumbung pangan dan pemberdayaan ekonomi berbasis masjid dan ranting.', 'icon' => '🌾'],
+                                        ['title' => 'Mitigasi dan Respon Kebencanaan', 'description' => 'Koordinasi Lazismu dan MDMC dalam kesiapsiagaan bencana wilayah Tapal Kuda.', 'icon' => '🚨'],
+                                        ['title' => 'Penguatan Ortom dan Kaderisasi Muda', 'description' => 'Sinergi program dengan Aisyiyah, Pemuda Muhammadiyah, NA, IMM, IPM, Tapak Suci, dan HW.', 'icon' => '🤝'],
+                                    ],
+                                ]],
+                                ['key' => 'struktur-pengurus', 'content' => [
+                                    'title' => 'Pimpinan Harian 2022–2027',
+                                    'items' => [
+                                        ['name' => 'Prof. Dr. H. Muhammad Sholihin, M.Ag.', 'role' => 'Ketua', 'photo' => 'https://randomuser.me/api/portraits/men/52.jpg'],
+                                        ['name' => 'Dr. H. Bagus Setiawan, M.Pd.', 'role' => 'Wakil Ketua I', 'photo' => 'https://randomuser.me/api/portraits/men/61.jpg'],
+                                        ['name' => 'Hj. Ratna Puspitasari, S.Ag., M.Si.', 'role' => 'Wakil Ketua II', 'photo' => 'https://randomuser.me/api/portraits/women/68.jpg'],
+                                        ['name' => 'H. Anwar Sanusi, S.E.', 'role' => 'Sekretaris', 'photo' => 'https://randomuser.me/api/portraits/men/74.jpg'],
+                                        ['name' => 'Nur Kholis, S.T.', 'role' => 'Wakil Sekretaris', 'photo' => 'https://randomuser.me/api/portraits/men/29.jpg'],
+                                        ['name' => 'Hj. Siti Aminah, S.E., Ak.', 'role' => 'Bendahara', 'photo' => 'https://randomuser.me/api/portraits/women/51.jpg'],
+                                        ['name' => 'Drs. H. Rohmat Wijaya', 'role' => 'Ketua Majelis Dikdasmen', 'photo' => 'https://randomuser.me/api/portraits/men/85.jpg'],
+                                        ['name' => 'dr. Hj. Latifah Zahra, Sp.PD.', 'role' => 'Ketua Majelis Kesehatan', 'photo' => 'https://randomuser.me/api/portraits/women/39.jpg'],
+                                    ],
+                                ]],
+                                ['key' => 'jaringan-aum-ortom', 'content' => [
+                                    'title' => 'Jaringan Amal Usaha & Organisasi Otonom',
+                                    'items' => [
+                                        ['name' => 'Universitas Muhammadiyah Jember', 'type' => 'AUM Pendidikan'],
+                                        ['name' => 'RS Muhammadiyah Jember', 'type' => 'AUM Kesehatan'],
+                                        ['name' => 'SMA Muhammadiyah 2 Jember', 'type' => 'AUM Pendidikan'],
+                                        ['name' => 'Panti Asuhan Muhammadiyah Jember', 'type' => 'AUM Sosial'],
+                                        ['name' => 'Aisyiyah Daerah Jember', 'type' => 'Ortom'],
+                                        ['name' => 'Pemuda Muhammadiyah Daerah Jember', 'type' => 'Ortom'],
+                                        ['name' => 'IMM Cabang Jember', 'type' => 'Ortom'],
+                                        ['name' => 'Lazismu Jember', 'type' => 'AUM Sosial'],
+                                    ],
+                                ]],
+                                ['key' => 'daftar-berita', 'content' => [
+                                    'title' => 'Warta Daerah',
+                                    'items' => [
+                                        ['title' => 'Musyda ke-XII Tetapkan Arah Gerak Muhammadiyah Jember 2022-2027', 'excerpt' => 'Musyawarah Daerah menghasilkan pokok pikiran strategis dan susunan Pimpinan Daerah untuk lima tahun mendatang.', 'category' => 'Organisasi', 'date' => '14 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'RS Muhammadiyah Jember Resmikan Gedung Layanan Terpadu', 'excerpt' => 'Perluasan layanan kesehatan sebagai bagian dari penguatan AUM Kesehatan di wilayah Tapal Kuda.', 'category' => 'Amal Usaha', 'date' => '07 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Rakor Lazismu dan MDMC Jember Perkuat Kesiapsiagaan Bencana', 'excerpt' => 'Koordinasi lintas lembaga memperkuat jalur distribusi bantuan cepat tanggap se-Kabupaten Jember.', 'category' => 'Kemanusiaan', 'date' => '30 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pimpinan Cabang se-Kabupaten Jember Digelar Serentak', 'excerpt' => 'Sebanyak 31 Pimpinan Cabang dilantik dalam satu rangkaian acara di Aula PDM.', 'category' => 'Organisasi', 'date' => '21 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=700&q=80'],
+                                    ],
+                                ]],
+                                ['key' => 'agenda', 'content' => [
+                                    'title' => 'Agenda Daerah',
+                                    'items' => [
+                                        ['title' => 'Rapat Pleno Pimpinan Daerah', 'date_day' => '19', 'date_month' => 'Agt', 'time' => '13.00 WIB', 'location' => 'Kantor PDM Kabupaten Jember'],
+                                        ['title' => 'Silaturahmi Akbar Pimpinan Cabang se-Jember', 'date_day' => '23', 'date_month' => 'Agt', 'time' => '08.00 WIB', 'location' => 'Auditorium Universitas Muhammadiyah Jember'],
+                                        ['title' => 'Rapat Koordinasi Majelis dan Lembaga', 'date_day' => '28', 'date_month' => 'Agt', 'time' => '19.30 WIB', 'location' => 'Kantor PDM Kabupaten Jember'],
+                                    ],
+                                ]],
+                                ['key' => 'galeri', 'content' => [
+                                    'title' => 'Dokumentasi Kegiatan',
+                                    'items' => [
+                                        ['image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=600&q=80', 'caption' => 'Musyda ke-XII PDM Jember'],
+                                        ['image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=80', 'caption' => 'Peresmian gedung RS Muhammadiyah'],
+                                        ['image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80', 'caption' => 'Rakor Lazismu dan MDMC'],
+                                        ['image' => 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=600&q=80', 'caption' => 'Pelantikan Pimpinan Cabang'],
+                                        ['image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=600&q=80', 'caption' => 'Silaturahmi akbar warga Muhammadiyah'],
+                                        ['image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80', 'caption' => 'Kegiatan pendidikan kader'],
+                                        ['image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=600&q=80', 'caption' => 'Bakti sosial lintas Ortom'],
+                                        ['image' => 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80', 'caption' => 'Kajian rutin pimpinan daerah'],
+                                    ],
+                                ]],
+                                ['key' => 'donasi-zakat-infak', 'content' => [
+                                    'title' => 'Lazismu Kabupaten Jember',
+                                    'body' => 'Salurkan zakat, infak, wakaf, dan donasi kemanusiaan melalui Lazismu Kabupaten Jember untuk mendukung program dakwah, pendidikan, dan tanggap bencana di seluruh wilayah.',
+                                    'image' => 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&w=600&q=80',
+                                ]],
+                                ['key' => 'cta', 'content' => [
+                                    'title' => 'Bersinergi Membangun Jember Berkemajuan',
+                                    'subtitle' => 'Untuk Pimpinan Cabang, Ranting, Ortom, dan Amal Usaha yang ingin berkoordinasi dengan PDM Kabupaten Jember.',
+                                    'cta_label' => 'Hubungi Sekretariat',
+                                    'cta_type' => 'scroll',
+                                    'cta_section' => 'formulir-kontak',
+                                ]],
+                                ['key' => 'formulir-kontak', 'content' => [
+                                    'title' => 'Hubungi Sekretariat PDM',
+                                    'subtitle' => 'Untuk koordinasi Pimpinan Cabang/Ranting, kemitraan Amal Usaha, atau pertanyaan umum, silakan hubungi kami.',
+                                ]],
+                                ['key' => 'lokasi-peta', 'content' => [
+                                    'title' => 'Kantor PDM Kabupaten Jember',
+                                    'address' => 'Jl. Kh. Ahmad Dahlan No. 1, Kaliwates, Kabupaten Jember, Jawa Timur',
+                                ]],
+                                ['key' => 'footer'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }

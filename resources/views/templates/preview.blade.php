@@ -29,6 +29,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview — {{ $template->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -90,6 +91,12 @@
         <div class="max-w-6xl mx-auto px-6 py-2 flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <span class="font-semibold">{{ $template->name }}</span>
+                @if ($template->is_exclusive)
+                    <span class="inline-flex items-center gap-1 bg-amber-400 text-amber-950 text-xs font-bold px-2 py-0.5 rounded-full">
+                        <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.39 5.51 6 .59-4.5 4.02 1.32 5.88L10 14.6l-5.21 2.9 1.32-5.88-4.5-4.02 6-.59L10 1.5z"/></svg>
+                        Eksklusif
+                    </span>
+                @endif
                 <span class="text-gray-400">— pratinjau template</span>
             </div>
             <div class="flex items-center gap-2">
@@ -101,10 +108,16 @@
                         </a>
                     @endforeach
                 </div>
-                <a href="{{ route('templates.use', $template->slug) }}"
-                   class="px-3 py-1 rounded-full bg-secondary text-white font-semibold hover:opacity-90 transition-opacity">
-                    Gunakan Template
-                </a>
+                @if ($template->is_exclusive)
+                    <span class="px-3 py-1 rounded-full bg-gray-800 text-gray-300 text-xs" title="Template eksklusif hanya tersedia untuk organisasi dengan paket Professional">
+                        Butuh paket Professional
+                    </span>
+                @else
+                    <a href="{{ route('templates.use', $template->slug) }}"
+                       class="px-3 py-1 rounded-full bg-secondary text-white font-semibold hover:opacity-90 transition-opacity">
+                        Gunakan
+                    </a>
+                @endif
             </div>
         </div>
     </div>
