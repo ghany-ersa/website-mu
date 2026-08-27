@@ -790,6 +790,11 @@ class TemplateSeeder extends Seeder
                 'name' => 'Portal Berita',
                 'slug' => 'portal-berita',
                 'description' => 'Template untuk organisasi yang fokus menerbitkan berita dan artikel: headline utama, kategori berita, dan ajakan mengikuti kabar terbaru.',
+                // Uses several non-'standar' section variants (headline-berita, mozaik, ringkas),
+                // which are exclusive-plan-only selections in the builder (see
+                // OrganizationSectionController::update()) — flagged exclusive here so only
+                // organizations with that entitlement can pick this template in the first place.
+                'is_exclusive' => true,
                 'structure' => [
                     'sample_org_name' => 'Warta Muhammadiyah Jember',
                     'brand' => ['primary' => '#2C368B', 'secondary' => '#079C4E'],
@@ -826,7 +831,7 @@ class TemplateSeeder extends Seeder
                                 // category_filter keeps this disjoint from the 'ringkas' section above —
                                 // an organization's post authors need to type "Opini" into a post's
                                 // Kategori field for it to show up here instead of Kabar Persyarikatan.
-                                ['key' => 'daftar-berita', 'variant' => 'mozaik', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Opini',
                                     'category_filter' => 'Opini',
                                     'items' => [

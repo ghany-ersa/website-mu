@@ -6,8 +6,7 @@
     which has no organization yet.
 
     Featured card + compact side list — one large highlighted article beside a short list of
-    the rest. Shared by the 'modern' and 'sorotan' registry keys (see config/page-builder.php) —
-    'modern' has no view file of its own, it's just an alias onto this one.
+    the rest.
 --}}
 @php
     $content = $section['content'] ?? [];

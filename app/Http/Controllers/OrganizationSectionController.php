@@ -8,6 +8,7 @@ use App\Models\OrganizationSection;
 use App\Services\CmsSampleDataSeeder;
 use App\Services\GoogleMapsEmbedResolver;
 use App\Services\PlanLimitService;
+use App\Services\SectionVariantResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -139,9 +140,11 @@ class OrganizationSectionController extends Controller
             $content[$field] = str_replace('{org_name}', $organization->name, $default);
         }
 
-        $availableVariants = array_keys(config("page-builder.sections.{$section->key}.variants", []));
+        $availableVariants = SectionVariantResolver::variantsFor($section->key)->pluck('variant_key')->all();
         $requestedVariant = $request->input('variant');
-        $variant = in_array($requestedVariant, $availableVariants, true) ? $requestedVariant : $section->variant;
+        $variantIsAllowed = in_array($requestedVariant, $availableVariants, true)
+            && (! SectionVariantResolver::isExclusive($section->key, $requestedVariant) || $organization->canUseExclusiveTemplates());
+        $variant = $variantIsAllowed ? $requestedVariant : $section->variant;
 
         $section->update([
             'content' => $content,

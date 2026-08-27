@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PlanSeeder::class,
             OrganizationTypeSeeder::class,
+            SectionVariantSeeder::class,
             TemplateSeeder::class,
             OrganizationSeeder::class,
         ]);

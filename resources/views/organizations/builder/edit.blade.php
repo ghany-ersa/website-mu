@@ -598,15 +598,59 @@
                             @csrf
                             @method('PATCH')
 
-                            @if ($variants = $sectionRegistry[$section->key]['variants'] ?? null)
+                            @if (($variantRows = \App\Services\SectionVariantResolver::variantsFor($section->key))->isNotEmpty())
                                 @php
-                                    // array_flip+array_flip keeps only the LAST key seen per view path, so when
-                                    // two keys are aliases sharing one view (e.g. daftar-berita's 'standar'/'modern',
-                                    // which have no view file of their own — see config/page-builder.php's own
-                                    // comment on this), only the later-declared key survives as a dropdown option.
-                                    $variantOptions = array_flip(array_flip($variants));
-                                    $currentVariant = $section->variant ?? config("page-builder.sections.{$section->key}.default_variant");
-                                    $currentVariant = array_search($variants[$currentVariant] ?? null, $variantOptions) ?: $currentVariant;
+                                    $variants = $variantRows->keyBy('variant_key')->map(fn ($row) => [
+                                        'view' => $row->view,
+                                        'exclusive' => $row->is_exclusive,
+                                        'default' => $row->is_default,
+                                    ])->all();
+
+                                    // Dedup by view path: keep only one key per unique view — every section's
+                                    // variants currently point at distinct files (no aliasing today), but this
+                                    // stays a safety net for whenever a variant is added as a pure alias onto
+                                    // an existing view again (as daftar-berita's 'standar'/'modern' briefly
+                                    // were before each got its own file). An alias (is_default) must always
+                                    // lose to the specifically-named variant sharing its view, never the other
+                                    // way around. The loop below keeps whichever key
+                                    // is processed LAST per view path, so is_default rows must be sorted
+                                    // FIRST (processed, then overwritten by their non-default sibling) rather
+                                    // than relying on the DB's unordered row order to happen to put them
+                                    // first.
+                                    $orderedVariants = $variants;
+                                    uasort($orderedVariants, fn ($a, $b) => $b['default'] <=> $a['default']);
+
+                                    $variantOptions = [];
+                                    foreach ($orderedVariants as $variantKey => $variantMeta) {
+                                        foreach ($variantOptions as $existingKey => $existingMeta) {
+                                            if ($existingMeta['view'] === $variantMeta['view']) {
+                                                unset($variantOptions[$existingKey]);
+                                            }
+                                        }
+                                        $variantOptions[$variantKey] = $variantMeta;
+                                    }
+
+                                    // Hide any variant the organization's plan doesn't grant access to — each
+                                    // variant's own explicit `exclusive` flag decides this (never inferred from
+                                    // its name), mirrored in OrganizationSectionController::update()'s
+                                    // acceptance check via SectionVariantResolver::isExclusive().
+                                    if (! $organization->canUseExclusiveTemplates()) {
+                                        $variantOptions = array_filter(
+                                            $variantOptions,
+                                            fn ($meta) => ! ($meta['exclusive'] ?? false)
+                                        );
+                                    }
+
+                                    $currentVariant = $section->variant ?? $variantRows->firstWhere('is_default', true)?->variant_key;
+                                    $currentVariantView = $variants[$currentVariant]['view'] ?? null;
+                                    if (! array_key_exists($currentVariant, $variantOptions)) {
+                                        foreach ($variantOptions as $optionKey => $optionMeta) {
+                                            if ($optionMeta['view'] === $currentVariantView) {
+                                                $currentVariant = $optionKey;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 @endphp
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tampilan</label>

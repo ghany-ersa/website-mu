@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\PlanChangeRequestController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
+use App\Http\Controllers\Admin\SectionVariantController;
+use App\Http\Controllers\Admin\SectionVariantPreviewController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\OrganizationAgendaController;
@@ -184,6 +186,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('plans', AdminPlanController::class)->except(['show']);
     Route::resource('discount-codes', DiscountCodeController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
+
+    Route::get('section-variants', [SectionVariantController::class, 'index'])->name('section-variants.index');
+    Route::patch('section-variants/{sectionVariant}', [SectionVariantController::class, 'update'])->name('section-variants.update');
+    Route::get('section-variants/{sectionVariant}/preview', [SectionVariantPreviewController::class, 'show'])->name('section-variants.preview');
 
     Route::get('plan-change-requests', [PlanChangeRequestController::class, 'index'])->name('plan-change-requests.index');
     Route::post('plan-change-requests/{planChangeRequest}/approve', [PlanChangeRequestController::class, 'approve'])->name('plan-change-requests.approve');
