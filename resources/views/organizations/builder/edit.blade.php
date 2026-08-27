@@ -598,6 +598,29 @@
                             @csrf
                             @method('PATCH')
 
+                            @if ($variants = $sectionRegistry[$section->key]['variants'] ?? null)
+                                @php
+                                    // array_flip+array_flip keeps only the LAST key seen per view path, so when
+                                    // two keys are aliases sharing one view (e.g. daftar-berita's 'standar'/'modern',
+                                    // which have no view file of their own — see config/page-builder.php's own
+                                    // comment on this), only the later-declared key survives as a dropdown option.
+                                    $variantOptions = array_flip(array_flip($variants));
+                                    $currentVariant = $section->variant ?? config("page-builder.sections.{$section->key}.default_variant");
+                                    $currentVariant = array_search($variants[$currentVariant] ?? null, $variantOptions) ?: $currentVariant;
+                                @endphp
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tampilan</label>
+                                    <select name="variant"
+                                        class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                        @foreach (array_keys($variantOptions) as $variantKey)
+                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)>
+                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
                             @foreach ($sectionRegistry[$section->key]['fields'] ?? [] as $field)
                                 @continue(in_array($field, ['cta_section', 'cta_url', 'cta_wa_number', 'cta_wa_message', 'cta_secondary_section', 'cta_secondary_url', 'cta_secondary_wa_number', 'cta_secondary_wa_message'], true))
                                 @if (in_array($field, ['cta_type', 'cta_secondary_type'], true))

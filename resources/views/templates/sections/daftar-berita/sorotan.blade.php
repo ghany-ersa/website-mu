@@ -4,17 +4,24 @@
     i.e. when rendered as a tenant page (organizations/pages/_render.blade.php). Falls
     back to $content['items'] sample data in template-preview context (templates/preview.blade.php),
     which has no organization yet.
+
+    Featured card + compact side list — one large highlighted article beside a short list of
+    the rest. Shared by the 'modern' and 'sorotan' registry keys (see config/page-builder.php) —
+    'modern' has no view file of its own, it's just an alias onto this one.
 --}}
 @php
     $content = $section['content'] ?? [];
     $limit = $content['limit'] ?? 3;
+    $categoryFilter = $content['category_filter'] ?? null;
     $items = isset($organization)
-        ? $organization->posts()->published()->take($limit)->get()->map(fn ($post) => [
+        ? $organization->posts()->published()
+            ->when($categoryFilter, fn ($query) => $query->where('category', $categoryFilter))
+            ->take($limit)->get()->map(fn ($post) => [
             'title' => $post->title,
             'image' => $post->image,
             'category' => $post->category,
             'date' => $post->published_at?->translatedFormat('d M Y'),
-            'excerpt' => $post->excerpt,
+            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->body), 140),
             'url' => \Illuminate\Support\Facades\Route::has('tenant.posts.show')
                 ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
                 : '#',

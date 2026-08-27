@@ -69,7 +69,7 @@
 </head>
 <body class="bg-white text-gray-800">
     @includeFirst([
-        \App\Services\SectionVariantResolver::resolve($key, null, organization: $brand),
+        \App\Services\SectionVariantResolver::resolve($key),
         'templates.sections._missing',
     ], ['section' => $section + ['key' => $key]])
 </body>

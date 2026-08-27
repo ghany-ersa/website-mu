@@ -125,7 +125,7 @@
     <main>
         @foreach ($currentPage['sections'] as $section)
             @includeFirst([
-                \App\Services\SectionVariantResolver::resolve($section['key'], $section['variant'] ?? null, template: $template),
+                \App\Services\SectionVariantResolver::resolve($section['key'], $section['variant'] ?? null),
                 'templates.sections._missing',
             ], ['section' => $section, 'template' => $template])
         @endforeach

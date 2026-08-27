@@ -139,8 +139,13 @@ class OrganizationSectionController extends Controller
             $content[$field] = str_replace('{org_name}', $organization->name, $default);
         }
 
+        $availableVariants = array_keys(config("page-builder.sections.{$section->key}.variants", []));
+        $requestedVariant = $request->input('variant');
+        $variant = in_array($requestedVariant, $availableVariants, true) ? $requestedVariant : $section->variant;
+
         $section->update([
             'content' => $content,
+            'variant' => $variant,
             'is_visible' => $request->boolean('is_visible', true),
         ]);
 

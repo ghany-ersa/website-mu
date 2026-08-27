@@ -7,7 +7,7 @@
     @if ($section->is_visible)
         <div id="canvas-section-{{ $section->id }}">
             @includeFirst([
-                \App\Services\SectionVariantResolver::resolve($section->key, $section->variant, organization: $organization),
+                \App\Services\SectionVariantResolver::resolve($section->key, $section->variant),
                 'templates.sections._missing',
             ], ['section' => $section, 'organization' => $organization, 'page' => $page])
         </div>

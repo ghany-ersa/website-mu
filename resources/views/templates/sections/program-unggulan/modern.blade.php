@@ -1,7 +1,6 @@
 {{-- Auto-binds to the organization's programs when $organization is in scope (tenant page
      render); falls back to $content['items'] sample data in template-preview context —
-     see daftar-berita.blade.php for the full rationale. Reused by layanan.blade.php with
-     $programType = 'layanan' to pull from the same Program table's "layanan" pool instead. --}}
+     see daftar-berita.blade.php for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
     $dummyItems = ($programType ?? 'program') === 'layanan'

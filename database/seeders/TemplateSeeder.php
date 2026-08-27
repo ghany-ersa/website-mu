@@ -36,8 +36,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Bagian dari Persyarikatan Muhammadiyah',
                                     'headline' => 'Mencerahkan Semesta, Membangun Generasi',
                                     'subheadline' => 'PCM Ambulu menggerakkan dakwah, pendidikan, dan pemberdayaan masyarakat di Kecamatan Ambulu.',
@@ -45,13 +45,13 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Program',
                                     'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'sambutan-ketua', 'content' => [
+                                ['key' => 'sambutan-ketua', 'variant' => 'standar', 'content' => [
                                     'nama' => 'Drs. H. Ahmad Sujarwo, M.Pd.I',
                                     'jabatan' => 'Ketua PCM Ambulu periode 2022–2027',
                                     'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Selamat datang di rumah digital PCM Ambulu. Melalui platform ini kami ingin menyapa warga Muhammadiyah dan masyarakat luas dengan informasi kegiatan dakwah, pendidikan, dan pelayanan sosial yang kami jalankan bersama.',
                                     'photo' => 'https://randomuser.me/api/portraits/men/32.jpg',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Dakwah dan Pengajian', 'description' => 'Kajian rutin mingguan dan pengajian akbar di tingkat cabang dan ranting.', 'icon' => '🕌'],
@@ -59,7 +59,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pemberdayaan Masyarakat', 'description' => 'Program sosial, ekonomi, dan kesehatan untuk warga sekitar.', 'icon' => '🤝'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Berita Terbaru',
                                     'items' => [
                                         ['title' => 'Musycab PCM Ambulu Tetapkan Kepengurusan Baru', 'category' => 'Organisasi', 'date' => '12 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=700&q=80'],
@@ -67,7 +67,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pelatihan Dai Muda Angkatan Ketiga Dibuka', 'category' => 'Dakwah', 'date' => '28 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'agenda', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Agenda Kegiatan',
                                     'items' => [
                                         ['title' => 'Pengajian Ahad Pagi', 'date_day' => '17', 'date_month' => 'Agt', 'time' => '06.30 WIB', 'location' => 'Masjid Al-Ikhlas Ambulu'],
@@ -75,20 +75,20 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Bakti Sosial Idul Adha Lanjutan', 'date_day' => '29', 'date_month' => 'Agt', 'time' => '08.00 WIB', 'location' => 'Balai Desa Ambulu'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Mari Bersilaturahmi',
                                     'subtitle' => 'Terhubung dengan kegiatan dan program PCM Ambulu.',
                                     'cta_label' => 'Hubungi Kami',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                         [
                             'slug' => 'tentang',
                             'name' => 'Tentang',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang PCM Ambulu',
                                     'body' => 'PCM Ambulu berdiri sejak 1978 dan menaungi ranting-ranting Muhammadiyah di Kecamatan Ambulu. Kami bergerak di bidang dakwah, pendidikan, kesehatan, dan pemberdayaan masyarakat bersama seluruh Amal Usaha Muhammadiyah di wilayah ini.',
                                     'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=1000&q=80',
@@ -98,7 +98,7 @@ class TemplateSeeder extends Seeder
                                         ['value' => '8', 'label' => 'Amal Usaha'],
                                     ],
                                 ]],
-                                ['key' => 'struktur-pengurus', 'content' => [
+                                ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
                                     'title' => 'Struktur Pengurus 2022–2027',
                                     'items' => [
                                         ['name' => 'Drs. H. Ahmad Sujarwo, M.Pd.I', 'role' => 'Ketua', 'photo' => 'https://randomuser.me/api/portraits/men/32.jpg'],
@@ -107,7 +107,7 @@ class TemplateSeeder extends Seeder
                                         ['name' => 'H. Slamet Widodo', 'role' => 'Bendahara', 'photo' => 'https://randomuser.me/api/portraits/men/78.jpg'],
                                     ],
                                 ]],
-                                ['key' => 'jaringan-aum-ortom', 'content' => [
+                                ['key' => 'jaringan-aum-ortom', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jaringan AUM & Ortom',
                                     'items' => [
                                         ['name' => 'SD Muhammadiyah 1 Ambulu', 'type' => 'AUM Pendidikan'],
@@ -118,23 +118,23 @@ class TemplateSeeder extends Seeder
                                         ['name' => 'Masjid Al-Ikhlas Ambulu', 'type' => 'Masjid'],
                                     ],
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                         [
                             'slug' => 'kontak',
                             'name' => 'Kontak',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Punya pertanyaan atau ingin bersilaturahmi? Kirimkan pesan kepada kami.',
                                 ]],
-                                ['key' => 'lokasi-peta', 'content' => [
+                                ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kantor PCM Ambulu',
                                     'address' => 'Jl. Kh. Ahmad Dahlan No. 12, Ambulu, Kabupaten Jember, Jawa Timur',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -153,8 +153,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Terakreditasi A',
                                     'headline' => 'Mendidik dengan Berkemajuan',
                                     'subheadline' => 'SD Muhammadiyah 1 Ambulu membentuk generasi unggul yang berlandaskan iman dan ilmu.',
@@ -162,7 +162,7 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Program',
                                     'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Profil SD Muhammadiyah 1 Ambulu',
                                     'body' => 'Berdiri sejak 1990, SD Muhammadiyah 1 Ambulu mengintegrasikan kurikulum nasional dengan pendidikan Al-Islam dan Kemuhammadiyahan untuk membentuk siswa yang cerdas dan berakhlak mulia.',
                                     'image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1000&q=80',
@@ -172,7 +172,7 @@ class TemplateSeeder extends Seeder
                                         ['value' => '32', 'label' => 'Tenaga Pendidik'],
                                     ],
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Tahfidz Al-Quran', 'description' => 'Target hafalan 2 juz selama jenjang sekolah dasar.', 'icon' => '📖'],
@@ -180,13 +180,13 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Kepemimpinan Siswa', 'description' => 'Pembinaan organisasi siswa dan kegiatan kepanduan Hizbul Wathan.', 'icon' => '🧭'],
                                     ],
                                 ]],
-                                ['key' => 'ppdb', 'content' => [
+                                ['key' => 'ppdb', 'variant' => 'standar', 'content' => [
                                     'title' => 'Penerimaan Peserta Didik Baru',
                                     'body' => 'Pendaftaran tahun ajaran 2026/2027 dibuka untuk jalur reguler dan jalur prestasi.',
                                     'cta_label' => 'Info PPDB',
                                     'deadline' => 'Ditutup 30 Juni 2026',
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Berita Sekolah',
                                     'items' => [
                                         ['title' => 'Siswa Raih Juara 1 Olimpiade Sains Kabupaten', 'category' => 'Prestasi', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80'],
@@ -194,11 +194,11 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Kunjungan Edukasi ke Museum Jember', 'category' => 'Kegiatan', 'date' => '25 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Informasi pendaftaran dan kegiatan sekolah.',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -217,15 +217,15 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Amal Usaha Muhammadiyah',
                                     'headline' => 'Melayani dengan Ikhlas',
                                     'subheadline' => 'Klinik Muhammadiyah Sehati menyediakan layanan kesehatan dan sosial bagi masyarakat Ambulu.',
                                     'cta_label' => 'Buat Janji Temu',
                                     'image' => 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'layanan', 'content' => [
+                                ['key' => 'layanan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Kami',
                                     'items' => [
                                         ['title' => 'Layanan Umum', 'description' => 'Pemeriksaan dan konsultasi dokter umum setiap hari.', 'icon' => '🩺'],
@@ -233,7 +233,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Layanan Sosial', 'description' => 'Pemeriksaan gratis rutin bagi warga kurang mampu.', 'icon' => '❤️'],
                                     ],
                                 ]],
-                                ['key' => 'jadwal-praktik', 'content' => [
+                                ['key' => 'jadwal-praktik', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadwal Praktik Dokter',
                                     'doctors' => [
                                         ['name' => 'dr. Siti Rahma', 'specialty' => 'Dokter Umum', 'schedule' => 'Senin - Jumat, 08.00 - 14.00 WIB'],
@@ -241,7 +241,7 @@ class TemplateSeeder extends Seeder
                                         ['name' => 'dr. Nur Hidayah, Sp.A', 'specialty' => 'Dokter Anak', 'schedule' => 'Sabtu, 08.00 - 11.00 WIB'],
                                     ],
                                 ]],
-                                ['key' => 'agenda', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Agenda dan Kegiatan',
                                     'items' => [
                                         ['title' => 'Baksos Kesehatan Gratis', 'date_day' => '18', 'date_month' => 'Agt', 'time' => '08.00 WIB', 'location' => 'Balai Desa Ambulu'],
@@ -249,16 +249,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Penyuluhan Gizi Anak', 'date_day' => '30', 'date_month' => 'Agt', 'time' => '10.00 WIB', 'location' => 'Posyandu Ambulu'],
                                     ],
                                 ]],
-                                ['key' => 'donasi-zakat-infak', 'content' => [
+                                ['key' => 'donasi-zakat-infak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Donasi Layanan Kesehatan',
                                     'body' => 'Dukung layanan kesehatan gratis bagi warga kurang mampu melalui donasi.',
                                     'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80',
                                 ]],
-                                ['key' => 'lokasi-peta', 'content' => [
+                                ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lokasi Klinik',
                                     'address' => 'Jl. Kesehatan No. 8, Ambulu, Kabupaten Jember, Jawa Timur',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -277,8 +277,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Organisasi Otonom Muhammadiyah — Perempuan Muda',
                                     'headline' => 'Perempuan Muda, Berdaya dan Berkemajuan',
                                     'subheadline' => 'Nasyiatul Aisyiyah Ambulu menghimpun perempuan muda dalam dakwah, pendidikan, dan pemberdayaan sosial.',
@@ -286,12 +286,12 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Program',
                                     'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang Nasyiatul Aisyiyah Ambulu',
                                     'body' => 'Nasyiatul Aisyiyah Ambulu menjadi wadah bagi perempuan muda untuk berdakwah, belajar, dan berkarya melalui program keputrian, pendidikan, dan pemberdayaan ekonomi.',
                                     'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=80',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Kajian Keputrian', 'description' => 'Kajian rutin seputar fikih perempuan dan pengembangan diri.', 'icon' => '📗'],
@@ -299,7 +299,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pemberdayaan Ekonomi Perempuan', 'description' => 'Pelatihan usaha mikro dan kewirausahaan bagi anggota.', 'icon' => '🧵'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
                                         ['title' => 'Pelantikan Pimpinan Cabang Periode 2026-2029', 'category' => 'Organisasi', 'date' => '09 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
@@ -307,16 +307,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Kajian Keputrian Bulanan Digelar', 'category' => 'Dakwah', 'date' => '25 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Bergabunglah dengan Nasyiatul Aisyiyah',
                                     'subtitle' => 'Jadi bagian dari gerakan perempuan muda berkemajuan.',
                                     'cta_label' => 'Daftar Jadi Anggota',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Ingin tahu lebih lanjut tentang kegiatan kami?',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -335,8 +335,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Organisasi Otonom Muhammadiyah',
                                     'headline' => 'Bergerak Bersama Pemuda Muhammadiyah',
                                     'subheadline' => 'Wadah kaderisasi dan kegiatan bagi pemuda di Kecamatan Ambulu.',
@@ -344,12 +344,12 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Program',
                                     'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang Pemuda Muhammadiyah Ambulu',
                                     'body' => 'Pemuda Muhammadiyah Ambulu menjadi wadah kaderisasi, aksi sosial, dan pengembangan kepemimpinan bagi generasi muda Muhammadiyah di wilayah Ambulu.',
                                     'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=80',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kegiatan dan Kampanye',
                                     'items' => [
                                         ['title' => 'Kaderisasi', 'description' => 'Pelatihan dasar kepemimpinan bagi anggota baru.', 'icon' => '🧑‍🤝‍🧑'],
@@ -357,7 +357,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pelatihan Kewirausahaan', 'description' => 'Workshop bisnis dan pengembangan diri pemuda.', 'icon' => '🚀'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
                                         ['title' => 'Pelantikan Pengurus Baru Periode 2026-2029', 'category' => 'Organisasi', 'date' => '08 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
@@ -365,16 +365,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pelatihan Kewirausahaan Pemuda', 'category' => 'Pelatihan', 'date' => '20 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Rekrutmen Anggota Baru',
                                     'subtitle' => 'Bergabunglah dan jadi bagian dari gerakan pemuda berkemajuan.',
                                     'cta_label' => 'Daftar Jadi Anggota',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Ingin tahu lebih lanjut tentang kegiatan kami?',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -393,8 +393,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Perguruan Seni Bela Diri Otentik Indonesia',
                                     'headline' => 'Kuat Fisik, Kokoh Akidah',
                                     'subheadline' => 'Tapak Suci Ambulu membina generasi pendekar yang tangguh, berprestasi, dan berakhlak mulia.',
@@ -402,12 +402,12 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Prestasi',
                                     'image' => 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang Tapak Suci Ambulu',
                                     'body' => 'Tapak Suci Putera Muhammadiyah Ambulu membina anggota dalam latihan pencak silat, pembentukan karakter, dan pencapaian prestasi di tingkat daerah maupun nasional.',
                                     'image' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1000&q=80',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Latihan Rutin Pencak Silat', 'description' => 'Latihan fisik dan jurus dasar hingga lanjutan setiap pekan.', 'icon' => '🥋'],
@@ -415,7 +415,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Ujian Kenaikan Tingkat', 'description' => 'Evaluasi berkala untuk kenaikan sabuk dan jenjang keanggotaan.', 'icon' => '🎖️'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
                                         ['title' => 'Atlet Tapak Suci Ambulu Raih Juara 1 Kejuaraan Daerah', 'category' => 'Prestasi', 'date' => '11 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=700&q=80'],
@@ -423,16 +423,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pembukaan Pendaftaran Anggota Baru', 'category' => 'Pengumuman', 'date' => '27 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadi Bagian dari Pendekar Tapak Suci',
                                     'subtitle' => 'Latihan terbuka untuk pelajar, mahasiswa, dan umum.',
                                     'cta_label' => 'Daftar Sekarang',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Tanya jadwal dan lokasi latihan.',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -451,8 +451,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Gerakan Kepanduan Muhammadiyah',
                                     'headline' => 'Berpetualang, Berkarakter, Berkemajuan',
                                     'subheadline' => 'Hizbul Wathan Ambulu membina generasi muda lewat kegiatan kepanduan yang mendidik dan menyenangkan.',
@@ -460,12 +460,12 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Kegiatan',
                                     'image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang Hizbul Wathan Ambulu',
                                     'body' => 'Hizbul Wathan Qabilah Ambulu membina anak dan remaja melalui kegiatan kepanduan yang menumbuhkan kemandirian, kepemimpinan, dan kecintaan pada alam.',
                                     'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1000&q=80',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Perkemahan dan Penjelajahan', 'description' => 'Kegiatan alam terbuka untuk melatih kemandirian dan kerja sama.', 'icon' => '⛺'],
@@ -473,7 +473,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pendidikan Karakter', 'description' => 'Penanaman nilai kedisiplinan dan kemandirian sejak dini.', 'icon' => '🌟'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
                                         ['title' => 'Perkemahan Akbar Qabilah Ambulu', 'category' => 'Kegiatan', 'date' => '07 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
@@ -481,16 +481,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pelatihan Pertolongan Pertama Lapangan', 'category' => 'Pelatihan', 'date' => '22 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Bergabung dengan Hizbul Wathan',
                                     'subtitle' => 'Terbuka untuk anak dan remaja usia 7-21 tahun.',
                                     'cta_label' => 'Daftar Jadi Anggota',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Tanya jadwal latihan dan pendaftaran.',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -509,8 +509,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Ikatan Mahasiswa Muhammadiyah',
                                     'headline' => 'Anggun dalam Moral, Unggul dalam Intelektual',
                                     'subheadline' => 'IMM Komisariat Ambulu mewadahi mahasiswa dalam gerakan intelektual, dakwah kampus, dan advokasi sosial.',
@@ -518,12 +518,12 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Kegiatan',
                                     'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang IMM Komisariat Ambulu',
                                     'body' => 'IMM Komisariat Ambulu menjadi ruang bagi mahasiswa Muhammadiyah untuk berdiskusi, berorganisasi, dan mengembangkan gerakan intelektual serta advokasi sosial di lingkungan kampus.',
                                     'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=1000&q=80',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Diskusi dan Kajian Ilmiah', 'description' => 'Forum rutin membahas isu sosial, politik, dan keagamaan.', 'icon' => '📚'],
@@ -531,7 +531,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Advokasi Mahasiswa', 'description' => 'Pendampingan isu kebijakan kampus dan masyarakat sekitar.', 'icon' => '📢'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
                                         ['title' => 'Darul Arqam Dasar Angkatan XII Digelar', 'category' => 'Kaderisasi', 'date' => '06 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
@@ -539,16 +539,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Bakti Sosial Mahasiswa untuk Desa Binaan', 'category' => 'Sosial', 'date' => '18 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Bergabung Bersama IMM',
                                     'subtitle' => 'Untuk mahasiswa yang ingin berdaya secara intelektual dan sosial.',
                                     'cta_label' => 'Daftar Jadi Kader',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Ingin tahu lebih lanjut tentang kaderisasi IMM?',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -567,8 +567,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Organisasi Otonom Muhammadiyah — Perempuan Berkemajuan',
                                     'headline' => 'Perempuan Berkemajuan untuk Bangsa',
                                     'subheadline' => 'Pimpinan Cabang Aisyiyah Ambulu bergerak dalam dakwah, pendidikan, kesehatan, dan pemberdayaan perempuan di Kecamatan Ambulu.',
@@ -576,13 +576,13 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Program',
                                     'image' => 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'sambutan-ketua', 'content' => [
+                                ['key' => 'sambutan-ketua', 'variant' => 'standar', 'content' => [
                                     'nama' => 'Hj. Siti Nur Halimah, S.Ag.',
                                     'jabatan' => 'Ketua PCA Ambulu periode 2022–2027',
                                     'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Selamat datang di rumah digital Aisyiyah Ambulu. Kami mengajak seluruh perempuan Muhammadiyah untuk bersama membangun keluarga sakinah dan masyarakat yang berkemajuan.',
                                     'photo' => 'https://randomuser.me/api/portraits/women/44.jpg',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Pengajian dan Dakwah', 'description' => 'Kajian rutin keputrian dan keluarga sakinah setiap pekan.', 'icon' => '🕌'],
@@ -590,7 +590,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pemberdayaan Ekonomi Perempuan', 'description' => 'Pelatihan usaha mikro dan koperasi bagi anggota.', 'icon' => '🧵'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Berita Terbaru',
                                     'items' => [
                                         ['title' => 'Pelantikan Pimpinan Cabang Aisyiyah Ambulu', 'category' => 'Organisasi', 'date' => '11 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=700&q=80'],
@@ -598,16 +598,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Wisuda TK Aisyiyah Bustanul Athfal', 'category' => 'Pendidikan', 'date' => '27 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Bergabunglah dengan Aisyiyah',
                                     'subtitle' => 'Jadi bagian dari gerakan perempuan berkemajuan.',
                                     'cta_label' => 'Daftar Jadi Anggota',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Ingin tahu lebih lanjut tentang kegiatan kami?',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -626,15 +626,15 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Amal Usaha Muhammadiyah',
                                     'headline' => 'Merawat dengan Kasih, Mendidik dengan Iman',
                                     'subheadline' => 'Panti Asuhan Muhammadiyah Ambulu memberi rumah, pendidikan, dan kasih sayang bagi anak yatim dan dhuafa.',
                                     'cta_label' => 'Salurkan Donasi',
                                     'image' => 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'layanan', 'content' => [
+                                ['key' => 'layanan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Kami',
                                     'items' => [
                                         ['title' => 'Pengasuhan Anak Yatim', 'description' => 'Tempat tinggal, gizi, dan pendampingan bagi anak yatim dan dhuafa.', 'icon' => '🏠'],
@@ -642,7 +642,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Layanan Sosial Masyarakat', 'description' => 'Bantuan sembako dan santunan bagi warga kurang mampu.', 'icon' => '❤️'],
                                     ],
                                 ]],
-                                ['key' => 'agenda', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Agenda Kegiatan',
                                     'items' => [
                                         ['title' => 'Santunan Anak Yatim Bulanan', 'date_day' => '15', 'date_month' => 'Agt', 'time' => '09.00 WIB', 'location' => 'Panti Asuhan Muhammadiyah Ambulu'],
@@ -650,16 +650,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Bakti Sosial Sembako', 'date_day' => '26', 'date_month' => 'Agt', 'time' => '08.00 WIB', 'location' => 'Desa Ambulu'],
                                     ],
                                 ]],
-                                ['key' => 'donasi-zakat-infak', 'content' => [
+                                ['key' => 'donasi-zakat-infak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Donasi untuk Anak Yatim dan Dhuafa',
                                     'body' => 'Dukung pengasuhan dan pendidikan anak-anak yatim melalui donasi, zakat, atau infak Anda.',
                                     'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80',
                                 ]],
-                                ['key' => 'lokasi-peta', 'content' => [
+                                ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lokasi Panti Asuhan',
                                     'address' => 'Jl. Sosial No. 5, Ambulu, Kabupaten Jember, Jawa Timur',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -678,15 +678,15 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Rumah Ibadah dan Dakwah Umat',
                                     'headline' => 'Memakmurkan Masjid, Menguatkan Ukhuwah',
                                     'subheadline' => 'Masjid Al-Ikhlas Ambulu menjadi pusat ibadah, kajian, dan pelayanan umat di Kecamatan Ambulu.',
                                     'cta_label' => 'Lihat Jadwal Kajian',
                                     'image' => 'https://images.unsplash.com/photo-1591741535018-d042766c62eb?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'jadwal-salat', 'content' => [
+                                ['key' => 'jadwal-salat', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadwal Salat Hari Ini',
                                     'location' => 'Ambulu, Kabupaten Jember',
                                     'times' => [
@@ -697,14 +697,14 @@ class TemplateSeeder extends Seeder
                                         ['label' => 'Isya', 'time' => '18.55'],
                                     ],
                                 ]],
-                                ['key' => 'pengumuman', 'content' => [
+                                ['key' => 'pengumuman', 'variant' => 'standar', 'content' => [
                                     'title' => 'Pengumuman Penting',
                                     'items' => [
                                         ['title' => 'Renovasi Tempat Wudu Dimulai Pekan Depan', 'date' => '14 Agt 2026'],
                                         ['title' => 'Jadwal Imam dan Khatib Jumat Bulan Ini', 'date' => '10 Agt 2026'],
                                     ],
                                 ]],
-                                ['key' => 'jadwal-kajian', 'content' => [
+                                ['key' => 'jadwal-kajian', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadwal Kajian Rutin',
                                     'items' => [
                                         ['title' => 'Kajian Subuh', 'ustadz' => 'Ustadz H. Fauzi Rahman', 'day' => 'Setiap Ahad', 'time' => 'Ba\'da Subuh'],
@@ -712,16 +712,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Kajian Fikih Keluarga', 'ustadz' => 'Ustadzah Hj. Nur Aini', 'day' => 'Setiap Jumat', 'time' => 'Ba\'da Ashar'],
                                     ],
                                 ]],
-                                ['key' => 'donasi-zakat-infak', 'content' => [
+                                ['key' => 'donasi-zakat-infak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Donasi, Zakat, dan Infak',
                                     'body' => 'Salurkan zakat, infak, dan donasi pembangunan masjid melalui kotak amal atau transfer resmi.',
                                     'image' => 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&w=600&q=80',
                                 ]],
-                                ['key' => 'lokasi-peta', 'content' => [
+                                ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lokasi Masjid',
                                     'address' => 'Jl. Kh. Ahmad Dahlan No. 3, Ambulu, Kabupaten Jember, Jawa Timur',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -740,8 +740,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Ikatan Pelajar Muhammadiyah',
                                     'headline' => 'Pelajar Berkemajuan, Kreatif, dan Berkarakter',
                                     'subheadline' => 'IPM Ambulu mewadahi kreativitas dan kepemimpinan pelajar Muhammadiyah di sekolah-sekolah Ambulu.',
@@ -749,12 +749,12 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Lihat Kegiatan',
                                     'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tentang IPM Ambulu',
                                     'body' => 'IPM Ambulu menjadi wadah kreativitas, literasi, dan kepemimpinan bagi pelajar Muhammadiyah di tingkat SMP dan SMA se-Kecamatan Ambulu.',
                                     'image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1000&q=80',
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Program Unggulan',
                                     'items' => [
                                         ['title' => 'Pelatihan Kepemimpinan Pelajar', 'description' => 'Pembinaan ranting IPM di sekolah-sekolah Muhammadiyah.', 'icon' => '🎓'],
@@ -762,7 +762,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Kegiatan Ekstrakurikuler dan Seni', 'description' => 'Wadah bakat seni, musik, dan kreativitas pelajar.', 'icon' => '🎨'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
                                         ['title' => 'Pelantikan Pimpinan Ranting IPM SMP Muhammadiyah 2', 'category' => 'Organisasi', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80'],
@@ -770,16 +770,16 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pentas Seni dan Kreativitas Pelajar', 'category' => 'Kegiatan', 'date' => '24 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Bergabung Bersama IPM',
                                     'subtitle' => 'Untuk pelajar SMP dan SMA yang ingin berkarya dan berorganisasi.',
                                     'cta_label' => 'Daftar Jadi Anggota',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Ingin tahu lebih lanjut tentang kegiatan IPM?',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -798,7 +798,7 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
+                                ['key' => 'header', 'variant' => 'standar'],
                                 ['key' => 'hero', 'variant' => 'headline-berita', 'content' => [
                                     'badge' => 'Headline',
                                     'headline' => 'Musyda ke-XII Tetapkan Arah Gerak Muhammadiyah Jember 2022-2027',
@@ -835,11 +835,11 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Ekonomi Umat Berbasis Ranting: Belajar dari Praktik Baik Persyarikatan', 'category' => 'Opini', 'date' => '02 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kirim Informasi atau Tips Berita',
                                     'subtitle' => 'Punya informasi kegiatan yang ingin diliput? Kirimkan kepada redaksi kami.',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
@@ -894,12 +894,6 @@ class TemplateSeeder extends Seeder
                 'is_exclusive' => true,
                 'structure' => [
                     'sample_org_name' => 'PDM Kabupaten Jember',
-                    // Drives the distinct "exclusive" visual variant several section partials
-                    // branch on (see hero.blade.php's $isExclusive resolution) — separate from
-                    // Template::is_exclusive (the plan-entitlement gate on who can pick this
-                    // template at all) since a future exclusive template could still opt to use
-                    // the standard section look, or vice versa.
-                    'exclusive' => true,
                     'brand' => [
                         'primary' => '#1E2761',
                         'secondary' => '#0B7A3E',
@@ -911,8 +905,8 @@ class TemplateSeeder extends Seeder
                             'slug' => 'home',
                             'name' => 'Beranda',
                             'sections' => [
-                                ['key' => 'header'],
-                                ['key' => 'hero', 'content' => [
+                                ['key' => 'header', 'variant' => 'standar'],
+                                ['key' => 'hero', 'variant' => 'modern', 'content' => [
                                     'badge' => 'Pimpinan Daerah Muhammadiyah Kabupaten Jember',
                                     'headline' => 'Berkemajuan dalam Amal, Teguh dalam Ikhtiar',
                                     'subheadline' => 'PDM Kabupaten Jember memimpin dan menaungi jaringan cabang, ranting, Ortom, serta Amal Usaha Muhammadiyah di seluruh wilayah Jember dalam dakwah, pendidikan, kesehatan, dan pemberdayaan umat.',
@@ -924,13 +918,13 @@ class TemplateSeeder extends Seeder
                                     'cta_secondary_section' => 'jaringan-aum-ortom',
                                     'image' => 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&w=1400&q=80',
                                 ]],
-                                ['key' => 'sambutan-ketua', 'content' => [
+                                ['key' => 'sambutan-ketua', 'variant' => 'modern', 'content' => [
                                     'nama' => 'Prof. Dr. H. Muhammad Sholihin, M.Ag.',
                                     'jabatan' => 'Ketua PDM Kabupaten Jember periode 2022–2027',
                                     'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Muhammadiyah Kabupaten Jember hadir sebagai gerakan dakwah amar makruf nahi mungkar yang berikhtiar hadir di setiap lini kehidupan masyarakat — dari mimbar masjid hingga ruang kelas, dari klinik hingga panti asuhan. Melalui kanal digital ini, kami ingin setiap warga Muhammadiyah dan masyarakat Jember dapat mengikuti, mendukung, dan turut serta dalam setiap langkah dakwah dan amal usaha yang kami jalankan bersama seluruh Pimpinan Cabang, Ranting, Ortom, dan Amal Usaha di wilayah ini.',
                                     'photo' => 'https://randomuser.me/api/portraits/men/52.jpg',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'modern', 'content' => [
                                     'title' => 'Muhammadiyah di Bumi Pandalungan',
                                     'body' => 'Sejak berdiri pada 1930, Muhammadiyah Kabupaten Jember telah tumbuh menjadi salah satu pimpinan daerah terbesar di Jawa Timur, menaungi puluhan cabang dan ratusan ranting yang tersebar dari dataran tinggi hingga pesisir selatan. Gerakan ini menyatukan dakwah, pendidikan, kesehatan, dan pemberdayaan sosial dalam satu ikhtiar berkemajuan bagi masyarakat Jember.',
                                     'image' => 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=1000&q=80',
@@ -940,7 +934,7 @@ class TemplateSeeder extends Seeder
                                         ['value' => '120+', 'label' => 'Amal Usaha'],
                                     ],
                                 ]],
-                                ['key' => 'program-unggulan', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'modern', 'content' => [
                                     'title' => 'Program Strategis Daerah',
                                     'items' => [
                                         ['title' => 'Konsolidasi Cabang dan Ranting', 'description' => 'Penguatan kapasitas kepemimpinan dan organisasi di seluruh tingkat cabang dan ranting se-Kabupaten Jember.', 'icon' => '🏛️'],
@@ -951,7 +945,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Penguatan Ortom dan Kaderisasi Muda', 'description' => 'Sinergi program dengan Aisyiyah, Pemuda Muhammadiyah, NA, IMM, IPM, Tapak Suci, dan HW.', 'icon' => '🤝'],
                                     ],
                                 ]],
-                                ['key' => 'struktur-pengurus', 'content' => [
+                                ['key' => 'struktur-pengurus', 'variant' => 'modern', 'content' => [
                                     'title' => 'Pimpinan Harian 2022–2027',
                                     'items' => [
                                         ['name' => 'Prof. Dr. H. Muhammad Sholihin, M.Ag.', 'role' => 'Ketua', 'photo' => 'https://randomuser.me/api/portraits/men/52.jpg'],
@@ -964,7 +958,7 @@ class TemplateSeeder extends Seeder
                                         ['name' => 'dr. Hj. Latifah Zahra, Sp.PD.', 'role' => 'Ketua Majelis Kesehatan', 'photo' => 'https://randomuser.me/api/portraits/women/39.jpg'],
                                     ],
                                 ]],
-                                ['key' => 'jaringan-aum-ortom', 'content' => [
+                                ['key' => 'jaringan-aum-ortom', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jaringan Amal Usaha & Organisasi Otonom',
                                     'items' => [
                                         ['name' => 'Universitas Muhammadiyah Jember', 'type' => 'AUM Pendidikan'],
@@ -977,7 +971,7 @@ class TemplateSeeder extends Seeder
                                         ['name' => 'Lazismu Jember', 'type' => 'AUM Sosial'],
                                     ],
                                 ]],
-                                ['key' => 'daftar-berita', 'content' => [
+                                ['key' => 'daftar-berita', 'variant' => 'modern', 'content' => [
                                     'title' => 'Warta Daerah',
                                     'items' => [
                                         ['title' => 'Musyda ke-XII Tetapkan Arah Gerak Muhammadiyah Jember 2022-2027', 'category' => 'Organisasi', 'date' => '14 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=700&q=80'],
@@ -986,7 +980,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Pelantikan Pimpinan Cabang se-Kabupaten Jember Digelar Serentak', 'category' => 'Organisasi', 'date' => '21 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
-                                ['key' => 'agenda', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Agenda Daerah',
                                     'items' => [
                                         ['title' => 'Rapat Pleno Pimpinan Daerah', 'date_day' => '19', 'date_month' => 'Agt', 'time' => '13.00 WIB', 'location' => 'Kantor PDM Kabupaten Jember'],
@@ -994,7 +988,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Rapat Koordinasi Majelis dan Lembaga', 'date_day' => '28', 'date_month' => 'Agt', 'time' => '19.30 WIB', 'location' => 'Kantor PDM Kabupaten Jember'],
                                     ],
                                 ]],
-                                ['key' => 'galeri', 'content' => [
+                                ['key' => 'galeri', 'variant' => 'standar', 'content' => [
                                     'title' => 'Dokumentasi Kegiatan',
                                     'items' => [
                                         ['image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=600&q=80', 'caption' => 'Musyda ke-XII PDM Jember'],
@@ -1007,27 +1001,27 @@ class TemplateSeeder extends Seeder
                                         ['image' => 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80', 'caption' => 'Kajian rutin pimpinan daerah'],
                                     ],
                                 ]],
-                                ['key' => 'donasi-zakat-infak', 'content' => [
+                                ['key' => 'donasi-zakat-infak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lazismu Kabupaten Jember',
                                     'body' => 'Salurkan zakat, infak, wakaf, dan donasi kemanusiaan melalui Lazismu Kabupaten Jember untuk mendukung program dakwah, pendidikan, dan tanggap bencana di seluruh wilayah.',
                                     'image' => 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&w=600&q=80',
                                 ]],
-                                ['key' => 'cta', 'content' => [
+                                ['key' => 'cta', 'variant' => 'modern', 'content' => [
                                     'title' => 'Bersinergi Membangun Jember Berkemajuan',
                                     'subtitle' => 'Untuk Pimpinan Cabang, Ranting, Ortom, dan Amal Usaha yang ingin berkoordinasi dengan PDM Kabupaten Jember.',
                                     'cta_label' => 'Hubungi Sekretariat',
                                     'cta_type' => 'scroll',
                                     'cta_section' => 'formulir-kontak',
                                 ]],
-                                ['key' => 'formulir-kontak', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Sekretariat PDM',
                                     'subtitle' => 'Untuk koordinasi Pimpinan Cabang/Ranting, kemitraan Amal Usaha, atau pertanyaan umum, silakan hubungi kami.',
                                 ]],
-                                ['key' => 'lokasi-peta', 'content' => [
+                                ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kantor PDM Kabupaten Jember',
                                     'address' => 'Jl. Kh. Ahmad Dahlan No. 1, Kaliwates, Kabupaten Jember, Jawa Timur',
                                 ]],
-                                ['key' => 'footer'],
+                                ['key' => 'footer', 'variant' => 'standar'],
                             ],
                         ],
                     ],
