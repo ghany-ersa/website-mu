@@ -28,7 +28,6 @@ class OrganizationCmsTest extends TestCase
             ->post(route('organizations.posts.store', $organization), [
                 'title' => 'Kegiatan Bakti Sosial',
                 'category' => 'Kegiatan',
-                'excerpt' => 'Ringkasan singkat',
                 'body' => 'Isi lengkap berita',
                 'status' => 'published',
             ])

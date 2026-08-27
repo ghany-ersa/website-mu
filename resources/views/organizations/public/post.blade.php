@@ -8,7 +8,7 @@
     'organization' => $organization,
     'page' => (object) ['sections' => collect()],
     'metaTitle' => $post->title.' — '.$organization->name,
-    'metaDescription' => $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->body), 160),
+    'metaDescription' => \Illuminate\Support\Str::limit(strip_tags($post->body), 160),
     'metaImage' => $post->image,
     'body' => view('organizations.public._post-body', [
         'organization' => $organization,
@@ -17,7 +17,7 @@
         .view('organizations.public._article-jsonld', [
             'organization' => $organization,
             'title' => $post->title,
-            'description' => $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->body), 160),
+            'description' => \Illuminate\Support\Str::limit(strip_tags($post->body), 160),
             'image' => $post->image,
             'publishedAt' => $post->published_at,
         ])->render(),

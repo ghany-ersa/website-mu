@@ -42,8 +42,6 @@
                     </div>
                 </div>
 
-                <x-form.textarea-field name="excerpt" label="Ringkasan" :value="$post->excerpt" :rows="2" />
-
                 <x-form.richtext-field name="body" label="Isi Berita" :value="$post->body" />
 
                 <x-form.select-field name="status" label="Status"

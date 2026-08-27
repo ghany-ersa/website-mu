@@ -115,7 +115,9 @@ class OrganizationAnnouncementController extends Controller
             'status' => ['required', 'in:draft,published'],
         ]);
 
-        $data['body'] = $this->sanitizeRichText($data['body']);
+        if (array_key_exists('body', $data)) {
+            $data['body'] = $this->sanitizeRichText($data['body']);
+        }
 
         return $data;
     }

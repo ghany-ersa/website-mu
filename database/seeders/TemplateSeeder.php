@@ -62,9 +62,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Berita Terbaru',
                                     'items' => [
-                                        ['title' => 'Musycab PCM Ambulu Tetapkan Kepengurusan Baru', 'excerpt' => 'Musyawarah Cabang menghasilkan susunan pimpinan periode 2022-2027 dengan semangat berkemajuan.', 'category' => 'Organisasi', 'date' => '12 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Baksos Kesehatan Gratis untuk Warga Ambulu', 'excerpt' => 'PCM bersama Klinik Muhammadiyah Sehati menggelar pemeriksaan kesehatan gratis.', 'category' => 'Sosial', 'date' => '05 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelatihan Dai Muda Angkatan Ketiga Dibuka', 'excerpt' => 'Kaderisasi dai muda untuk memperkuat dakwah di tingkat ranting.', 'category' => 'Dakwah', 'date' => '28 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Musycab PCM Ambulu Tetapkan Kepengurusan Baru', 'category' => 'Organisasi', 'date' => '12 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Baksos Kesehatan Gratis untuk Warga Ambulu', 'category' => 'Sosial', 'date' => '05 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelatihan Dai Muda Angkatan Ketiga Dibuka', 'category' => 'Dakwah', 'date' => '28 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'agenda', 'content' => [
@@ -189,9 +189,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Berita Sekolah',
                                     'items' => [
-                                        ['title' => 'Siswa Raih Juara 1 Olimpiade Sains Kabupaten', 'excerpt' => 'Tim sains sekolah berhasil membawa pulang medali emas tingkat kabupaten.', 'category' => 'Prestasi', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Wisuda Tahfidz Angkatan ke-8', 'excerpt' => '48 siswa menyelesaikan target hafalan 2 juz tahun ini.', 'category' => 'Kegiatan', 'date' => '02 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Kunjungan Edukasi ke Museum Jember', 'excerpt' => 'Kelas 5 dan 6 mengikuti pembelajaran luar kelas bertema sejarah lokal.', 'category' => 'Kegiatan', 'date' => '25 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Siswa Raih Juara 1 Olimpiade Sains Kabupaten', 'category' => 'Prestasi', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Wisuda Tahfidz Angkatan ke-8', 'category' => 'Kegiatan', 'date' => '02 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Kunjungan Edukasi ke Museum Jember', 'category' => 'Kegiatan', 'date' => '25 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'formulir-kontak', 'content' => [
@@ -302,9 +302,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
-                                        ['title' => 'Pelantikan Pimpinan Cabang Periode 2026-2029', 'excerpt' => 'Pelantikan pengurus baru berlangsung khidmat di Aula PCM Ambulu.', 'category' => 'Organisasi', 'date' => '09 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelatihan Usaha Mikro untuk Anggota', 'excerpt' => 'Puluhan anggota mengikuti pelatihan pengelolaan usaha rumahan.', 'category' => 'Pemberdayaan', 'date' => '02 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Kajian Keputrian Bulanan Digelar', 'excerpt' => 'Kajian membahas peran perempuan dalam keluarga dan masyarakat.', 'category' => 'Dakwah', 'date' => '25 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pimpinan Cabang Periode 2026-2029', 'category' => 'Organisasi', 'date' => '09 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelatihan Usaha Mikro untuk Anggota', 'category' => 'Pemberdayaan', 'date' => '02 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Kajian Keputrian Bulanan Digelar', 'category' => 'Dakwah', 'date' => '25 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -360,9 +360,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
-                                        ['title' => 'Pelantikan Pengurus Baru Periode 2026-2029', 'excerpt' => 'Pelantikan berlangsung khidmat dihadiri jajaran PCM Ambulu.', 'category' => 'Organisasi', 'date' => '08 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Aksi Bersih Sungai Bersama Warga', 'excerpt' => 'Kegiatan gotong royong membersihkan aliran sungai di Desa Ambulu.', 'category' => 'Sosial', 'date' => '30 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelatihan Kewirausahaan Pemuda', 'excerpt' => 'Puluhan anggota mengikuti workshop bisnis digital selama dua hari.', 'category' => 'Pelatihan', 'date' => '20 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pengurus Baru Periode 2026-2029', 'category' => 'Organisasi', 'date' => '08 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Aksi Bersih Sungai Bersama Warga', 'category' => 'Sosial', 'date' => '30 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelatihan Kewirausahaan Pemuda', 'category' => 'Pelatihan', 'date' => '20 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -418,9 +418,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
-                                        ['title' => 'Atlet Tapak Suci Ambulu Raih Juara 1 Kejuaraan Daerah', 'excerpt' => 'Tim pencak silat berhasil membawa pulang medali emas kategori tanding.', 'category' => 'Prestasi', 'date' => '11 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Ujian Kenaikan Sabuk Angkatan ke-14', 'excerpt' => '32 anggota mengikuti ujian kenaikan tingkat sabuk kuning ke hijau.', 'category' => 'Kegiatan', 'date' => '03 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pembukaan Pendaftaran Anggota Baru', 'excerpt' => 'Latihan perdana bagi anggota baru dimulai awal bulan depan.', 'category' => 'Pengumuman', 'date' => '27 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Atlet Tapak Suci Ambulu Raih Juara 1 Kejuaraan Daerah', 'category' => 'Prestasi', 'date' => '11 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Ujian Kenaikan Sabuk Angkatan ke-14', 'category' => 'Kegiatan', 'date' => '03 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pembukaan Pendaftaran Anggota Baru', 'category' => 'Pengumuman', 'date' => '27 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -476,9 +476,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
-                                        ['title' => 'Perkemahan Akbar Qabilah Ambulu', 'excerpt' => '120 anggota mengikuti perkemahan tiga hari di kaki Gunung Raung.', 'category' => 'Kegiatan', 'date' => '07 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelantikan Pandu Athfal Angkatan Baru', 'excerpt' => 'Pelantikan diikuti oleh 40 anggota baru jenjang Athfal.', 'category' => 'Organisasi', 'date' => '31 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelatihan Pertolongan Pertama Lapangan', 'excerpt' => 'Pembekalan keterampilan P3K dasar bagi pandu penghela.', 'category' => 'Pelatihan', 'date' => '22 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Perkemahan Akbar Qabilah Ambulu', 'category' => 'Kegiatan', 'date' => '07 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pandu Athfal Angkatan Baru', 'category' => 'Organisasi', 'date' => '31 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelatihan Pertolongan Pertama Lapangan', 'category' => 'Pelatihan', 'date' => '22 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -534,9 +534,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
-                                        ['title' => 'Darul Arqam Dasar Angkatan XII Digelar', 'excerpt' => 'Pelatihan kader dasar diikuti 60 mahasiswa baru anggota IMM.', 'category' => 'Kaderisasi', 'date' => '06 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Diskusi Publik Isu Kebijakan Kampus', 'excerpt' => 'IMM mengundang akademisi untuk membahas isu pendidikan tinggi.', 'category' => 'Advokasi', 'date' => '29 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Bakti Sosial Mahasiswa untuk Desa Binaan', 'excerpt' => 'Kegiatan pengabdian masyarakat di desa binaan IMM Ambulu.', 'category' => 'Sosial', 'date' => '18 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Darul Arqam Dasar Angkatan XII Digelar', 'category' => 'Kaderisasi', 'date' => '06 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Diskusi Publik Isu Kebijakan Kampus', 'category' => 'Advokasi', 'date' => '29 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Bakti Sosial Mahasiswa untuk Desa Binaan', 'category' => 'Sosial', 'date' => '18 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -593,9 +593,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Berita Terbaru',
                                     'items' => [
-                                        ['title' => 'Pelantikan Pimpinan Cabang Aisyiyah Ambulu', 'excerpt' => 'Pelantikan pengurus baru periode 2022-2027 berlangsung khidmat.', 'category' => 'Organisasi', 'date' => '11 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelatihan Usaha Mikro bagi Anggota', 'excerpt' => 'Puluhan anggota mengikuti pelatihan pengelolaan usaha rumahan.', 'category' => 'Pemberdayaan', 'date' => '04 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Wisuda TK Aisyiyah Bustanul Athfal', 'excerpt' => '60 siswa TK Aisyiyah mengikuti prosesi wisuda tahun ajaran ini.', 'category' => 'Pendidikan', 'date' => '27 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pimpinan Cabang Aisyiyah Ambulu', 'category' => 'Organisasi', 'date' => '11 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelatihan Usaha Mikro bagi Anggota', 'category' => 'Pemberdayaan', 'date' => '04 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Wisuda TK Aisyiyah Bustanul Athfal', 'category' => 'Pendidikan', 'date' => '27 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -700,8 +700,8 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'pengumuman', 'content' => [
                                     'title' => 'Pengumuman Penting',
                                     'items' => [
-                                        ['title' => 'Renovasi Tempat Wudu Dimulai Pekan Depan', 'excerpt' => 'Mohon maaf atas ketidaknyamanan selama masa renovasi.', 'date' => '14 Agt 2026'],
-                                        ['title' => 'Jadwal Imam dan Khatib Jumat Bulan Ini', 'excerpt' => 'Silakan cek papan pengumuman masjid untuk jadwal lengkap.', 'date' => '10 Agt 2026'],
+                                        ['title' => 'Renovasi Tempat Wudu Dimulai Pekan Depan', 'date' => '14 Agt 2026'],
+                                        ['title' => 'Jadwal Imam dan Khatib Jumat Bulan Ini', 'date' => '10 Agt 2026'],
                                     ],
                                 ]],
                                 ['key' => 'jadwal-kajian', 'content' => [
@@ -765,9 +765,9 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Publikasi Terbaru',
                                     'items' => [
-                                        ['title' => 'Pelantikan Pimpinan Ranting IPM SMP Muhammadiyah 2', 'excerpt' => 'Pelantikan pengurus ranting baru periode 2026-2027.', 'category' => 'Organisasi', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Lomba Karya Tulis Pelajar Se-Ambulu', 'excerpt' => 'Diikuti oleh pelajar dari lima sekolah Muhammadiyah di Ambulu.', 'category' => 'Literasi', 'date' => '01 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pentas Seni dan Kreativitas Pelajar', 'excerpt' => 'Ajang unjuk bakat musik, tari, dan teater pelajar Muhammadiyah.', 'category' => 'Kegiatan', 'date' => '24 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pimpinan Ranting IPM SMP Muhammadiyah 2', 'category' => 'Organisasi', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Lomba Karya Tulis Pelajar Se-Ambulu', 'category' => 'Literasi', 'date' => '01 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pentas Seni dan Kreativitas Pelajar', 'category' => 'Kegiatan', 'date' => '24 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'cta', 'content' => [
@@ -778,6 +778,66 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'formulir-kontak', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'subtitle' => 'Ingin tahu lebih lanjut tentang kegiatan IPM?',
+                                ]],
+                                ['key' => 'footer'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'organization_type_slug' => 'muhammadiyah',
+                'name' => 'Portal Berita',
+                'slug' => 'portal-berita',
+                'description' => 'Template untuk organisasi yang fokus menerbitkan berita dan artikel: headline utama, kategori berita, dan ajakan mengikuti kabar terbaru.',
+                'structure' => [
+                    'sample_org_name' => 'Warta Muhammadiyah Jember',
+                    'brand' => ['primary' => '#2C368B', 'secondary' => '#079C4E'],
+                    'pages' => [
+                        [
+                            'slug' => 'home',
+                            'name' => 'Beranda',
+                            'sections' => [
+                                ['key' => 'header'],
+                                ['key' => 'hero', 'variant' => 'headline-berita', 'content' => [
+                                    'badge' => 'Headline',
+                                    'headline' => 'Musyda ke-XII Tetapkan Arah Gerak Muhammadiyah Jember 2022-2027',
+                                    'subheadline' => 'Musyawarah Daerah menghasilkan pokok pikiran strategis dan susunan Pimpinan Daerah untuk lima tahun mendatang, dengan penekanan pada penguatan dakwah digital dan jaringan Amal Usaha.',
+                                    'cta_label' => 'Baca Selengkapnya',
+                                    'cta_type' => 'scroll',
+                                    'cta_section' => 'daftar-berita',
+                                    'image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=1400&q=80',
+                                ]],
+                                // category_filter keeps this disjoint from the 'opini' section below once
+                                // real posts exist — an organization's post authors need to type "Berita"
+                                // (not "Opini") into a post's Kategori field for it to show up here.
+                                ['key' => 'daftar-berita', 'variant' => 'ringkas', 'content' => [
+                                    'title' => 'Kabar Persyarikatan',
+                                    'category_filter' => 'Berita',
+                                    'items' => [
+                                        ['title' => 'Rakor Lazismu dan MDMC Perkuat Kesiapsiagaan Bencana', 'category' => 'Kemanusiaan', 'date' => '14 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'RS Muhammadiyah Resmikan Gedung Layanan Terpadu', 'category' => 'Amal Usaha', 'date' => '10 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelatihan Dai Muda Angkatan Ketiga Dibuka', 'category' => 'Dakwah', 'date' => '05 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pimpinan Cabang Digelar Serentak', 'category' => 'Organisasi', 'date' => '28 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Baksos Kesehatan Gratis untuk Warga Ambulu', 'category' => 'Sosial', 'date' => '12 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Silaturahmi Akbar Pimpinan Ranting se-Kabupaten', 'category' => 'Organisasi', 'date' => '29 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&w=700&q=80'],
+                                    ],
+                                ]],
+                                // category_filter keeps this disjoint from the 'ringkas' section above —
+                                // an organization's post authors need to type "Opini" into a post's
+                                // Kategori field for it to show up here instead of Kabar Persyarikatan.
+                                ['key' => 'daftar-berita', 'variant' => 'mozaik', 'content' => [
+                                    'title' => 'Opini',
+                                    'category_filter' => 'Opini',
+                                    'items' => [
+                                        ['title' => 'Dakwah Digital: Tantangan dan Peluang bagi Generasi Muda Muhammadiyah', 'category' => 'Opini', 'date' => '13 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Menjaga Semangat Berkemajuan di Tengah Arus Perubahan Zaman', 'category' => 'Opini', 'date' => '08 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Ekonomi Umat Berbasis Ranting: Belajar dari Praktik Baik Persyarikatan', 'category' => 'Opini', 'date' => '02 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=80'],
+                                    ],
+                                ]],
+                                ['key' => 'formulir-kontak', 'content' => [
+                                    'title' => 'Kirim Informasi atau Tips Berita',
+                                    'subtitle' => 'Punya informasi kegiatan yang ingin diliput? Kirimkan kepada redaksi kami.',
                                 ]],
                                 ['key' => 'footer'],
                             ],
@@ -920,10 +980,10 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'content' => [
                                     'title' => 'Warta Daerah',
                                     'items' => [
-                                        ['title' => 'Musyda ke-XII Tetapkan Arah Gerak Muhammadiyah Jember 2022-2027', 'excerpt' => 'Musyawarah Daerah menghasilkan pokok pikiran strategis dan susunan Pimpinan Daerah untuk lima tahun mendatang.', 'category' => 'Organisasi', 'date' => '14 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'RS Muhammadiyah Jember Resmikan Gedung Layanan Terpadu', 'excerpt' => 'Perluasan layanan kesehatan sebagai bagian dari penguatan AUM Kesehatan di wilayah Tapal Kuda.', 'category' => 'Amal Usaha', 'date' => '07 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Rakor Lazismu dan MDMC Jember Perkuat Kesiapsiagaan Bencana', 'excerpt' => 'Koordinasi lintas lembaga memperkuat jalur distribusi bantuan cepat tanggap se-Kabupaten Jember.', 'category' => 'Kemanusiaan', 'date' => '30 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
-                                        ['title' => 'Pelantikan Pimpinan Cabang se-Kabupaten Jember Digelar Serentak', 'excerpt' => 'Sebanyak 31 Pimpinan Cabang dilantik dalam satu rangkaian acara di Aula PDM.', 'category' => 'Organisasi', 'date' => '21 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Musyda ke-XII Tetapkan Arah Gerak Muhammadiyah Jember 2022-2027', 'category' => 'Organisasi', 'date' => '14 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'RS Muhammadiyah Jember Resmikan Gedung Layanan Terpadu', 'category' => 'Amal Usaha', 'date' => '07 Agt 2026', 'image' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Rakor Lazismu dan MDMC Jember Perkuat Kesiapsiagaan Bencana', 'category' => 'Kemanusiaan', 'date' => '30 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80'],
+                                        ['title' => 'Pelantikan Pimpinan Cabang se-Kabupaten Jember Digelar Serentak', 'category' => 'Organisasi', 'date' => '21 Jul 2026', 'image' => 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=700&q=80'],
                                     ],
                                 ]],
                                 ['key' => 'agenda', 'content' => [

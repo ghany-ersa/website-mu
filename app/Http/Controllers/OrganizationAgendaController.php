@@ -117,7 +117,9 @@ class OrganizationAgendaController extends Controller
             'status' => ['required', 'in:draft,published'],
         ]);
 
-        $data['description'] = $this->sanitizeRichText($data['description']);
+        if (array_key_exists('description', $data)) {
+            $data['description'] = $this->sanitizeRichText($data['description']);
+        }
 
         return $data;
     }

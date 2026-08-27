@@ -28,7 +28,6 @@ class PostFactory extends Factory
             'slug' => str($title)->slug().'-'.fake()->unique()->numberBetween(1, 100000),
             'category' => fake()->randomElement(['Kegiatan', 'Pengumuman', 'Prestasi']),
             'image' => null,
-            'excerpt' => fake()->sentence(),
             'body' => fake()->paragraphs(3, true),
             'status' => PublishStatus::Draft,
             'published_at' => null,

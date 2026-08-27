@@ -127,12 +127,13 @@ class OrganizationPostController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'image' => ['nullable', 'string'],
-            'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['nullable', 'string'],
             'status' => ['required', 'in:draft,published'],
         ]);
 
-        $data['body'] = $this->sanitizeRichText($data['body']);
+        if (array_key_exists('body', $data)) {
+            $data['body'] = $this->sanitizeRichText($data['body']);
+        }
 
         return $data;
     }

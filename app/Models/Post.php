@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'slug',
     'category',
     'image',
-    'excerpt',
     'body',
     'status',
     'published_at',

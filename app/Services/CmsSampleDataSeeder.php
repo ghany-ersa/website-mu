@@ -96,9 +96,9 @@ class CmsSampleDataSeeder
         }
 
         $samples = [
-            ['title' => 'Contoh Berita Kegiatan', 'category' => 'Kegiatan', 'excerpt' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
-            ['title' => 'Contoh Berita Pengumuman Program', 'category' => 'Program', 'excerpt' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
-            ['title' => 'Contoh Berita Sosial Kemasyarakatan', 'category' => 'Sosial', 'excerpt' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
+            ['title' => 'Contoh Berita Kegiatan', 'category' => 'Kegiatan', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
+            ['title' => 'Contoh Berita Pengumuman Program', 'category' => 'Program', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
+            ['title' => 'Contoh Berita Sosial Kemasyarakatan', 'category' => 'Sosial', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
         ];
 
         $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'posts', count($samples)));
@@ -114,8 +114,7 @@ class CmsSampleDataSeeder
             'title' => $sample['title'],
             'slug' => str($sample['title'])->slug().'-'.$organization->id.'-'.$index,
             'category' => $sample['category'],
-            'excerpt' => $sample['excerpt'],
-            'body' => '<p>'.$sample['excerpt'].'</p>',
+            'body' => '<p>'.$sample['body'].'</p>',
             'status' => PublishStatus::Published->value,
             'published_at' => $now,
             'created_at' => $now,
