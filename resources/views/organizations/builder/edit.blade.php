@@ -610,7 +610,7 @@
                                 @endphp
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tampilan</label>
-                                    <select name="variant"
+                                    <select name="variant" @change="saveSection($event.target.form, $data)"
                                         class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                         @foreach (array_keys($variantOptions) as $variantKey)
                                             <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)>
