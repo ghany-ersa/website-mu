@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\BuilderAware;
+use App\Http\Controllers\Concerns\SanitizesRichText;
 use App\Models\Agenda;
 use App\Models\Organization;
 use App\Services\PlanLimitService;
@@ -13,6 +14,7 @@ use Illuminate\View\View;
 class OrganizationAgendaController extends Controller
 {
     use BuilderAware;
+    use SanitizesRichText;
 
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
@@ -105,7 +107,7 @@ class OrganizationAgendaController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'starts_at' => ['required', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
@@ -114,6 +116,10 @@ class OrganizationAgendaController extends Controller
             'registration_url' => ['nullable', 'url', 'max:255'],
             'status' => ['required', 'in:draft,published'],
         ]);
+
+        $data['description'] = $this->sanitizeRichText($data['description']);
+
+        return $data;
     }
 
     private function ensureBelongsToOrganization(Organization $organization, Agenda $agenda): void

@@ -16,7 +16,7 @@
                 <p class="text-sm text-gray-500 mb-4">Berlaku hingga {{ $announcement->valid_until->translatedFormat('d M Y') }}</p>
             @endif
             <div class="prose max-w-none text-gray-700 leading-relaxed">
-                {!! nl2br(e($announcement->body)) !!}
+                {!! $announcement->body !!}
             </div>
         </div>
     </div>

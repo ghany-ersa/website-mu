@@ -1,0 +1,73 @@
+/*
+ * Minimal, hand-written styling for the Tiptap CMS editor — deliberately not routed through
+ * the Tailwind pipeline (see plan decisions) so this stays a narrow Vite entry that coexists
+ * with the Tailwind CDN script already loaded by resources/views/layouts/organization.blade.php,
+ * instead of shipping a second full Tailwind build onto the same page.
+ */
+
+.richtext-editor .ProseMirror {
+    outline: none;
+    min-height: 8rem;
+}
+
+.richtext-editor .ProseMirror p {
+    margin: 0 0 0.75em;
+}
+
+.richtext-editor .ProseMirror p:last-child {
+    margin-bottom: 0;
+}
+
+.richtext-editor .ProseMirror h2 {
+    font-size: 1.25em;
+    font-weight: 700;
+    margin: 0.75em 0 0.5em;
+}
+
+.richtext-editor .ProseMirror h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0.75em 0 0.5em;
+}
+
+.richtext-editor .ProseMirror ul,
+.richtext-editor .ProseMirror ol {
+    padding-left: 1.25em;
+    margin: 0 0 0.75em;
+}
+
+.richtext-editor .ProseMirror blockquote {
+    border-left: 3px solid #d1d5db;
+    padding-left: 0.75em;
+    margin: 0 0 0.75em;
+    color: #4b5563;
+}
+
+.richtext-editor .ProseMirror a {
+    color: #2c368b;
+    text-decoration: underline;
+}
+
+.richtext-editor [data-richtext-toolbar] button {
+    min-width: 2rem;
+    min-height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #4b5563;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.richtext-editor [data-richtext-toolbar] button:hover {
+    background: #e5e7eb;
+}
+
+.richtext-editor [data-richtext-toolbar] button.is-active {
+    background: #2c368b;
+    color: #ffffff;
+}

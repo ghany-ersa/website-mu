@@ -21,7 +21,7 @@
             <x-ui.card>
                 <x-form.field name="title" label="Judul" :value="$announcement->title" required />
 
-                <x-form.textarea-field name="body" label="Isi Pengumuman" :value="$announcement->body" :rows="4" />
+                <x-form.richtext-field name="body" label="Isi Pengumuman" :value="$announcement->body" />
 
                 <x-form.select-field name="priority" label="Prioritas"
                     :options="collect(['Rendah', 'Sedang', 'Tinggi'])->mapWithKeys(fn ($priority) => [$priority => $priority])"

@@ -44,7 +44,7 @@
 
                 <x-form.textarea-field name="excerpt" label="Ringkasan" :value="$post->excerpt" :rows="2" />
 
-                <x-form.textarea-field name="body" label="Isi Berita" :value="$post->body" :rows="8" />
+                <x-form.richtext-field name="body" label="Isi Berita" :value="$post->body" />
 
                 <x-form.select-field name="status" label="Status"
                     :options="collect(\App\Enums\PublishStatus::cases())->mapWithKeys(fn ($status) => [$status->value => $status->label()])"

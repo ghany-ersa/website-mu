@@ -18,7 +18,7 @@
 
                 @if ($agenda->description)
                     <div class="prose max-w-none text-gray-700 leading-relaxed mb-4">
-                        {!! nl2br(e($agenda->description)) !!}
+                        {!! $agenda->description !!}
                     </div>
                 @endif
 

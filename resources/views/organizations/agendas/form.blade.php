@@ -28,7 +28,7 @@
 
                 <x-form.field name="contact_person" label="Narahubung" :value="$agenda->contact_person" />
 
-                <x-form.textarea-field name="description" label="Deskripsi" :value="$agenda->description" />
+                <x-form.richtext-field name="description" label="Deskripsi" :value="$agenda->description" />
 
                 <x-form.field type="url" name="registration_url" label="Tautan Pendaftaran"
                     :value="$agenda->registration_url" placeholder="https://…" />

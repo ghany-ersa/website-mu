@@ -20,7 +20,7 @@
         @endif
 
         <div class="prose max-w-none text-gray-700 leading-relaxed">
-            {!! nl2br(e($post->body)) !!}
+            {!! $post->body !!}
         </div>
     </div>
 </article>

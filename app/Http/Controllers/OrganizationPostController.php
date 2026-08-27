@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\PublishStatus;
 use App\Http\Controllers\Concerns\BuilderAware;
+use App\Http\Controllers\Concerns\SanitizesRichText;
 use App\Models\Organization;
 use App\Models\Post;
 use App\Services\PlanLimitService;
@@ -15,6 +16,7 @@ use Illuminate\View\View;
 class OrganizationPostController extends Controller
 {
     use BuilderAware;
+    use SanitizesRichText;
 
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
@@ -121,7 +123,7 @@ class OrganizationPostController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'image' => ['nullable', 'string'],
@@ -129,6 +131,10 @@ class OrganizationPostController extends Controller
             'body' => ['nullable', 'string'],
             'status' => ['required', 'in:draft,published'],
         ]);
+
+        $data['body'] = $this->sanitizeRichText($data['body']);
+
+        return $data;
     }
 
     private function uniqueSlug(Organization $organization, string $title): string
