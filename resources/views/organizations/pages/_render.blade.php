@@ -6,7 +6,10 @@
 @foreach ($page->sectionsInDisplayOrder() as $section)
     @if ($section->is_visible)
         <div id="canvas-section-{{ $section->id }}">
-            @includeFirst(['templates.sections.'.$section->key, 'templates.sections._missing'], ['section' => $section, 'organization' => $organization, 'page' => $page])
+            @includeFirst([
+                \App\Services\SectionVariantResolver::resolve($section->key, $section->variant, organization: $organization),
+                'templates.sections._missing',
+            ], ['section' => $section, 'organization' => $organization, 'page' => $page])
         </div>
     @endif
 @endforeach

@@ -22,6 +22,14 @@
 // inline in the builder) — both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
 // sidebar menu read `cms.route`/`cms.label`/`cms.params` from here instead of each hardcoding
 // their own section-key -> route/label map.
+//
+// `variants` + `default_variant`, when present, let a section render as one of several distinct
+// layouts (not just brand colors) instead of the single partial at
+// resources/views/templates/sections/{key}.blade.php — `variants` maps a variant name to a view
+// path under resources/views/templates/sections/{key}/{variant}.blade.php. Which variant renders
+// is resolved by App\Services\SectionVariantResolver from (in order) the section's own `variant`
+// column, the owning template's legacy `structure.exclusive` flag, then `default_variant`. A
+// section with no `variants` key here has exactly one look and is unaffected by any of this.
 return [
 
     'sections' => [
@@ -37,6 +45,11 @@ return [
                 'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
                 'cta_secondary_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
             ],
+            'variants' => [
+                'standar' => 'templates.sections.hero.standar',
+                'exclusive' => 'templates.sections.hero.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
         'header' => [
             'label' => 'Header',
@@ -63,22 +76,42 @@ return [
                     ['value' => '5+', 'label' => 'Program Aktif'],
                 ],
             ],
+            'variants' => [
+                'standar' => 'templates.sections.tentang-organisasi.standar',
+                'exclusive' => 'templates.sections.tentang-organisasi.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
         'sambutan-ketua' => [
             'label' => 'Sambutan Ketua',
             'fields' => ['nama', 'jabatan', 'sambutan', 'photo'],
+            'variants' => [
+                'standar' => 'templates.sections.sambutan-ketua.standar',
+                'exclusive' => 'templates.sections.sambutan-ketua.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
         'struktur-pengurus' => [
             'label' => 'Struktur Pengurus',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Struktur Pengurus'],
             'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
+            'variants' => [
+                'standar' => 'templates.sections.struktur-pengurus.standar',
+                'exclusive' => 'templates.sections.struktur-pengurus.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
         'program-unggulan' => [
             'label' => 'Program Unggulan',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Program Unggulan'],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Program', 'params' => ['type' => 'program']],
+            'variants' => [
+                'standar' => 'templates.sections.program-unggulan.standar',
+                'exclusive' => 'templates.sections.program-unggulan.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
         'layanan' => [
             'label' => 'Layanan',
@@ -97,6 +130,11 @@ return [
             'fields' => ['title', 'items', 'limit'],
             'defaults' => ['title' => 'Berita Terbaru'],
             'cms' => ['route' => 'organizations.posts.index', 'label' => 'Berita'],
+            'variants' => [
+                'standar' => 'templates.sections.daftar-berita.standar',
+                'exclusive' => 'templates.sections.daftar-berita.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
         'agenda' => [
             'label' => 'Agenda',
@@ -169,6 +207,11 @@ return [
                 'title' => 'Mari Bergabung',
                 'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
             ],
+            'variants' => [
+                'standar' => 'templates.sections.cta.standar',
+                'exclusive' => 'templates.sections.cta.exclusive',
+            ],
+            'default_variant' => 'standar',
         ],
     ],
 

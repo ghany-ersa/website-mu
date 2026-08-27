@@ -68,6 +68,9 @@
     </style>
 </head>
 <body class="bg-white text-gray-800">
-    @includeFirst(['templates.sections.'.$key, 'templates.sections._missing'], ['section' => $section + ['key' => $key]])
+    @includeFirst([
+        \App\Services\SectionVariantResolver::resolve($key, null, organization: $brand),
+        'templates.sections._missing',
+    ], ['section' => $section + ['key' => $key]])
 </body>
 </html>

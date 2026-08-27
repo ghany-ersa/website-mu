@@ -1,1 +1,1 @@
-@include('templates.sections.agenda', ['section' => $section])
+@include(\App\Services\SectionVariantResolver::resolve('agenda', $section['variant'] ?? null), ['section' => $section])
