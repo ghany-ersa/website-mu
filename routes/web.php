@@ -60,7 +60,7 @@ Route::get('/', function () {
         ->get();
 
     return view('welcome', ['templates' => $templates, 'plans' => $plans]);
-});
+})->name('home');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
@@ -169,6 +169,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.plan.edit');
         Route::post('organizations/{organization}/plan', [OrganizationPlanController::class, 'store'])
             ->name('organizations.plan.store');
+        Route::post('organizations/{organization}/plan/apply-discount', [OrganizationPlanController::class, 'applyDiscount'])
+            ->name('organizations.plan.apply-discount');
         Route::post('organizations/{organization}/plan/{planChangeRequest}/confirm-payment', [OrganizationPlanController::class, 'confirmPayment'])
             ->name('organizations.plan.confirm-payment');
     });
