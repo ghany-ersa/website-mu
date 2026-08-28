@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\PlanChangeRequest;
 use App\Services\PlanLimitService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -103,14 +104,7 @@ class OrganizationPlanController extends Controller
         $discountAmount = 0;
 
         if (filled($validated['discount_code'] ?? null)) {
-            $discountCode = DiscountCode::whereRaw('lower(code) = ?', [strtolower($validated['discount_code'])])->first();
-
-            if (! $discountCode || ! $discountCode->isUsable()) {
-                throw ValidationException::withMessages([
-                    'discount_code' => 'Kode diskon tidak valid atau sudah tidak berlaku.',
-                ]);
-            }
-
+            $discountCode = $this->findUsableDiscountCode($validated['discount_code']);
             $discountAmount = $discountCode->amountFor($plan->priceForDuration($validated['duration_months']));
         }
 
@@ -130,6 +124,49 @@ class OrganizationPlanController extends Controller
         return redirect()
             ->route('organizations.plan.edit', $organization)
             ->with('status', 'Permintaan pergantian paket berhasil dikirim. Silakan lakukan pembayaran dan konfirmasi di bawah.');
+    }
+
+    /**
+     * Live-validates a voucher against the plan/duration currently picked in the form, so the
+     * owner sees the real discount before submitting rather than only "verified at submission."
+     * Doesn't touch any records — the code is re-validated again in store() as the final guard.
+     */
+    public function applyDiscount(Request $request, Organization $organization): JsonResponse
+    {
+        $this->authorize('manageBilling', $organization);
+
+        $validated = $request->validate([
+            'discount_code' => ['required', 'string', 'max:50'],
+            'plan_id' => ['required', Rule::exists('plans', 'id')->where('is_active', true)],
+            'duration_months' => ['required', 'integer', Rule::in([3, 6, 12])],
+        ]);
+
+        $discountCode = $this->findUsableDiscountCode($validated['discount_code']);
+        $plan = Plan::findOrFail($validated['plan_id']);
+        $amount = $discountCode->amountFor($plan->priceForDuration($validated['duration_months']));
+
+        return response()->json([
+            'code' => $discountCode->code,
+            'type' => $discountCode->type->value,
+            'value' => $discountCode->value,
+            'amount' => $amount,
+        ]);
+    }
+
+    /**
+     * @throws ValidationException if no active, in-window, under-cap code matches.
+     */
+    private function findUsableDiscountCode(string $code): DiscountCode
+    {
+        $discountCode = DiscountCode::whereRaw('lower(code) = ?', [strtolower($code)])->first();
+
+        if (! $discountCode || ! $discountCode->isUsable()) {
+            throw ValidationException::withMessages([
+                'discount_code' => 'Kode diskon tidak valid atau sudah tidak berlaku.',
+            ]);
+        }
+
+        return $discountCode;
     }
 
     /**

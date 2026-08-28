@@ -132,7 +132,11 @@
                     <p class="font-bold text-blue-900">Menunggu Verifikasi Admin</p>
                     <p class="text-sm text-blue-700 mt-1 leading-relaxed">
                         Terima kasih, konfirmasi pembayaran Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
-                        ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }})
+                        ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}
+                        @if ($pendingRequest->discount_amount > 0)
+                            , voucher "{{ $pendingRequest->discountCode?->code }}" diterapkan
+                        @endif
+                        )
                         sudah kami terima dan sedang diverifikasi admin. Paket akan aktif begitu diverifikasi &mdash; biasanya dalam 1x24 jam.
                     </p>
                 </div>
@@ -156,6 +160,20 @@
                 </div>
 
                 <div class="bg-white/70 rounded-2xl p-5 space-y-4" x-data="{ copied: null }">
+                    @if ($pendingRequest->discount_amount > 0)
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-amber-700">
+                                Subtotal
+                                @if ($pendingRequest->discountCode)
+                                    &middot; voucher "{{ $pendingRequest->discountCode->code }}"
+                                @endif
+                            </span>
+                            <span class="text-amber-700">
+                                <span class="line-through text-amber-400">Rp {{ number_format($pendingRequest->subtotal(), 0, ',', '.') }}</span>
+                                &minus; Rp {{ number_format($pendingRequest->discount_amount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endif
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-semibold text-amber-800 uppercase tracking-wide">Total Tagihan</span>
                         <span class="text-lg font-extrabold text-amber-900">Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}</span>
@@ -197,17 +215,60 @@
                       "plans": @json($plansForConfirm),
                       "duration": 3,
                       "discountCode": "",
+                      "appliedDiscount": null,
+                      "applyingDiscount": false,
+                      "discountError": "",
                       "planExpiresAt": {{ $planExpiresAt ? '"'.$planExpiresAt.'"' : 'null' }},
+                      "applyDiscountUrl": "{{ route('organizations.plan.apply-discount', $organization) }}",
+                      "csrfToken": "{{ csrf_token() }}",
                       price(id) { return this.plans[id]?.prices?.[this.duration] ?? 0; },
                       discountPercent(id, months = this.duration) { return this.plans[id]?.discounts?.[months] ?? 0; },
                       savings(id) { return this.plans[id]?.savings?.[this.duration] ?? 0; },
                       formatRupiah(n) { return n === 0 ? "Gratis" : ("Rp " + n.toLocaleString("id-ID")); },
+                      finalTotal(id) { return Math.max(0, this.price(id) - (this.appliedDiscount?.amount ?? 0)); },
                       activeUntilLabel() {
                           const baseline = (this.planExpiresAt && new Date(this.planExpiresAt) > new Date()) ? new Date(this.planExpiresAt) : new Date();
                           baseline.setMonth(baseline.getMonth() + this.duration);
                           return baseline.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+                      },
+                      async applyDiscount() {
+                          if (! this.discountCode.trim() || ! this.selected) return;
+                          this.applyingDiscount = true;
+                          this.discountError = "";
+                          let res;
+                          try {
+                              res = await fetch(this.applyDiscountUrl, {
+                                  method: "POST",
+                                  headers: {
+                                      "Content-Type": "application/json",
+                                      "Accept": "application/json",
+                                      "X-CSRF-TOKEN": this.csrfToken,
+                                  },
+                                  body: JSON.stringify({ discount_code: this.discountCode, plan_id: this.selected, duration_months: this.duration }),
+                              });
+                          } catch (e) {
+                              this.discountError = "Tidak dapat terhubung ke internet. Periksa koneksi Anda dan coba lagi.";
+                              this.appliedDiscount = null;
+                              this.applyingDiscount = false;
+                              return;
+                          }
+                          try {
+                              const data = await res.json();
+                              if (! res.ok) {
+                                  this.discountError = data.errors?.discount_code?.[0] ?? "Kode diskon tidak valid atau sudah tidak berlaku.";
+                                  this.appliedDiscount = null;
+                                  return;
+                              }
+                              this.appliedDiscount = data;
+                          } catch (e) {
+                              this.discountError = "Yaaah... Coba voucher lagi nanti, ya.";
+                              this.appliedDiscount = null;
+                          } finally {
+                              this.applyingDiscount = false;
+                          }
                       }
-                  }'>
+                  }'
+                  x-init="$watch('selected', () => { appliedDiscount = null; discountError = '' }); $watch('duration', () => { appliedDiscount = null; discountError = '' })">
                 @csrf
 
                 {{-- Mobile: horizontal snap-scroll carousel (one card per swipe). Desktop (sm+): plain 2-col grid, no scrolling needed. --}}
@@ -333,10 +394,27 @@
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2" for="discount_code">
                             Kode Voucher <span class="font-normal normal-case text-gray-400">(opsional)</span>
                         </label>
-                        <input type="text" name="discount_code" id="discount_code" x-model="discountCode"
-                               value="{{ old('discount_code') }}"
-                               placeholder="Masukkan kode jika ada"
-                               class="w-full sm:w-64 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        <div class="flex items-center gap-2">
+                            <input type="text" name="discount_code" id="discount_code"
+                                   x-model="discountCode"
+                                   @input="appliedDiscount = null; discountError = ''"
+                                   value="{{ old('discount_code') }}"
+                                   placeholder="Masukkan kode jika ada"
+                                   class="w-full sm:w-64 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary/30">
+                            <button type="button" @click="applyDiscount()"
+                                    :disabled="!discountCode.trim() || !selected || applyingDiscount || appliedDiscount"
+                                    class="shrink-0 px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span x-show="!applyingDiscount" x-text="appliedDiscount ? 'Diterapkan' : 'Terapkan'"></span>
+                                <span x-show="applyingDiscount" x-cloak>Memeriksa&hellip;</span>
+                            </button>
+                        </div>
+                        <p x-show="!selected" class="text-xs text-gray-400 mt-1.5">Pilih paket terlebih dahulu untuk menerapkan voucher.</p>
+                        <template x-if="appliedDiscount">
+                            <p class="text-xs text-secondary font-semibold mt-1.5">
+                                Voucher "<span x-text="appliedDiscount.code"></span>" diterapkan &mdash; hemat <span x-text="formatRupiah(appliedDiscount.amount)"></span>.
+                            </p>
+                        </template>
+                        <p x-show="discountError" x-text="discountError" class="text-xs text-red-500 mt-1.5"></p>
                         @error('discount_code') <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p> @enderror
                     </div>
 
@@ -349,9 +427,15 @@
                             <div>
                                 <p class="text-xs text-gray-400">Total untuk <span x-text="plans[selected]?.name"></span> &middot; <span x-text="duration"></span> bulan</p>
                                 <p class="text-xl font-extrabold text-gray-900 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                                    <span x-text="formatRupiah(price(selected))"></span>
+                                    <template x-if="appliedDiscount">
+                                        <span class="text-sm font-semibold text-gray-400 line-through" x-text="formatRupiah(price(selected))"></span>
+                                    </template>
+                                    <span x-text="formatRupiah(finalTotal(selected))"></span>
                                     <template x-if="savings(selected) > 0">
                                         <span class="text-xs font-bold text-secondary" x-text="'Hemat Rp ' + savings(selected).toLocaleString('id-ID')"></span>
+                                    </template>
+                                    <template x-if="appliedDiscount">
+                                        <span class="text-xs font-bold text-amber-600" x-text="'+ voucher Rp ' + appliedDiscount.amount.toLocaleString('id-ID')"></span>
                                     </template>
                                 </p>
                             </div>
@@ -407,13 +491,23 @@
                                         <span>Subtotal</span>
                                         <span class="font-semibold text-gray-800" x-text="formatRupiah(price(selected))"></span>
                                     </div>
-                                    <template x-if="discountCode.trim() !== ''">
+                                    <template x-if="appliedDiscount">
                                         <div class="flex items-center justify-between text-xs text-amber-600">
+                                            <span>Voucher "<span x-text="appliedDiscount.code"></span>"</span>
+                                            <span x-text="'- ' + formatRupiah(appliedDiscount.amount)"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="!appliedDiscount && discountCode.trim() !== ''">
+                                        <div class="flex items-center justify-between text-xs text-red-500">
                                             <span>Kode voucher "<span x-text="discountCode.toUpperCase()"></span>"</span>
-                                            <span>diverifikasi saat pengajuan</span>
+                                            <span>belum diterapkan</span>
                                         </div>
                                     </template>
                                     <div class="flex items-center justify-between pt-1.5 border-t border-gray-200">
+                                        <span class="font-semibold text-gray-700">Total</span>
+                                        <span class="font-semibold text-gray-800" x-text="formatRupiah(finalTotal(selected))"></span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
                                         <span class="font-semibold text-gray-700">Aktif sampai</span>
                                         <span class="font-semibold text-secondary" x-text="activeUntilLabel()"></span>
                                     </div>

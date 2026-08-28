@@ -35,7 +35,7 @@
 
     <header class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40" x-data="{ open: false }">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
-            <a href="{{ route('organizations.index') }}" class="flex items-center">
+            <a href="{{ route('home') }}" class="flex items-center">
                 <img src="{{ asset('logo.png') }}" alt="Website-mu" class="h-9 w-auto">
                 <span class="text-xl font-extrabold text-primary tracking-tight">website-mu<span class="text-secondary">.id</span></span>
             </a>
