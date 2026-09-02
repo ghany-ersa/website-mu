@@ -267,21 +267,12 @@
                         <p class="text-xs text-gray-400 truncate">{{ $member->email }}</p>
                     </div>
 
-                    @if ($canManageMembers)
+                    @if ($canManageMembers && $member->pivot->role !== \App\Enums\OrganizationRole::Owner->value)
                         <div class="flex items-center gap-2 shrink-0">
-                            <form action="{{ route('organizations.members.update', [$organization, $member]) }}"
-                                method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <select name="role" onchange="this.form.submit()"
-                                    class="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                    @foreach (\App\Enums\OrganizationRole::cases() as $role)
-                                        <option value="{{ $role->value }}" @selected($member->pivot->role === $role->value)>
-                                            {{ $role->label() }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </form>
+                            <span
+                                class="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                                {{ \App\Enums\OrganizationRole::from($member->pivot->role)->label() }}
+                            </span>
                             <form action="{{ route('organizations.members.destroy', [$organization, $member]) }}"
                                 method="POST"
                                 x-data @submit.prevent="if (await confirmAction(`Hapus ${@json($member->name)} dari organisasi ini?`)) $el.submit()">
@@ -310,6 +301,8 @@
                         terdaftar</label>
                     <input type="email" name="email" id="email" required placeholder="nama@email.com"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    <p class="text-xs text-gray-400 mt-1">Anggota baru akan ditambahkan sebagai
+                        {{ \App\Enums\OrganizationRole::Editor->label() }}.</p>
                 </div>
                 <button type="submit" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
                     Tambah Anggota

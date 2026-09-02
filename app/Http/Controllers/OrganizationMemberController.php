@@ -45,6 +45,7 @@ class OrganizationMemberController extends Controller
             'role' => ['required', Rule::enum(OrganizationRole::class)],
         ]);
 
+        $this->guardOwnerRole($organization, $user);
         $this->guardLastOwner($organization, $user, OrganizationRole::from($validated['role']));
 
         $organization->members()->updateExistingPivot($user->id, ['role' => $validated['role']]);
@@ -59,11 +60,22 @@ class OrganizationMemberController extends Controller
     {
         $this->authorize('manageMembers', $organization);
 
+        $this->guardOwnerRole($organization, $user);
         $this->guardLastOwner($organization, $user, null);
 
         $organization->members()->detach($user);
 
         return back()->with('status', 'Anggota berhasil dihapus dari organisasi.');
+    }
+
+    /**
+     * Owners cannot be demoted or removed at all — only ownership transfer (not yet implemented) would change this.
+     */
+    private function guardOwnerRole(Organization $organization, User $user): void
+    {
+        if ($organization->roleFor($user) === OrganizationRole::Owner) {
+            throw ValidationException::withMessages(['role' => 'Owner tidak dapat diubah atau dihapus.']);
+        }
     }
 
     /**
