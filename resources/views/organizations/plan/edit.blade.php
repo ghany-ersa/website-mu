@@ -121,7 +121,7 @@
             </div>
         </div>
 
-        @if ($pendingRequest && $pendingRequest->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
+        @if ($pendingRequest && $pendingRequest->status === \App\Enums\PlanChangeRequestStatus::PaymentReceivedNeedsReview)
             <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/70 flex items-start gap-4">
                 <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-500 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -129,15 +129,11 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="font-bold text-blue-900">Menunggu Verifikasi Admin</p>
+                    <p class="font-bold text-blue-900">Pembayaran Diterima, Sedang Diproses</p>
                     <p class="text-sm text-blue-700 mt-1 leading-relaxed">
-                        Terima kasih, konfirmasi pembayaran Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
-                        ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}
-                        @if ($pendingRequest->discount_amount > 0)
-                            , voucher "{{ $pendingRequest->discountCode?->code }}" diterapkan
-                        @endif
-                        )
-                        sudah kami terima dan sedang diverifikasi admin. Paket akan aktif begitu diverifikasi &mdash; biasanya dalam 1x24 jam.
+                        Pembayaran Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                        ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }})
+                        sudah kami terima. Paket akan aktif sebentar lagi &mdash; tim kami sedang menyelesaikan prosesnya.
                     </p>
                 </div>
             </div>
@@ -154,12 +150,12 @@
                         <p class="font-bold text-amber-900">Selesaikan Pembayaran</p>
                         <p class="text-sm text-amber-700 mt-1 leading-relaxed">
                             Permintaan pindah ke paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
-                            ({{ $pendingRequest->duration_months }} bulan) telah dibuat. Selesaikan pembayaran berikut, lalu konfirmasi di bawah.
+                            ({{ $pendingRequest->duration_months }} bulan) telah dibuat. Lanjutkan pembayaran melalui Midtrans untuk mengaktifkan paket.
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white/70 rounded-2xl p-5 space-y-4" x-data="{ copied: null }">
+                <div class="bg-white/70 rounded-2xl p-5 space-y-4">
                     @if ($pendingRequest->discount_amount > 0)
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-amber-700">
@@ -176,36 +172,14 @@
                     @endif
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-semibold text-amber-800 uppercase tracking-wide">Total Tagihan</span>
-                        <span class="text-lg font-extrabold text-amber-900">Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}</span>
-                    </div>
-
-                    <div class="space-y-2">
-                        @foreach (config('billing.bank_transfers', []) as $i => $account)
-                            <div class="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 border border-amber-100">
-                                <div class="min-w-0">
-                                    <p class="text-xs text-gray-500">{{ $account['bank'] }} &middot; a.n. {{ $account['account_name'] }}</p>
-                                    <p class="font-mono font-semibold text-gray-800 truncate">{{ $account['account_number'] }}</p>
-                                </div>
-                                <button type="button"
-                                    @click="navigator.clipboard.writeText('{{ $account['account_number'] }}'); copied = {{ $i }}; setTimeout(() => copied = null, 1500)"
-                                    class="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors">
-                                    <span x-show="copied !== {{ $i }}">Salin</span>
-                                    <span x-show="copied === {{ $i }}" x-cloak>Tersalin!</span>
-                                </button>
-                            </div>
-                        @endforeach
+                        <span class="text-lg font-extrabold text-amber-900">Rp {{ number_format($pendingRequest->gatewayAmount(), 0, ',', '.') }}</span>
                     </div>
                 </div>
 
-                <form action="{{ route('organizations.plan.confirm-payment', [$organization, $pendingRequest]) }}" method="POST"
-                    x-data @submit.prevent="if (await confirmAction('Konfirmasi bahwa Anda sudah melakukan pembayaran sejumlah Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }}?', { danger: false, confirmLabel: 'Ya, Sudah Bayar' })) $el.submit()"
-                    class="mt-5">
-                    @csrf
-                    <button type="submit"
-                        class="w-full sm:w-auto px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-soft transition-colors">
-                        Saya Sudah Bayar
-                    </button>
-                </form>
+                <a href="{{ route('organizations.plan.pay', [$organization, $pendingRequest]) }}"
+                    class="inline-block mt-5 w-full sm:w-auto text-center px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-soft transition-colors">
+                    Bayar dengan Midtrans
+                </a>
             </div>
         @else
             <form action="{{ route('organizations.plan.store', $organization) }}" method="POST"
@@ -452,7 +426,7 @@
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-6 sm:mt-8 bg-gray-50 rounded-2xl px-5 sm:px-6 py-4">
                     <p class="text-xs text-gray-500 text-center sm:text-left">
-                        Permintaan pergantian paket akan menunggu konfirmasi pembayaran dari admin sebelum aktif.
+                        Anda akan diarahkan ke Midtrans untuk menyelesaikan pembayaran. Paket aktif otomatis setelah pembayaran berhasil.
                     </p>
                     <div class="flex items-center gap-3 shrink-0">
                         <a href="{{ route('organizations.show', $organization) }}"
@@ -461,7 +435,7 @@
                         </a>
                         <button type="button" @click="confirming = true" :disabled="!selected"
                                 class="flex-1 sm:flex-initial px-6 py-2.5 rounded-full bg-primary hover:bg-secondary text-white text-sm font-bold shadow-soft hover:shadow-float transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:hover:shadow-soft">
-                            Ajukan Paket
+                            Lanjut ke Pembayaran
                         </button>
                     </div>
                 </div>
@@ -482,7 +456,7 @@
                         <template x-if="selected">
                             <div class="text-sm text-gray-500 mb-6 text-left space-y-3">
                                 <p>
-                                    Anda akan mengajukan perubahan ke paket
+                                    Anda akan diarahkan ke Midtrans untuk membayar paket
                                     <span class="font-semibold text-gray-800" x-text="plans[selected]?.name"></span>
                                     selama <span class="font-semibold text-gray-800" x-text="duration"></span> bulan.
                                 </p>
@@ -512,7 +486,7 @@
                                         <span class="font-semibold text-secondary" x-text="activeUntilLabel()"></span>
                                     </div>
                                 </div>
-                                <p class="text-xs">Permintaan ini menunggu konfirmasi pembayaran dari admin sebelum aktif.</p>
+                                <p class="text-xs">Paket aktif otomatis begitu Midtrans mengonfirmasi pembayaran berhasil.</p>
                             </div>
                         </template>
                         <div class="flex items-center justify-center gap-3">
@@ -522,7 +496,7 @@
                             </button>
                             <button type="submit"
                                 class="px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors">
-                                Ya, Ajukan
+                                Ya, Bayar Sekarang
                             </button>
                         </div>
                     </div>

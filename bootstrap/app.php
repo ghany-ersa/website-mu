@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(SetFrameOptions::class);
+
+        // Midtrans calls this directly (no session, no CSRF token) — signature verification
+        // in MidtransWebhookController is the actual auth for this route.
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/midtrans',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

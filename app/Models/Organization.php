@@ -157,6 +157,14 @@ class Organization extends Model
     }
 
     /**
+     * @return HasMany<PlanOverrideLog, $this>
+     */
+    public function planOverrideLogs(): HasMany
+    {
+        return $this->hasMany(PlanOverrideLog::class)->latest('created_at');
+    }
+
+    /**
      * The most recent plan change still awaiting payment/admin action, if any — covers both
      * Pending (just submitted) and PaymentConfirmed (org says they've paid) since neither is
      * final yet. A new request submitted via OrganizationPlanController::store() is blocked
@@ -165,7 +173,11 @@ class Organization extends Model
     public function pendingPlanChangeRequest(): ?PlanChangeRequest
     {
         return $this->planChangeRequests
-            ->whereIn('status', [PlanChangeRequestStatus::Pending, PlanChangeRequestStatus::PaymentConfirmed])
+            ->whereIn('status', [
+                PlanChangeRequestStatus::Pending,
+                PlanChangeRequestStatus::PaymentConfirmed,
+                PlanChangeRequestStatus::PaymentReceivedNeedsReview,
+            ])
             ->first();
     }
 

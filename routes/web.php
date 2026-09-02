@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SectionVariantController;
 use App\Http\Controllers\Admin\SectionVariantPreviewController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\OrganizationAgendaController;
 use App\Http\Controllers\OrganizationAnnouncementController;
 use App\Http\Controllers\OrganizationBrandController;
@@ -171,8 +172,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.plan.store');
         Route::post('organizations/{organization}/plan/apply-discount', [OrganizationPlanController::class, 'applyDiscount'])
             ->name('organizations.plan.apply-discount');
-        Route::post('organizations/{organization}/plan/{planChangeRequest}/confirm-payment', [OrganizationPlanController::class, 'confirmPayment'])
-            ->name('organizations.plan.confirm-payment');
+        Route::get('organizations/{organization}/plan/{planChangeRequest}/pay', [OrganizationPlanController::class, 'pay'])
+            ->name('organizations.plan.pay');
     });
 
     Route::patch('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'update'])
@@ -188,15 +189,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('plans', AdminPlanController::class)->except(['show']);
     Route::resource('discount-codes', DiscountCodeController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
+    Route::get('organizations/{organization}', [AdminOrganizationController::class, 'show'])->name('organizations.show');
+    Route::post('organizations/{organization}/override-plan', [AdminOrganizationController::class, 'overridePlan'])->name('organizations.override-plan');
 
     Route::get('section-variants', [SectionVariantController::class, 'index'])->name('section-variants.index');
     Route::patch('section-variants/{sectionVariant}', [SectionVariantController::class, 'update'])->name('section-variants.update');
     Route::get('section-variants/{sectionVariant}/preview', [SectionVariantPreviewController::class, 'show'])->name('section-variants.preview');
 
     Route::get('plan-change-requests', [PlanChangeRequestController::class, 'index'])->name('plan-change-requests.index');
-    Route::post('plan-change-requests/{planChangeRequest}/approve', [PlanChangeRequestController::class, 'approve'])->name('plan-change-requests.approve');
     Route::post('plan-change-requests/{planChangeRequest}/reject', [PlanChangeRequestController::class, 'reject'])->name('plan-change-requests.reject');
+    Route::post('plan-change-requests/{planChangeRequest}/retry-approve', [PlanChangeRequestController::class, 'retryApprove'])->name('plan-change-requests.retry-approve');
 });
+
+// Called by Midtrans, not a logged-in tenant — outside the auth group entirely, protected by
+// signature verification + a live status re-fetch instead (see MidtransWebhookController).
+Route::post('webhooks/midtrans', MidtransWebhookController::class)->name('webhooks.midtrans');
 
 require __DIR__.'/auth.php';
 

@@ -12,8 +12,20 @@ use App\Models\User;
  */
 class PlanChangeRequestService
 {
-    public function approve(PlanChangeRequest $request, User $admin, ?string $note = null): void
+    /**
+     * $admin is null for a system-attributed approval (the Midtrans webhook settling a
+     * payment automatically, with no admin involved) — reviewed_by_user_id stays null in that
+     * case rather than being attributed to some other user.
+     */
+    public function approve(PlanChangeRequest $request, ?User $admin = null, ?string $note = null): void
     {
+        // Guards against the Midtrans webhook firing this twice for the same settlement
+        // (Midtrans retries notifications) — a second call would otherwise double-extend
+        // plan_expires_at.
+        if ($request->status === PlanChangeRequestStatus::Approved) {
+            return;
+        }
+
         // Extend from the current expiry if it's still in the future (renewing before it
         // lapses), otherwise start fresh from now — so a timely renewal doesn't lose paid-for
         // time, matching how hosting renewals work.
@@ -28,7 +40,7 @@ class PlanChangeRequestService
 
         $request->update([
             'status' => PlanChangeRequestStatus::Approved,
-            'reviewed_by_user_id' => $admin->id,
+            'reviewed_by_user_id' => $admin?->id,
             'reviewed_at' => now(),
             'admin_note' => $note,
             // Freezes the plan's limits as they exist right now — if an admin edits the plan's

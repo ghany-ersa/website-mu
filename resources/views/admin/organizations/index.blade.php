@@ -60,7 +60,7 @@
                             @endif
                         </td>
                         <td class="px-5 py-4 text-right">
-                            <a href="{{ route('organizations.show', $organization) }}" class="text-primary font-medium hover:underline">Lihat</a>
+                            <a href="{{ route('admin.organizations.show', $organization) }}" class="text-primary font-medium hover:underline">Lihat</a>
                         </td>
                     </tr>
                 @empty

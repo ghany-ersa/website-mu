@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-8">
         <h1 class="text-2xl font-extrabold text-primary">Permintaan Pergantian Paket</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ $requests->total() }} permintaan &mdash; setujui setelah pembayaran dikonfirmasi manual di luar sistem.</p>
+        <p class="text-sm text-gray-500 mt-1">{{ $requests->total() }} permintaan &mdash; disetujui otomatis begitu Midtrans mengonfirmasi pembayaran.</p>
     </div>
 
     <x-crud.search-form placeholder="Cari nama organisasi atau pemohon...">
@@ -61,6 +61,13 @@
                                     <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">{{ $request->status->label() }}</span>
                                     <p class="text-xs text-gray-400 mt-1">Dikonfirmasi {{ $request->payment_confirmed_at?->translatedFormat('d M Y, H:i') }}</p>
                                     @break
+                                @case(\App\Enums\PlanChangeRequestStatus::PaymentReceivedNeedsReview)
+                                    <span class="px-2 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold">{{ $request->status->label() }}</span>
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        Dibayar {{ $request->midtrans_paid_at?->translatedFormat('d M Y, H:i') }}
+                                        &middot; {{ $request->approve_attempts }}&times; gagal
+                                    </p>
+                                    @break
                                 @case(\App\Enums\PlanChangeRequestStatus::Approved)
                                     <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-semibold">{{ $request->status->label() }}</span>
                                     @break
@@ -72,22 +79,33 @@
                             {{ $request->created_at->translatedFormat('d M Y, H:i') }}
                         </td>
                         <td class="px-5 py-4 text-right">
-                            @if (in_array($request->status, [\App\Enums\PlanChangeRequestStatus::Pending, \App\Enums\PlanChangeRequestStatus::PaymentConfirmed]))
-                                <div class="flex items-center justify-end gap-2">
-                                    <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
-                                          x-data @submit.prevent="if (await confirmAction('Tolak permintaan ini?')) $el.submit()">
-                                        @csrf
-                                        <button type="submit" class="px-3 py-1.5 rounded-full text-gray-500 text-xs font-semibold hover:bg-gray-100 transition-colors">
-                                            Tolak
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.plan-change-requests.approve', $request) }}" method="POST"
-                                          x-data @submit.prevent="if (await confirmAction('Setujui dan aktifkan paket ini? Pastikan pembayaran sudah dikonfirmasi.', { danger: false })) $el.submit()">
-                                        @csrf
-                                        <button type="submit" class="px-3 py-1.5 rounded-full bg-secondary text-white text-xs font-semibold hover:bg-green-700 transition-colors">
-                                            Setujui
-                                        </button>
-                                    </form>
+                            @if ($request->status === \App\Enums\PlanChangeRequestStatus::Pending)
+                                <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
+                                      x-data @submit.prevent="if (await confirmAction('Batalkan permintaan yang belum dibayar ini?')) $el.submit()">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 rounded-full text-gray-500 text-xs font-semibold hover:bg-gray-100 transition-colors">
+                                        Batalkan
+                                    </button>
+                                </form>
+                            @elseif ($request->status === \App\Enums\PlanChangeRequestStatus::PaymentReceivedNeedsReview)
+                                <div class="flex flex-col items-end gap-1.5">
+                                    @if ($request->approve_error)
+                                        <p class="text-xs text-red-500 max-w-xs text-right truncate" title="{{ $request->approve_error }}">{{ $request->approve_error }}</p>
+                                    @endif
+                                    @if ($request->canRetryApprove())
+                                        <form action="{{ route('admin.plan-change-requests.retry-approve', $request) }}" method="POST"
+                                              x-data @submit.prevent="if (await confirmAction('Coba setujui ulang paket ini?', { danger: false })) $el.submit()">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 rounded-full bg-secondary text-white text-xs font-semibold hover:bg-green-700 transition-colors">
+                                                Coba Lagi
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('admin.organizations.show', $request->organization) }}"
+                                           class="text-xs text-primary font-semibold hover:underline">
+                                            Batas percobaan tercapai &mdash; ubah paket manual
+                                        </a>
+                                    @endif
                                 </div>
                             @else
                                 <span class="text-xs text-gray-400">

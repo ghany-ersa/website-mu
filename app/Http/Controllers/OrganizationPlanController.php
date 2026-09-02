@@ -7,6 +7,7 @@ use App\Models\DiscountCode;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\PlanChangeRequest;
+use App\Services\MidtransService;
 use App\Services\PlanLimitService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -69,11 +70,12 @@ class OrganizationPlanController extends Controller
     }
 
     /**
-     * Submits a plan change for admin approval — organizations.plan_id is not touched here.
-     * Only App\Services\PlanChangeRequestService::approve() (called from the admin review
-     * screen) actually flips it, once payment has been confirmed out of band.
+     * Submits a plan change and immediately redirects to Midtrans Snap to pay for it —
+     * organizations.plan_id is not touched here. Only PlanChangeRequestService::approve()
+     * (called from MidtransWebhookController once payment settles, or by an admin retrying it)
+     * actually flips it.
      */
-    public function store(Request $request, Organization $organization): RedirectResponse
+    public function store(Request $request, Organization $organization, MidtransService $midtrans): RedirectResponse
     {
         $this->authorize('manageBilling', $organization);
 
@@ -108,7 +110,7 @@ class OrganizationPlanController extends Controller
             $discountAmount = $discountCode->amountFor($plan->priceForDuration($validated['duration_months']));
         }
 
-        $organization->planChangeRequests()->create([
+        $planChangeRequest = $organization->planChangeRequests()->create([
             'requested_plan_id' => $validated['plan_id'],
             'duration_months' => $validated['duration_months'],
             'discount_code_id' => $discountCode?->id,
@@ -121,9 +123,27 @@ class OrganizationPlanController extends Controller
             $discountCode->increment('used_count');
         }
 
-        return redirect()
-            ->route('organizations.plan.edit', $organization)
-            ->with('status', 'Permintaan pergantian paket berhasil dikirim. Silakan lakukan pembayaran dan konfirmasi di bawah.');
+        $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
+
+        return redirect()->away($redirectUrl);
+    }
+
+    /**
+     * Re-opens the Snap payment page for a Pending request that already exists — e.g. the
+     * tenant closed the Snap window without paying and came back to the plan page. Creates a
+     * fresh Snap transaction under a new order_id each time, since Midtrans requires order_id
+     * to be unique forever (a previous transaction may have already expired).
+     */
+    public function pay(Organization $organization, PlanChangeRequest $planChangeRequest, MidtransService $midtrans): RedirectResponse
+    {
+        $this->authorize('manageBilling', $organization);
+
+        abort_unless($planChangeRequest->organization_id === $organization->id, 404);
+        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+
+        $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
+
+        return redirect()->away($redirectUrl);
     }
 
     /**
@@ -167,28 +187,5 @@ class OrganizationPlanController extends Controller
         }
 
         return $discountCode;
-    }
-
-    /**
-     * Org owner confirms they've sent the transfer — only flips a status/timestamp so the
-     * admin's approval queue can tell "just submitted" apart from "claims to have paid,
-     * please verify." No payment gateway is involved; the admin still verifies manually
-     * before approving (see PlanChangeRequestService::approve()).
-     */
-    public function confirmPayment(Organization $organization, PlanChangeRequest $planChangeRequest): RedirectResponse
-    {
-        $this->authorize('manageBilling', $organization);
-
-        abort_unless($planChangeRequest->organization_id === $organization->id, 404);
-        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
-
-        $planChangeRequest->update([
-            'status' => PlanChangeRequestStatus::PaymentConfirmed,
-            'payment_confirmed_at' => now(),
-        ]);
-
-        return redirect()
-            ->route('organizations.plan.edit', $organization)
-            ->with('status', 'Konfirmasi pembayaran diterima. Menunggu verifikasi admin.');
     }
 }
