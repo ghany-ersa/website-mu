@@ -24,10 +24,6 @@ trait RedirectsAfterAuthentication
             return redirect()->route('organizations.create', ['template' => $template->slug]);
         }
 
-        if (Auth::user()->organizations()->exists()) {
-            return redirect()->route('organizations.index');
-        }
-
-        return redirect()->route('organizations.create');
+        return redirect()->route('organizations.index');
     }
 }
