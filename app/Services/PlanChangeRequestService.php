@@ -26,10 +26,15 @@ class PlanChangeRequestService
             return;
         }
 
-        // Extend from the current expiry if it's still in the future (renewing before it
-        // lapses), otherwise start fresh from now — so a timely renewal doesn't lose paid-for
-        // time, matching how hosting renewals work.
-        $baseline = $request->organization->plan_expires_at?->isFuture()
+        // Extend from the current expiry only for a same-plan renewal made before it lapses —
+        // so a timely renewal doesn't lose paid-for time, matching how hosting renewals work.
+        // A switch to a *different* plan (upgrade or downgrade) always starts from now instead:
+        // inheriting the old plan's remaining time would let an upgrade bought partway through
+        // a cheaper plan's term silently stack extra months on top of what was actually paid
+        // for.
+        $isSamePlanRenewal = $request->requested_plan_id === $request->organization->plan_id;
+
+        $baseline = ($isSamePlanRenewal && $request->organization->plan_expires_at?->isFuture())
             ? $request->organization->plan_expires_at
             : now();
 
