@@ -64,6 +64,33 @@ return [
             ]) : [],
         ],
 
+        // Read-only connection for the public tenant site (see routes/web.php's tenant
+        // domain group and App\Http\Middleware\UseReadOnlyConnection): same database,
+        // but authenticates as a MySQL user granted SELECT only, so a bug or exploit
+        // reachable from that request path can't physically write to the database even
+        // if it tried. Requires the tenant route group to also skip session/CSRF
+        // middleware (see bootstrap/app.php's 'tenant' middleware group) - those write
+        // to the sessions table on every request, which a SELECT-only user can't do.
+        'mysql_readonly' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_READONLY_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('DB_READONLY_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

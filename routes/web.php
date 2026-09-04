@@ -227,7 +227,10 @@ require __DIR__.'/auth.php';
 // is unset, which keeps local `php artisan serve` (no wildcard subdomain to route) behaving
 // exactly like today with zero special-casing. See OrganizationSiteController for the lookup.
 if ($tenantDomain = config('tenancy.domain')) {
-    Route::domain('{organization_slug}.'.$tenantDomain)->group(function () {
+    // 'tenant' middleware group (bootstrap/app.php), not the default 'web' group: these
+    // routes are pure reads with no login/forms, so they skip session/CSRF entirely and
+    // run against a SELECT-only DB connection - see UseReadOnlyConnection's docblock.
+    Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware('web')->middleware('tenant')->group(function () {
         Route::get('/', [OrganizationSiteController::class, 'show'])->name('tenant.home');
         Route::get('/berita/{post_slug}', [OrganizationSiteController::class, 'post'])->name('tenant.posts.show');
         Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
