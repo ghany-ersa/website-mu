@@ -173,7 +173,7 @@
                         @csrf
                         @method('PATCH')
                         <button type="submit"
-                            class="px-3 py-1.5 rounded-full text-xs font-semibold {{ $checklist['published'] ? 'text-gray-500 hover:bg-gray-100' : 'bg-secondary text-white hover:opacity-90' }} transition">
+                            class="px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer {{ $checklist['published'] ? 'text-gray-500 hover:bg-gray-100' : 'bg-secondary text-white hover:opacity-90' }} transition">
                             {{ $checklist['published'] ? 'Jadikan Draft' : 'Publikasikan' }}
                         </button>
                     </form>
@@ -279,7 +279,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="text-red-500 text-xs font-medium hover:underline">Hapus</button>
+                                    class="text-red-500 text-xs font-medium hover:underline cursor-pointer">Hapus</button>
                             </form>
                         </div>
                     @else
@@ -294,7 +294,7 @@
 
         @if ($canManageMembers)
             <form action="{{ route('organizations.members.store', $organization) }}" method="POST"
-                class="mt-5 pt-5 border-t border-gray-100 flex flex-wrap items-end gap-3">
+                class="mt-5 pt-5 border-t border-gray-100 flex flex-wrap items-center gap-3">
                 @csrf
                 <div class="flex-1 min-w-[200px]">
                     <label for="email" class="block text-xs font-semibold text-gray-600 mb-1">Email pengguna
@@ -304,7 +304,7 @@
                     <p class="text-xs text-gray-400 mt-1">Anggota baru akan ditambahkan sebagai
                         {{ \App\Enums\OrganizationRole::Editor->label() }}.</p>
                 </div>
-                <button type="submit" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
+                <button type="submit" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold cursor-pointer">
                     Tambah Anggota
                 </button>
             </form>
@@ -319,11 +319,11 @@
                 dibatalkan.
             </p>
             <form action="{{ route('organizations.destroy', $organization) }}" method="POST"
-                x-data @submit.prevent="if (await confirmAction(`Hapus organisasi &quot;${@json($organization->name)}&quot;? Tindakan ini tidak dapat dibatalkan.`)) $el.submit()">
+                onsubmit="return confirm('Hapus organisasi ' + {{ Illuminate\Support\Js::from($organization->name) }} + '? Tindakan ini tidak dapat dibatalkan.')">
                 @csrf
                 @method('DELETE')
                 <button type="submit"
-                    class="px-4 py-2 rounded-full bg-red-500 text-white text-sm font-semibold hover:bg-red-600">
+                    class="px-4 py-2 rounded-full bg-red-500 text-white text-sm font-semibold hover:bg-red-600 cursor-pointer">
                     Hapus Organisasi
                 </button>
             </form>

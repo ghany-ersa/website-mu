@@ -85,7 +85,7 @@
                 <textarea name="note" id="note" rows="2" required placeholder="Wajib diisi, mis. &quot;Komplain pembayaran, dikonfirmasi via WhatsApp 02 Sep 2026&quot;"
                           class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('note') }}</textarea>
             </div>
-            <button type="submit" class="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
+            <button type="submit" class="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors cursor-pointer">
                 Simpan Perubahan
             </button>
         </form>
@@ -116,5 +116,22 @@
                 @endforeach
             </div>
         @endif
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-soft p-6 mt-6 border border-red-100">
+        <h2 class="font-bold text-red-600 mb-1">Hapus Organisasi</h2>
+        <p class="text-sm text-gray-500 mb-4">
+            Tindakan ini akan menghapus organisasi beserta seluruh data anggotanya secara permanen dan tidak dapat
+            dibatalkan.
+        </p>
+        <form action="{{ route('admin.organizations.destroy', $organization) }}" method="POST"
+            onsubmit="return confirm('Hapus organisasi ' + {{ Illuminate\Support\Js::from($organization->name) }} + '? Tindakan ini tidak dapat dibatalkan.')">
+            @csrf
+            @method('DELETE')
+            <button type="submit"
+                class="px-4 py-2 rounded-full bg-red-500 text-white text-sm font-semibold hover:bg-red-600 cursor-pointer">
+                Hapus Organisasi
+            </button>
+        </form>
     </div>
 @endsection

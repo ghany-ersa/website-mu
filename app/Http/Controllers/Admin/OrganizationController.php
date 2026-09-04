@@ -65,7 +65,7 @@ class OrganizationController extends Controller
     }
 
     /**
-     * Directly sets an organization's plan/expiry, bypassing PlanChangeRequest entirely - for
+     * Directly sets an organization's plan/expiry, bypassing PlanChangeRequest entirely — for
      * cases a normal payment flow can't cover (complaints, manual arrangements, data fixes).
      * Every use is logged to plan_override_logs since it silently overrides what the org paid
      * (or didn't pay) for.
@@ -99,5 +99,23 @@ class OrganizationController extends Controller
         return redirect()
             ->route('admin.organizations.show', $organization)
             ->with('status', 'Paket organisasi berhasil diubah secara manual.');
+    }
+
+    /**
+     * Permanently deletes an organization from the admin panel. Reuses the same `delete`
+     * policy ability as the tenant-facing OrganizationController::destroy() (Owner-only by
+     * role, but every admin passes it via the Gate::before bypass in AppServiceProvider) — this
+     * just gives admins a way to do it from /admin without having to navigate to the tenant
+     * page, which previously had no delete UI at all.
+     */
+    public function destroy(Organization $organization): RedirectResponse
+    {
+        $this->authorize('delete', $organization);
+
+        $organization->delete();
+
+        return redirect()
+            ->route('admin.organizations.index')
+            ->with('status', 'Organisasi berhasil dihapus.');
     }
 }

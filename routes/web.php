@@ -191,6 +191,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
     Route::get('organizations/{organization}', [AdminOrganizationController::class, 'show'])->name('organizations.show');
     Route::post('organizations/{organization}/override-plan', [AdminOrganizationController::class, 'overridePlan'])->name('organizations.override-plan');
+    Route::delete('organizations/{organization}', [AdminOrganizationController::class, 'destroy'])->name('organizations.destroy');
 
     Route::get('section-variants', [SectionVariantController::class, 'index'])->name('section-variants.index');
     Route::patch('section-variants/{sectionVariant}', [SectionVariantController::class, 'update'])->name('section-variants.update');
