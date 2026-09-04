@@ -45,3 +45,12 @@
 [x-cloak] {
     display: none !important;
 }
+
+/*
+ * Tailwind's Preflight resets button cursor to the browser default instead of pointer
+ * (unlike <a>, which is pointer natively) - restore it repo-wide rather than adding
+ * cursor-pointer to every button individually.
+ */
+button:not(:disabled) {
+    cursor: pointer;
+}

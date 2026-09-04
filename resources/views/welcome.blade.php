@@ -236,9 +236,7 @@
                             <span class="self-start bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4">{{ $featuredArticle->category }}</span>
                         @endif
                         <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3 group-hover:text-secondary transition">{{ $featuredArticle->title }}</h3>
-                        @if ($featuredArticle->excerpt)
-                            <p class="text-gray-200 text-sm leading-relaxed mb-4 line-clamp-2">{{ $featuredArticle->excerpt }}</p>
-                        @endif
+                        <p class="text-gray-200 text-sm leading-relaxed mb-4 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags((string) $featuredArticle->body), 140) }}</p>
                         <p class="text-gray-300 text-xs font-semibold uppercase tracking-wider">{{ $featuredArticle->published_at->translatedFormat('d F Y') }}</p>
                     </div>
                 </a>

@@ -6,7 +6,7 @@
     <title>@yield('title', 'Admin') - Website-mu</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    @vite(['resources/css/app.css', 'resources/js/admin.js'])
+    @vite(['resources/css/app.css', 'resources/css/richtext.css', 'resources/js/admin.js'])
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>

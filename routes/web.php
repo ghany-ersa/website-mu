@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\Admin\ArticleImageController;
 use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\PlanChangeRequestController;
@@ -198,6 +199,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('templates', AdminTemplateController::class)->except(['show']);
     Route::resource('articles', AdminArticleController::class)->except(['show']);
+    Route::post('articles/images', [ArticleImageController::class, 'store'])->name('articles.images.store');
     Route::resource('plans', AdminPlanController::class)->except(['show']);
     Route::resource('discount-codes', DiscountCodeController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');

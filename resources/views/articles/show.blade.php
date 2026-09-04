@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $article->title }} - website-mu.id</title>
-    <meta name="description" content="{{ $article->excerpt ?? Str::limit(strip_tags((string) $article->body), 160) }}">
+    <meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags((string) $article->body), 160) }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ route('articles.show', $article) }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
@@ -15,7 +15,7 @@
     <meta property="og:url" content="{{ route('articles.show', $article) }}">
     <meta property="og:site_name" content="website-mu.id">
     <meta property="og:title" content="{{ $article->title }}">
-    <meta property="og:description" content="{{ $article->excerpt ?? Str::limit(strip_tags((string) $article->body), 160) }}">
+    <meta property="og:description" content="{{ \Illuminate\Support\Str::limit(strip_tags((string) $article->body), 160) }}">
     @if ($article->cover_image)
         <meta property="og:image" content="{{ $article->cover_image }}">
     @endif

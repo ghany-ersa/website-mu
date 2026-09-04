@@ -9,6 +9,7 @@ use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -42,6 +43,7 @@ class ArticleController extends Controller
     {
         return view('admin.articles.create', [
             'article' => new Article,
+            'categories' => $this->categories(),
         ]);
     }
 
@@ -64,6 +66,7 @@ class ArticleController extends Controller
     {
         return view('admin.articles.edit', [
             'article' => $article,
+            'categories' => $this->categories(),
         ]);
     }
 
@@ -89,6 +92,18 @@ class ArticleController extends Controller
         return redirect()
             ->route('admin.articles.index')
             ->with('status', 'Artikel berhasil dihapus.');
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    private function categories(): Collection
+    {
+        return Article::query()
+            ->whereNotNull('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
     }
 
     /**

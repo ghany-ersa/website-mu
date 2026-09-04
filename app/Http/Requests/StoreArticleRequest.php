@@ -25,7 +25,6 @@ class StoreArticleRequest extends FormRequest
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('articles', 'slug')],
             'category' => ['nullable', 'string', 'max:100'],
             'cover_image' => ['nullable', 'string', 'max:2048'],
-            'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['nullable', 'string'],
             'status' => ['required', 'in:draft,published'],
         ];

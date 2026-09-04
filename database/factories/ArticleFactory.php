@@ -26,7 +26,6 @@ class ArticleFactory extends Factory
             'slug' => str($title)->slug().'-'.fake()->unique()->numberBetween(1, 100000),
             'category' => fake()->randomElement(['Produk', 'Tips Digitalisasi', 'Kabar Muhammadiyah', 'Studi Kasus']),
             'cover_image' => null,
-            'excerpt' => fake()->sentence(20),
             'body' => fake()->paragraphs(5, true),
             'status' => PublishStatus::Draft,
             'published_at' => null,

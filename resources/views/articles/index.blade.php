@@ -81,9 +81,7 @@
                             <span class="text-secondary text-xs font-bold uppercase tracking-wider mb-2">{{ $article->category }}</span>
                         @endif
                         <h2 class="text-lg font-bold text-gray-800 leading-snug mb-2 line-clamp-2 group-hover:text-primary transition">{{ $article->title }}</h2>
-                        @if ($article->excerpt)
-                            <p class="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">{{ $article->excerpt }}</p>
-                        @endif
+                        <p class="text-gray-500 text-sm leading-relaxed mb-4 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags((string) $article->body), 140) }}</p>
                         <p class="text-gray-400 text-xs font-semibold mt-auto">{{ $article->published_at->translatedFormat('d F Y') }}</p>
                     </div>
                 </a>
