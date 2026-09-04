@@ -1,58 +1,36 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/og-image.jpg" alt="Website-mu — Buat Website Organisasi Anda, Mudah & Profesional" width="100%">
 </p>
 
-## About Laravel
+<h1 align="center">Website-mu</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <em>Setiap organisasi Muhammadiyah memiliki kehadiran digital yang profesional, mudah dikelola, dan saling terhubung.</em>
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Visi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Organisasi di ekosistem Muhammadiyah — Pimpinan Daerah/Cabang/Ranting, Ortom seperti Aisyiyah, Pemuda Muhammadiyah, IPM, dan IMM, Amal Usaha (sekolah, klinik, rumah sakit), hingga masjid dan mushola — sama-sama butuh kehadiran digital, tetapi sering terganjal hal yang sama: tidak punya tenaga teknis untuk membangun dan merawat website, sementara membuatnya sendiri lewat jasa desainer/developer memakan biaya dan waktu yang tidak sedikit. Akibatnya banyak unit berhenti di media sosial saja, padahal butuh identitas resmi yang lebih dari itu.
 
-## Learning Laravel
+**Website-mu** menjawab ini sebagai platform *no-code* khusus untuk ekosistem Muhammadiyah. Pengurus, sekretaris, atau tim media — tanpa latar belakang pengembangan web — cukup memilih jenis organisasinya, memilih template yang sudah dirancang sesuai karakter organisasi tersebut, menyusun halaman dengan menyusun *section* siap pakai, mengisi konten lewat CMS yang sederhana, lalu menerbitkannya. Tidak perlu memikirkan hosting, domain, atau kode.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Setiap jenis organisasi punya kebutuhan komunikasi yang berbeda, jadi Website-mu tidak menyodorkan satu template generik untuk semua: template Ortom menonjolkan citra dan ajakan menjadi anggota baru dengan warna identitas masing-masing, template AUM menonjolkan layanan dan program, template masjid menonjolkan jadwal salat, kajian, dan donasi. Ke depan, platform ini juga diarahkan untuk saling menghubungkan organisasi-organisasi ini — sehingga bukan sekadar kumpulan website individual, tetapi jejaring digital Persyarikatan yang koheren.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Yang sudah bisa dilakukan
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- **Daftar & buat organisasi** — beberapa pengguna bisa mengelola satu organisasi bersama, dengan peran Owner dan Editor.
+- **Pilih jenis organisasi & template** — 12 jenis organisasi dalam 3 kategori (Persyarikatan, Ortom, AUM), masing-masing dengan template dan warna identitas sendiri; bisa dipratinjau tanpa login dan diganti kapan saja.
+- **Susun halaman lewat page builder** — tambah, hapus, duplikasi, dan urutkan section (profil, sambutan ketua, struktur pengurus, program unggulan, jadwal salat, PPDB, donasi, dan lainnya) tanpa menyentuh kode.
+- **Kelola konten lewat CMS** — berita, agenda, pengumuman, pengurus, program, galeri foto — semua lewat form sederhana.
+- **Atur identitas brand** — warna, logo, dan font organisasi, konsisten di seluruh halaman.
+- **Terbitkan ke subdomain publik** — situs organisasi langsung bisa diakses di `{nama-organisasi}.website-mu.id`, lengkap dengan SEO dan sitemap otomatis.
+- **Pilih paket langganan** sesuai kebutuhan, dengan proses upgrade dan pembayaran yang jelas.
 
-## Agentic Development
+## Dokumen referensi
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- [`prd.md`](prd.md) — product brief lengkap: visi produk, latar belakang masalah, target pengguna, dan arah pengembangan jangka panjang.
+- [`prd-status.md`](prd-status.md) — snapshot status pembangunan aktual dibanding visi di `prd.md`.
 
-```bash
-composer require laravel/boost --dev
+### Setup untuk developer
 
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Panduan menjalankan proyek secara lokal (instalasi dependency, environment, dan perintah pengembangan) ada di [`CLAUDE.md`](CLAUDE.md).
