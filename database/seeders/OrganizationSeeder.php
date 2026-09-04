@@ -17,9 +17,8 @@ use Illuminate\Database\Seeder;
  * plans (to exercise plan limits/component gating across tiers), and a mix of draft/published
  * so both builder and public-site views have something to look at.
  *
- * Each organization gets its own owner user (password "password" for all of them) rather than
- * sharing one login, so multi-tenant/multi-user flows (switching between organizations, member
- * roles) have something realistic to test too.
+ * Every organization is owned by the same user (ghany@ghany.id) so all dummy orgs are reachable
+ * from one login without switching accounts.
  *
  * Relies on Organization::ensureHomePageExists() - same path OrganizationBuilderController::edit()
  * uses on first visit - to clone the template's pages/sections, which in turn triggers
@@ -57,10 +56,10 @@ class OrganizationSeeder extends Seeder
             $slug = str($spec['name'])->slug();
 
             $owner = User::firstOrCreate(
-                ['email' => "{$slug}@website-mu.id"],
+                ['email' => 'admin@website-mu.id'],
                 [
-                    'name' => $spec['name'].' Admin',
-                    'password' => bcrypt('password'),
+                    'name' => 'Admin Website-Mu',
+                    'password' => bcrypt('Passwordmu123!'),
                     'email_verified_at' => now(),
                 ]
             );
