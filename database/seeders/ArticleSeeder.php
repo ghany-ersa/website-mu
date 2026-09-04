@@ -19,12 +19,12 @@ class ArticleSeeder extends Seeder
         $author = User::where('email', 'admin@website-mu.id')->first();
 
         Article::factory()
-            ->count(8)
+            ->count(6)
             ->published()
             ->create(['author_id' => $author?->id]);
 
         Article::factory()
-            ->count(3)
+            ->count(2)
             ->create(['author_id' => $author?->id]);
     }
 }
