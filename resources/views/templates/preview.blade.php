@@ -104,6 +104,7 @@
 
     <main>
         @foreach ($currentPage['sections'] as $section)
+            @continue(config("page-builder.sections.{$section['key']}.hidden"))
             @includeFirst([
                 \App\Services\SectionVariantResolver::resolve($section['key'], $section['variant'] ?? null),
                 'templates.sections._missing',

@@ -270,7 +270,7 @@
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
                         previewKey: null,
-                        options: @js(collect($sectionRegistry)->filter(fn ($meta) => empty($meta['locked']))->map(fn ($meta, $key) => ['label' => $meta['label']])),
+                        options: @js(collect($sectionRegistry)->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))->map(fn ($meta, $key) => ['label' => $meta['label']])),
                         openPicker() {
                             this.previewKey = Object.keys(this.options)[0] ?? null;
                             this.open = true;

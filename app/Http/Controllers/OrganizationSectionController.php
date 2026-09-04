@@ -72,7 +72,7 @@ class OrganizationSectionController extends Controller
 
         $addableKeys = array_keys(array_filter(
             config('page-builder.sections'),
-            fn (array $meta) => empty($meta['locked'])
+            fn (array $meta) => empty($meta['locked']) && empty($meta['hidden'])
         ));
 
         $validated = $request->validate([

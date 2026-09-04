@@ -17,6 +17,13 @@
 // organization's own name (see header.blade.php/footer.blade.php) with no override - so neither
 // is clickable in the builder sidebar (see edit.blade.php's $hasFields guard).
 //
+// `hidden` (bool, default false), when true, marks a section still under development: the
+// "Tambah Section" picker must not offer it (edit.blade.php's $sectionRegistry filter) and it
+// must not render on the public site (organizations/pages/_render.blade.php) even if an
+// organization's page already has one (e.g. seeded by a template). Unlike `locked`, the builder's
+// own editor still shows and lets existing instances be edited/removed, so in-progress work isn't
+// blocked - only end-user-facing surfaces are gated.
+//
 // `cms`, when present, is the single source of truth for a section whose `items` field is backed
 // by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
 // inline in the builder) - both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
@@ -129,6 +136,10 @@ return [
             'label' => 'Jadwal Salat',
             'fields' => ['title', 'location', 'times'],
             'defaults' => ['title' => 'Jadwal Salat Hari Ini'],
+            // Not yet location-aware (times are manually typed, not fetched by coordinates) -
+            // hidden from new-section picker and public render until that's built. See the
+            // `hidden` doc comment above.
+            'hidden' => true,
         ],
         'jadwal-kajian' => [
             'label' => 'Jadwal Kajian',
