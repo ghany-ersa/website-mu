@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             SectionVariantSeeder::class,
             TemplateSeeder::class,
             OrganizationSeeder::class,
+            ArticleSeeder::class,
         ]);
     }
 }
