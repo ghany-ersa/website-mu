@@ -1,6 +1,6 @@
 @extends('layouts.account')
 
-@section('title', 'Organisasi Saya — Website-mu')
+@section('title', 'Organisasi Saya - Website-mu')
 
 @section('content')
     <div class="flex items-center justify-between mb-8">

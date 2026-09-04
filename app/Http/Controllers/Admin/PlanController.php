@@ -13,7 +13,7 @@ use Illuminate\View\View;
 class PlanController extends Controller
 {
     /**
-     * Resource keys every plan needs a limit row for — see
+     * Resource keys every plan needs a limit row for - see
      * App\Services\PlanLimitService::RESOURCE_RELATIONS and 'sections_total'.
      *
      * @var array<string, string>
@@ -112,7 +112,7 @@ class PlanController extends Controller
      */
     public function destroy(Plan $plan): RedirectResponse
     {
-        abort_if($plan->organizations()->exists(), 409, 'Paket ini masih dipakai organisasi — pindahkan mereka ke paket lain sebelum menghapus.');
+        abort_if($plan->organizations()->exists(), 409, 'Paket ini masih dipakai organisasi - pindahkan mereka ke paket lain sebelum menghapus.');
 
         $plan->delete();
 
@@ -136,7 +136,7 @@ class PlanController extends Controller
 
     /**
      * Replaces the plan's limits with the submitted values. An empty/missing field means
-     * unlimited (max_count = null) for that key — see PlanLimitService::canCreate().
+     * unlimited (max_count = null) for that key - see PlanLimitService::canCreate().
      *
      * @param  array<string, string|null>  $limits
      */

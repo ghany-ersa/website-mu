@@ -46,7 +46,7 @@
 
     @php
         // Menu items with a 'section' key only show up when the organization's builder pages
-        // actually contain that section — an org whose template never included e.g. galeri or
+        // actually contain that section - an org whose template never included e.g. galeri or
         // jaringan-aum-ortom shouldn't see a CMS menu for content it has no section to display.
         // Dashboard (and any item without a 'section' key) is always shown.
         $activeSectionKeys = $organization->pages->flatMap->sections->pluck('key')->unique();

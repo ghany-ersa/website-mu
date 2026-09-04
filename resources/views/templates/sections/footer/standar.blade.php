@@ -1,17 +1,17 @@
 {{--
-    Locked section — always present, always last, not user-editable (see config/page-builder.php
+    Locked section - always present, always last, not user-editable (see config/page-builder.php
     and OrganizationPage::ensureFooter()/sectionsInDisplayOrder()). Renders both in tenant-page
     context ($organization set, template-preview context has none) and template-preview context
-    ($template set instead) — every field below falls back gracefully when $organization is absent.
+    ($template set instead) - every field below falls back gracefully when $organization is absent.
 
     Trust-building layout: prominent logo/name, verifiable contact channels (each a real tel:/
     wa.me/mailto/maps link, not decoration), and social proof via Instagram/Facebook when set —
     all signal "this is a real, reachable organization" to a first-time visitor.
 
     The "Dibuat dengan website-mu.id" badge is deliberate platform branding/attribution, not
-    editable content — it stays regardless of what content fields this section does or doesn't
+    editable content - it stays regardless of what content fields this section does or doesn't
     have, by the same lock that keeps the rest of the footer from being deleted. It's hidden
-    only for organizations on a plan with hide_branding (see Plan::hide_branding) — a paid
+    only for organizations on a plan with hide_branding (see Plan::hide_branding) - a paid
     entitlement, not something the org can toggle itself.
 --}}
 @php

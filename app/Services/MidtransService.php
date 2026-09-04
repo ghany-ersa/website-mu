@@ -28,7 +28,7 @@ class MidtransService
      * Creates a Snap transaction for the given request and stores the order id it was created
      * with, so the webhook can look the request back up by it. order_id is prefixed with the
      * request's own id but still suffixed with a random token, because Midtrans requires
-     * order_id to be unique forever on the account — a plain request id would collide if the
+     * order_id to be unique forever on the account - a plain request id would collide if the
      * same request ever needed a second Snap transaction (e.g. after the first expired).
      */
     public function createSnapTransaction(PlanChangeRequest $planChangeRequest): string
@@ -52,7 +52,7 @@ class MidtransService
                     'id' => 'plan-'.$planChangeRequest->requested_plan_id,
                     'price' => $planChangeRequest->totalPrice(),
                     'quantity' => 1,
-                    'name' => Str::limit($planChangeRequest->requestedPlan->name.' — '.$organization->name, 50, ''),
+                    'name' => Str::limit($planChangeRequest->requestedPlan->name.' - '.$organization->name, 50, ''),
                 ],
                 config('billing.midtrans.admin_fee') > 0 ? [
                     'id' => 'admin-fee',
@@ -62,7 +62,7 @@ class MidtransService
                 ] : null,
             ]),
             // Per-transaction redirect, so the tenant lands back on this exact organization's
-            // plan page — not just the dashboard's static Finish/Unfinish/Error URL, which
+            // plan page - not just the dashboard's static Finish/Unfinish/Error URL, which
             // can't carry an organization id. The plan page itself shows the real status
             // (active or still pending) regardless of which of the three Midtrans lands on,
             // since actual approval only ever happens via the webhook.
@@ -80,7 +80,7 @@ class MidtransService
 
     /**
      * Re-fetches a transaction's status directly from Midtrans by order_id, rather than
-     * trusting the transaction_status field in the webhook payload — the payload is used only
+     * trusting the transaction_status field in the webhook payload - the payload is used only
      * to look up which order_id to check.
      */
     public function fetchStatus(string $orderId): object
@@ -91,7 +91,7 @@ class MidtransService
     /**
      * Verifies the webhook payload's signature_key: SHA512(order_id + status_code +
      * gross_amount + server_key). This is a cheap first check to reject obviously forged
-     * requests before doing the (slower, network) status re-fetch — it's not a substitute for
+     * requests before doing the (slower, network) status re-fetch - it's not a substitute for
      * fetchStatus(), since a stale but validly-signed payload could still misreport status.
      */
     public function verifySignature(array $payload): bool

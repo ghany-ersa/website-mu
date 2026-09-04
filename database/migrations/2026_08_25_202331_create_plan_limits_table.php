@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('plan_limits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
-            // e.g. 'posts', 'agendas', 'sections_total' — free-form so new CMS resources
+            // e.g. 'posts', 'agendas', 'sections_total' - free-form so new CMS resources
             // only need a seeded row, not a schema change.
             $table->string('key');
             // Null means unlimited for this plan/key.

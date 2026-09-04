@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar — Website-mu')
+@section('title', 'Daftar - Website-mu')
 
 @section('content')
     <div class="max-w-md mx-auto">

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Public endpoint Midtrans calls whenever a Snap transaction's status changes. Not behind
- * `auth` — Midtrans, not a logged-in tenant, is the caller — so it's protected by signature
+ * `auth` - Midtrans, not a logged-in tenant, is the caller - so it's protected by signature
  * verification plus a live status re-fetch instead of a session/CSRF check. Always responds
  * 200 once a payload is handled (even for a status we ignore) since Midtrans retries with
  * backoff on anything else, and duplicate notifications are expected and must be safe to
@@ -39,7 +39,7 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'not found'], 404);
         }
 
-        // Never trust the payload's own transaction_status — re-fetch the authoritative status
+        // Never trust the payload's own transaction_status - re-fetch the authoritative status
         // directly from Midtrans by order_id.
         $status = $midtrans->fetchStatus($orderId);
 
@@ -66,7 +66,7 @@ class MidtransWebhookController extends Controller
                 'status' => PlanChangeRequestStatus::Rejected,
                 'admin_note' => 'Ditolak oleh Midtrans.',
             ]),
-            default => null, // e.g. "pending" — midtrans_status above already reflects it.
+            default => null, // e.g. "pending" - midtrans_status above already reflects it.
         };
 
         return response()->json(['message' => 'ok']);

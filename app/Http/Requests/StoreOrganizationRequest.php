@@ -54,7 +54,7 @@ class StoreOrganizationRequest extends FormRequest
             'slug.unique' => 'Slug ini sudah digunakan oleh organisasi lain.',
             'slug.min' => 'Slug minimal terdiri dari :min karakter.',
             'slug.max' => 'Slug maksimal terdiri dari :max karakter.',
-            'template_id.not_in' => 'Template ini eksklusif untuk paket Professional. Organisasi baru selalu dimulai dari paket Starter — upgrade paket lalu ganti template dari halaman pengaturan organisasi.',
+            'template_id.not_in' => 'Template ini eksklusif untuk paket Professional. Organisasi baru selalu dimulai dari paket Starter - upgrade paket lalu ganti template dari halaman pengaturan organisasi.',
         ];
     }
 
@@ -79,11 +79,11 @@ class StoreOrganizationRequest extends FormRequest
      * Also auto-fills template_id from the chosen organization_type_id when it isn't
      * already set (e.g. the user didn't arrive via TemplateUseController's "Gunakan
      * Template" flow). For this initial stage, the create form doesn't ask the user to
-     * pick a template directly — each organization type has (at most) one active
+     * pick a template directly - each organization type has (at most) one active
      * template, so we pick it for them. See prd.md §24.4.
      *
      * Once a template is resolved, its brand colors (structure.brand.primary/secondary)
-     * are copied into primary_color/secondary_color too — per prd.md §6, brand colors
+     * are copied into primary_color/secondary_color too - per prd.md §6, brand colors
      * should default to the chosen template's identity, while remaining editable later
      * via Brand Settings.
      */

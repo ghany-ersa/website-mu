@@ -46,7 +46,7 @@ class OrganizationPublishingTest extends TestCase
         $organization = Organization::factory()->create(['status' => OrganizationStatus::Published]);
         OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home', 'is_home' => true]);
 
-        // Deliberately no actingAs() — proves the route isn't behind auth middleware.
+        // Deliberately no actingAs() - proves the route isn't behind auth middleware.
         $this->get($this->tenantUrl($organization))->assertOk();
     }
 

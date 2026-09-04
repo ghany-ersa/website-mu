@@ -5,7 +5,7 @@
         ?? $organization->name ?? null
         ?? '[Nama Organisasi]';
 
-    // Same resolver as hero.blade.php's $resolveCtaHref('cta') — kept local rather than shared
+    // Same resolver as hero.blade.php's $resolveCtaHref('cta') - kept local rather than shared
     // since cta.blade.php only ever has one button (no cta_secondary_* fields).
     $ctaType = $content['cta_type'] ?? null;
     $ctaHref = match ($ctaType) {

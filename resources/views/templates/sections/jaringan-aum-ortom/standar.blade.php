@@ -1,6 +1,6 @@
 {{-- Auto-binds to the organization's affiliated AUM/Ortom entries when $organization is in
      scope (tenant page render); falls back to $content['items'] sample data in
-     template-preview context — see daftar-berita.blade.php for the full rationale. --}}
+     template-preview context - see daftar-berita.blade.php for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
     $items = isset($organization)

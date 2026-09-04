@@ -1,6 +1,6 @@
 @extends('layouts.account')
 
-@section('title', 'Buat Organisasi — Website-mu')
+@section('title', 'Buat Organisasi - Website-mu')
 
 @section('content')
     <div class="max-w-3xl mx-auto">

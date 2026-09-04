@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', 'Agenda — '.$organization->name.' — Website-mu')
+@section('title', 'Agenda - '.$organization->name.' - Website-mu')
 
 @section('content')
     <div class="max-w-3xl mx-auto">

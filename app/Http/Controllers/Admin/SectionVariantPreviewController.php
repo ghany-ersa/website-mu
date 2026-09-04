@@ -10,7 +10,7 @@ use Illuminate\View\View;
 class SectionVariantPreviewController extends Controller
 {
     /**
-     * Render one specific section variant in isolation — including non-default variants, which
+     * Render one specific section variant in isolation - including non-default variants, which
      * organizations/builder/section-preview.blade.php's own preview route can't do (it always
      * resolves a section's default). Mirrors that view's standalone-document scaffold, but with
      * no organization to borrow brand colors from: a fresh, never-persisted Organization instance

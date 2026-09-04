@@ -65,7 +65,7 @@ class OrganizationController extends Controller
     }
 
     /**
-     * Directly sets an organization's plan/expiry, bypassing PlanChangeRequest entirely — for
+     * Directly sets an organization's plan/expiry, bypassing PlanChangeRequest entirely - for
      * cases a normal payment flow can't cover (complaints, manual arrangements, data fixes).
      * Every use is logged to plan_override_logs since it silently overrides what the org paid
      * (or didn't pay) for.

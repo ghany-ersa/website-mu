@@ -1,6 +1,6 @@
 {{--
     Standalone single-section document loaded into the "Tambah Section" dropdown's thumbnail
-    <iframe> (organizations/builder/edit.blade.php) — shows what a section type looks like,
+    <iframe> (organizations/builder/edit.blade.php) - shows what a section type looks like,
     rendered with its registry default content, before the user adds it to the page. Lazily
     loaded per-option only once the dropdown is opened, not on initial page load, since a page
     can offer a dozen-plus section types.
@@ -10,11 +10,11 @@
     so the preview matches what the section will actually look like on this organization's site.
 
     $brand (an Organization) is used here only for brand colors/font, and deliberately kept out
-    of the `organization` variable name — @include/@includeFirst inherit this whole view's data
+    of the `organization` variable name - @include/@includeFirst inherit this whole view's data
     array, so a variable named `organization` here would leak straight into the section partial
     below. Several section partials (struktur-pengurus, program-unggulan, daftar-berita, agenda,
     pengumuman, galeri, jaringan-aum-ortom, ...) branch on isset($organization) to pull live data
-    from the database instead of showing sample content — see e.g. daftar-berita.blade.php. A
+    from the database instead of showing sample content - see e.g. daftar-berita.blade.php. A
     brand-new organization has none of that data yet, so leaking it in would render these
     thumbnails blank, which is exactly the "which component is this?" confusion this dropdown
     exists to prevent. Keeping it named `brand` makes every partial fall back to its built-in
@@ -61,7 +61,7 @@
     <link href="https://fonts.googleapis.com/css2?family={{ $font['google'] }}&display=swap" rel="stylesheet">
     <style>
         body { font-family: {!! $font['stack'] !!}; }
-        /* No scroll-reveal here — the thumbnail is captured statically, so .reveal elements
+        /* No scroll-reveal here - the thumbnail is captured statically, so .reveal elements
            must render at their final, visible state rather than starting hidden/offset. */
         .reveal { opacity: 1 !important; transform: none !important; }
         .animate-blob, .animate-float { animation: none !important; }

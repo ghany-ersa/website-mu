@@ -21,8 +21,8 @@ use Illuminate\Database\Seeder;
  * sharing one login, so multi-tenant/multi-user flows (switching between organizations, member
  * roles) have something realistic to test too.
  *
- * Relies on Organization::ensureHomePageExists() — same path OrganizationBuilderController::edit()
- * uses on first visit — to clone the template's pages/sections, which in turn triggers
+ * Relies on Organization::ensureHomePageExists() - same path OrganizationBuilderController::edit()
+ * uses on first visit - to clone the template's pages/sections, which in turn triggers
  * CmsSampleDataSeeder for every CMS-backed section, so each dummy org also gets sample posts,
  * agendas, officers, etc. already in place.
  */

@@ -154,7 +154,7 @@ Mobile layout bukan sekadar mengecilkan desktop.
 
 Buat landing page dengan urutan berikut:
 
-## SECTION 1 — Header
+## SECTION 1 - Header
 
 Header sticky.
 
@@ -182,7 +182,7 @@ Header harus clean dan tidak terlalu tinggi.
 
 ---
 
-# SECTION 2 — Hero
+# SECTION 2 - Hero
 
 Buat hero yang kuat dan modern.
 
@@ -215,7 +215,7 @@ Hero tidak boleh terlalu ramai.
 
 ---
 
-# SECTION 3 — Organization Highlights
+# SECTION 3 - Organization Highlights
 
 Buat 4 statistic cards.
 
@@ -239,7 +239,7 @@ Jangan mengarang angka seolah-olah data resmi.
 
 ---
 
-# SECTION 4 — Tentang Muhammadiyah Ambulu
+# SECTION 4 - Tentang Muhammadiyah Ambulu
 
 Layout split 50/50.
 
@@ -267,7 +267,7 @@ Pimpinan Cabang Muhammadiyah
 
 ---
 
-# SECTION 5 — Program Unggulan
+# SECTION 5 - Program Unggulan
 
 Heading:
 
@@ -298,7 +298,7 @@ Gunakan card yang clean.
 
 ---
 
-# SECTION 6 — Berita Terbaru
+# SECTION 6 - Berita Terbaru
 
 Buat section editorial/news.
 
@@ -330,7 +330,7 @@ Desain berita harus terasa seperti **media editorial**, bukan card SaaS.
 
 ---
 
-# SECTION 7 — Agenda Terdekat
+# SECTION 7 - Agenda Terdekat
 
 Gunakan layout daftar agenda.
 
@@ -356,11 +356,11 @@ Contoh:
 
 Kajian Ahad Pagi
 
-06.00 WIB  
+06.00 WIB
 Masjid [Nama Masjid]
 ---
 
-# SECTION 8 — Pesan Pimpinan
+# SECTION 8 - Pesan Pimpinan
 
 Buat section yang lebih personal.
 
@@ -379,14 +379,14 @@ Nama:
 
 **Dr. [Nama Ketua]**
 
-Ketua Pimpinan Cabang Muhammadiyah Ambulu  
+Ketua Pimpinan Cabang Muhammadiyah Ambulu
 Periode 2022–2027
 
 Gunakan desain elegan dan tidak berlebihan.
 
 ---
 
-# SECTION 9 — Struktur Pimpinan
+# SECTION 9 - Struktur Pimpinan
 
 Heading:
 
@@ -412,7 +412,7 @@ Sekretaris
 Bendahara
 ---
 
-# SECTION 10 — Jaringan Muhammadiyah
+# SECTION 10 - Jaringan Muhammadiyah
 
 Buat section yang menunjukkan ekosistem organisasi.
 
@@ -473,7 +473,7 @@ Setiap item dapat memiliki:
 
 ---
 
-# SECTION 11 — Call To Action
+# SECTION 11 - Call To Action
 
 Buat CTA section yang kuat tetapi sederhana.
 
@@ -493,7 +493,7 @@ Button:
 
 ---
 
-# SECTION 12 — Contact
+# SECTION 12 - Contact
 
 Heading:
 
@@ -519,21 +519,21 @@ info@[domain].id
 
 ### Jam Layanan
 
-Senin–Sabtu  
+Senin–Sabtu
 08.00–16.00 WIB
 
 Di sampingnya tampilkan embedded map.
 
 Tambahkan social media:
 
-Instagram  
-Facebook  
-YouTube  
+Instagram
+Facebook
+YouTube
 WhatsApp
 
 ---
 
-# SECTION 13 — Footer
+# SECTION 13 - Footer
 
 Footer sederhana.
 

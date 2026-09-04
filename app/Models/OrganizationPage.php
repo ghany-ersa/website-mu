@@ -44,7 +44,7 @@ class OrganizationPage extends Model
 
     /**
      * Every page must always render exactly one header first and one footer last,
-     * regardless of what the `order` column says — pulls the header/footer rows out and
+     * regardless of what the `order` column says - pulls the header/footer rows out and
      * pins them to the front/back, so a stray reorder request can never move either out
      * of place. Callers that need this (the render partial, the builder sidebar) should
      * use this instead of the raw sections() relation.
@@ -62,7 +62,7 @@ class OrganizationPage extends Model
 
     /**
      * Create this page's footer section if it doesn't already have one. Safe to call
-     * repeatedly (e.g. on every page-creation path) — see config/page-builder.php's
+     * repeatedly (e.g. on every page-creation path) - see config/page-builder.php's
      * `locked` doc comment for why footer must always exist and can't be user-managed.
      */
     public function ensureFooter(): void

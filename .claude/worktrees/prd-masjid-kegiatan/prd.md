@@ -1,4 +1,4 @@
-# Product Brief — Platform Website Muhammadiyah
+# Product Brief - Platform Website Muhammadiyah
 
 **Status:** Draft untuk product planning dan development  
 **Nama kerja:** Website-mu  
@@ -362,7 +362,7 @@ Versi sederhana untuk komunikasi pemasaran:
 
 ## 20. Roadmap Produk
 
-### Phase 1 — MVP Website Builder
+### Phase 1 - MVP Website Builder
 
 Tujuan: membuktikan bahwa unit organisasi nonteknis dapat membuat dan menerbitkan website sendiri.
 
@@ -380,7 +380,7 @@ Tujuan: membuktikan bahwa unit organisasi nonteknis dapat membuat dan menerbitka
 
 **Exit criteria:** situs organisasi dapat dibuat, diisi, dikelola, dan dipublikasikan end-to-end tanpa bantuan developer.
 
-### Phase 2 — AI Content Assistant
+### Phase 2 - AI Content Assistant
 
 Tujuan: mempercepat penyusunan struktur situs dan produksi konten.
 
@@ -389,7 +389,7 @@ Tujuan: mempercepat penyusunan struktur situs dan produksi konten.
 - Rewrite, summary, dan tone adjustment.
 - Saran kelengkapan konten serta kontrol review pengguna.
 
-### Phase 3 — Organization Network
+### Phase 3 - Organization Network
 
 Tujuan: menghubungkan organisasi dan unit dalam struktur Persyarikatan.
 
@@ -398,7 +398,7 @@ Tujuan: menghubungkan organisasi dan unit dalam struktur Persyarikatan.
 - Content syndication dengan approval.
 - Shared template, guideline, dan komponen resmi.
 
-### Phase 4 — Marketplace
+### Phase 4 - Marketplace
 
 Tujuan: memperluas variasi desain dan memperkuat ekosistem creator/mitra.
 
@@ -407,7 +407,7 @@ Tujuan: memperluas variasi desain dan memperkuat ekosistem creator/mitra.
 - Kurasi, review, dan mekanisme instalasi aset.
 - Monetisasi template premium.
 
-### Phase 5 — Integrasi Ekosistem Muhammadiyah
+### Phase 5 - Integrasi Ekosistem Muhammadiyah
 
 Tujuan: menjadikan platform sebagai fondasi layanan digital organisasi.
 

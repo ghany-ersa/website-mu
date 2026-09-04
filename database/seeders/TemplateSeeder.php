@@ -268,7 +268,7 @@ class TemplateSeeder extends Seeder
                 'organization_type_slug' => 'nasyiatul-aisyiyah',
                 'name' => 'Nasyiatul Aisyiyah',
                 'slug' => 'nasyiatul-aisyiyah',
-                'description' => 'Template untuk Nasyiatul Aisyiyah: menonjolkan citra perempuan muda berkemajuan, program keputrian, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
+                'description' => 'Template untuk Nasyiatul Aisyiyah: menonjolkan citra perempuan muda berkemajuan, program keputrian, dan ajakan bergabung. Warna draf - sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Nasyiatul Aisyiyah Ambulu',
                     'brand' => ['primary' => '#F4CE2A', 'secondary' => '#000000'],
@@ -279,7 +279,7 @@ class TemplateSeeder extends Seeder
                             'sections' => [
                                 ['key' => 'header', 'variant' => 'standar'],
                                 ['key' => 'hero', 'variant' => 'standar', 'content' => [
-                                    'badge' => 'Organisasi Otonom Muhammadiyah — Perempuan Muda',
+                                    'badge' => 'Organisasi Otonom Muhammadiyah - Perempuan Muda',
                                     'headline' => 'Perempuan Muda, Berdaya dan Berkemajuan',
                                     'subheadline' => 'Nasyiatul Aisyiyah Ambulu menghimpun perempuan muda dalam dakwah, pendidikan, dan pemberdayaan sosial.',
                                     'cta_label' => 'Gabung Sekarang',
@@ -326,7 +326,7 @@ class TemplateSeeder extends Seeder
                 'organization_type_slug' => 'pemuda-muhammadiyah',
                 'name' => 'Pemuda Muhammadiyah',
                 'slug' => 'pemuda-muhammadiyah',
-                'description' => 'Template untuk Pemuda Muhammadiyah: menonjolkan citra organisasi, kaderisasi, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
+                'description' => 'Template untuk Pemuda Muhammadiyah: menonjolkan citra organisasi, kaderisasi, dan ajakan bergabung. Warna draf - sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Pemuda Muhammadiyah Ambulu',
                     'brand' => ['primary' => '#E8242A', 'secondary' => '#079C4E'],
@@ -384,7 +384,7 @@ class TemplateSeeder extends Seeder
                 'organization_type_slug' => 'tapak-suci',
                 'name' => 'Tapak Suci',
                 'slug' => 'tapak-suci',
-                'description' => 'Template untuk Tapak Suci: menonjolkan citra perguruan bela diri, prestasi atlet, dan ajakan bergabung latihan. Warna draf — sesuaikan dengan pedoman identitas resmi.',
+                'description' => 'Template untuk Tapak Suci: menonjolkan citra perguruan bela diri, prestasi atlet, dan ajakan bergabung latihan. Warna draf - sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Tapak Suci Putera Muhammadiyah Ambulu',
                     'brand' => ['primary' => '#E8242A', 'secondary' => '#F4CE2A'],
@@ -442,7 +442,7 @@ class TemplateSeeder extends Seeder
                 'organization_type_slug' => 'hizbul-wathan',
                 'name' => 'Hizbul Wathan',
                 'slug' => 'hizbul-wathan',
-                'description' => 'Template untuk Hizbul Wathan: menonjolkan citra kepanduan, kegiatan alam, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
+                'description' => 'Template untuk Hizbul Wathan: menonjolkan citra kepanduan, kegiatan alam, dan ajakan bergabung. Warna draf - sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'Hizbul Wathan Qabilah Ambulu',
                     'brand' => ['primary' => '#079C4E', 'secondary' => '#2C368B'],
@@ -500,7 +500,7 @@ class TemplateSeeder extends Seeder
                 'organization_type_slug' => 'imm',
                 'name' => 'Ikatan Mahasiswa Muhammadiyah',
                 'slug' => 'imm',
-                'description' => 'Template untuk IMM: menonjolkan citra gerakan intelektual mahasiswa, kaderisasi, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
+                'description' => 'Template untuk IMM: menonjolkan citra gerakan intelektual mahasiswa, kaderisasi, dan ajakan bergabung. Warna draf - sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'IMM Komisariat Ambulu',
                     'brand' => ['primary' => '#E8242A', 'secondary' => '#000000'],
@@ -569,7 +569,7 @@ class TemplateSeeder extends Seeder
                             'sections' => [
                                 ['key' => 'header', 'variant' => 'standar'],
                                 ['key' => 'hero', 'variant' => 'standar', 'content' => [
-                                    'badge' => 'Organisasi Otonom Muhammadiyah — Perempuan Berkemajuan',
+                                    'badge' => 'Organisasi Otonom Muhammadiyah - Perempuan Berkemajuan',
                                     'headline' => 'Perempuan Berkemajuan untuk Bangsa',
                                     'subheadline' => 'Pimpinan Cabang Aisyiyah Ambulu bergerak dalam dakwah, pendidikan, kesehatan, dan pemberdayaan perempuan di Kecamatan Ambulu.',
                                     'cta_label' => 'Tentang Kami',
@@ -731,7 +731,7 @@ class TemplateSeeder extends Seeder
                 'organization_type_slug' => 'ipm',
                 'name' => 'Ikatan Pelajar Muhammadiyah',
                 'slug' => 'ipm',
-                'description' => 'Template untuk IPM: menonjolkan citra organisasi pelajar, kreativitas, dan ajakan bergabung. Warna draf — sesuaikan dengan pedoman identitas resmi.',
+                'description' => 'Template untuk IPM: menonjolkan citra organisasi pelajar, kreativitas, dan ajakan bergabung. Warna draf - sesuaikan dengan pedoman identitas resmi.',
                 'structure' => [
                     'sample_org_name' => 'IPM Ambulu',
                     'brand' => ['primary' => '#F4CE2A', 'secondary' => '#EE942E'],
@@ -792,7 +792,7 @@ class TemplateSeeder extends Seeder
                 'description' => 'Template untuk organisasi yang fokus menerbitkan berita dan artikel: headline utama, kategori berita, dan ajakan mengikuti kabar terbaru.',
                 // Uses several non-'standar' section variants (headline-berita, mozaik, ringkas),
                 // which are exclusive-plan-only selections in the builder (see
-                // OrganizationSectionController::update()) — flagged exclusive here so only
+                // OrganizationSectionController::update()) - flagged exclusive here so only
                 // organizations with that entitlement can pick this template in the first place.
                 'is_exclusive' => true,
                 'structure' => [
@@ -814,7 +814,7 @@ class TemplateSeeder extends Seeder
                                     'image' => 'https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?auto=format&fit=crop&w=1400&q=80',
                                 ]],
                                 // category_filter keeps this disjoint from the 'opini' section below once
-                                // real posts exist — an organization's post authors need to type "Berita"
+                                // real posts exist - an organization's post authors need to type "Berita"
                                 // (not "Opini") into a post's Kategori field for it to show up here.
                                 ['key' => 'daftar-berita', 'variant' => 'ringkas', 'content' => [
                                     'title' => 'Kabar Persyarikatan',
@@ -874,13 +874,13 @@ class TemplateSeeder extends Seeder
     /**
      * Exclusive templates, gated behind `Plan::has_exclusive_templates` (see
      * Organization::canUseExclusiveTemplates() and prd-status.md §2.5/§2.8). These reuse the
-     * exact same section partials/fields as the standard templates above — no new component
-     * capability — but combine a richer section lineup, a distinct brand pairing (serif `Lora`
+     * exact same section partials/fields as the standard templates above - no new component
+     * capability - but combine a richer section lineup, a distinct brand pairing (serif `Lora`
      * + `sharp` radius, instead of the platform default `Plus Jakarta Sans` + `soft`), and more
      * elaborate sample copy so they read as a premium tier rather than a reskin.
      *
      * Deliberately single-page (`pages` has exactly one entry): Organization::seedPagesFromTemplate()
-     * only ever clones `structure['pages'][0]` into a new tenant — a template-preview-only second
+     * only ever clones `structure['pages'][0]` into a new tenant - a template-preview-only second
      * or third page (as some standard templates above have) would render in the preview tool but
      * never reach a real organization, which would be a misleading structure for the flagship
      * exclusive tier to model. "Tentang" content (struktur-pengurus, jaringan-aum-ortom) is a
@@ -926,7 +926,7 @@ class TemplateSeeder extends Seeder
                                 ['key' => 'sambutan-ketua', 'variant' => 'modern', 'content' => [
                                     'nama' => 'Prof. Dr. H. Muhammad Sholihin, M.Ag.',
                                     'jabatan' => 'Ketua PDM Kabupaten Jember periode 2022–2027',
-                                    'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Muhammadiyah Kabupaten Jember hadir sebagai gerakan dakwah amar makruf nahi mungkar yang berikhtiar hadir di setiap lini kehidupan masyarakat — dari mimbar masjid hingga ruang kelas, dari klinik hingga panti asuhan. Melalui kanal digital ini, kami ingin setiap warga Muhammadiyah dan masyarakat Jember dapat mengikuti, mendukung, dan turut serta dalam setiap langkah dakwah dan amal usaha yang kami jalankan bersama seluruh Pimpinan Cabang, Ranting, Ortom, dan Amal Usaha di wilayah ini.',
+                                    'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Muhammadiyah Kabupaten Jember hadir sebagai gerakan dakwah amar makruf nahi mungkar yang berikhtiar hadir di setiap lini kehidupan masyarakat - dari mimbar masjid hingga ruang kelas, dari klinik hingga panti asuhan. Melalui kanal digital ini, kami ingin setiap warga Muhammadiyah dan masyarakat Jember dapat mengikuti, mendukung, dan turut serta dalam setiap langkah dakwah dan amal usaha yang kami jalankan bersama seluruh Pimpinan Cabang, Ranting, Ortom, dan Amal Usaha di wilayah ini.',
                                     'photo' => 'https://randomuser.me/api/portraits/men/52.jpg',
                                 ]],
                                 ['key' => 'tentang-organisasi', 'variant' => 'modern', 'content' => [

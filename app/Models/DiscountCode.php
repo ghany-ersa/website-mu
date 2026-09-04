@@ -35,7 +35,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Whether this code can still be redeemed right now — active, within its validity window,
+     * Whether this code can still be redeemed right now - active, within its validity window,
      * and under its usage cap (if any).
      */
     public function isUsable(): bool
@@ -60,7 +60,7 @@ class DiscountCode extends Model
     }
 
     /**
-     * Rupiah amount this code knocks off a given price — clamped so a fixed-amount code
+     * Rupiah amount this code knocks off a given price - clamped so a fixed-amount code
      * never discounts below zero.
      */
     public function amountFor(int $price): int

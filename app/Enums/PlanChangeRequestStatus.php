@@ -10,7 +10,7 @@ enum PlanChangeRequestStatus: string
     case PaymentConfirmed = 'payment_confirmed';
     case Approved = 'approved';
     case Rejected = 'rejected';
-    // Midtrans reported settlement but PlanChangeRequestService::approve() threw — admin must
+    // Midtrans reported settlement but PlanChangeRequestService::approve() threw - admin must
     // retry it manually from the admin panel (see approve_error/approve_attempts).
     case PaymentReceivedNeedsReview = 'payment_received_needs_review';
     // The Snap transaction expired or was cancelled before payment.

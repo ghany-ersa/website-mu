@@ -1,6 +1,6 @@
 {{--
     Auto-binds to the organization's gallery photos (GalleryPhoto, ordered by `order`)
-    when $organization is in scope — i.e. when rendered as a tenant page
+    when $organization is in scope - i.e. when rendered as a tenant page
     (organizations/pages/_render.blade.php). Falls back to $content['items'] sample data
     in template-preview context (templates/preview.blade.php), which has no organization yet.
 --}}
@@ -55,7 +55,7 @@
     </div>
 
     {{-- Click-to-preview lightbox: overlay with the full-size photo, caption, prev/next, and
-         close — keyboard-accessible (Escape closes, arrow keys navigate) so it isn't a
+         close - keyboard-accessible (Escape closes, arrow keys navigate) so it isn't a
          hover-only or mouse-only affordance. --}}
     <div x-show="lightboxOpen"
          x-cloak

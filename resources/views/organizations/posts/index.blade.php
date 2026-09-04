@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', 'Berita — '.$organization->name.' — Website-mu')
+@section('title', 'Berita - '.$organization->name.' - Website-mu')
 
 @section('content')
     <div class="max-w-3xl mx-auto">

@@ -6,7 +6,7 @@ namespace App\Services;
  * Normalizes an Indonesian phone number into the international-digits-only format
  * wa.me links require (62xxxxxxxxxx). Numbers typed with the local 0-prefix (the
  * common way Indonesians write their own number, e.g. 081234567890) don't work as
- * a wa.me link as-is — wa.me needs the country code instead of the leading 0.
+ * a wa.me link as-is - wa.me needs the country code instead of the leading 0.
  */
 class WhatsAppNumber
 {

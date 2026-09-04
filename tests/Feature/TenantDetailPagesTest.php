@@ -34,8 +34,8 @@ class TenantDetailPagesTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($post->title);
-        $response->assertSee('<title>'.$post->title.' — '.$organization->name.'</title>', false);
-        $response->assertSee('property="og:title" content="'.$post->title.' — '.$organization->name.'"', false);
+        $response->assertSee('<title>'.$post->title.' - '.$organization->name.'</title>', false);
+        $response->assertSee('property="og:title" content="'.$post->title.' - '.$organization->name.'"', false);
         $response->assertSee('"@type":"NewsArticle"', false);
     }
 
@@ -51,7 +51,7 @@ class TenantDetailPagesTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($announcement->title);
-        $response->assertSee('<title>'.$announcement->title.' — '.$organization->name.'</title>', false);
+        $response->assertSee('<title>'.$announcement->title.' - '.$organization->name.'</title>', false);
     }
 
     public function test_agenda_detail_page_renders(): void
@@ -67,7 +67,7 @@ class TenantDetailPagesTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($agenda->title);
-        $response->assertSee('<title>'.$agenda->title.' — '.$organization->name.'</title>', false);
+        $response->assertSee('<title>'.$agenda->title.' - '.$organization->name.'</title>', false);
     }
 
     public function test_unpublished_post_404s(): void

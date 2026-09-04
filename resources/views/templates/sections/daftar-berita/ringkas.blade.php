@@ -6,7 +6,7 @@
     which has no organization yet.
 
     Dense thumbnail-list treatment (no excerpt, no featured item) modeled on muhammadiyah.or.id's
-    "Kabar Persyarikatan" block — every item renders the same compact row, unlike
+    "Kabar Persyarikatan" block - every item renders the same compact row, unlike
     daftar-berita/portal.blade.php which singles out the first item as a large featured card.
 --}}
 @php

@@ -1,4 +1,4 @@
-{{-- NewsArticle structured data for Google/rich results — appended after the post body markup. --}}
+{{-- NewsArticle structured data for Google/rich results - appended after the post body markup. --}}
 <script type="application/ld+json">
 {!! json_encode([
     '@context' => 'https://schema.org',

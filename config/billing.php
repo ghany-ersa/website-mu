@@ -1,6 +1,6 @@
 <?php
 
-// Payment for plan changes goes entirely through Midtrans Snap — see
+// Payment for plan changes goes entirely through Midtrans Snap - see
 // OrganizationPlanController::store() (creates the Snap transaction) and
 // MidtransWebhookController (settles the PlanChangeRequest on payment). There is no manual
 // bank-transfer fallback; an admin who needs to bypass payment entirely uses the plan-override
@@ -14,7 +14,7 @@ return [
 
         // Flat rupiah surcharge added on top of PlanChangeRequest::totalPrice() to cover
         // Midtrans' processing fee, passed on to the tenant. 0 until the real per-method fee
-        // schedule from the Midtrans dashboard is known — see PlanChangeRequest::gatewayAmount().
+        // schedule from the Midtrans dashboard is known - see PlanChangeRequest::gatewayAmount().
         'admin_fee' => (int) env('MIDTRANS_ADMIN_FEE', 0),
 
         // How many times an admin may retry PlanChangeRequestService::approve() from the admin

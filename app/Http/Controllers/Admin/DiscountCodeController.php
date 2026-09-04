@@ -72,7 +72,7 @@ class DiscountCodeController extends Controller
      */
     public function destroy(DiscountCode $discountCode): RedirectResponse
     {
-        abort_if($discountCode->used_count > 0, 409, 'Kode yang sudah pernah dipakai tidak dapat dihapus — nonaktifkan saja agar riwayat penggunaan tetap utuh.');
+        abort_if($discountCode->used_count > 0, 409, 'Kode yang sudah pernah dipakai tidak dapat dihapus - nonaktifkan saja agar riwayat penggunaan tetap utuh.');
 
         $discountCode->delete();
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Template — website-mu.id</title>
+    <title>Katalog Template - website-mu.id</title>
     <meta name="description" content="Jelajahi semua template website organisasi Muhammadiyah: Persyarikatan, Ortom, AUM Pendidikan, AUM Kesehatan & Sosial, dan Masjid.">
     <link rel="canonical" href="{{ route('templates.index') }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">

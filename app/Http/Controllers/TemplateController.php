@@ -11,7 +11,7 @@ class TemplateController extends Controller
 {
     /**
      * Full public template catalog, linked from the homepage's trimmed preview grid
-     * (see routes/web.php's `/` closure) — this is where every active template lives,
+     * (see routes/web.php's `/` closure) - this is where every active template lives,
      * filterable by organization type, so the homepage itself can stay to a small
      * curated set without hiding anything from a visitor who wants to browse all of them.
      */

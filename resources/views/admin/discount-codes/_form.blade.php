@@ -55,7 +55,7 @@
 
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1" for="valid_range">
-            Masa Berlaku <span class="font-normal text-gray-400">(opsional — kosongkan untuk tanpa batas waktu)</span>
+            Masa Berlaku <span class="font-normal text-gray-400">(opsional - kosongkan untuk tanpa batas waktu)</span>
         </label>
         <input type="text" id="valid_range" placeholder="Pilih rentang tanggal" autocomplete="off" readonly
                class="w-full sm:w-80 rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30">

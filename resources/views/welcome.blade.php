@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>website-mu.id - Platform Bikin Website Organisasi Muhammadiyah Tanpa Coding</title>
-    <meta name="description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit — tanpa developer, tanpa coding. Pilih template, isi profil, terbitkan gratis ke subdomain website-mu.id atau domain sendiri.">
+    <meta name="description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit - tanpa developer, tanpa coding. Pilih template, isi profil, terbitkan gratis ke subdomain website-mu.id atau domain sendiri.">
     <meta name="keywords" content="website muhammadiyah, website pcm, website pdm, website prm, website masjid, website sekolah muhammadiyah, pembuat website organisasi, no-code website builder, cms muhammadiyah, aisyiyah, ortom">
     <meta name="author" content="website-mu.id">
     <meta name="robots" content="index, follow">
@@ -18,7 +18,7 @@
     <meta property="og:site_name" content="website-mu.id">
     <meta property="og:locale" content="id_ID">
     <meta property="og:title" content="website-mu.id - Platform Bikin Website Organisasi Muhammadiyah Tanpa Coding">
-    <meta property="og:description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit — tanpa developer, tanpa coding. Terbitkan gratis dalam 30 menit.">
+    <meta property="og:description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit - tanpa developer, tanpa coding. Terbitkan gratis dalam 30 menit.">
     <meta property="og:image" content="{{ asset('og-image.jpg') }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -26,11 +26,11 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="website-mu.id - Platform Bikin Website Organisasi Muhammadiyah Tanpa Coding">
-    <meta name="twitter:description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit — tanpa developer, tanpa coding.">
+    <meta name="twitter:description" content="Bikin website resmi PRM, PCM, PDM, Ortom, sekolah, klinik, atau masjid Muhammadiyah dalam hitungan menit - tanpa developer, tanpa coding.">
     <meta name="twitter:image" content="{{ asset('og-image.jpg') }}">
 
     <!-- Structured data: describes website-mu.id itself as a SaaS product, for rich results
-         (sitelinks search box eligibility, knowledge panel signals) — not tenant-site content.
+         (sitelinks search box eligibility, knowledge panel signals) - not tenant-site content.
          Built via json_encode() rather than inline JSON so the schema.org "at"-prefixed keys
          don't get parsed as Blade directives. -->
     @php
@@ -42,7 +42,7 @@
             'name' => 'website-mu.id',
             'applicationCategory' => 'BusinessApplication',
             'operatingSystem' => 'Web',
-            'description' => 'Platform no-code untuk membuat, mengelola, dan menerbitkan website organisasi dalam ekosistem Muhammadiyah — PDM, PCM, PRM, Ortom, AUM sekolah, klinik, dan masjid.',
+            'description' => 'Platform no-code untuk membuat, mengelola, dan menerbitkan website organisasi dalam ekosistem Muhammadiyah - PDM, PCM, PRM, Ortom, AUM sekolah, klinik, dan masjid.',
             'url' => url('/'),
             'offers' => [
                 $atType => 'Offer',
@@ -178,7 +178,7 @@
                     </h1>
 
                     <p class="text-gray-600 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
-                        Tidak perlu sewa developer atau nunggu proyek IT setengah jalan. Pilih template PRM, PCM, PDM, Sekolah, Masjid, atau AUM Anda — isi profil, terbitkan sendiri.
+                        Tidak perlu sewa developer atau nunggu proyek IT setengah jalan. Pilih template PRM, PCM, PDM, Sekolah, Masjid, atau AUM Anda - isi profil, terbitkan sendiri.
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -387,7 +387,7 @@
             </div>
 
             @php
-                // Marketing subtitle per plan key — not stored in the plans table since it's
+                // Marketing subtitle per plan key - not stored in the plans table since it's
                 // copywriting, not a limit/price the app enforces.
                 $planSubtitles = [
                     'organization' => 'Ranting & Cabang',

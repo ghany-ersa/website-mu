@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', $organization->name . ' — Website-mu')
+@section('title', $organization->name . ' - Website-mu')
 
 @section('content')
     <div class="bg-white rounded-2xl shadow-soft p-5 sm:p-6 mb-8">
@@ -86,7 +86,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                     </svg>
-                    Langganan — {{ $organization->plan?->name ?? 'Belum Diatur' }}
+                    Langganan - {{ $organization->plan?->name ?? 'Belum Diatur' }}
                 </a>
             @endcan
             @if ($organization->status === \App\Enums\OrganizationStatus::Published && $tenantDomain)
@@ -184,7 +184,7 @@
 
     @php
         // Only show a content quick-link if the organization's builder pages actually contain
-        // that section — an org whose template never included e.g. galeri shouldn't see a
+        // that section - an org whose template never included e.g. galeri shouldn't see a
         // content shortcut for something it has no section to display (see also the sidebar
         // filter in layouts/organization.blade.php, which applies the same rule).
         $activeSectionKeys = $organization->pages->flatMap->sections->pluck('key')->unique();

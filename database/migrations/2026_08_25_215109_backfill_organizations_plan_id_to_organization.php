@@ -10,7 +10,7 @@ return new class extends Migration
      * Backfills plan_id for organizations created before the plan system existed.
      * PlanLimitService::effectivePlan() already treats a null plan_id as equivalent to the
      * 'organization' plan (fail-open, not fail-closed), so this isn't strictly required for
-     * limits to work — but an explicit plan_id keeps admin screens, the plan.edit page, and
+     * limits to work - but an explicit plan_id keeps admin screens, the plan.edit page, and
      * PlanChangeRequestService from displaying "Belum diatur" for every pre-existing tenant.
      */
     public function up(): void

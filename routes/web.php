@@ -37,7 +37,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     // Curated set, not the full catalog: one representative per organization-type grouping
     // so the homepage grid stays a short, skimmable preview instead of all ~13 templates
-    // (most of which only differ from a sibling by brand color/copy — see templates.index for
+    // (most of which only differ from a sibling by brand color/copy - see templates.index for
     // the full, filterable list). 'muhammadiyah-eksekutif' stands in for Persyarikatan instead
     // of the standard 'muhammadiyah' template, since both target the same PDM/PCM/PRM audience
     // and showing both here would look like duplication rather than distinct choices.
@@ -201,14 +201,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('plan-change-requests/{planChangeRequest}/retry-approve', [PlanChangeRequestController::class, 'retryApprove'])->name('plan-change-requests.retry-approve');
 });
 
-// Called by Midtrans, not a logged-in tenant — outside the auth group entirely, protected by
+// Called by Midtrans, not a logged-in tenant - outside the auth group entirely, protected by
 // signature verification + a live status re-fetch instead (see MidtransWebhookController).
 Route::post('webhooks/midtrans', MidtransWebhookController::class)->name('webhooks.midtrans');
 
 require __DIR__.'/auth.php';
 
 // Public tenant sites, served at {slug}.{tenancy.domain} (e.g. pcm-ambulu.website-mu.id).
-// Guarded so the route is never *registered* — not just non-matching — when TENANT_DOMAIN
+// Guarded so the route is never *registered* - not just non-matching - when TENANT_DOMAIN
 // is unset, which keeps local `php artisan serve` (no wildcard subdomain to route) behaving
 // exactly like today with zero special-casing. See OrganizationSiteController for the lookup.
 if ($tenantDomain = config('tenancy.domain')) {

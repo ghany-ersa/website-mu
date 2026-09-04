@@ -7,7 +7,7 @@
 
     // The builder only supports a single page (see Organization::seedPagesFromTemplate()),
     // so these nav items are anchors within that same page rather than links to separate
-    // pages/routes — each maps to the first visible section of that key present on the page,
+    // pages/routes - each maps to the first visible section of that key present on the page,
     // and is only shown when such a section actually exists (a template without a Formulir
     // Kontak section, say, just doesn't get a "Kontak" nav item).
     $pageSections = isset($page) ? $page->sectionsInDisplayOrder() : collect();

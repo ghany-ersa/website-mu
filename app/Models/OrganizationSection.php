@@ -36,7 +36,7 @@ class OrganizationSection extends Model
     /**
      * A content[] value read back from JSON can come back as an array (e.g. if a field was
      * repurposed, or bad data was ever saved) even though the builder form only ever writes
-     * scalars into it — guard against rendering that as a string field's value.
+     * scalars into it - guard against rendering that as a string field's value.
      */
     public function scalarContent(string $field, string $default = ''): string
     {
@@ -46,7 +46,7 @@ class OrganizationSection extends Model
     }
 
     /**
-     * Resolve a text field's display value: the section's own saved content, or — when empty —
+     * Resolve a text field's display value: the section's own saved content, or - when empty —
      * this section key's configured default (config/page-builder.php), with {org_name}
      * substituted in so a freshly-added section reads naturally before the user edits it.
      */

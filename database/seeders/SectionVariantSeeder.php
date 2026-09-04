@@ -6,7 +6,7 @@ use App\Models\SectionVariant;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the section_variants table — the registry of which Blade view renders each section
+ * Seeds the section_variants table - the registry of which Blade view renders each section
  * variant, and whether picking it requires Organization::canUseExclusiveTemplates(). This is the
  * one-time data migration off config/page-builder.php's old `variants`/`default_variant` keys
  * (now removed from that file) plus the ongoing workflow for adding a brand-new variant: write

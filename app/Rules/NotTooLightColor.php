@@ -9,12 +9,12 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 /**
  * Rejects hex colors too close to white to read as text on the white/near-white
  * backgrounds most section partials use (e.g. `text-secondary` in daftar-berita,
- * donasi-zakat-infak, tentang-organisasi, sambutan-ketua) — see prd.md §24.4.
+ * donasi-zakat-infak, tentang-organisasi, sambutan-ketua) - see prd.md §24.4.
  */
 class NotTooLightColor implements ValidationRule
 {
     /**
-     * Relative luminance (WCAG) above this is considered "too light" — chosen so pure
+     * Relative luminance (WCAG) above this is considered "too light" - chosen so pure
      * white (1.0) and near-white grays/pastels fail, while legitimate light-but-readable
      * brand colors (e.g. a bright secondary green/amber) still pass.
      */

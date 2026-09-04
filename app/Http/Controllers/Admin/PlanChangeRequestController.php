@@ -43,7 +43,7 @@ class PlanChangeRequestController extends Controller
     }
 
     /**
-     * Cancels a request that was never paid for — e.g. the tenant abandoned checkout and it's
+     * Cancels a request that was never paid for - e.g. the tenant abandoned checkout and it's
      * cluttering the queue. There is no manual "Approve" here: since payment goes entirely
      * through Midtrans, a request only becomes Approved via the webhook (or retryApprove()
      * below, for one that Midtrans already settled but which failed to auto-approve).
@@ -68,7 +68,7 @@ class PlanChangeRequestController extends Controller
      * settled but which failed to auto-approve from the webhook (see
      * PlanChangeRequestStatus::PaymentReceivedNeedsReview). Logged to plan_override_logs like
      * every other manual plan change, and capped at config('billing.midtrans.max_approve_attempts')
-     * — beyond that the admin must use the plan-override panel instead.
+     * - beyond that the admin must use the plan-override panel instead.
      */
     public function retryApprove(PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): RedirectResponse
     {

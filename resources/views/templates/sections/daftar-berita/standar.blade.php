@@ -5,8 +5,8 @@
     back to $content['items'] sample data in template-preview context (templates/preview.blade.php),
     which has no organization yet.
 
-    Even grid of same-sized cards — no featured item singled out, unlike modern.blade.php. Shows
-    the full excerpt (no line-clamp) when a post/sample item has one — for items with none, the
+    Even grid of same-sized cards - no featured item singled out, unlike modern.blade.php. Shows
+    the full excerpt (no line-clamp) when a post/sample item has one - for items with none, the
     excerpt line simply doesn't render, so this serves both a plain "image + title" look and a
     longer-form "image + title + excerpt" look without a separate mode flag.
 --}}

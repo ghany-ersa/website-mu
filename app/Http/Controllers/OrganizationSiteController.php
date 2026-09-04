@@ -14,7 +14,7 @@ class OrganizationSiteController extends Controller
 {
     /**
      * Render an organization's published site at its subdomain. Unauthenticated and
-     * unauthorized by design — once Published, the site is public. The status filter
+     * unauthorized by design - once Published, the site is public. The status filter
      * lives in the lookup query itself so a Draft organization's subdomain 404s
      * identically to one that was never claimed, instead of leaking its existence.
      */
@@ -34,7 +34,7 @@ class OrganizationSiteController extends Controller
 
     /**
      * Preview a page exactly as it renders on the tenant subdomain, without going through
-     * that subdomain — for owners/admins checking a page (published or not) from the main
+     * that subdomain - for owners/admins checking a page (published or not) from the main
      * app domain, e.g. in local dev where wildcard subdomains aren't routable. Reuses the
      * same public view as show(), so this stays a faithful preview rather than a
      * lookalike that can drift from the real tenant output.
@@ -95,7 +95,7 @@ class OrganizationSiteController extends Controller
     }
 
     /**
-     * Shared published-organization lookup — status filter lives here so an
+     * Shared published-organization lookup - status filter lives here so an
      * unpublished organization's subdomain/detail pages 404 identically to
      * one that was never claimed, instead of leaking its existence.
      */

@@ -10,10 +10,10 @@ use Illuminate\View\View;
 
 /**
  * Lets an organization replace its entire site with another template's starting content
- * (see Organization::seedPagesFromTemplate()) — the builder only supports one page, so
+ * (see Organization::seedPagesFromTemplate()) - the builder only supports one page, so
  * switching template means discarding the current page/sections and re-cloning from the
  * new template, not merging. Only the Owner may do this (see OrganizationPolicy::update()
- * is too broad for something this destructive — gated separately below), and templates
+ * is too broad for something this destructive - gated separately below), and templates
  * marked Template::is_exclusive are only selectable when the org's plan grants that
  * entitlement (Organization::canUseExclusiveTemplates()).
  */

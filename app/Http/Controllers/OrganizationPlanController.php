@@ -31,7 +31,7 @@ class OrganizationPlanController extends Controller
             'organization' => $organization,
             'plans' => $plans,
             // used/limit are the raw, unclamped figures (unlike remaining(), which floors at
-            // 0) so the view can tell "at the limit" apart from "N over the limit" — see
+            // 0) so the view can tell "at the limit" apart from "N over the limit" - see
             // PlanLimitService::currentCount()/effectiveLimit().
             'usage' => collect($usageKeys)->mapWithKeys(fn (string $key) => [
                 $key => [
@@ -45,7 +45,7 @@ class OrganizationPlanController extends Controller
             // keyed by plan id, for the picker/confirmation modal to read the selected plan's
             // name and its price per duration. Prices are computed server-side via
             // Plan::priceForDuration() (which folds in the duration discount) so the view never
-            // re-derives a discount percentage in JS — it only ever reads a precomputed total.
+            // re-derives a discount percentage in JS - it only ever reads a precomputed total.
             'plansForConfirm' => $plans->mapWithKeys(fn (Plan $plan) => [
                 $plan->id => [
                     'name' => $plan->name,
@@ -56,7 +56,7 @@ class OrganizationPlanController extends Controller
                         $months => $plan->discountPercentFor($months),
                     ]),
                     // Rupiah saved vs. paying the undiscounted monthly rate for that many
-                    // months — precomputed here so the view never re-derives it from a percentage.
+                    // months - precomputed here so the view never re-derives it from a percentage.
                     'savings' => collect([3, 6, 12])->mapWithKeys(fn (int $months) => [
                         $months => ($plan->price_monthly * $months) - $plan->priceForDuration($months),
                     ]),
@@ -91,7 +91,7 @@ class OrganizationPlanController extends Controller
             'discount_code' => ['nullable', 'string', 'max:50'],
         ]);
 
-        // Only block re-requesting the same plan once it's actually paid for — a brand-new
+        // Only block re-requesting the same plan once it's actually paid for - a brand-new
         // organization already has plan_id set (see OrganizationController::store()) but
         // hasn't paid yet (plan_expires_at is still null), so its very first payment request
         // is for the plan it's already "on," and that has to be allowed through.
@@ -129,7 +129,7 @@ class OrganizationPlanController extends Controller
     }
 
     /**
-     * Re-opens the Snap payment page for a Pending request that already exists — e.g. the
+     * Re-opens the Snap payment page for a Pending request that already exists - e.g. the
      * tenant closed the Snap window without paying and came back to the plan page. Creates a
      * fresh Snap transaction under a new order_id each time, since Midtrans requires order_id
      * to be unique forever (a previous transaction may have already expired).
@@ -149,7 +149,7 @@ class OrganizationPlanController extends Controller
     /**
      * Live-validates a voucher against the plan/duration currently picked in the form, so the
      * owner sees the real discount before submitting rather than only "verified at submission."
-     * Doesn't touch any records — the code is re-validated again in store() as the final guard.
+     * Doesn't touch any records - the code is re-validated again in store() as the final guard.
      */
     public function applyDiscount(Request $request, Organization $organization): JsonResponse
     {

@@ -8,19 +8,19 @@ use App\Models\User;
 
 /**
  * Approving/rejecting a plan change request. organizations.plan_id is never touched by the
- * request itself (see OrganizationPlanController::store()) — only approve() flips it.
+ * request itself (see OrganizationPlanController::store()) - only approve() flips it.
  */
 class PlanChangeRequestService
 {
     /**
      * $admin is null for a system-attributed approval (the Midtrans webhook settling a
-     * payment automatically, with no admin involved) — reviewed_by_user_id stays null in that
+     * payment automatically, with no admin involved) - reviewed_by_user_id stays null in that
      * case rather than being attributed to some other user.
      */
     public function approve(PlanChangeRequest $request, ?User $admin = null, ?string $note = null): void
     {
         // Guards against the Midtrans webhook firing this twice for the same settlement
-        // (Midtrans retries notifications) — a second call would otherwise double-extend
+        // (Midtrans retries notifications) - a second call would otherwise double-extend
         // plan_expires_at.
         if ($request->status === PlanChangeRequestStatus::Approved) {
             return;
@@ -48,7 +48,7 @@ class PlanChangeRequestService
             'reviewed_by_user_id' => $admin?->id,
             'reviewed_at' => now(),
             'admin_note' => $note,
-            // Freezes the plan's limits as they exist right now — if an admin edits the plan's
+            // Freezes the plan's limits as they exist right now - if an admin edits the plan's
             // limits later, an org that already paid keeps what it paid for (see
             // PlanLimitService::effectiveLimit()) rather than being silently squeezed or
             // loosened by a change it never agreed to. A future renewal/upgrade approves a new

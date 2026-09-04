@@ -2,7 +2,7 @@
 
 // Whitelisted brand tokens for Organization::fontFamily()/borderRadius() and the two
 // document scaffolds that render them (organizations/pages/_document.blade.php and
-// templates/preview.blade.php — kept in sync deliberately, see that file's header comment).
+// templates/preview.blade.php - kept in sync deliberately, see that file's header comment).
 // Adding an option here makes it selectable from the brand settings form and renderable
 // everywhere without touching controller/model code.
 return [

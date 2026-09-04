@@ -7,12 +7,12 @@ use Illuminate\Database\Seeder;
 
 /**
  * Seeds the three plans and their limits, mirroring what's actually in the dev database. The
- * numbers below are initial defaults, not a final business decision — adjust via a follow-up
+ * numbers below are initial defaults, not a final business decision - adjust via a follow-up
  * seeder once real pricing and usage data are settled. Every component/section is available on
  * every plan; only the total number of sections a plan allows is limited (sections_total).
  *
  * Descriptions only name entitlements that actually exist in code (hide_branding,
- * has_exclusive_templates) — earlier copy referenced custom domains and AI content that were
+ * has_exclusive_templates) - earlier copy referenced custom domains and AI content that were
  * never built, which is the kind of over-promise this plan intentionally avoids repeating.
  */
 class PlanSeeder extends Seeder

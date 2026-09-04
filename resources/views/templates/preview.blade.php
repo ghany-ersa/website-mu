@@ -3,7 +3,7 @@
     // radius) so Ortom templates (NA, Pemuda, Tapak Suci, HW, IMM, IPM) render in their own
     // identity instead of the default Muhammadiyah blue/green. Kept in sync deliberately with
     // organizations/pages/_document.blade.php (same brand token injection, but sourced from
-    // $organization instead of $template->structure['brand']) — update both together.
+    // $organization instead of $template->structure['brand']) - update both together.
     $brand = $template->structure['brand'] ?? [];
     $primaryColor = $brand['primary'] ?? '#2C368B';
     $secondaryColor = $brand['secondary'] ?? '#079C4E';
@@ -27,7 +27,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview — {{ $template->name }}</title>
+    <title>Preview - {{ $template->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
     <script>

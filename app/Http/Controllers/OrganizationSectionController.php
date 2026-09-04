@@ -31,7 +31,7 @@ class OrganizationSectionController extends Controller
     }
 
     /**
-     * Locked sections (header, footer — see config/page-builder.php) must always exist and
+     * Locked sections (header, footer - see config/page-builder.php) must always exist and
      * stay in their pinned position (header first, footer last), so delete/duplicate is
      * rejected here regardless of which locked section it is.
      */
@@ -42,7 +42,7 @@ class OrganizationSectionController extends Controller
 
     /**
      * Unlike delete/duplicate, editing content is only blocked for locked sections that have
-     * no editable fields at all (currently just `footer`) — header is locked in position but
+     * no editable fields at all (currently just `footer`) - header is locked in position but
      * still exposes `org_name`, which the user must be able to edit from the builder.
      */
     private function ensureContentEditable(OrganizationSection $section): void
@@ -57,12 +57,12 @@ class OrganizationSectionController extends Controller
      * Append a new section of the given key to the page, using its registry defaults.
      *
      * For a CMS-backed section (struktur-pengurus, program-unggulan, layanan, daftar-berita,
-     * agenda, pengumuman, jaringan-aum-ortom, galeri — see CmsSampleDataSeeder), the section
+     * agenda, pengumuman, jaringan-aum-ortom, galeri - see CmsSampleDataSeeder), the section
      * partial renders live from the organization's CMS tables rather than from `content`
      * (see e.g. templates/sections/daftar-berita.blade.php), so a freshly-added section on an
      * organization with no CMS data yet would otherwise render empty in the canvas. Reusing
-     * CmsSampleDataSeeder — the same seeding Organization::seedPagesFromTemplate() runs for a
-     * brand-new organization's starter sections — fills it with editable sample rows instead,
+     * CmsSampleDataSeeder - the same seeding Organization::seedPagesFromTemplate() runs for a
+     * brand-new organization's starter sections - fills it with editable sample rows instead,
      * but only if that CMS table is still empty, so it never touches real content the user has
      * since added.
      */
@@ -110,7 +110,7 @@ class OrganizationSectionController extends Controller
      * Update a section's content fields and visibility.
      *
      * When called via fetch() from the builder (Accept: application/json), responds with
-     * the page's re-rendered canvas HTML instead of redirecting — the builder swaps it in
+     * the page's re-rendered canvas HTML instead of redirecting - the builder swaps it in
      * place so the section update doesn't reset scroll position or panel state the way a
      * full-page redirect would.
      */
@@ -218,7 +218,7 @@ class OrganizationSectionController extends Controller
      * Persist a new section order for a page (drag-and-drop reorder).
      *
      * Always called via fetch() from the builder (the drag-and-drop handler), so it responds
-     * with the re-rendered canvas HTML the same way update() does — no page reload needed,
+     * with the re-rendered canvas HTML the same way update() does - no page reload needed,
      * which would otherwise reset scroll position.
      */
     public function reorder(Request $request, Organization $organization, OrganizationPage $page): JsonResponse
@@ -232,7 +232,7 @@ class OrganizationSectionController extends Controller
 
         // Header and footer are locked (see config/page-builder.php) and must always stay
         // first/last respectively, so any of their ids the client sends is silently dropped
-        // rather than being allowed to move — the drag-and-drop UI shouldn't offer them as
+        // rather than being allowed to move - the drag-and-drop UI shouldn't offer them as
         // draggable in the first place, but this is the authoritative guard regardless of
         // what the request sends.
         $headerId = $page->sections()->where('key', 'header')->value('id');

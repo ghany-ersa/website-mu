@@ -49,7 +49,7 @@ class Plan extends Model
     }
 
     /**
-     * "Gratis" for a free plan rather than the confusing "Rp 0/bulan" — used everywhere the
+     * "Gratis" for a free plan rather than the confusing "Rp 0/bulan" - used everywhere the
      * price is shown to an organization/visitor (landing page, subscription page). Admin forms
      * still use the raw price_monthly integer since they need an editable value, not this.
      */
@@ -61,7 +61,7 @@ class Plan extends Model
     }
 
     /**
-     * Duration discount percentage for a given billing period — 0 for the 3-month baseline
+     * Duration discount percentage for a given billing period - 0 for the 3-month baseline
      * (and for any duration outside the three offered), configured per-plan by an admin.
      */
     public function discountPercentFor(int $months): int
@@ -75,7 +75,7 @@ class Plan extends Model
 
     /**
      * Total price for subscribing at this plan for the given number of months, after applying
-     * this plan's duration discount (if any) — the single source of truth for subtotal
+     * this plan's duration discount (if any) - the single source of truth for subtotal
      * calculations, used by both PlanChangeRequest::subtotal() and the plan picker UI.
      */
     public function priceForDuration(int $months): int
@@ -93,7 +93,7 @@ class Plan extends Model
      * matched to PlanLimitService::RESOURCE_RELATIONS; a null max_count reads as "Unlimited".
      *
      * Each entry carries `available` so the view can render a cross icon instead of a
-     * checkmark for a max_count of 0 — a plain "0 Berita" bullet reads as ambiguous (can I
+     * checkmark for a max_count of 0 - a plain "0 Berita" bullet reads as ambiguous (can I
      * make one or not?), so it needs a visibly different marker, not just different wording.
      *
      * @return array<int, array{label: string, available: bool}>

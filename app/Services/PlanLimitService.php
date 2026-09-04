@@ -13,7 +13,7 @@ use App\Models\Plan;
  * plan's standard rules.
  *
  * An organization without a plan_id (legacy data predating this feature) is treated as
- * the 'organization' plan rather than failing closed — see the mandatory backfill note
+ * the 'organization' plan rather than failing closed - see the mandatory backfill note
  * in PlanSeeder.
  */
 class PlanLimitService
@@ -36,7 +36,7 @@ class PlanLimitService
     /**
      * Whether the organization may create one more record for the given resource key
      * (e.g. 'posts', 'sections_total'). Existing records over a lowered limit are never
-     * counted against the caller — only new creation is blocked.
+     * counted against the caller - only new creation is blocked.
      */
     public function canCreate(Organization $organization, string $key): bool
     {
@@ -85,20 +85,20 @@ class PlanLimitService
     /**
      * The limit actually in force for this key. Resolution order:
      *
-     *  1. Tenant override (OrganizationLimitOverride) — a negotiated per-tenant exception
+     *  1. Tenant override (OrganizationLimitOverride) - a negotiated per-tenant exception
      *     always wins over anything plan-derived.
      *  2. The paid-for plan's frozen limits_snapshot (see
      *     Organization::currentApprovedPlanChangeRequest() and
-     *     PlanChangeRequestService::approve()) — so an org that already paid keeps what it
+     *     PlanChangeRequestService::approve()) - so an org that already paid keeps what it
      *     paid for even if an admin edits the plan's limits afterward. An org whose payment
      *     predates this snapshot feature has a null snapshot and falls through to (3).
-     *  3. The plan's current live limits (Plan::limitFor()) — used for orgs that haven't
+     *  3. The plan's current live limits (Plan::limitFor()) - used for orgs that haven't
      *     paid yet (limits_snapshot doesn't exist until an admin approves a payment) and as
      *     the fallback for pre-snapshot approvals.
      *
      * Null means unlimited. Exposed publicly (not just via canCreate()/remaining()) so
-     * callers that need to compare it against currentCount() directly — e.g. rendering "3
-     * over the limit of 5" on the subscription page — don't have to re-derive it from a
+     * callers that need to compare it against currentCount() directly - e.g. rendering "3
+     * over the limit of 5" on the subscription page - don't have to re-derive it from a
      * clamped remaining() value.
      */
     public function effectiveLimit(Organization $organization, string $key): ?int
@@ -119,7 +119,7 @@ class PlanLimitService
     }
 
     /**
-     * Actual count of records the organization has for this resource key — unclamped, so
+     * Actual count of records the organization has for this resource key - unclamped, so
      * unlike remaining() (which floors at 0) this can be compared against effectiveLimit()
      * to tell "at the limit" apart from "over the limit by N".
      */
@@ -142,7 +142,7 @@ class PlanLimitService
      * exact update.
      *
      * Returns null (rather than throwing) when even the 'organization' fallback plan doesn't
-     * exist — e.g. PlanSeeder hasn't run yet. Callers treat a null plan as "no limit
+     * exist - e.g. PlanSeeder hasn't run yet. Callers treat a null plan as "no limit
      * enforced", which fails open rather than 404ing every CMS/builder request in an
      * environment where plans simply haven't been seeded.
      */

@@ -32,7 +32,7 @@ class OrganizationBuilderController extends Controller
     /**
      * Render a page's sections as a standalone HTML document, in the organization's own
      * brand colors (see Organization::primaryColor()/secondaryColor()). Loaded into the
-     * builder's canvas <iframe> — isolating it in its own document (rather than including
+     * builder's canvas <iframe> - isolating it in its own document (rather than including
      * it inline in the builder page) is what lets it use different Tailwind theme colors
      * than the builder chrome around it, which stays platform-branded.
      */
@@ -50,7 +50,7 @@ class OrganizationBuilderController extends Controller
 
     /**
      * Render a single section type with its registry default content, in the organization's
-     * brand colors — used as the thumbnail preview in the "Tambah Section" dropdown
+     * brand colors - used as the thumbnail preview in the "Tambah Section" dropdown
      * (organizations/builder/edit.blade.php) so a user can see what a section looks like
      * before adding it, instead of picking blind from a label-only list.
      */
@@ -68,7 +68,7 @@ class OrganizationBuilderController extends Controller
         }
 
         return view('organizations.builder.section-preview', [
-            // Passed as `brand`, not `organization` — section partials branch on
+            // Passed as `brand`, not `organization` - section partials branch on
             // isset($organization) to decide whether to pull live DB data (posts, officers,
             // programs, ...) instead of their built-in sample content (see the view's own
             // comment below). @include inherits this view's whole data array, so naming it

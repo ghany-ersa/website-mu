@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', 'Langganan — '.$organization->name.' — Website-mu')
+@section('title', 'Langganan - '.$organization->name.' - Website-mu')
 
 @section('content')
     @php
@@ -258,7 +258,7 @@
                                 {{ $isFeatured ? 'bg-gradient-to-br from-primary via-primary to-secondary text-white shadow-float' : 'bg-white border border-gray-100 shadow-soft hover:shadow-float' }}"
                             :class="selected === {{ $plan->id }} ? '!outline-secondary sm:scale-[1.02]' : ''">
 
-                            {{-- Selected checkmark badge — always visible in the corner once chosen, independent of card color, so selection reads instantly regardless of the featured gradient background. --}}
+                            {{-- Selected checkmark badge - always visible in the corner once chosen, independent of card color, so selection reads instantly regardless of the featured gradient background. --}}
                             <div x-show="selected === {{ $plan->id }}" x-cloak
                                 class="absolute -top-2.5 -right-2.5 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-secondary text-white flex items-center justify-center shadow-lg ring-4 ring-white">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -296,7 +296,7 @@
                                     Total <span x-text="duration"></span> bulan:
                                     <span class="font-semibold" x-text="formatRupiah(price({{ $plan->id }}))"></span>
                                     <template x-if="discountPercent({{ $plan->id }}) > 0">
-                                        <span class="font-bold {{ $isFeatured ? 'text-white' : 'text-secondary' }}" x-text="' — hemat ' + discountPercent({{ $plan->id }}) + '%'"></span>
+                                        <span class="font-bold {{ $isFeatured ? 'text-white' : 'text-secondary' }}" x-text="' - hemat ' + discountPercent({{ $plan->id }}) + '%'"></span>
                                     </template>
                                 </p>
                             @endif
@@ -392,7 +392,7 @@
                         @error('discount_code') <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- Live summary for whichever plan is currently selected — this is the
+                    {{-- Live summary for whichever plan is currently selected - this is the
                          "how much, until when" preview that used to only appear inside the
                          confirmation modal after the fact. Stacked (not side-by-side) below sm
                          so neither the price nor the date gets squeezed on narrow screens. --}}

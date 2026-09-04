@@ -11,8 +11,8 @@ use Illuminate\View\View;
 
 /**
  * Name, slug, and description are each their own independent form on the Edit
- * Organisasi page (organizations/edit/edit.blade.php) — read-only until "Edit" is
- * clicked, saved separately — since each has an outsized, immediate effect on the
+ * Organisasi page (organizations/edit/edit.blade.php) - read-only until "Edit" is
+ * clicked, saved separately - since each has an outsized, immediate effect on the
  * public site (page title, subdomain URL, and search/link-preview description
  * respectively) and shouldn't be changeable as a side effect of editing another field.
  */

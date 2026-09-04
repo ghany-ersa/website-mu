@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', ($post->exists ? 'Edit Berita' : 'Tulis Berita').' — '.$organization->name.' — Website-mu')
+@section('title', ($post->exists ? 'Edit Berita' : 'Tulis Berita').' - '.$organization->name.' - Website-mu')
 
 @section('content')
     <div class="max-w-3xl mx-auto" x-data="postForm()">

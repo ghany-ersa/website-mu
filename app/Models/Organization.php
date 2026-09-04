@@ -85,7 +85,7 @@ class Organization extends Model
     }
 
     /**
-     * Effective secondary brand color — see primaryColor() for the fallback chain.
+     * Effective secondary brand color - see primaryColor() for the fallback chain.
      */
     public function secondaryColor(): string
     {
@@ -95,7 +95,7 @@ class Organization extends Model
     }
 
     /**
-     * Effective font family key (see config('branding.fonts')) — same 3-tier fallback
+     * Effective font family key (see config('branding.fonts')) - same 3-tier fallback
      * chain as primaryColor(): own override, then template default, then platform default.
      */
     public function fontFamily(): string
@@ -106,7 +106,7 @@ class Organization extends Model
     }
 
     /**
-     * Effective border radius token (see config('branding.radii')) — same fallback chain
+     * Effective border radius token (see config('branding.radii')) - same fallback chain
      * as primaryColor()/fontFamily().
      */
     public function borderRadius(): string
@@ -165,7 +165,7 @@ class Organization extends Model
     }
 
     /**
-     * The most recent plan change still awaiting payment/admin action, if any — covers both
+     * The most recent plan change still awaiting payment/admin action, if any - covers both
      * Pending (just submitted) and PaymentConfirmed (org says they've paid) since neither is
      * final yet. A new request submitted via OrganizationPlanController::store() is blocked
      * while one of these exists, so there's never more than one in flight at a time.
@@ -182,12 +182,12 @@ class Organization extends Model
     }
 
     /**
-     * Whether the current plan's paid-for period has lapsed. Informational only — per product
+     * Whether the current plan's paid-for period has lapsed. Informational only - per product
      * decision, an expired plan keeps its existing limits (see PlanLimitService) rather than
      * falling back to a free tier; this only drives the public site's renewal-reminder badge
      * (see organizations/pages/_document.blade.php).
      *
-     * A null plan_expires_at is NOT treated as expired here — a brand-new organization has
+     * A null plan_expires_at is NOT treated as expired here - a brand-new organization has
      * never had a plan_expires_at set at all, which is a different situation ("never paid",
      * see hasPaidForCurrentPlan()) from "was paid, that period is now over". Both drive
      * violation badges, just with a different message.
@@ -198,14 +198,14 @@ class Organization extends Model
     }
 
     /**
-     * Whether there's a currently-valid payment behind this organization's plan_id — i.e. an
+     * Whether there's a currently-valid payment behind this organization's plan_id - i.e. an
      * Approved PlanChangeRequest for the plan this organization is on, whose paid-for period
      * (plan_expires_at) hasn't lapsed yet.
      *
      * Organizations are created with plan_id already set (see OrganizationController::store())
      * so they can use the CMS/builder immediately, but that's not the same as having paid:
      * plan_expires_at stays null until a PlanChangeRequest for it is actually approved. This
-     * is what plan_expires_at === null really means — "never paid" — as opposed to
+     * is what plan_expires_at === null really means - "never paid" - as opposed to
      * planIsExpired()'s "was paid, that period lapsed."
      */
     public function hasPaidForCurrentPlan(): bool
@@ -215,13 +215,13 @@ class Organization extends Model
 
     /**
      * The Approved PlanChangeRequest currently backing this organization's plan_id/
-     * plan_expires_at, if hasPaidForCurrentPlan() is true — i.e. the payment that's actually
+     * plan_expires_at, if hasPaidForCurrentPlan() is true - i.e. the payment that's actually
      * in force right now, not just the most recent one on file (a later request for a
      * different plan could exist as Pending/Rejected without having taken effect).
      *
      * PlanLimitService reads this request's limits_snapshot (frozen at approval time) instead
      * of the plan's live limits, so an org that already paid isn't affected if an admin edits
-     * the plan's limits afterward — see PlanChangeRequestService::approve().
+     * the plan's limits afterward - see PlanChangeRequestService::approve().
      */
     public function currentApprovedPlanChangeRequest(): ?PlanChangeRequest
     {
@@ -241,13 +241,13 @@ class Organization extends Model
      * derived fresh on every call rather than stored, since content counts and plan_expires_at
      * change independently of each other. Three kinds of violation:
      *
-     *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) — happens after a
+     *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) - happens after a
      *    downgrade, since PlanLimitService::canCreate() only blocks *new* creation and never
      *    deletes existing over-limit content.
-     *  - Total page-builder sections over 'sections_total' — same downgrade scenario, for
+     *  - Total page-builder sections over 'sections_total' - same downgrade scenario, for
      *    components instead of CMS records.
      *  - The paid period has lapsed (see planIsExpired()), or has never started at all (see
-     *    hasPaidForCurrentPlan()) — e.g. a newly created organization, which gets plan_id set
+     *    hasPaidForCurrentPlan()) - e.g. a newly created organization, which gets plan_id set
      *    immediately (see OrganizationController::store()) but no plan_expires_at until an
      *    admin approves its first PlanChangeRequest.
      *
@@ -270,7 +270,7 @@ class Organization extends Model
         ];
 
         // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
-        // honored here too — otherwise an org that's protected from a plan's limits being
+        // honored here too - otherwise an org that's protected from a plan's limits being
         // lowered post-payment (see PlanLimitService::effectiveLimit()) would still get
         // flagged as violating rules it never agreed to.
         $service = app(PlanLimitService::class);
@@ -310,7 +310,7 @@ class Organization extends Model
     }
 
     /**
-     * Shortcut for planViolations() !== [] — use this for a plain yes/no gate (e.g. disabling
+     * Shortcut for planViolations() !== [] - use this for a plain yes/no gate (e.g. disabling
      * the publish button); use planViolations() when the specific reasons need to be shown.
      */
     public function violatesPlanRules(): bool
@@ -320,7 +320,7 @@ class Organization extends Model
 
     /**
      * Whether this organization's plan grants access to templates marked
-     * Template::is_exclusive — used to gate the "Ganti Template" picker
+     * Template::is_exclusive - used to gate the "Ganti Template" picker
      * (see OrganizationTemplateController) so a Starter/Organization-plan org can't
      * switch onto a Professional-only design.
      *
@@ -344,7 +344,7 @@ class Organization extends Model
 
     /**
      * Whether any of this organization's builder pages contain a section with the given key
-     * (e.g. 'galeri', 'daftar-berita') — used to gate both the CMS sidebar/dashboard links and
+     * (e.g. 'galeri', 'daftar-berita') - used to gate both the CMS sidebar/dashboard links and
      * the underlying CRUD routes (organizations.gallery.*, organizations.posts.*, etc.) for
      * content types the organization's template never gave it a section to display.
      */
@@ -412,7 +412,7 @@ class Organization extends Model
     /**
      * Named to match the `{photo}` route parameter used by the `organizations.gallery.*`
      * resource (scopeBindings() resolves nested bindings by relation name matching the
-     * route parameter name, not the URL segment — see routes/web.php).
+     * route parameter name, not the URL segment - see routes/web.php).
      *
      * @return HasMany<GalleryPhoto, $this>
      */
@@ -423,13 +423,13 @@ class Organization extends Model
 
     /**
      * Onboarding checklist for the dashboard: key => whether that setup task is done.
-     * Publishing the site isn't included as "just open the builder" — a page/sections
+     * Publishing the site isn't included as "just open the builder" - a page/sections
      * always exist automatically (see ensureHomePageExists()), so that alone isn't a
      * meaningful signal that the user has actually done anything. Brand is "done" once
      * a logo is set, since logo (unlike the colors) is never auto-filled from a template.
-     * Contact is "done" once any of phone/email/whatsapp is set — there's no single
+     * Contact is "done" once any of phone/email/whatsapp is set - there's no single
      * required channel, any one of them is a meaningful signal the org filled this in.
-     * Content is "done" once at least one page has at least one section — this differs
+     * Content is "done" once at least one page has at least one section - this differs
      * from "a page exists" (always true, not meaningful) because it only becomes true once
      * the org has actually saved something in the builder (adding, editing, or keeping a
      * cloned template section counts as saved intent). Officers isn't a checklist item:
@@ -449,7 +449,7 @@ class Organization extends Model
     }
 
     /**
-     * Flip publish status. Stamps published_at on first publish only — unpublishing or
+     * Flip publish status. Stamps published_at on first publish only - unpublishing or
      * re-publishing never touches it, so it stays a "first went live at" timestamp rather
      * than a "currently published since" one.
      */
@@ -467,7 +467,7 @@ class Organization extends Model
     /**
      * Ensure this organization owns at least a home page, if it doesn't already have any.
      * Safe to call repeatedly. Clones the template's structure when one is set; otherwise
-     * creates a single blank "Beranda" page — the builder only supports one page for now
+     * creates a single blank "Beranda" page - the builder only supports one page for now
      * (see prd.md §24.4), so there's no user-facing "create page" flow to fall back to.
      */
     public function ensureHomePageExists(): void
@@ -493,7 +493,7 @@ class Organization extends Model
     }
 
     /**
-     * Clone only the template's first (home) page into an owned page/sections — the
+     * Clone only the template's first (home) page into an owned page/sections - the
      * builder only supports one page for now, so the template's other pages (if any)
      * aren't cloned yet. Also seeds sample CMS records (see CmsSampleDataSeeder) for
      * whichever CMS-backed sections (galeri, daftar-berita, struktur-pengurus, etc.) the
@@ -501,14 +501,14 @@ class Organization extends Model
      * content immediately instead of an empty list the user has to populate from scratch.
      *
      * The cloned sections are capped to the org's plan's 'sections_total' limit (excluding
-     * locked keys, same as PlanLimitService::countedSectionsTotal() — locked sections like
+     * locked keys, same as PlanLimitService::countedSectionsTotal() - locked sections like
      * header/footer were never optional and shouldn't eat into the quota). Every organization
      * is created on the Starter plan (see OrganizationController::store()), whose
      * sections_total is tighter than what any current template actually contains, so cloning
      * every section unconditionally used to leave a brand-new organization already over its
-     * own plan's limit — see Organization::planViolations() — before the owner had touched
+     * own plan's limit - see Organization::planViolations() - before the owner had touched
      * anything. Trailing (non-locked) sections are dropped first so the template's opening
-     * sections (hero, etc. — the first impression) survive the cut.
+     * sections (hero, etc. - the first impression) survive the cut.
      */
     private function seedPagesFromTemplate(): void
     {

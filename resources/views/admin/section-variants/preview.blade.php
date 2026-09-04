@@ -1,5 +1,5 @@
 {{--
-    Standalone single-section-variant document — admin-only preview of one specific variant
+    Standalone single-section-variant document - admin-only preview of one specific variant
     (including non-default ones), opened from admin/section-variants/index.blade.php's "Preview"
     link. Mirrors organizations/builder/section-preview.blade.php's scaffold; see that file's own
     comment for the full rationale behind the `$brand`-not-`$organization` naming discipline

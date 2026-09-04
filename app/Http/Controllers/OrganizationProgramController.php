@@ -18,7 +18,7 @@ class OrganizationProgramController extends Controller
 
     /**
      * Program and Layanan are the same entity (type column), both rendered by the same
-     * templates/sections/program-unggulan.blade.php partial — see prd.md for the rationale.
+     * templates/sections/program-unggulan.blade.php partial - see prd.md for the rationale.
      * ?type=layanan switches the whole index/form to the "layanan" pool; anything else
      * defaults to "program".
      */

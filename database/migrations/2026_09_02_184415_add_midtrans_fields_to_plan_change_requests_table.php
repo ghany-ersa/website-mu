@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('midtrans_status')->nullable()->after('midtrans_payment_type');
             $table->timestamp('midtrans_paid_at')->nullable()->after('midtrans_status');
             // Exception message from the last failed PlanChangeRequestService::approve() call
-            // after a settled payment — shown to the admin next to the "Coba Lagi" button.
+            // after a settled payment - shown to the admin next to the "Coba Lagi" button.
             $table->text('approve_error')->nullable()->after('midtrans_paid_at');
             $table->unsignedTinyInteger('approve_attempts')->default(0)->after('approve_error');
         });

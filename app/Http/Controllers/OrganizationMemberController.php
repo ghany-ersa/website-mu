@@ -69,7 +69,7 @@ class OrganizationMemberController extends Controller
     }
 
     /**
-     * Owners cannot be demoted or removed at all — only ownership transfer (not yet implemented) would change this.
+     * Owners cannot be demoted or removed at all - only ownership transfer (not yet implemented) would change this.
      */
     private function guardOwnerRole(Organization $organization, User $user): void
     {

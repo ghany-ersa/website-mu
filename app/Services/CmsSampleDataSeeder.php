@@ -15,20 +15,20 @@ use App\Models\Program;
 /**
  * Seeds sample CMS records (posts, announcements, agendas, gallery photos, officers,
  * networks, programs/services) for a freshly created organization, one per CMS-backed
- * section key present on its home page — so the builder canvas and the organization's
+ * section key present on its home page - so the builder canvas and the organization's
  * own page (once it publishes) show real, editable content immediately instead of an
  * empty state, and templates/sections/*.blade.php never has to special-case "organization
  * exists but its CMS tables are still empty". Posts/announcements/agendas are seeded
  * already Published (not Draft) specifically so they clear their published()/published_at
  * scopes and actually render in the builder canvas, which queries CMS tables the same way
- * the public page does — there's no builder-only preview path to show drafts through.
+ * the public page does - there's no builder-only preview path to show drafts through.
  *
  * Only called once, right after Organization::seedPagesFromTemplate() clones the
- * template's sections — never touches an organization that already has any of a given
+ * template's sections - never touches an organization that already has any of a given
  * table's rows, so it can't clobber real content a user has since replaced or deleted.
  *
  * Every sample count below is capped to the organization's own plan limit (see
- * PlanLimitService::effectiveLimit()) — every organization is created on the Starter plan
+ * PlanLimitService::effectiveLimit()) - every organization is created on the Starter plan
  * (see OrganizationController::store()), whose limits are tighter than these samples'
  * original fixed counts (e.g. 3 announcements vs. Starter's limit of 2), so seeding the
  * fixed count unconditionally used to leave a brand-new organization already in violation
@@ -79,7 +79,7 @@ class CmsSampleDataSeeder
     /**
      * How many of a fixed sample list to actually insert: the smaller of the list's own
      * length and the organization's plan limit for that resource key, or the full list when
-     * the plan has no limit (null = unlimited). Never negative — a limit of 0 (or an
+     * the plan has no limit (null = unlimited). Never negative - a limit of 0 (or an
      * organization already somehow past it) yields 0, i.e. skip entirely.
      */
     private static function sampleCount(Organization $organization, PlanLimitService $limits, string $key, int $available): int
@@ -187,7 +187,7 @@ class CmsSampleDataSeeder
     }
 
     /**
-     * Flat gray placeholder (inline SVG data URI, no external request) — gallery_photos.url
+     * Flat gray placeholder (inline SVG data URI, no external request) - gallery_photos.url
      * is NOT NULL and there's no real photo to seed, so this stands in until the user
      * replaces it with an actual upload.
      */
@@ -270,9 +270,9 @@ class CmsSampleDataSeeder
         // Guards on the combined 'programs' resource (both types together), not
         // ofType($type) alone: 'program' and 'layanan' share one plan_limits quota (see the
         // comment below), so seeding 'layanan' samples on top of already-seeded 'program'
-        // samples — e.g. after switching to a template with a different section via
+        // samples - e.g. after switching to a template with a different section via
         // OrganizationTemplateController, which drops pages/sections but never deletes CMS
-        // records — would push the organization over its own plan's limit even though this
+        // records - would push the organization over its own plan's limit even though this
         // method never lets a single call insert more samples than that limit allows.
         if ($organization->programs()->exists()) {
             return;
@@ -291,7 +291,7 @@ class CmsSampleDataSeeder
             ];
 
         // 'programs' is the plan_limits/PlanLimitService key for both types (program and
-        // layanan aren't tracked separately there) — see PlanLimitService::RESOURCE_RELATIONS
+        // layanan aren't tracked separately there) - see PlanLimitService::RESOURCE_RELATIONS
         // and Organization::programs(), which counts both together.
         $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'programs', count($samples)));
 

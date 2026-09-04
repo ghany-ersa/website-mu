@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Builder — {{ $organization->name }} — Website-mu</title>
+    <title>Builder - {{ $organization->name }} - Website-mu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -104,7 +104,7 @@
 </head>
 {{-- Mobile-first: below lg, only one of sections/canvas/properties shows at a time via
      activePanel + bottom tab bar. From lg upward, all three sit side by side permanently
-     and the tab bar is hidden — see lg: overrides throughout. --}}
+     and the tab bar is hidden - see lg: overrides throughout. --}}
 
 <body class="bg-softBg text-gray-800 h-screen overflow-hidden flex flex-col"
     x-data="{
@@ -232,9 +232,9 @@
             </div>
 
             {{-- Tahap awal: satu organisasi hanya punya satu halaman (Beranda), jadi tidak
-                 ada page switcher di sini — lihat prd.md §24.4. Publish dikontrol di satu
+                 ada page switcher di sini - lihat prd.md §24.4. Publish dikontrol di satu
                  tempat saja: dashboard organisasi (organizations.publish, lihat
-                 Organization::publish() dan OrganizationSiteController) — builder dulu
+                 Organization::publish() dan OrganizationSiteController) - builder dulu
                  punya toggle publish terpisah per halaman (OrganizationPage::published_at)
                  yang tidak pernah dibaca oleh situs publik, sengaja dihapus supaya tidak
                  ada dua sumber kebenaran yang bisa tidak sinkron. --}}
@@ -287,7 +287,7 @@
     @endif
 
     @if (!$currentPage)
-        {{-- Seharusnya tidak pernah tercapai — OrganizationBuilderController memanggil
+        {{-- Seharusnya tidak pernah tercapai - OrganizationBuilderController memanggil
              ensureHomePageExists() sebelum render, yang selalu membuat halaman Beranda
              kalau organisasi belum punya satupun. Dipertahankan sebagai jaring pengaman. --}}
         <div class="flex-1 flex items-center justify-center p-4">
@@ -346,7 +346,7 @@
 
                     {{-- Picker: a centered modal (not an inline dropdown) so the same markup works on both
                          mobile (no hover) and desktop. Tapping/clicking a name in the list only swaps the
-                         preview pane — it never adds the section by itself — so browsing on a touch screen
+                         preview pane - it never adds the section by itself - so browsing on a touch screen
                          can't misfire an add. Desktop additionally previews on hover as a shortcut; both
                          input methods still require the explicit "Pilih komponen ini" button to confirm. --}}
                     <div x-show="open" x-cloak x-transition.opacity.duration.100ms
@@ -366,7 +366,7 @@
                             {{-- Preview pane sits above the list (stacked, not side-by-side) so it stays
                                  readable at mobile widths without needing a separate mobile-only layout.
                                  Scaled to 1/3 and given a tall-ish source viewport (3x the box height) so
-                                 a section's heading plus its first row of content both fit — most section
+                                 a section's heading plus its first row of content both fit - most section
                                  partials use generous top/bottom padding (py-16) before their actual
                                  content starts, so a shallower crop tends to show only the heading. --}}
                             <div class="p-4 pb-2 shrink-0">
@@ -508,12 +508,12 @@
                     @endif
                 </ul>
 
-                {{-- Footer is locked (config/page-builder.php) — always present, always last,
+                {{-- Footer is locked (config/page-builder.php) - always present, always last,
                      not draggable/duplicable/deletable, so it's rendered outside #section-list
                      (Sortable.js's container) with no drag handle or action buttons. --}}
                 @php $footerSection = $currentPage->sections->firstWhere('key', 'footer'); @endphp
                 @if ($footerSection)
-                    {{-- Not clickable (no selectSection() call) — footer has no editable fields
+                    {{-- Not clickable (no selectSection() call) - footer has no editable fields
                          and is locked server-side (OrganizationSectionController::ensureNotLocked()),
                          so there's nothing a properties panel could usefully open here. --}}
                     <div class="px-2.5 pb-2.5 pt-1 border-t border-gray-100">
@@ -539,7 +539,7 @@
 
             {{-- Canvas: rendered in an isolated <iframe> so it can use the organization's own
                  brand colors (Organization::primaryColor()/secondaryColor()) via a separate
-                 Tailwind config, without recoloring the builder chrome around it — see
+                 Tailwind config, without recoloring the builder chrome around it - see
                  organizations/builder/canvas.blade.php.
                  Mobile: full-width panel shown only when activePanel === 'canvas'.
                  lg+: flexible middle column, always visible. --}}
@@ -606,7 +606,7 @@
                                         'default' => $row->is_default,
                                     ])->all();
 
-                                    // Dedup by view path: keep only one key per unique view — every section's
+                                    // Dedup by view path: keep only one key per unique view - every section's
                                     // variants currently point at distinct files (no aliasing today), but this
                                     // stays a safety net for whenever a variant is added as a pure alias onto
                                     // an existing view again (as daftar-berita's 'standar'/'modern' briefly
@@ -630,7 +630,7 @@
                                         $variantOptions[$variantKey] = $variantMeta;
                                     }
 
-                                    // Hide any variant the organization's plan doesn't grant access to — each
+                                    // Hide any variant the organization's plan doesn't grant access to - each
                                     // variant's own explicit `exclusive` flag decides this (never inferred from
                                     // its name), mirrored in OrganizationSectionController::update()'s
                                     // acceptance check via SectionVariantResolver::isExclusive().
@@ -1003,7 +1003,7 @@
                 const canvasBody = doc.getElementById('canvas-body');
                 if (canvasBody) canvasBody.innerHTML = canvasHtml;
                 win.scrollTo(0, scrollTop);
-                // Re-observe .reveal elements for the fade-in-on-scroll effect — the
+                // Re-observe .reveal elements for the fade-in-on-scroll effect - the
                 // IntersectionObserver itself lives outside #canvas-body (see
                 // canvas.blade.php) so it survives the innerHTML swap, but it only knows
                 // about elements it was told to watch, and this swap just introduced new ones.
@@ -1036,7 +1036,7 @@
                 state.saved = false;
 
                 // The form already carries a spoofed _method=PATCH input from @method('PATCH'),
-                // which Laravel reads from the body — no extra header needed for that part.
+                // which Laravel reads from the body - no extra header needed for that part.
                 const res = await fetch(form.action, {
                     method: 'POST',
                     headers: {
@@ -1056,7 +1056,7 @@
                 const data = await res.json();
                 swapCanvas(data.canvas);
 
-                // form.action is .../sections/{id} — the last path segment identifies which
+                // form.action is .../sections/{id} - the last path segment identifies which
                 // sidebar row to sync (visibility icon + dimmed state) with the saved section.
                 const sectionId = form.action.split('/').pop();
                 const sidebarRow = document.querySelector(`#section-list li[data-section-id="${sectionId}"]`);

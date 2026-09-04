@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Read/toggle-only screen over the section_variants registry (App\Models\SectionVariant) — an
+ * Read/toggle-only screen over the section_variants registry (App\Models\SectionVariant) - an
  * admin can see which variants exist per section and flip each one's `is_exclusive` flag at
  * runtime. There is no create/destroy here: a brand-new variant requires a developer to write its
  * Blade view and seed its row (see database/seeders/SectionVariantSeeder.php) first.

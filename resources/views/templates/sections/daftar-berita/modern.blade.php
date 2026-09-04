@@ -5,7 +5,7 @@
     back to $content['items'] sample data in template-preview context (templates/preview.blade.php),
     which has no organization yet.
 
-    Featured card + compact side list — one large highlighted article beside a short list of
+    Featured card + compact side list - one large highlighted article beside a short list of
     the rest.
 --}}
 @php

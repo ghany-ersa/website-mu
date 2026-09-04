@@ -33,7 +33,7 @@ class OrganizationController extends Controller
      *
      * Excludes Template::is_exclusive templates: every new organization is created on the
      * Starter plan (see store()), which never has has_exclusive_templates, so an exclusive
-     * template can never legitimately be picked here — falling through to null instead of
+     * template can never legitimately be picked here - falling through to null instead of
      * pre-selecting one avoids a dead-end where the form looks fine but submission always
      * fails validation (see StoreOrganizationRequest::exclusiveTemplateIds()).
      */
@@ -93,14 +93,14 @@ class OrganizationController extends Controller
 
     /**
      * Toggle the organization's publish status. Any member may do this (same tier as
-     * brand settings) — no product requirement yet for restricting it to the Owner.
+     * brand settings) - no product requirement yet for restricting it to the Owner.
      *
      * Publishing (not un-publishing) requires a plan that's been paid for, isn't expired, and
-     * whose usage doesn't exceed the plan's limits — an org that never had a plan approved,
+     * whose usage doesn't exceed the plan's limits - an org that never had a plan approved,
      * whose plan_expires_at has lapsed, or that's over its content/component limits (see
      * Organization::planViolations()) is redirected to the subscription page instead.
      * Un-publishing is always allowed regardless of plan state, and a site already published
-     * before it started violating its plan stays live (no auto-teardown — the public page
+     * before it started violating its plan stays live (no auto-teardown - the public page
      * shows a violation badge instead, see organizations/pages/_document.blade.php).
      */
     public function publish(Organization $organization): RedirectResponse

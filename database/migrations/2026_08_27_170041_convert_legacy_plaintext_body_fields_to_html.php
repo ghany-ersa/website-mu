@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * One-time data fix for Post::body, Announcement::body, and Agenda::description: these
- * columns used to be rendered as plain text (`nl2br(e($field))` — see
+ * columns used to be rendered as plain text (`nl2br(e($field))` - see
  * resources/views/organizations/public/_*-body.blade.php before this migration's sibling
  * commit), so existing rows are raw text with literal newlines, not HTML. Now that those
  * fields are edited via the Tiptap rich text editor and rendered unescaped (`{!! $field !!}`,

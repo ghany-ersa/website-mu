@@ -3,29 +3,29 @@
 // Registry of section keys the builder can add to a page. Each key maps by filename
 // convention to a partial in resources/views/templates/sections/{key}.blade.php.
 // `fields` lists the content[] keys that partial reads, driving the builder's
-// properties panel form — see resources/views/templates/sections/*.blade.php.
+// properties panel form - see resources/views/templates/sections/*.blade.php.
 // `defaults`, when present, seeds content[] on creation (OrganizationSectionController::store())
-// with the same fallback text the partial itself would render for an empty field — so a new
+// with the same fallback text the partial itself would render for an empty field - so a new
 // section already looks/reads right without the user having to retype what's effectively
 // already there, and the builder's edit form isn't misleadingly blank.
 //
 // `locked` (bool, default false), when true, marks a section the builder UI must not offer in
-// the "Tambah Section" picker and must not let the user delete, duplicate, or drag-reorder — see
+// the "Tambah Section" picker and must not let the user delete, duplicate, or drag-reorder - see
 // OrganizationPage::footerSection()/ensureFooter() and OrganizationSectionController for the
 // enforcement. `header` and `footer` are locked: every page must always start with exactly one
-// header and end with exactly one footer. Both have no editable `fields` — they always show the
-// organization's own name (see header.blade.php/footer.blade.php) with no override — so neither
+// header and end with exactly one footer. Both have no editable `fields` - they always show the
+// organization's own name (see header.blade.php/footer.blade.php) with no override - so neither
 // is clickable in the builder sidebar (see edit.blade.php's $hasFields guard).
 //
 // `cms`, when present, is the single source of truth for a section whose `items` field is backed
 // by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
-// inline in the builder) — both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
+// inline in the builder) - both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
 // sidebar menu read `cms.route`/`cms.label`/`cms.params` from here instead of each hardcoding
 // their own section-key -> route/label map.
 //
 // Section variant registry (which Blade view renders each named layout, and whether picking it
 // requires Organization::canUseExclusiveTemplates()) lives in the `section_variants` table, not
-// here — see App\Models\SectionVariant / App\Services\SectionVariantResolver and
+// here - see App\Models\SectionVariant / App\Services\SectionVariantResolver and
 // database/seeders/SectionVariantSeeder.php.
 return [
 
@@ -59,7 +59,7 @@ return [
             'defaults' => [
                 'title' => 'Tentang Organisasi',
                 // Same fallback templates/sections/tentang-organisasi.blade.php already shows
-                // when `stats` is empty — seeded here too so a newly-added section starts with
+                // when `stats` is empty - seeded here too so a newly-added section starts with
                 // editable rows in the builder's properties panel instead of an empty stats
                 // editor that doesn't match what the canvas is actually rendering.
                 'stats' => [

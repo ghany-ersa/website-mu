@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', 'Edit Organisasi — '.$organization->name.' — Website-mu')
+@section('title', 'Edit Organisasi - '.$organization->name.' - Website-mu')
 
 @section('content')
     <div class="max-w-3xl mx-auto">
@@ -134,7 +134,7 @@
     <script>
         document.addEventListener('alpine:init', () => {
             // Each field on this page (name/slug/description) is its own isolated
-            // read-only-until-Edit form — see OrganizationEditController, which saves
+            // read-only-until-Edit form - see OrganizationEditController, which saves
             // each one through its own PATCH endpoint rather than one combined submit.
             Alpine.data('editableField', (initial, hasError) => ({
                 editing: hasError,

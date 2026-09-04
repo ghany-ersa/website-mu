@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', ($officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus').' — '.$organization->name.' — Website-mu')
+@section('title', ($officer->exists ? 'Edit Pengurus' : 'Tambah Pengurus').' - '.$organization->name.' - Website-mu')
 
 @section('content')
     <div class="max-w-3xl mx-auto" x-data="officerForm()">

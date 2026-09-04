@@ -35,7 +35,7 @@ return [
             'Attr.EnableID' => 'true',
         ],
         // Used for CMS rich text fields (Post::body, Announcement::body, Agenda::description)
-        // edited via the Tiptap editor. Deliberately excludes img/style/table/iframe — Post
+        // edited via the Tiptap editor. Deliberately excludes img/style/table/iframe - Post
         // already has a dedicated featured-image picker, and none of these three fields need
         // embeds. Anything not in HTML.Allowed (script, on* attributes, style, img, ...) is
         // stripped, not escaped.

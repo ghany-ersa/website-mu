@@ -1,6 +1,6 @@
 {{-- Auto-binds to the organization's published announcements (most recent first, regardless
      of valid_until) when $organization is in scope (tenant page render); falls back to
-     $content['items'] sample data in template-preview context — see daftar-berita.blade.php
+     $content['items'] sample data in template-preview context - see daftar-berita.blade.php
      for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];

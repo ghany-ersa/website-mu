@@ -1,14 +1,14 @@
 {{--
-    Shared <html> scaffold for a fully-rendered organization page — brand colors/font/radius
+    Shared <html> scaffold for a fully-rendered organization page - brand colors/font/radius
     (Organization::primaryColor()/secondaryColor()/fontFamily()/borderRadius(), tokens defined
     in config('branding')), favicon, OG tags, Tailwind CDN config, reveal-scroll script.
     Used by both organizations/builder/canvas.blade.php (builder iframe) and organizations/public/
     show.blade.php (public tenant site) so the two documents can't silently drift apart. Callers
     pass $organization, $page, and a rendered $body string (the section markup to place inside
-    #canvas-body) — this partial owns everything else.
+    #canvas-body) - this partial owns everything else.
 
     Kept in sync deliberately with templates/preview.blade.php (same brand token injection, but
-    sourced from $template->structure['brand'] instead of $organization) — update both together.
+    sourced from $template->structure['brand'] instead of $organization) - update both together.
 --}}
 @php
     $primaryColor = $organization->primaryColor();
@@ -92,7 +92,7 @@
 
         @if ($organization->planIsExpired() || $organization->violatesPlanRules())
             /* Header sections render `sticky top-0` (see templates/sections/header.blade.php)
-               — the plan-violation banner sits fixed above it, so this pushes both the header
+               - the plan-violation banner sits fixed above it, so this pushes both the header
                and the rest of the page down by the banner's own height instead of overlapping. */
             body { padding-top: var(--plan-banner-height, 0px); }
         @endif
@@ -125,7 +125,7 @@
     @if ($organization->planIsExpired() || $organization->violatesPlanRules())
         {{-- Fixed (not sticky) so it stays pinned above the header section's own `sticky
              top-0` (see templates/sections/header.blade.php) rather than competing with it
-             for the same scroll-anchored slot — the body's padding-top above makes room. --}}
+             for the same scroll-anchored slot - the body's padding-top above makes room. --}}
         <div id="plan-banner" class="fixed top-0 inset-x-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
             <div class="max-w-6xl mx-auto flex items-center gap-2.5 px-4 py-2 text-xs sm:text-sm font-medium text-center sm:text-left">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -156,7 +156,7 @@
     @endif
 
     {{-- The builder swaps this div's innerHTML after an AJAX section save/reorder (see
-         swapCanvas() in organizations/builder/edit.blade.php) — the reveal-observer script
+         swapCanvas() in organizations/builder/edit.blade.php) - the reveal-observer script
          below deliberately sits outside it, so re-rendering the sections doesn't wipe out
          the running IntersectionObserver along with them. Public rendering doesn't use this
          swap mechanism but keeps the same id so this scaffold stays identical either way. --}}

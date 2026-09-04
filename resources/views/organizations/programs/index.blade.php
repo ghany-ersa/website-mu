@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', $label.' — '.$organization->name.' — Website-mu')
+@section('title', $label.' - '.$organization->name.' - Website-mu')
 
 @php
     $builderQuery = '?type='.$type.($fromBuilder ? '&from=builder'.(request('section') ? '&section='.request('section') : '') : '');

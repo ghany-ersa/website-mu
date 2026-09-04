@@ -4,7 +4,7 @@
     $type = $program->exists ? $program->type : $type;
 @endphp
 
-@section('title', ($program->exists ? 'Edit '.$label : 'Tambah '.$label).' — '.$organization->name.' — Website-mu')
+@section('title', ($program->exists ? 'Edit '.$label : 'Tambah '.$label).' - '.$organization->name.' - Website-mu')
 
 @php
     $indexQuery = '?type='.$type.($fromBuilder ? '&from=builder'.(request('section') ? '&section='.request('section') : '') : '');

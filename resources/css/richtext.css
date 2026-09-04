@@ -1,5 +1,5 @@
 /*
- * Minimal, hand-written styling for the Tiptap CMS editor — deliberately not routed through
+ * Minimal, hand-written styling for the Tiptap CMS editor - deliberately not routed through
  * the Tailwind pipeline (see plan decisions) so this stays a narrow Vite entry that coexists
  * with the Tailwind CDN script already loaded by resources/views/layouts/organization.blade.php,
  * instead of shipping a second full Tailwind build onto the same page.
