@@ -15,9 +15,16 @@
             ['name' => '[Nama]', 'role' => 'Bendahara'],
             ['name' => '[Nama]', 'role' => 'Anggota'],
         ]);
+
+    // Same {image, caption} shape the lightbox component expects (see
+    // templates/sections/galeri/standar.blade.php) - caption here is the officer's role.
+    $photos = collect($items)->map(fn ($item) => [
+        'image' => $item['photo'] ?? null,
+        'caption' => $item['name'] ?? null,
+    ])->values();
 @endphp
 
-<section class="py-24">
+<section class="py-24" x-data="{ lightboxOpen: false, activeIndex: 0, photos: {{ Js::from($photos) }} }">
     <div class="max-w-6xl mx-auto px-6">
         <div class="reveal text-center mb-16">
             <span class="block w-10 h-px bg-secondary mx-auto mb-6"></span>
@@ -28,15 +35,20 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
             @foreach ($items as $item)
                 <div class="reveal text-center" style="transition-delay: {{ $loop->index * 80 }}ms">
-                    <div class="aspect-square rounded-brand overflow-hidden bg-gray-100 mb-4 border-b-2 border-secondary">
+                    <button type="button"
+                            @click="activeIndex = {{ $loop->index }}; lightboxOpen = true"
+                            {{ empty($item['photo']) ? 'disabled' : '' }}
+                            class="block w-full aspect-square rounded-brand overflow-hidden bg-gray-100 mb-4 border-b-2 border-secondary disabled:cursor-default">
                         @if (! empty($item['photo']))
-                            <img src="{{ $item['photo'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+                            <img src="{{ $item['photo'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover cursor-zoom-in">
                         @endif
-                    </div>
+                    </button>
                     <p class="font-semibold text-primary text-sm">{{ $item['name'] }}</p>
                     <p class="text-xs text-secondary uppercase tracking-wide mt-1">{{ $item['role'] }}</p>
                 </div>
             @endforeach
         </div>
     </div>
+
+    <x-tenant.lightbox />
 </section>
