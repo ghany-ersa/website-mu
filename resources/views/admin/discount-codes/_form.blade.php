@@ -115,11 +115,8 @@
     })();
 </script>
 
-{{-- Litepicker: dependency-free date range picker (no jQuery/moment.js), matching this app's
-     CDN-script convention (see layouts/admin.blade.php's Tailwind/Alpine CDN tags) rather than
-     a bundled npm dependency, since this admin panel isn't on the Vite pipeline. --}}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css">
-<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+{{-- Litepicker: dependency-free date range picker (no jQuery/moment.js), bundled via
+     Vite/npm and exposed as window.Litepicker (see resources/js/app.js). --}}
 <script>
     (function () {
         const rangeInput = document.getElementById('valid_range');

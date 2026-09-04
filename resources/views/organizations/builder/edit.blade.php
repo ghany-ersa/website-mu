@@ -5,64 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Builder - {{ $organization->name }} - Website-mu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2C368B',
-                        secondary: '#079C4E',
-                        accent: '#F59E0B',
-                        softBg: '#F1F3F9',
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        soft: '0 10px 40px -10px rgba(0,0,0,0.06)',
-                        panel: '0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -8px rgba(15,23,42,0.08)',
-                        glow: '0 0 0 4px rgba(44,54,139,0.08)',
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn .35s ease both',
-                        'pop-in': 'popIn .25s cubic-bezier(.34,1.56,.64,1) both',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': {
-                                opacity: 0,
-                                transform: 'translateY(4px)'
-                            },
-                            '100%': {
-                                opacity: 1,
-                                transform: 'translateY(0)'
-                            }
-                        },
-                        popIn: {
-                            '0%': {
-                                opacity: 0,
-                                transform: 'scale(.97) translateY(6px)'
-                            },
-                            '100%': {
-                                opacity: 1,
-                                transform: 'scale(1) translateY(0)'
-                            }
-                        },
-                    },
-                },
-            },
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/builder.js'])
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F1F3F9;
         }
 
-        [x-cloak] {
-            display: none !important;
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(4px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(.97) translateY(6px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn .35s ease both;
+        }
+        .animate-pop-in {
+            animation: popIn .25s cubic-bezier(.34,1.56,.64,1) both;
+        }
+        .shadow-panel {
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -8px rgba(15,23,42,0.08);
         }
 
         #section-list::-webkit-scrollbar,
@@ -91,8 +56,6 @@
             height: 16px;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
     <script>
         // Kept out of the x-data HTML attribute below: a Blade JSON directive's
         // quoted output would otherwise terminate the attribute early and leak
@@ -106,7 +69,7 @@
      activePanel + bottom tab bar. From lg upward, all three sit side by side permanently
      and the tab bar is hidden - see lg: overrides throughout. --}}
 
-<body class="bg-softBg text-gray-800 h-screen overflow-hidden flex flex-col"
+<body class="text-gray-800 h-screen overflow-hidden flex flex-col"
     x-data="{
         editingSectionId: null,
         activePanel: 'canvas',
@@ -370,7 +333,7 @@
                                  partials use generous top/bottom padding (py-16) before their actual
                                  content starts, so a shallower crop tends to show only the heading. --}}
                             <div class="p-4 pb-2 shrink-0">
-                                <div class="rounded-xl overflow-hidden ring-1 ring-black/5 bg-softBg" style="height: 14rem;">
+                                <div class="rounded-xl overflow-hidden ring-1 ring-black/5" style="height: 14rem; background-color: #F1F3F9;">
                                     <template x-if="open && previewKey">
                                         <iframe :src="previewUrlFor(previewKey)" title="Pratinjau komponen"
                                             class="w-full border-0 pointer-events-none"

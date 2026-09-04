@@ -7,3 +7,41 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/*
+ * Brand theme for platform chrome (app/admin/account layouts, welcome page, template
+ * catalog) - static Muhammadiyah blue/green, same values the old Tailwind CDN configs
+ * hardcoded across those views.
+ */
+:root {
+    --color-primary: #2C368B;
+    --color-secondary: #079C4E;
+    --color-accent: #F59E0B;
+    --color-softBg: #F8FAFC;
+    --radius-brand: 1rem;
+}
+
+@theme {
+    --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.06);
+    --shadow-float: 0 20px 40px -10px rgba(44, 54, 139, 0.18);
+}
+
+/*
+ * Brand theme for organization-rendered documents (public tenant site, builder canvas/
+ * preview, template preview, section-variant preview) - overridden per-document via an
+ * inline <style> block setting these same custom properties from the organization's (or
+ * template's) stored brand tokens. See resources/views/organizations/pages/_document.blade.php,
+ * templates/preview.blade.php, organizations/builder/section-preview.blade.php, and
+ * admin/section-variants/preview.blade.php.
+ */
+@theme inline {
+    --color-primary: var(--color-primary);
+    --color-secondary: var(--color-secondary);
+    --color-accent: var(--color-accent);
+    --color-softBg: var(--color-softBg);
+    --radius-brand: var(--radius-brand);
+}
+
+[x-cloak] {
+    display: none !important;
+}

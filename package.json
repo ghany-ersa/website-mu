@@ -16,6 +16,10 @@
     "dependencies": {
         "@tiptap/core": "^3.30.5",
         "@tiptap/extension-link": "^3.30.5",
-        "@tiptap/starter-kit": "^3.30.5"
+        "@tiptap/starter-kit": "^3.30.5",
+        "alpinejs": "^3.17.1",
+        "litepicker": "^2.0.12",
+        "sortablejs": "^1.15.7",
+        "swiper": "^14.2.0"
     }
 }

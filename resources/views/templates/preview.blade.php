@@ -28,34 +28,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview - {{ $template->name }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '{{ $primaryColor }}',
-                        secondary: '{{ $secondaryColor }}',
-                        accent: '#F59E0B',
-                        softBg: '#F8FAFC',
-                    },
-                    fontFamily: {
-                        sans: [{!! collect(explode(',', $font['stack']))->map(fn ($f) => "'".trim($f, " '\"")."'")->implode(', ') !!}],
-                    },
-                    borderRadius: {
-                        brand: '{{ $radiusValue }}',
-                    },
-                    boxShadow: {
-                        soft: '0 10px 40px -10px rgba(0,0,0,0.06)',
-                        float: '0 20px 40px -10px rgba({{ $primaryRgb }}, 0.18)',
-                    },
-                },
-            },
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family={{ $font['google'] }}&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+        :root {
+            --color-primary: {{ $primaryColor }};
+            --color-secondary: {{ $secondaryColor }};
+            --radius-brand: {{ $radiusValue }};
+            --shadow-float: 0 20px 40px -10px rgba({{ $primaryRgb }}, 0.18);
+        }
         body { font-family: {!! $font['stack'] !!}; }
 
         /* Scroll-reveal: elements start hidden/offset, JS below flips them visible on entering the viewport. */

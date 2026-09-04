@@ -6,29 +6,7 @@
     <title>@yield('title', 'Website-mu')</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2C368B',
-                        secondary: '#079C4E',
-                        accent: '#F59E0B',
-                        softBg: '#F8FAFC',
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        soft: '0 10px 40px -10px rgba(0,0,0,0.06)',
-                    },
-                },
-            },
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
 </head>
 <body class="bg-softBg text-gray-800 min-h-screen lg:flex">
