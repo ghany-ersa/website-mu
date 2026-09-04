@@ -91,6 +91,9 @@
                 <a href="#keunggulan" class="hover:text-primary transition">Keunggulan</a>
                 <a href="#template" class="hover:text-primary transition">Pilihan Template</a>
                 <a href="#cara-kerja" class="hover:text-primary transition">Cara Kerja</a>
+                @if ($articles->isNotEmpty())
+                    <a href="#berita" class="hover:text-primary transition">Berita</a>
+                @endif
                 <a href="#harga" class="hover:text-primary transition">Harga Paket</a>
             </div>
 
@@ -117,6 +120,9 @@
                 <a href="#keunggulan" x-on:click="mobileOpen = false" class="hover:text-primary transition">Keunggulan</a>
                 <a href="#template" x-on:click="mobileOpen = false" class="hover:text-primary transition">Pilihan Template</a>
                 <a href="#cara-kerja" x-on:click="mobileOpen = false" class="hover:text-primary transition">Cara Kerja</a>
+                @if ($articles->isNotEmpty())
+                    <a href="#berita" x-on:click="mobileOpen = false" class="hover:text-primary transition">Berita</a>
+                @endif
                 <a href="#harga" x-on:click="mobileOpen = false" class="hover:text-primary transition">Harga Paket</a>
                 <a href="{{ $ctaUrl }}" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-full text-center font-bold shadow-soft transition-all">
                     {{ $ctaLabel }}
@@ -199,6 +205,64 @@
             </div>
         </div>
     </section>
+
+    <!-- Berita & Artikel (National-media-style news section) -->
+    @if ($articles->isNotEmpty())
+        <section id="berita" class="py-20 container mx-auto px-4 max-w-6xl">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                <div>
+                    <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Kabar Terbaru</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Berita &amp; Artikel website-mu.id</h2>
+                </div>
+                <a href="{{ route('articles.index') }}" class="inline-flex items-center gap-2 text-primary hover:text-secondary font-bold text-sm transition shrink-0">
+                    Lihat Semua Berita
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+
+            @php
+                $featuredArticle = $articles->first();
+                $secondaryArticles = $articles->slice(1);
+                $articleDefaultImage = 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80';
+            @endphp
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Featured Article -->
+                <a href="{{ route('articles.show', $featuredArticle) }}" class="group relative rounded-[2.5rem] overflow-hidden bg-gray-900 shadow-soft border border-gray-100 block h-80 lg:h-full min-h-[22rem]">
+                    <img src="{{ $featuredArticle->cover_image ?? $articleDefaultImage }}" alt="{{ $featuredArticle->title }}" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-60 group-hover:scale-105 transition-all duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+                    <div class="relative z-10 h-full flex flex-col justify-end p-8">
+                        @if ($featuredArticle->category)
+                            <span class="self-start bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4">{{ $featuredArticle->category }}</span>
+                        @endif
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-white leading-tight mb-3 group-hover:text-secondary transition">{{ $featuredArticle->title }}</h3>
+                        @if ($featuredArticle->excerpt)
+                            <p class="text-gray-200 text-sm leading-relaxed mb-4 line-clamp-2">{{ $featuredArticle->excerpt }}</p>
+                        @endif
+                        <p class="text-gray-300 text-xs font-semibold uppercase tracking-wider">{{ $featuredArticle->published_at->translatedFormat('d F Y') }}</p>
+                    </div>
+                </a>
+
+                <!-- Secondary Articles List -->
+                <div class="flex flex-col divide-y divide-gray-100">
+                    @foreach ($secondaryArticles as $article)
+                        <a href="{{ route('articles.show', $article) }}" class="group flex items-center gap-5 py-5 first:pt-0 last:pb-0">
+                            <div class="w-28 h-24 md:w-32 md:h-28 rounded-2xl overflow-hidden shrink-0 bg-gray-100">
+                                <img src="{{ $article->cover_image ?? $articleDefaultImage }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            </div>
+                            <div class="min-w-0">
+                                @if ($article->category)
+                                    <span class="text-secondary text-xs font-bold uppercase tracking-wider">{{ $article->category }}</span>
+                                @endif
+                                <h3 class="text-base md:text-lg font-bold text-gray-800 leading-snug mt-1 mb-1.5 line-clamp-2 group-hover:text-primary transition">{{ $article->title }}</h3>
+                                <p class="text-gray-400 text-xs font-semibold">{{ $article->published_at->translatedFormat('d F Y') }}</p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
     <!-- Mengapa Penting (Why Digitize?) -->
     <section id="keunggulan" class="py-20 container mx-auto px-4 max-w-6xl">

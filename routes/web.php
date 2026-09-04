@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\PlanChangeRequestController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\SectionVariantController;
 use App\Http\Controllers\Admin\SectionVariantPreviewController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\OrganizationAgendaController;
@@ -30,6 +32,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
+use App\Models\Article;
 use App\Models\Plan;
 use App\Models\Template;
 use Illuminate\Support\Facades\Route;
@@ -60,10 +63,18 @@ Route::get('/', function () {
         ->orderBy('price_monthly')
         ->get();
 
-    return view('welcome', ['templates' => $templates, 'plans' => $plans]);
+    $articles = Article::published()
+        ->orderByDesc('published_at')
+        ->take(4)
+        ->get();
+
+    return view('welcome', ['templates' => $templates, 'plans' => $plans, 'articles' => $articles]);
 })->name('home');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('/berita', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
 
 Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
 
@@ -186,6 +197,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('templates', AdminTemplateController::class)->except(['show']);
+    Route::resource('articles', AdminArticleController::class)->except(['show']);
     Route::resource('plans', AdminPlanController::class)->except(['show']);
     Route::resource('discount-codes', DiscountCodeController::class)->except(['show']);
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
