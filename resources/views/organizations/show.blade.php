@@ -275,7 +275,7 @@
                             </span>
                             <form action="{{ route('organizations.members.destroy', [$organization, $member]) }}"
                                 method="POST"
-                                x-data @submit.prevent="if (await confirmAction(`Hapus ${@json($member->name)} dari organisasi ini?`)) $el.submit()">
+                                onsubmit="return confirm('Hapus ' + {{ Illuminate\Support\Js::from($member->name) }} + ' dari organisasi ini?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
