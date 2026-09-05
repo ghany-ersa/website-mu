@@ -19,6 +19,7 @@ class SectionVariantSeeder extends Seeder
         $sections = [
             'hero' => [
                 'standar' => ['view' => 'templates.sections.hero.standar', 'exclusive' => false, 'default' => true],
+                'nurul-huda' => ['view' => 'templates.sections.hero.nurul-huda', 'exclusive' => true],
                 'modern' => ['view' => 'templates.sections.hero.modern', 'exclusive' => true],
                 'headline-berita' => ['view' => 'templates.sections.hero.headline-berita', 'exclusive' => true],
             ],
@@ -84,6 +85,21 @@ class SectionVariantSeeder extends Seeder
             ],
             'lokasi-peta' => [
                 'standar' => ['view' => 'templates.sections.lokasi-peta.standar', 'exclusive' => false, 'default' => true],
+            ],
+            'fasilitas-masjid' => [
+                'standar' => ['view' => 'templates.sections.fasilitas-masjid.standar', 'exclusive' => true, 'default' => true],
+            ],
+            'donasi-progress' => [
+                'standar' => ['view' => 'templates.sections.donasi-progress.standar', 'exclusive' => true, 'default' => true],
+            ],
+            'laporan-keuangan' => [
+                'standar' => ['view' => 'templates.sections.laporan-keuangan.standar', 'exclusive' => true, 'default' => true],
+            ],
+            'kalkulator-zakat' => [
+                'standar' => ['view' => 'templates.sections.kalkulator-zakat.standar', 'exclusive' => true, 'default' => true],
+            ],
+            'sewa-aula' => [
+                'standar' => ['view' => 'templates.sections.sewa-aula.standar', 'exclusive' => true, 'default' => true],
             ],
             'cta' => [
                 'standar' => ['view' => 'templates.sections.cta.standar', 'exclusive' => false, 'default' => true],

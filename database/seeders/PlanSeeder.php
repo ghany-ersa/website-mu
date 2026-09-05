@@ -33,6 +33,8 @@ class PlanSeeder extends Seeder
             ['key' => 'officers', 'max_count' => 3],
             ['key' => 'programs', 'max_count' => 3],
             ['key' => 'gallery_photos', 'max_count' => 3],
+            ['key' => 'facilities', 'max_count' => 3],
+            ['key' => 'donation_programs', 'max_count' => 1],
             ['key' => 'sections_total', 'max_count' => 5],
         ]);
 
@@ -52,6 +54,8 @@ class PlanSeeder extends Seeder
             ['key' => 'officers', 'max_count' => 7],
             ['key' => 'programs', 'max_count' => 5],
             ['key' => 'gallery_photos', 'max_count' => 8],
+            ['key' => 'facilities', 'max_count' => 6],
+            ['key' => 'donation_programs', 'max_count' => 3],
             ['key' => 'sections_total', 'max_count' => 8],
         ]);
 
@@ -71,6 +75,8 @@ class PlanSeeder extends Seeder
             ['key' => 'officers', 'max_count' => 12],
             ['key' => 'programs', 'max_count' => 9],
             ['key' => 'gallery_photos', 'max_count' => 40],
+            ['key' => 'facilities', 'max_count' => 15],
+            ['key' => 'donation_programs', 'max_count' => 10],
             ['key' => 'sections_total', 'max_count' => 25],
         ]);
     }

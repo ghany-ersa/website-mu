@@ -31,6 +31,8 @@ class PlanLimitService
         'officers' => 'officers',
         'programs' => 'programs',
         'gallery_photos' => 'photos',
+        'facilities' => 'facilities',
+        'donation_programs' => 'donationPrograms',
     ];
 
     /**

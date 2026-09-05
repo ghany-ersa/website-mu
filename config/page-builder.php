@@ -143,7 +143,14 @@ return [
         ],
         'jadwal-kajian' => [
             'label' => 'Jadwal Kajian',
-            'fields' => [],
+            // Backed by the same `agendas` table as the 'agenda' section (see
+            // CmsSampleDataSeeder::seed(), which seeds both from one method) - the two differ
+            // only in presentation, so this points at the same CMS. Previously this had no
+            // fields at all, which left it unclickable in the builder sidebar (see edit.blade
+            // .php's $hasFields guard) and silently dropped its title/limit on save.
+            'fields' => ['title', 'items', 'limit'],
+            'defaults' => ['title' => 'Jadwal Kajian'],
+            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda & Kajian'],
         ],
         'jadwal-praktik' => [
             'label' => 'Jadwal Praktik Dokter',
@@ -178,6 +185,46 @@ return [
             'label' => 'Lokasi & Peta',
             'fields' => ['title', 'address', 'map_embed'],
             'defaults' => ['title' => 'Lokasi'],
+        ],
+        'fasilitas-masjid' => [
+            'label' => 'Fasilitas Masjid',
+            'fields' => ['title', 'items', 'limit'],
+            'defaults' => ['title' => 'Fasilitas Masjid'],
+            'cms' => ['route' => 'organizations.facilities.index', 'label' => 'Fasilitas'],
+        ],
+        'donasi-progress' => [
+            'label' => 'Donasi & Progress',
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
+            'defaults' => ['title' => 'Program Donasi Aktif'],
+            'cms' => ['route' => 'organizations.donations.index', 'label' => 'Program Donasi'],
+        ],
+        'laporan-keuangan' => [
+            'label' => 'Laporan Keuangan',
+            'fields' => ['title'],
+            'defaults' => ['title' => 'Laporan Keuangan'],
+            'cms' => ['route' => 'organizations.financial-reports.index', 'label' => 'Laporan Keuangan'],
+        ],
+        'kalkulator-zakat' => [
+            'label' => 'Kalkulator Zakat',
+            'fields' => ['title', 'gold_price_per_gram', 'nisab_grams', 'cta_label', 'wa_number', 'wa_message'],
+            'defaults' => [
+                'title' => 'Kalkulator Zakat',
+                'gold_price_per_gram' => 1500000,
+                'nisab_grams' => 85,
+                'cta_label' => 'Konsultasi Zakat',
+                'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar zakat di {org_name}.',
+            ],
+        ],
+        'sewa-aula' => [
+            'label' => 'Sewa Aula/Venue',
+            'fields' => [
+                'hero_title', 'hero_subtitle', 'availability_badge',
+                'wa_number', 'facilities', 'image',
+            ],
+            'defaults' => [
+                'hero_title' => 'Sewa Aula Serbaguna',
+                'availability_badge' => 'Terbuka untuk Pemesanan',
+            ],
         ],
         'cta' => [
             'label' => 'CTA',

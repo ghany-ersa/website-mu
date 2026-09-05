@@ -41,7 +41,7 @@
                 'pattern' => 'organizations.agendas.*',
                 'label' => config('page-builder.sections.agenda.cms.label'),
                 'icon' => 'M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z',
-                'section' => 'agenda',
+                'section' => ['agenda', 'jadwal-kajian'],
             ],
             [
                 'route' => config('page-builder.sections.pengumuman.cms.route'),
@@ -86,6 +86,27 @@
                 'section' => 'layanan',
             ],
             [
+                'route' => config('page-builder.sections.fasilitas-masjid.cms.route'),
+                'pattern' => 'organizations.facilities.*',
+                'label' => config('page-builder.sections.fasilitas-masjid.cms.label'),
+                'icon' => 'M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7M9 9h.01M9 12h.01M9 15h.01',
+                'section' => 'fasilitas-masjid',
+            ],
+            [
+                'route' => config('page-builder.sections.donasi-progress.cms.route'),
+                'pattern' => 'organizations.donations.*',
+                'label' => config('page-builder.sections.donasi-progress.cms.label'),
+                'icon' => 'M12 8c-1.657 0-3 .672-3 1.5S10.343 11 12 11s3 .672 3 1.5-1.343 1.5-3 1.5m0-6V6m0 8v1.5m0-9.5C7.582 3 4 5.686 4 9s3.582 6 8 6 8-2.686 8-6-3.582-6-8-6Z',
+                'section' => 'donasi-progress',
+            ],
+            [
+                'route' => config('page-builder.sections.laporan-keuangan.cms.route'),
+                'pattern' => 'organizations.financial-reports.*',
+                'label' => config('page-builder.sections.laporan-keuangan.cms.label'),
+                'icon' => 'M9 17V9m4 8V5m4 12v-3M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z',
+                'section' => 'laporan-keuangan',
+            ],
+            [
                 'route' => 'organizations.plan.edit',
                 'pattern' => 'organizations.plan.*',
                 'label' => 'Langganan',
@@ -95,7 +116,11 @@
 
         $orgMenu = array_filter(
             $orgMenu,
-            fn ($item) => ! isset($item['section']) || $activeSectionKeys->contains($item['section'])
+            // 'section' may list more than one key: two sections can be backed by the same CMS
+            // (jadwal-kajian and agenda both read the `agendas` table), and the menu should show
+            // if the organization has either of them.
+            fn ($item) => ! isset($item['section'])
+                || collect((array) $item['section'])->intersect($activeSectionKeys)->isNotEmpty()
         );
     @endphp
 
@@ -193,6 +218,11 @@
     </main>
 
     @include('partials.confirm-modal')
+
+    {{-- Components that register Alpine.data() push their script here (see
+         components/form/image-picker.blade.php), so it's defined once per page no matter how
+         many instances the form renders. --}}
+    @stack('scripts')
 
 </body>
 

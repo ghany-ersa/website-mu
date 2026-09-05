@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             OrganizationTypeSeeder::class,
             SectionVariantSeeder::class,
             TemplateSeeder::class,
+            MasjidNurulHudaTemplateSeeder::class,
             OrganizationSeeder::class,
             ArticleSeeder::class,
         ]);

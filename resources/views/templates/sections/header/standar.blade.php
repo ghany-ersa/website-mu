@@ -5,11 +5,14 @@
         ?? '[Nama Organisasi]';
     $orgLogo = $organization->logo ?? null;
 
-    // The builder only supports a single page (see Organization::seedPagesFromTemplate()),
-    // so these nav items are anchors within that same page rather than links to separate
-    // pages/routes - each maps to the first visible section of that key present on the page,
-    // and is only shown when such a section actually exists (a template without a Formulir
-    // Kontak section, say, just doesn't get a "Kontak" nav item).
+    // Two nav modes, picked by how many pages the organization actually has:
+    //
+    //  - Multi-page: one link per OrganizationPage, so every page the visitor can reach is
+    //    reachable. Page links win over anchors because a section anchor on another page
+    //    would scroll nowhere.
+    //  - Single page (still the common case): anchors within that page, each mapping to the
+    //    first visible section of that key, and only shown when such a section exists (a
+    //    template without a Formulir Kontak section just doesn't get a "Kontak" item).
     $pageSections = isset($page) ? $page->sectionsInDisplayOrder() : collect();
     $anchorFor = function (array $keys) use ($pageSections) {
         $match = $pageSections->first(fn ($s) => in_array($s->key, $keys, true) && $s->is_visible);
@@ -17,21 +20,40 @@
         return $match ? '#canvas-section-'.$match->id : null;
     };
 
+    $pages = $organization->pages ?? collect();
     $homeHref = $pageSections->isNotEmpty() ? '#top' : null;
-    $navItems = array_filter([
-        ['label' => 'Beranda', 'href' => $homeHref],
-        ['label' => 'Tentang', 'href' => $anchorFor(['tentang-organisasi', 'sambutan-ketua'])],
-        ['label' => 'Berita', 'href' => $anchorFor(['daftar-berita', 'pengumuman'])],
-        ['label' => 'Kontak', 'href' => $anchorFor(['formulir-kontak', 'lokasi-peta'])],
-    ], fn ($item) => filled($item['href']));
+
+    if ($pages->count() > 1) {
+        $navItems = $pages
+            ->map(fn ($navPage) => [
+                'label' => $navPage->name,
+                'href' => \App\Services\TenantPageUrl::for($organization, $navPage),
+                'active' => isset($page) && $navPage->slug === $page->slug,
+            ])
+            ->filter(fn ($item) => filled($item['href']))
+            ->values()
+            ->all();
+    } else {
+        $navItems = array_filter([
+            ['label' => 'Beranda', 'href' => $homeHref],
+            ['label' => 'Tentang', 'href' => $anchorFor(['tentang-organisasi', 'sambutan-ketua'])],
+            ['label' => 'Berita', 'href' => $anchorFor(['daftar-berita', 'pengumuman'])],
+            ['label' => 'Kontak', 'href' => $anchorFor(['formulir-kontak', 'lokasi-peta'])],
+        ], fn ($item) => filled($item['href']));
+    }
 
     $contactHref = $anchorFor(['formulir-kontak'])
         ?? \App\Services\WhatsAppNumber::href($organization->whatsapp ?? null);
+
+    // On a multi-page site the wordmark goes to the home page, not to this page's own top.
+    $brandHref = $pages->count() > 1
+        ? (\App\Services\TenantPageUrl::for($organization, $pages->firstWhere('is_home', true)) ?? $homeHref ?? '#top')
+        : ($homeHref ?? '#top');
 @endphp
 
 <header id="top" class="sticky top-0 z-40 bg-primary backdrop-blur" x-data="{ open: false }">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-3">
-        <a href="{{ $homeHref ?? '#top' }}" class="flex items-center gap-2">
+        <a href="{{ $brandHref }}" class="flex items-center gap-2">
             @if ($orgLogo)
                 <img src="{{ $orgLogo }}" alt="{{ $orgName }}" class="w-9 h-9 rounded-brand object-contain">
             @else
@@ -44,9 +66,17 @@
         @if (! empty($navItems))
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-white/80">
                 @foreach ($navItems as $item)
-                    <a href="{{ $item['href'] }}" class="relative group hover:text-white transition-colors">
+                    <a href="{{ $item['href'] }}" @class([
+                        'relative group transition-colors',
+                        'text-white' => $item['active'] ?? false,
+                        'hover:text-white' => ! ($item['active'] ?? false),
+                    ])>
                         {{ $item['label'] }}
-                        <span class="absolute left-0 -bottom-1 h-0.5 w-0 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+                        <span @class([
+                            'absolute left-0 -bottom-1 h-0.5 bg-secondary transition-all duration-300',
+                            'w-full' => $item['active'] ?? false,
+                            'w-0 group-hover:w-full' => ! ($item['active'] ?? false),
+                        ])></span>
                     </a>
                 @endforeach
             </nav>
@@ -90,7 +120,11 @@
             class="md:hidden border-t border-white/10 px-6 pb-4 pt-2 flex flex-col gap-1 text-sm font-medium"
         >
             @foreach ($navItems as $item)
-                <a href="{{ $item['href'] }}" class="px-3 py-2.5 rounded-brand text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+                <a href="{{ $item['href'] }}" @class([
+                    'px-3 py-2.5 rounded-brand transition-colors',
+                    'bg-white/10 text-white' => $item['active'] ?? false,
+                    'text-white/80 hover:bg-white/10 hover:text-white' => ! ($item['active'] ?? false),
+                ])>
                     {{ $item['label'] }}
                 </a>
             @endforeach

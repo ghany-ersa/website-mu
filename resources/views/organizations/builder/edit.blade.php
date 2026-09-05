@@ -1033,31 +1033,37 @@
                 setTimeout(() => { state.saved = false; }, 2000);
             }
 
-            new Sortable(document.getElementById('section-list'), {
-                handle: '.cursor-move',
-                filter: '[data-locked]',
-                preventOnFilter: false,
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                onEnd() {
-                    const ids = [...document.querySelectorAll('#section-list [data-section-id]')]
-                        .map((el) => el.dataset.sectionId);
+            // Deferred until DOMContentLoaded because window.Sortable comes from
+            // resources/js/builder.js, loaded as an ES module - those execute only after the
+            // document is parsed, so reaching for Sortable directly in this inline script
+            // throws "Sortable is not defined" and silently kills drag-and-drop reordering.
+            document.addEventListener('DOMContentLoaded', () => {
+                new Sortable(document.getElementById('section-list'), {
+                    handle: '.cursor-move',
+                    filter: '[data-locked]',
+                    preventOnFilter: false,
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    dragClass: 'sortable-drag',
+                    onEnd() {
+                        const ids = [...document.querySelectorAll('#section-list [data-section-id]')]
+                            .map((el) => el.dataset.sectionId);
 
-                    fetch(window.reorderSectionsUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': window.csrfToken,
-                        },
-                        body: JSON.stringify({
-                            section_ids: ids
-                        }),
-                    })
-                        .then((res) => res.json())
-                        .then((data) => swapCanvas(data.canvas));
-                },
+                        fetch(window.reorderSectionsUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': window.csrfToken,
+                            },
+                            body: JSON.stringify({
+                                section_ids: ids
+                            }),
+                        })
+                            .then((res) => res.json())
+                            .then((data) => swapCanvas(data.canvas));
+                    },
+                });
             });
         </script>
     @endif

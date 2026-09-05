@@ -17,7 +17,11 @@ use App\Http\Controllers\OrganizationAnnouncementController;
 use App\Http\Controllers\OrganizationBrandController;
 use App\Http\Controllers\OrganizationBuilderController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\OrganizationDonationProgramController;
+use App\Http\Controllers\OrganizationDonationTransactionController;
 use App\Http\Controllers\OrganizationEditController;
+use App\Http\Controllers\OrganizationFacilityController;
+use App\Http\Controllers\OrganizationFinancialReportController;
 use App\Http\Controllers\OrganizationGalleryController;
 use App\Http\Controllers\OrganizationMemberController;
 use App\Http\Controllers\OrganizationNetworkController;
@@ -159,6 +163,14 @@ Route::middleware('auth')->group(function () {
             ->parameters(['gallery' => 'photo'])
             ->except(['show']);
 
+        Route::post('organizations/{organization}/facilities/reorder', [OrganizationFacilityController::class, 'reorder'])
+            ->name('organizations.facilities.reorder');
+        Route::resource('organizations.facilities', OrganizationFacilityController::class)
+            ->except(['show']);
+
+        Route::resource('organizations.financial-reports', OrganizationFinancialReportController::class)
+            ->except(['show']);
+
         Route::get('organizations/{organization}/brand', [OrganizationBrandController::class, 'edit'])
             ->name('organizations.brand.edit');
         Route::patch('organizations/{organization}/brand', [OrganizationBrandController::class, 'update'])
@@ -187,6 +199,26 @@ Route::middleware('auth')->group(function () {
         Route::get('organizations/{organization}/plan/{planChangeRequest}/pay', [OrganizationPlanController::class, 'pay'])
             ->name('organizations.plan.pay');
     });
+
+    // Outside scopeBindings(): that group derives the parent relation from the parameter name
+    // ({program} -> Organization::program()), which doesn't exist - the relation is
+    // donationPrograms(). Ownership is verified in the controller instead, same as the section
+    // routes below.
+    Route::get('organizations/{organization}/preview-donasi/{program}', [OrganizationSiteController::class, 'previewDonationProgram'])
+        ->name('organizations.preview.donation');
+
+    // Same reason these sit outside scopeBindings(): {donation} would be scoped through
+    // Organization::donations(), but the relation is donationPrograms(). Each action verifies
+    // ownership itself (OrganizationDonationProgramController::ensureBelongsToOrganization()).
+    Route::resource('organizations.donations', OrganizationDonationProgramController::class)
+        ->parameters(['donations' => 'donation'])
+        ->except(['show']);
+    Route::get('organizations/{organization}/donations/{donation}/transactions/create', [OrganizationDonationTransactionController::class, 'create'])
+        ->name('organizations.donations.transactions.create');
+    Route::post('organizations/{organization}/donations/{donation}/transactions', [OrganizationDonationTransactionController::class, 'store'])
+        ->name('organizations.donations.transactions.store');
+    Route::delete('organizations/{organization}/donations/{donation}/transactions/{transaction}', [OrganizationDonationTransactionController::class, 'destroy'])
+        ->name('organizations.donations.transactions.destroy');
 
     Route::patch('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'update'])
         ->name('organizations.sections.update');
@@ -235,5 +267,10 @@ if ($tenantDomain = config('tenancy.domain')) {
         Route::get('/berita/{post_slug}', [OrganizationSiteController::class, 'post'])->name('tenant.posts.show');
         Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
         Route::get('/agenda/{agenda}', [OrganizationSiteController::class, 'agenda'])->name('tenant.agendas.show');
+        Route::get('/donasi/{program_slug}', [OrganizationSiteController::class, 'donationProgram'])->name('tenant.donations.show');
+
+        // Catch-all for any other builder page (e.g. /donasi, /laporan-keuangan) - must stay
+        // last in this group so it never shadows the specific routes above.
+        Route::get('/{page_slug}', [OrganizationSiteController::class, 'showPage'])->name('tenant.pages.show');
     });
 }

@@ -29,10 +29,24 @@
     $whatsappHref = \App\Services\WhatsAppNumber::href($whatsapp);
     $hasSocial = $instagramUrl || $facebookUrl;
     $hideBranding = $organization->plan?->hide_branding ?? false;
+
+    // Page links only make sense once there's more than one page to move between; a
+    // single-page site's footer stays exactly as it was.
+    $pages = $organization->pages ?? collect();
+    $navPages = $pages->count() > 1
+        ? $pages->map(fn ($navPage) => [
+            'label' => $navPage->name,
+            'href' => \App\Services\TenantPageUrl::for($organization, $navPage),
+        ])->filter(fn ($item) => filled($item['href']))->values()
+        : collect();
 @endphp
 
 <footer class="bg-primary text-white/70" style="background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))">
-    <div class="max-w-6xl mx-auto px-6 py-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr]">
+    <div @class([
+        'max-w-6xl mx-auto px-6 py-14 grid gap-10 sm:grid-cols-2',
+        'lg:grid-cols-[1.3fr_1fr_1fr]' => $navPages->isNotEmpty(),
+        'lg:grid-cols-[1.3fr_1fr]' => $navPages->isEmpty(),
+    ])>
         <div>
             <div class="flex items-center gap-3 mb-4">
                 @if ($orgLogo)
@@ -66,6 +80,19 @@
                 </div>
             @endif
         </div>
+
+        @if ($navPages->isNotEmpty())
+            <div>
+                <p class="text-white font-semibold text-sm mb-3.5">Halaman</p>
+                <ul class="space-y-2.5 text-sm">
+                    @foreach ($navPages as $navItem)
+                        <li>
+                            <a href="{{ $navItem['href'] }}" class="hover:text-white transition-colors">{{ $navItem['label'] }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <div>
             <p class="text-white font-semibold text-sm mb-3.5">Hubungi Kami</p>

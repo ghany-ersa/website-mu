@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 #[Fillable([
     'organization_type_id',
@@ -267,6 +268,8 @@ class Organization extends Model
             'officers' => ['officers', 'Data Pengurus'],
             'programs' => ['programs', 'Program/Layanan'],
             'gallery_photos' => ['photos', 'Foto Galeri'],
+            'facilities' => ['facilities', 'Fasilitas'],
+            'donation_programs' => ['donationPrograms', 'Program Donasi'],
         ];
 
         // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
@@ -343,14 +346,18 @@ class Organization extends Model
     }
 
     /**
-     * Whether any of this organization's builder pages contain a section with the given key
-     * (e.g. 'galeri', 'daftar-berita') - used to gate both the CMS sidebar/dashboard links and
-     * the underlying CRUD routes (organizations.gallery.*, organizations.posts.*, etc.) for
+     * Whether any of this organization's builder pages contain a section with any of the given
+     * keys (e.g. 'galeri', 'daftar-berita') - used to gate both the CMS sidebar/dashboard links
+     * and the underlying CRUD routes (organizations.gallery.*, organizations.posts.*, etc.) for
      * content types the organization's template never gave it a section to display.
+     *
+     * Takes several keys because one CMS can back more than one section: 'jadwal-kajian' and
+     * 'agenda' both read the `agendas` table, so a template that only ships the former must
+     * still open organizations.agendas.*.
      */
-    public function hasSection(string $key): bool
+    public function hasSection(string ...$keys): bool
     {
-        return $this->pages->flatMap->sections->pluck('key')->contains($key);
+        return $this->pages->flatMap->sections->pluck('key')->intersect($keys)->isNotEmpty();
     }
 
     /**
@@ -419,6 +426,30 @@ class Organization extends Model
     public function photos(): HasMany
     {
         return $this->hasMany(GalleryPhoto::class)->orderBy('order');
+    }
+
+    /**
+     * @return HasMany<MasjidFacility, $this>
+     */
+    public function facilities(): HasMany
+    {
+        return $this->hasMany(MasjidFacility::class)->orderBy('order');
+    }
+
+    /**
+     * @return HasMany<FinancialReport, $this>
+     */
+    public function financialReports(): HasMany
+    {
+        return $this->hasMany(FinancialReport::class);
+    }
+
+    /**
+     * @return HasMany<DonationProgram, $this>
+     */
+    public function donationPrograms(): HasMany
+    {
+        return $this->hasMany(DonationProgram::class);
     }
 
     /**
@@ -493,54 +524,63 @@ class Organization extends Model
     }
 
     /**
-     * Clone only the template's first (home) page into an owned page/sections - the
-     * builder only supports one page for now, so the template's other pages (if any)
-     * aren't cloned yet. Also seeds sample CMS records (see CmsSampleDataSeeder) for
-     * whichever CMS-backed sections (galeri, daftar-berita, struktur-pengurus, etc.) the
-     * cloned page has, so the builder and the org's own draft/public page show real, editable
-     * content immediately instead of an empty list the user has to populate from scratch.
+     * Clone every page listed in the template's structure['pages'] into owned pages/sections
+     * (previously only structure['pages'][0] was cloned, back when the builder supported just
+     * one page - it now supports many, see OrganizationPageController). Also seeds sample CMS
+     * records (see CmsSampleDataSeeder) for whichever CMS-backed sections (galeri, daftar-berita,
+     * struktur-pengurus, etc.) any cloned page has, so the builder and the org's own draft/public
+     * pages show real, editable content immediately instead of an empty list the user has to
+     * populate from scratch.
      *
      * The cloned sections are capped to the org's plan's 'sections_total' limit (excluding
      * locked keys, same as PlanLimitService::countedSectionsTotal() - locked sections like
-     * header/footer were never optional and shouldn't eat into the quota). Every organization
-     * is created on the Starter plan (see OrganizationController::store()), whose
-     * sections_total is tighter than what any current template actually contains, so cloning
-     * every section unconditionally used to leave a brand-new organization already over its
-     * own plan's limit - see Organization::planViolations() - before the owner had touched
-     * anything. Trailing (non-locked) sections are dropped first so the template's opening
-     * sections (hero, etc. - the first impression) survive the cut.
+     * header/footer were never optional and shouldn't eat into the quota). The cap is computed
+     * against the union of unlocked sections across ALL pages being cloned, not per page -
+     * sections_total is a site-wide limit (see countedSectionsTotal(), which also sums across
+     * every page), so capping per page independently would let a many-page template blow past
+     * the limit while every individual page still looked fine on its own. Every organization is
+     * created on the Starter plan (see OrganizationController::store()), whose sections_total is
+     * tighter than what any current template actually contains, so cloning every section
+     * unconditionally used to leave a brand-new organization already over its own plan's limit -
+     * see Organization::planViolations() - before the owner had touched anything. Trailing
+     * (non-locked) sections are dropped first, walking backward from the last page's last
+     * section, so the template's opening pages/sections (home's hero, etc. - the first
+     * impression) survive the cut before later pages do.
+     *
+     * Wrapped in a transaction: with multiple pages now created per call, a mid-loop failure
+     * (e.g. a duplicate page slug in the template's own data) would otherwise leave the
+     * organization with only some of its pages seeded instead of none.
      */
     private function seedPagesFromTemplate(): void
     {
-        $pageData = ($this->template->structure['pages'] ?? [])[0] ?? null;
+        $pagesData = $this->template->structure['pages'] ?? [];
 
-        if (! $pageData) {
+        if ($pagesData === []) {
             return;
         }
-
-        $page = $this->pages()->create([
-            'name' => $pageData['name'] ?? $pageData['slug'],
-            'slug' => $pageData['slug'],
-            'order' => 0,
-            'is_home' => true,
-        ]);
 
         $lockedKeys = collect(config('page-builder.sections'))
             ->filter(fn (array $section) => $section['locked'] ?? false)
             ->keys();
 
-        $sections = collect($pageData['sections'] ?? []);
+        // Flatten every page's sections into one ordered list, tagged with which page index
+        // they came from, so the drop-cap below can walk backward across page boundaries
+        // rather than per page.
+        $flatSections = collect($pagesData)
+            ->flatMap(fn (array $pageData, int $pageIndex) => collect($pageData['sections'] ?? [])
+                ->map(fn (array $sectionData) => ['page_index' => $pageIndex, 'data' => $sectionData]));
+
         $limit = app(PlanLimitService::class)->effectiveLimit($this, 'sections_total');
 
         if ($limit !== null) {
-            $unlockedCount = $sections->filter(fn (array $s) => ! $lockedKeys->contains($s['key']))->count();
+            $unlockedCount = $flatSections->filter(fn (array $s) => ! $lockedKeys->contains($s['data']['key']))->count();
             $overBy = max(0, $unlockedCount - $limit);
 
             if ($overBy > 0) {
                 $dropped = 0;
 
-                $sections = $sections->reverse()->reject(function (array $section) use ($lockedKeys, $overBy, &$dropped) {
-                    if ($dropped >= $overBy || $lockedKeys->contains($section['key'])) {
+                $flatSections = $flatSections->reverse()->reject(function (array $section) use ($lockedKeys, $overBy, &$dropped) {
+                    if ($dropped >= $overBy || $lockedKeys->contains($section['data']['key'])) {
                         return false;
                     }
 
@@ -551,20 +591,46 @@ class Organization extends Model
             }
         }
 
+        $survivingByPage = $flatSections->groupBy('page_index');
         $sectionKeys = [];
 
-        foreach ($sections as $sectionOrder => $sectionData) {
-            $page->sections()->create([
-                'key' => $sectionData['key'],
-                'variant' => $sectionData['variant'] ?? null,
-                'content' => $sectionData['content'] ?? [],
-                'order' => $sectionOrder,
-            ]);
+        DB::transaction(function () use ($pagesData, $survivingByPage, &$sectionKeys) {
+            $usedSlugs = [];
 
-            $sectionKeys[] = $sectionData['key'];
-        }
+            foreach ($pagesData as $pageIndex => $pageData) {
+                $slug = $pageData['slug'];
 
-        $page->ensureFooter();
+                if (in_array($slug, $usedSlugs, true)) {
+                    // Template data itself has a duplicate page slug - skip rather than let
+                    // the unique(['organization_id','slug']) constraint abort the whole seed.
+                    continue;
+                }
+
+                $usedSlugs[] = $slug;
+
+                $page = $this->pages()->create([
+                    'name' => $pageData['name'] ?? $slug,
+                    'slug' => $slug,
+                    'order' => $pageIndex,
+                    'is_home' => $pageIndex === 0,
+                ]);
+
+                foreach (($survivingByPage->get($pageIndex) ?? collect())->values() as $sectionOrder => $section) {
+                    $sectionData = $section['data'];
+
+                    $page->sections()->create([
+                        'key' => $sectionData['key'],
+                        'variant' => $sectionData['variant'] ?? null,
+                        'content' => $sectionData['content'] ?? [],
+                        'order' => $sectionOrder,
+                    ]);
+
+                    $sectionKeys[] = $sectionData['key'];
+                }
+
+                $page->ensureFooter();
+            }
+        });
 
         CmsSampleDataSeeder::seed($this, $sectionKeys);
     }

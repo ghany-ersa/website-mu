@@ -6,6 +6,7 @@ use App\Enums\OrganizationStatus;
 use App\Enums\PublishStatus;
 use App\Models\Agenda;
 use App\Models\Announcement;
+use App\Models\DonationProgram;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use Illuminate\View\View;
@@ -53,6 +54,48 @@ class OrganizationSiteController extends Controller
         ]);
     }
 
+    /**
+     * Render a non-home page of an organization's published site at its subdomain, by page
+     * slug - e.g. {slug}.{domain}/donasi. Sits behind the other tenant routes (berita/,
+     * pengumuman/, agenda/) in routes/web.php so this catch-all {page_slug} segment never
+     * shadows them. Gated the same way show() is: Organization::status is the single source
+     * of truth for whether a site is public at all (see OrganizationPage::published_at's
+     * doc comment in the builder view for why per-page publish state was deliberately
+     * removed) - any page belonging to a Published organization is public.
+     */
+    public function showPage(string $organization_slug, string $page_slug): View
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        $organization->load('pages.sections');
+        $page = $organization->pages->firstWhere('slug', $page_slug);
+        abort_if($page === null, 404);
+
+        return view('organizations.public.show', [
+            'organization' => $organization,
+            'page' => $page,
+        ]);
+    }
+
+    /**
+     * Preview one donation program's detail page from the main app domain, the same way
+     * preview() does for builder pages - without it the only way to reach this page is the
+     * tenant subdomain, which isn't routable under `php artisan serve` locally, so neither an
+     * owner checking their site nor a developer could ever see it.
+     */
+    public function previewDonationProgram(Organization $organization, DonationProgram $program): View
+    {
+        $this->authorize('update', $organization);
+        abort_unless($program->organization_id === $organization->id, 404);
+
+        $organization->load('pages');
+
+        return view('organizations.public.donation-program', [
+            'organization' => $organization,
+            'program' => $program->load('transactions'),
+        ]);
+    }
+
     public function post(string $organization_slug, string $post_slug): View
     {
         $organization = $this->publishedOrganization($organization_slug);
@@ -91,6 +134,30 @@ class OrganizationSiteController extends Controller
         return view('organizations.public.agenda', [
             'organization' => $organization,
             'agenda' => $agenda,
+        ]);
+    }
+
+    /**
+     * Public detail page for one donation program, resolved by its per-organization slug
+     * (donation_programs has a unique(['organization_id','slug']), so the slug is only unique
+     * within a tenant - hence the explicit where() rather than route-model binding on slug).
+     *
+     * Unlike posts/agendas/announcements there's no draft/published state on a program: an
+     * organization only creates one when it wants to collect for it, so belonging to this
+     * published organization is the whole gate.
+     */
+    public function donationProgram(string $organization_slug, string $program_slug): View
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        $program = $organization->donationPrograms()
+            ->with('transactions')
+            ->where('slug', $program_slug)
+            ->firstOrFail();
+
+        return view('organizations.public.donation-program', [
+            'organization' => $organization,
+            'program' => $program,
         ]);
     }
 
