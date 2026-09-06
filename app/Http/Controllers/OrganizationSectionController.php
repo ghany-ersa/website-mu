@@ -93,7 +93,7 @@ class OrganizationSectionController extends Controller
             }
         }
 
-        $page->sections()->create([
+        $section = $page->sections()->create([
             'key' => $validated['key'],
             'content' => $content,
             'order' => $page->sections()->max('order') + 1,
@@ -101,8 +101,12 @@ class OrganizationSectionController extends Controller
 
         CmsSampleDataSeeder::seed($organization, [$validated['key']]);
 
+        // ?section= is the same query param the builder's own init() already reads to
+        // auto-open the properties panel (see edit.blade.php's Alpine init()) - reusing
+        // it here means a just-added section opens straight into its edit form instead
+        // of leaving the user to find and click it in the list themselves.
         return redirect()
-            ->route('organizations.builder.page', [$organization, $page])
+            ->route('organizations.builder.page', [$organization, $page, 'section' => $section->id])
             ->with('status', 'Section berhasil ditambahkan.');
     }
 

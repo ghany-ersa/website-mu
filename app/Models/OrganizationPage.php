@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 #[Fillable(['organization_id', 'name', 'slug', 'order', 'is_home', 'published_at'])]
 class OrganizationPage extends Model
@@ -49,15 +50,36 @@ class OrganizationPage extends Model
      * of place. Callers that need this (the render partial, the builder sidebar) should
      * use this instead of the raw sections() relation.
      *
-     * @return \Illuminate\Support\Collection<int, OrganizationSection>
+     * @return Collection<int, OrganizationSection>
      */
-    public function sectionsInDisplayOrder(): \Illuminate\Support\Collection
+    public function sectionsInDisplayOrder(): Collection
     {
         $sections = $this->sections;
 
         return $sections->where('key', 'header')->values()
             ->concat($sections->whereNotIn('key', ['header', 'footer'])->values())
             ->concat($sections->where('key', 'footer')->values());
+    }
+
+    /**
+     * Create this page's header section if it doesn't already have one. Safe to call
+     * repeatedly (e.g. on every page-creation path) - see config/page-builder.php's
+     * `locked` doc comment for why header must always exist and can't be user-managed.
+     * Display position is enforced by sectionsInDisplayOrder() regardless of `order`,
+     * but `order` is still set to 0 here so a fresh page's raw sections() order matches
+     * what's actually displayed.
+     */
+    public function ensureHeader(): void
+    {
+        if ($this->sections()->where('key', 'header')->exists()) {
+            return;
+        }
+
+        $this->sections()->create([
+            'key' => 'header',
+            'content' => config('page-builder.sections.header.defaults', []),
+            'order' => 0,
+        ]);
     }
 
     /**

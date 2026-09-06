@@ -520,6 +520,7 @@ class Organization extends Model
             'is_home' => true,
         ]);
 
+        $page->ensureHeader();
         $page->ensureFooter();
     }
 
@@ -628,6 +629,7 @@ class Organization extends Model
                     $sectionKeys[] = $sectionData['key'];
                 }
 
+                $page->ensureHeader();
                 $page->ensureFooter();
             }
         });

@@ -1184,20 +1184,24 @@
             // document to finish loading first if it hasn't yet (e.g. on initial page load,
             // when the properties panel opens from a ?section= redirect before the iframe
             // has had a chance to render).
-            function scrollCanvasToSection(id) {
+            function scrollCanvasToSection(id, attemptsLeft = 20) {
                 const frame = document.getElementById('canvas-frame');
                 if (!frame) return;
 
-                const scroll = () => {
-                    frame.contentDocument
-                        ?.getElementById('canvas-section-' + id)
-                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                };
+                const target = frame.contentDocument?.getElementById('canvas-section-' + id);
 
-                if (frame.contentDocument?.readyState === 'complete') {
-                    scroll();
-                } else {
-                    frame.addEventListener('load', scroll, { once: true });
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+
+                // The target element isn't there yet - either the iframe's own document
+                // hasn't finished loading, or (just-added section) it loaded from a stale
+                // cache before this section existed. Either way, a single 'load' listener
+                // can miss the moment the iframe becomes ready (it may already have fired
+                // by the time we get here), so poll briefly instead of relying on it.
+                if (attemptsLeft > 0) {
+                    setTimeout(() => scrollCanvasToSection(id, attemptsLeft - 1), 100);
                 }
             }
 

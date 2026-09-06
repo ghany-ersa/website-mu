@@ -52,6 +52,21 @@ class OrganizationBuilderTest extends TestCase
         $response->assertNotFound();
     }
 
+    public function test_adding_a_section_redirects_straight_to_editing_it(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+
+        $response = $this->actingAs($user)
+            ->post(route('organizations.sections.store', [$organization, $page]), ['key' => 'hero']);
+
+        $section = $page->sections()->first();
+        $this->assertNotNull($section);
+        $response->assertRedirect(route('organizations.builder.page', [$organization, $page, 'section' => $section->id]));
+    }
+
     public function test_member_can_add_update_duplicate_reorder_and_delete_sections(): void
     {
         $user = User::factory()->create();
@@ -175,7 +190,7 @@ class OrganizationBuilderTest extends TestCase
         $this->assertSame('Agenda Kegiatan', $section->content['title']);
     }
 
-    public function test_a_new_blank_page_is_seeded_with_a_footer(): void
+    public function test_a_new_blank_page_is_seeded_with_a_header_and_footer(): void
     {
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
@@ -186,6 +201,7 @@ class OrganizationBuilderTest extends TestCase
             ->assertRedirect();
 
         $page = $organization->pages()->where('slug', 'kontak')->firstOrFail();
+        $this->assertTrue($page->sections()->where('key', 'header')->exists());
         $this->assertTrue($page->sections()->where('key', 'footer')->exists());
     }
 

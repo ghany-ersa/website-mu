@@ -27,6 +27,7 @@ class OrganizationPageController extends Controller
             'order' => $organization->pages()->max('order') + 1,
         ]);
 
+        $page->ensureHeader();
         $page->ensureFooter();
 
         return redirect()
