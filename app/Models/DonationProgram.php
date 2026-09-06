@@ -15,6 +15,8 @@ class DonationProgram extends Model
     /** @use HasFactory<DonationProgramFactory> */
     use HasFactory;
 
+    private ?int $collectedAmountCache = null;
+
     /**
      * @return array<string, string>
      */
@@ -42,9 +44,15 @@ class DonationProgram extends Model
         return $this->hasMany(DonationTransaction::class);
     }
 
+    /**
+     * Memoized per-instance (not persisted) - progressPercent() and status() both call this,
+     * and a program can appear in a list rendered many times over in one request (e.g. the
+     * donasi-progress section), so without this each of those would re-run its own SUM query
+     * against the same unchanged transactions.
+     */
     public function collectedAmount(): int
     {
-        return (int) $this->transactions()->sum('amount');
+        return $this->collectedAmountCache ??= (int) $this->transactions()->sum('amount');
     }
 
     /**

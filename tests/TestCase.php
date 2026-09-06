@@ -4,6 +4,7 @@ namespace Tests;
 
 use App\Models\Plan;
 use App\Models\SectionVariant;
+use App\Services\PlanLimitService;
 use Database\Seeders\PlanSeeder;
 use Database\Seeders\SectionVariantSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,6 +46,14 @@ abstract class TestCase extends BaseTestCase
             if (! SectionVariant::exists()) {
                 $this->seed(SectionVariantSeeder::class);
             }
+
+            // PlanLimitService memoizes the 'organization' fallback plan in a static property
+            // across calls within one process (see its own doc comment) - reset it per test so
+            // a RefreshDatabase rollback between tests can't leave a prior test's Plan instance
+            // (or its since-changed limits) silently in effect for this one, the same
+            // test-isolation hazard SectionVariantResolver's own doc comment describes for why
+            // *it* avoids a static cache.
+            PlanLimitService::resetFallbackPlanMemo();
         }
     }
 }

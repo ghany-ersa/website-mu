@@ -3,11 +3,15 @@
      Expects: $organization (Organization), $page (OrganizationPage, sections eager-loaded).
      Uses sectionsInDisplayOrder() rather than the raw sections() relation so header/footer
      always render first/last regardless of the `order` column - see OrganizationPage for why. --}}
-@foreach ($page->sectionsInDisplayOrder() as $section)
+@php
+    $orderedSections = $page->sectionsInDisplayOrder();
+    $sectionVariantRows = \App\Services\SectionVariantResolver::variantsForKeys($orderedSections->pluck('key'));
+@endphp
+@foreach ($orderedSections as $section)
     @if ($section->is_visible && empty(config("page-builder.sections.{$section->key}.hidden")))
         <div id="canvas-section-{{ $section->id }}">
             @includeFirst([
-                \App\Services\SectionVariantResolver::resolve($section->key, $section->variant),
+                \App\Services\SectionVariantResolver::resolveFrom($sectionVariantRows, $section->key, $section->variant),
                 'templates.sections._missing',
             ], ['section' => $section, 'organization' => $organization, 'page' => $page])
         </div>

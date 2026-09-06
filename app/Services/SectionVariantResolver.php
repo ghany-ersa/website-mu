@@ -20,7 +20,21 @@ class SectionVariantResolver
 {
     public static function resolve(string $key, ?string $variant = null): string
     {
-        $rows = self::variantsFor($key);
+        return self::resolveFrom(self::variantsFor($key), $key, $variant);
+    }
+
+    /**
+     * Resolves every (key, variant) pair in one pass against a single preloaded set of rows,
+     * instead of resolve() 's one query per call - for a page with many sections
+     * (organizations/pages/_render.blade.php), that's the difference between one
+     * section_variants query for the whole page and one per section. Callers fetch $allRows
+     * themselves (e.g. via variantsForKeys()) so this stays a pure in-memory lookup.
+     *
+     * @param  Collection<int, SectionVariant>  $allRows
+     */
+    public static function resolveFrom(Collection $allRows, string $key, ?string $variant = null): string
+    {
+        $rows = $allRows->where('section_key', $key);
 
         if ($rows->isEmpty()) {
             return "templates.sections.{$key}";
@@ -30,6 +44,23 @@ class SectionVariantResolver
         $resolved = $variant !== null ? $rows->firstWhere('variant_key', $variant) : null;
 
         return ($resolved ?? $default)->view;
+    }
+
+    /**
+     * All variant rows for several section keys in one query - see resolveFrom().
+     *
+     * @param  iterable<string>  $keys
+     * @return Collection<int, SectionVariant>
+     */
+    public static function variantsForKeys(iterable $keys): Collection
+    {
+        $keys = collect($keys)->unique()->values();
+
+        if ($keys->isEmpty()) {
+            return collect();
+        }
+
+        return SectionVariant::whereIn('section_key', $keys)->get();
     }
 
     /**

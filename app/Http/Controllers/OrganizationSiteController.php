@@ -23,7 +23,7 @@ class OrganizationSiteController extends Controller
     {
         $organization = $this->publishedOrganization($organization_slug);
 
-        $organization->load('pages.sections');
+        $organization->load('pages.sections', 'limitOverrides', 'planChangeRequests');
         $page = $organization->pages->firstWhere('is_home', true) ?? $organization->pages->first();
         abort_if($page === null, 404);
 
@@ -67,7 +67,7 @@ class OrganizationSiteController extends Controller
     {
         $organization = $this->publishedOrganization($organization_slug);
 
-        $organization->load('pages.sections');
+        $organization->load('pages.sections', 'limitOverrides', 'planChangeRequests');
         $page = $organization->pages->firstWhere('slug', $page_slug);
         abort_if($page === null, 404);
 
@@ -99,6 +99,7 @@ class OrganizationSiteController extends Controller
     public function post(string $organization_slug, string $post_slug): View
     {
         $organization = $this->publishedOrganization($organization_slug);
+        $organization->load('limitOverrides', 'planChangeRequests', 'pages.sections');
 
         $post = $organization->posts()
             ->published()
@@ -114,6 +115,7 @@ class OrganizationSiteController extends Controller
     public function announcement(string $organization_slug, Announcement $announcement): View
     {
         $organization = $this->publishedOrganization($organization_slug);
+        $organization->load('limitOverrides', 'planChangeRequests', 'pages.sections');
 
         abort_unless($announcement->organization_id === $organization->id, 404);
         abort_unless($announcement->status === PublishStatus::Published, 404);
@@ -127,6 +129,7 @@ class OrganizationSiteController extends Controller
     public function agenda(string $organization_slug, Agenda $agenda): View
     {
         $organization = $this->publishedOrganization($organization_slug);
+        $organization->load('limitOverrides', 'planChangeRequests', 'pages.sections');
 
         abort_unless($agenda->organization_id === $organization->id, 404);
         abort_unless($agenda->status === PublishStatus::Published, 404);
@@ -149,6 +152,7 @@ class OrganizationSiteController extends Controller
     public function donationProgram(string $organization_slug, string $program_slug): View
     {
         $organization = $this->publishedOrganization($organization_slug);
+        $organization->load('limitOverrides', 'planChangeRequests', 'pages');
 
         $program = $organization->donationPrograms()
             ->with('transactions')
@@ -165,10 +169,20 @@ class OrganizationSiteController extends Controller
      * Shared published-organization lookup - status filter lives here so an
      * unpublished organization's subdomain/detail pages 404 identically to
      * one that was never claimed, instead of leaking its existence.
+     *
+     * Eager-loads 'plan.limits' so PlanLimitService::effectiveLimitForFreshOrganization()
+     * (used by Organization::planViolations(), rendered on every public tenant page) can read
+     * the plan off this instance instead of re-querying plans/plan_limits per limit key. Safe
+     * here specifically because every caller of this method fetches the organization fresh and
+     * never mutates its plan_id before rendering - unlike preview()/previewDonationProgram(),
+     * which resolve their Organization via route-model binding and deliberately don't get this
+     * eager load (see PlanLimitService::effectivePlan()'s doc comment for why a just-mutated
+     * plan_id needs a fresh reload rather than the cached relation).
      */
     private function publishedOrganization(string $organization_slug): Organization
     {
-        return Organization::where('slug', $organization_slug)
+        return Organization::with('plan.limits')
+            ->where('slug', $organization_slug)
             ->where('status', OrganizationStatus::Published)
             ->firstOrFail();
     }

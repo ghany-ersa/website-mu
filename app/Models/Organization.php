@@ -276,11 +276,18 @@ class Organization extends Model
         // honored here too - otherwise an org that's protected from a plan's limits being
         // lowered post-payment (see PlanLimitService::effectiveLimit()) would still get
         // flagged as violating rules it never agreed to.
+        //
+        // effectiveLimitForFreshOrganization() (not effectiveLimit() directly) so a caller that
+        // eager-loaded 'plan.limits' (the public tenant site - see OrganizationSiteController)
+        // skips effectiveLimit()'s per-call plan/plan_limits re-query; it falls back to the
+        // exact same re-querying behavior on its own whenever `plan` isn't loaded, so this is a
+        // no-op for every other caller (admin/preview contexts that may have just mutated
+        // plan_id in this same request).
         $service = app(PlanLimitService::class);
         $violations = [];
 
         foreach ($resources as $key => [$relation, $label]) {
-            $limit = $service->effectiveLimit($this, $key);
+            $limit = $service->effectiveLimitForFreshOrganization($this, $key);
 
             if ($limit === null) {
                 continue;
@@ -293,7 +300,7 @@ class Organization extends Model
             }
         }
 
-        $sectionsLimit = $service->effectiveLimit($this, 'sections_total');
+        $sectionsLimit = $service->effectiveLimitForFreshOrganization($this, 'sections_total');
 
         if ($sectionsLimit !== null) {
             $sectionsOver = $service->countedSectionsTotal($this) - $sectionsLimit;

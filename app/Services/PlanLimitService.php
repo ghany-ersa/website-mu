@@ -37,6 +37,26 @@ class PlanLimitService
     ];
 
     /**
+     * Per-request memo of the 'organization' fallback plan used by
+     * effectiveLimitForFreshOrganization() when an organization has no plan_id - this plan is
+     * the same row for every organization, so re-querying it once per resource key per
+     * organization (up to 9 times for one page render) is pure waste. false means "looked up,
+     * genuinely doesn't exist" (e.g. PlanSeeder hasn't run) so the negative result gets cached
+     * too, as distinct from null which means "not looked up yet".
+     */
+    private static Plan|false|null $fallbackPlanMemo = null;
+
+    /**
+     * Clears the per-process fallback-plan memo - see $fallbackPlanMemo's doc comment. Called
+     * from Tests\TestCase::setUp() so a RefreshDatabase rollback between tests can't leave a
+     * stale memoized Plan in effect for the next one.
+     */
+    public static function resetFallbackPlanMemo(): void
+    {
+        self::$fallbackPlanMemo = null;
+    }
+
+    /**
      * Whether the organization may create one more record for the given resource key
      * (e.g. 'posts', 'sections_total'). Existing records over a lowered limit are never
      * counted against the caller - only new creation is blocked.
@@ -119,6 +139,56 @@ class PlanLimitService
         }
 
         return $this->effectivePlan($organization)?->limitFor($key);
+    }
+
+    /**
+     * Same resolution as effectiveLimit(), but trusts the organization's already-loaded `plan`
+     * relation instead of re-querying it via effectivePlan() - safe ONLY where the caller
+     * guarantees plan_id hasn't been mutated on this instance earlier in the same request (see
+     * effectivePlan()'s doc comment for why that reload normally matters). The public tenant
+     * site (OrganizationSiteController) is such a caller: it always re-fetches the organization
+     * fresh from the database, so there's nothing for the relation cache to go stale against.
+     * Falls back to effectiveLimit() whenever `plan` isn't loaded, so passing an organization
+     * that wasn't eager-loaded with 'plan.limits' still behaves correctly (just without the
+     * query savings).
+     */
+    public function effectiveLimitForFreshOrganization(Organization $organization, string $key): ?int
+    {
+        if (! $organization->relationLoaded('plan')) {
+            return $this->effectiveLimit($organization, $key);
+        }
+
+        $override = $organization->limitOverrides->firstWhere('key', $key);
+
+        if ($override) {
+            return $override->max_count;
+        }
+
+        $snapshot = $organization->currentApprovedPlanChangeRequest()?->limits_snapshot;
+
+        if ($snapshot !== null && array_key_exists($key, $snapshot)) {
+            return $snapshot[$key];
+        }
+
+        $plan = $organization->plan ?? $this->memoizedFallbackPlan();
+
+        return $plan?->limitFor($key);
+    }
+
+    /**
+     * See $fallbackPlanMemo's doc comment - avoids re-querying the same global fallback plan
+     * once per resource key for every plan-less organization rendered in this request/test
+     * process. Static (not an instance property) because PlanLimitService itself carries no
+     * per-call state and is typically resolved fresh via app(PlanLimitService::class) rather
+     * than kept as a singleton the caller holds onto across organizations.
+     */
+    private function memoizedFallbackPlan(): ?Plan
+    {
+        if (self::$fallbackPlanMemo === null) {
+            self::$fallbackPlanMemo = Plan::where('key', 'organization')->first() ?? false;
+        }
+
+        return self::$fallbackPlanMemo ?: null;
     }
 
     /**

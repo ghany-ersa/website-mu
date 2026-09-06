@@ -32,6 +32,7 @@
         return implode(', ', array_map('hexdec', str_split($hex, 2)));
     };
     $primaryRgb = $hexToRgb($primaryColor);
+    $hasPlanIssue = $organization->planIsExpired() || $organization->violatesPlanRules();
 @endphp
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
@@ -70,7 +71,7 @@
         }
         body { font-family: {!! $font['stack'] !!}; }
 
-        @if ($organization->planIsExpired() || $organization->violatesPlanRules())
+        @if ($hasPlanIssue)
             /* Header sections render `sticky top-0` (see templates/sections/header.blade.php)
                - the plan-violation banner sits fixed above it, so this pushes both the header
                and the rest of the page down by the banner's own height instead of overlapping. */
@@ -102,7 +103,7 @@
     </style>
 </head>
 <body class="bg-white text-gray-800">
-    @if ($organization->planIsExpired() || $organization->violatesPlanRules())
+    @if ($hasPlanIssue)
         {{-- Fixed (not sticky) so it stays pinned above the header section's own `sticky
              top-0` (see templates/sections/header.blade.php) rather than competing with it
              for the same scroll-anchored slot - the body's padding-top above makes room. --}}
