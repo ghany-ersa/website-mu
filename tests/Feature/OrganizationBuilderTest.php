@@ -245,6 +245,70 @@ class OrganizationBuilderTest extends TestCase
         $response->assertSee('Seluruh hak cipta dilindungi');
     }
 
+    public function test_home_page_cannot_be_deleted(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $homePage = OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'slug' => 'home',
+            'is_home' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->delete(route('organizations.pages.destroy', [$organization, $homePage]))
+            ->assertRedirect();
+
+        $this->assertNotNull($homePage->fresh());
+    }
+
+    public function test_a_non_home_page_can_be_deleted(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'slug' => 'home',
+            'is_home' => true,
+        ]);
+        $page = OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'slug' => 'kontak',
+            'is_home' => false,
+        ]);
+
+        $this->actingAs($user)
+            ->delete(route('organizations.pages.destroy', [$organization, $page]))
+            ->assertRedirect(route('organizations.builder.edit', $organization));
+
+        $this->assertNull($page->fresh());
+    }
+
+    public function test_switching_pages_loads_the_requested_page(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'slug' => 'home',
+            'is_home' => true,
+        ]);
+        $page = OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'name' => 'Kontak',
+            'slug' => 'kontak',
+            'is_home' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('organizations.builder.page', [$organization, $page]));
+
+        $response->assertOk();
+        $response->assertSee('Kontak');
+    }
+
     public function test_footer_always_renders_last_regardless_of_reorder_request(): void
     {
         $user = User::factory()->create();

@@ -73,6 +73,14 @@
     x-data="{
         editingSectionId: null,
         activePanel: 'canvas',
+        propertiesPanelCollapsed: false,
+        // Desktop: before a section is ever selected there's nothing to show or
+        // re-open, so the panel takes no width at all (no rail either). Once a
+        // section has been picked, propertiesPanelCollapsed alone controls whether
+        // it's full width or shrunk to the rail.
+        get propertiesPanelNeverOpened() {
+            return this.editingSectionId === null;
+        },
         init() {
             // Returning from the CMS (e.g. Kelola Berita/Agenda/Pengumuman): jump
             // straight back to the section being managed instead of leaving the
@@ -90,6 +98,9 @@
         selectSection(id) {
             this.editingSectionId = id;
             this.activePanel = 'properties';
+            // Desktop: re-expand the properties panel if it was collapsed, so picking
+            // a section to edit always brings its fields back into view.
+            this.propertiesPanelCollapsed = false;
             // Desktop only: canvas sits alongside the panels, so scroll it to the
             // section being edited. On mobile the canvas is hidden while editing,
             // so there's nothing useful to scroll.
@@ -194,13 +205,169 @@
                 </div>
             </div>
 
-            {{-- Tahap awal: satu organisasi hanya punya satu halaman (Beranda), jadi tidak
-                 ada page switcher di sini - lihat prd.md §24.4. Publish dikontrol di satu
-                 tempat saja: dashboard organisasi (organizations.publish, lihat
-                 Organization::publish() dan OrganizationSiteController) - builder dulu
-                 punya toggle publish terpisah per halaman (OrganizationPage::published_at)
-                 yang tidak pernah dibaca oleh situs publik, sengaja dihapus supaya tidak
-                 ada dua sumber kebenaran yang bisa tidak sinkron. --}}
+            {{-- Page switcher: lets a user with multiple pages (e.g. cloned from a
+                 multi-page template) pick which one they're editing. A plain link per
+                 page - navigating reloads the builder scoped to that page, and every
+                 section route/canvas iframe below already keys off $currentPage, so
+                 nothing else on this page needs to know pages changed.
+                 Publish stays out of this switcher and out of per-page state entirely:
+                 it's controlled in one place only, the organization dashboard
+                 (organizations.publish, see Organization::publish() and
+                 OrganizationSiteController) - the builder used to have a separate
+                 per-page publish toggle (OrganizationPage::published_at) that the public
+                 site never read, deliberately removed so there's no second source of
+                 truth that could drift out of sync. --}}
+            <div class="relative" x-data="{
+                    open: false,
+                    modal: null,
+                    openCreate() { this.modal = 'create'; this.open = false; },
+                    openRename(id) { this.modal = 'rename-' + id; this.open = false; },
+                    closeModal() { this.modal = null; },
+                }" @keydown.escape.window="open = false; closeModal()">
+                <button type="button" @click="open = !open"
+                    class="flex items-center gap-1.5 min-w-0 px-2.5 py-1.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 transition">
+                    <span class="truncate max-w-[8rem] sm:max-w-[14rem]">{{ $currentPage->name }}</span>
+                    @if ($currentPage->is_home)
+                        <span title="Beranda" class="hidden sm:flex items-center justify-center w-4 h-4 rounded-full bg-white/10 text-gray-300 shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-2.5 h-2.5">
+                                <path d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6H2a1 1 0 0 1-.707-1.707l7-7Z" />
+                            </svg>
+                        </span>
+                    @endif
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                        class="w-3.5 h-3.5 text-gray-300 shrink-0">
+                        <path fill-rule="evenodd"
+                            d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <div x-show="open" x-cloak x-transition.opacity.duration.100ms
+                    @click.outside="open = false"
+                    class="absolute right-0 top-full mt-2 w-72 max-w-[85vw] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 text-gray-800 z-50 overflow-hidden">
+                    <ul class="max-h-72 overflow-y-auto py-1.5">
+                        @foreach ($pages as $p)
+                            <li class="group flex items-center gap-1 px-2 py-0.5">
+                                <a href="{{ route('organizations.builder.page', [$organization, $p]) }}"
+                                    class="flex-1 min-w-0 flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm truncate transition {{ $p->is($currentPage) ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
+                                    <span class="truncate">{{ $p->name }}</span>
+                                    @if ($p->is_home)
+                                        <span title="Beranda" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-100 text-gray-400 shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-2.5 h-2.5">
+                                                <path d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6H2a1 1 0 0 1-.707-1.707l7-7Z" />
+                                            </svg>
+                                        </span>
+                                    @endif
+                                </a>
+                                <button type="button" title="Ganti nama" @click="openRename({{ $p->id }})"
+                                    class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-primary hover:bg-primary/10 transition opacity-0 group-hover:opacity-100 shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                                        <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828Z" />
+                                    </svg>
+                                </button>
+                                @unless ($p->is_home)
+                                    <form action="{{ route('organizations.pages.destroy', [$organization, $p]) }}"
+                                        method="POST" x-data @submit.prevent="if (await confirmAction('Hapus halaman &quot;{{ $p->name }}&quot;? Semua section di dalamnya juga akan terhapus.')) $el.submit()">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" title="Hapus"
+                                            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition opacity-0 group-hover:opacity-100 shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                fill="currentColor" class="w-3.5 h-3.5">
+                                                <path fill-rule="evenodd"
+                                                    d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                @endunless
+
+                                {{-- Rename modal for this page: kept as a real Blade form
+                                     with a static action (no JS-built URL) - one small
+                                     modal per row, shown only when `modal` matches this
+                                     page's id, matching the codebase's existing convention
+                                     of a static form per list row (see the section
+                                     duplicate/delete forms above). --}}
+                                <div x-show="modal === 'rename-{{ $p->id }}'" x-cloak x-transition.opacity.duration.100ms
+                                    class="fixed inset-0 z-[70] bg-gray-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+                                    @click.self="closeModal()">
+                                    <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl animate-pop-in overflow-hidden text-gray-800">
+                                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                                            <h3 class="font-bold text-gray-800">Ganti Nama Halaman</h3>
+                                            <button type="button" @click="closeModal()"
+                                                class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <form action="{{ route('organizations.pages.update', [$organization, $p]) }}" method="POST" class="p-5 space-y-3">
+                                            @csrf
+                                            @method('PATCH')
+                                            <div>
+                                                <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Halaman</label>
+                                                <input type="text" name="name" value="{{ $p->name }}" required maxlength="255"
+                                                    class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-semibold text-gray-500 mb-1">Slug</label>
+                                                <input type="text" name="slug" value="{{ $p->slug }}" required maxlength="255" pattern="[A-Za-z0-9_-]+"
+                                                    class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40">
+                                            </div>
+                                            <button type="submit"
+                                                class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition">
+                                                Simpan
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <button type="button" @click="openCreate()"
+                        class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-primary border-t border-gray-100 hover:bg-primary/5 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                        </svg>
+                        Halaman Baru
+                    </button>
+                </div>
+
+                {{-- Create modal --}}
+                <div x-show="modal === 'create'" x-cloak x-transition.opacity.duration.100ms
+                    class="fixed inset-0 z-[70] bg-gray-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+                    @click.self="closeModal()">
+                    <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl animate-pop-in overflow-hidden text-gray-800">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <h3 class="font-bold text-gray-800">Halaman Baru</h3>
+                            <button type="button" @click="closeModal()"
+                                class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <form action="{{ route('organizations.pages.store', $organization) }}" method="POST" class="p-5 space-y-3">
+                            @csrf
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Nama Halaman</label>
+                                <input type="text" name="name" required maxlength="255" placeholder="Kontak"
+                                    class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Slug</label>
+                                <input type="text" name="slug" required maxlength="255" pattern="[A-Za-z0-9_-]+" placeholder="kontak"
+                                    class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40">
+                            </div>
+                            <button type="submit"
+                                class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition">
+                                Simpan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             @if ($organization->status === \App\Enums\OrganizationStatus::Published)
                 <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-300 pr-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -525,9 +692,31 @@
 
             {{-- Properties panel.
                  Mobile: full-width panel shown only when activePanel === 'properties'.
-                 lg+: fixed-width column, always visible. --}}
-            <aside :class="activePanel === 'properties' ? 'block' : 'hidden'"
-                class="lg:block w-full lg:w-96 bg-white lg:border-l border-gray-200/80 overflow-y-auto shrink-0">
+                 lg+: fixed-width column shown once a section is being edited, collapsible
+                 to a thin rail via propertiesPanelCollapsed so the canvas (flex-1) can
+                 reclaim its width on narrower desktop/laptop screens. Before a section is
+                 ever selected there's nothing to show or re-open, so the panel (and its
+                 rail) stay fully hidden and the canvas gets the space instead. --}}
+            <aside :class="[
+                    activePanel === 'properties' ? 'flex' : 'hidden lg:flex',
+                    propertiesPanelNeverOpened ? 'lg:w-0 lg:!border-l-0' : (propertiesPanelCollapsed ? 'lg:w-12' : 'lg:w-96'),
+                ]"
+                class="w-full bg-white lg:border-l border-gray-200/80 flex-col shrink-0 lg:transition-[width] lg:duration-200 lg:overflow-hidden">
+                {{-- Collapsed rail (desktop only): a slim strip with just a re-open button,
+                     replacing the full panel so the canvas gets the freed-up width. Only
+                     shown once a section has been selected at least once. --}}
+                <div x-show="propertiesPanelCollapsed && editingSectionId !== null" x-cloak
+                    class="hidden lg:flex flex-col items-center pt-4 h-full">
+                    <button type="button" @click="propertiesPanelCollapsed = false"
+                        title="Buka panel Edit Section"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1 0 1.06L9.31 9.77a.75.75 0 0 0 0 1.06l3.48 3.48a.75.75 0 1 1-1.06 1.06l-3.48-3.48a2.25 2.25 0 0 1 0-3.18l3.48-3.48a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div x-show="!propertiesPanelCollapsed" class="flex-1 min-h-0 overflow-y-auto">
                 @foreach ($currentPage->sections as $section)
                     <div x-show="editingSectionId === {{ $section->id }}" x-cloak x-transition.opacity.duration.150ms
                         class="animate-fade-in">
@@ -539,14 +728,31 @@
                                 <h2 class="font-bold text-gray-800 leading-tight truncate">
                                     {{ $sectionRegistry[$section->key]['label'] ?? $section->key }}</h2>
                             </div>
-                            <button type="button" @click="editingSectionId = null"
-                                class="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                    class="w-4 h-4">
-                                    <path
-                                        d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-                                </svg>
-                            </button>
+                            <div class="flex items-center gap-1 shrink-0">
+                                {{-- Desktop-only collapse toggle: hides the panel down to a thin rail
+                                     and hands its width back to the canvas. Mobile has no need for this
+                                     since the panel is already a full-screen overlay there. --}}
+                                <button type="button" @click="propertiesPanelCollapsed = true"
+                                    title="Ciutkan panel"
+                                    class="hidden lg:flex w-7 h-7 rounded-lg items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 0-1.06l3.48-3.48a.75.75 0 0 0 0-1.06L7.21 5.23a.75.75 0 1 1 1.06-1.06l3.48 3.48a2.25 2.25 0 0 1 0 3.18l-3.48 3.48a.75.75 0 0 1-1.06 0Z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                {{-- Mobile only: the properties panel is a full-screen overlay there (no
+                                     collapse rail to fall back to), so it still needs its own close button.
+                                     Desktop drops it in favor of the collapse toggle above - closing to an
+                                     empty "no section selected" state at full width serves no purpose when
+                                     collapsing to a rail already reclaims the space. --}}
+                                <button type="button" @click="editingSectionId = null; activePanel = 'canvas'"
+                                    class="lg:hidden w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        class="w-4 h-4">
+                                        <path
+                                            d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <form action="{{ route('organizations.sections.update', [$organization, $section]) }}"
@@ -852,6 +1058,7 @@
                         <p class="text-sm font-medium text-gray-500">Belum ada section dipilih</p>
                         <p class="text-xs text-gray-400 mt-1">Pilih section di sebelah kiri untuk mengedit isinya.</p>
                     </div>
+                </div>
                 </div>
             </aside>
         </div>

@@ -58,6 +58,10 @@ class OrganizationPageController extends Controller
     {
         $this->authorize('update', $organization);
 
+        if ($page->is_home) {
+            return back()->with('status', 'Halaman utama (Beranda) tidak bisa dihapus.');
+        }
+
         $page->delete();
 
         return redirect()
