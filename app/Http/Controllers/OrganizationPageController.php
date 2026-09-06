@@ -4,17 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\OrganizationPage;
+use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class OrganizationPageController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     /**
      * Create a new blank page for the organization.
      */
     public function store(Request $request, Organization $organization): RedirectResponse
     {
         $this->authorize('update', $organization);
+
+        if (! $this->planLimitService->canCreate($organization, 'pages_total')) {
+            return redirect()
+                ->route('organizations.builder.edit', $organization)
+                ->with('warning', 'Batas jumlah halaman paket Anda sudah tercapai. Upgrade ke paket Professional untuk menambah halaman.');
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],

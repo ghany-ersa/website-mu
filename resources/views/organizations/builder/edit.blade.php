@@ -260,7 +260,7 @@
                                     @endif
                                 </a>
                                 <button type="button" title="Ganti nama" @click="openRename({{ $p->id }})"
-                                    class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-primary hover:bg-primary/10 transition opacity-0 group-hover:opacity-100 shrink-0">
+                                    class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-primary hover:bg-primary/10 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
                                         <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828Z" />
                                     </svg>
@@ -271,7 +271,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" title="Hapus"
-                                            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition opacity-0 group-hover:opacity-100 shrink-0">
+                                            class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                                 fill="currentColor" class="w-3.5 h-3.5">
                                                 <path fill-rule="evenodd"
@@ -324,13 +324,25 @@
                             </li>
                         @endforeach
                     </ul>
-                    <button type="button" @click="openCreate()"
-                        class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-primary border-t border-gray-100 hover:bg-primary/5 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                        </svg>
-                        Halaman Baru
-                    </button>
+                    @if ($canAddPage)
+                        <button type="button" @click="openCreate()"
+                            class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-primary border-t border-gray-100 hover:bg-primary/5 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                            </svg>
+                            Halaman Baru
+                        </button>
+                    @else
+                        {{-- Multi-page is Professional-only (pages_total plan limit) - starter/organization
+                             plans see an upgrade CTA here instead of a working create button. --}}
+                        <a href="{{ route('organizations.plan.edit', $organization) }}"
+                            class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-amber-600 border-t border-gray-100 hover:bg-amber-50 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                            </svg>
+                            Upgrade untuk halaman lebih banyak
+                        </a>
+                    @endif
                 </div>
 
                 {{-- Create modal --}}
@@ -594,7 +606,7 @@
                             </svg>
 
                             @if (! $isLocked)
-                                <div class="flex items-center shrink-0 opacity-0 group-hover:opacity-100 transition">
+                                <div class="flex items-center shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
                                     <form
                                         action="{{ route('organizations.sections.duplicate', [$organization, $section]) }}"
                                         method="POST" @click.stop>
@@ -1068,7 +1080,7 @@
         <nav
             class="lg:hidden fixed bottom-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-gray-200/80 rounded-full flex items-center gap-0.5 text-[11px] font-semibold z-50 shadow-panel p-1">
             <button type="button" @click="activePanel = 'sections'"
-                class="flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full transition"
+                class="flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full transition whitespace-nowrap"
                 :class="activePanel === 'sections' ? 'text-primary bg-primary/8' : 'text-gray-400'">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                     class="w-4 h-4 shrink-0">
@@ -1079,7 +1091,7 @@
                 Ubah Konten
             </button>
             <button type="button" @click="activePanel = 'canvas'"
-                class="flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full transition"
+                class="flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full transition whitespace-nowrap"
                 :class="activePanel === 'canvas' ? 'text-primary bg-primary/8' : 'text-gray-400'">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                     class="w-4 h-4 shrink-0">

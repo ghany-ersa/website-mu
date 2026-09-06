@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\OrganizationRole;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
+use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -323,6 +324,64 @@ class OrganizationBuilderTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Kontak');
+    }
+
+    public function test_non_professional_plan_cannot_create_a_second_page(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create([
+            'plan_id' => Plan::where('key', 'starter')->firstOrFail()->id,
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'slug' => 'home',
+            'is_home' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('organizations.pages.store', $organization), ['name' => 'Kontak', 'slug' => 'kontak'])
+            ->assertRedirect(route('organizations.builder.edit', $organization));
+
+        $this->assertSame(1, $organization->pages()->count());
+    }
+
+    public function test_professional_plan_can_create_additional_pages(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create([
+            'plan_id' => Plan::where('key', 'professional')->firstOrFail()->id,
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        OrganizationPage::factory()->create([
+            'organization_id' => $organization->id,
+            'slug' => 'home',
+            'is_home' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('organizations.pages.store', $organization), ['name' => 'Kontak', 'slug' => 'kontak'])
+            ->assertRedirect();
+
+        $this->assertSame(2, $organization->pages()->count());
+    }
+
+    public function test_builder_hides_add_page_button_and_shows_upgrade_cta_for_non_professional_plan(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create([
+            'plan_id' => Plan::where('key', 'starter')->firstOrFail()->id,
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $response = $this->actingAs($user)->get(route('organizations.builder.edit', $organization));
+
+        $response->assertOk();
+        // "Halaman Baru" also appears as the (Alpine x-show, so still server-rendered)
+        // create modal's heading regardless of plan - only the trigger button that opens
+        // it is plan-gated, so assert on that exact button markup instead of the phrase.
+        $response->assertDontSee('@click="openCreate()"', false);
+        $response->assertSee('Upgrade untuk halaman lebih banyak');
     }
 
     public function test_footer_always_renders_last_regardless_of_reorder_request(): void

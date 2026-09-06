@@ -9,7 +9,9 @@ use Illuminate\Database\Seeder;
  * Seeds the three plans and their limits, mirroring what's actually in the dev database. The
  * numbers below are initial defaults, not a final business decision - adjust via a follow-up
  * seeder once real pricing and usage data are settled. Every component/section is available on
- * every plan; only the total number of sections a plan allows is limited (sections_total).
+ * every plan; sections_total limits the total sections a plan allows, and pages_total limits
+ * how many pages a plan allows (starter/organization are single-page; multi-page and the
+ * builder's page switcher are Professional-only).
  *
  * Descriptions only name entitlements that actually exist in code (hide_branding,
  * has_exclusive_templates) - earlier copy referenced custom domains and AI content that were
@@ -36,6 +38,7 @@ class PlanSeeder extends Seeder
             ['key' => 'facilities', 'max_count' => 3],
             ['key' => 'donation_programs', 'max_count' => 1],
             ['key' => 'sections_total', 'max_count' => 5],
+            ['key' => 'pages_total', 'max_count' => 1],
         ]);
 
         $organization = Plan::create([
@@ -57,6 +60,7 @@ class PlanSeeder extends Seeder
             ['key' => 'facilities', 'max_count' => 6],
             ['key' => 'donation_programs', 'max_count' => 3],
             ['key' => 'sections_total', 'max_count' => 8],
+            ['key' => 'pages_total', 'max_count' => 1],
         ]);
 
         $professional = Plan::create([
@@ -78,6 +82,7 @@ class PlanSeeder extends Seeder
             ['key' => 'facilities', 'max_count' => 15],
             ['key' => 'donation_programs', 'max_count' => 10],
             ['key' => 'sections_total', 'max_count' => 25],
+            ['key' => 'pages_total', 'max_count' => 10],
         ]);
     }
 }

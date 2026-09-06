@@ -33,6 +33,7 @@ class PlanLimitService
         'gallery_photos' => 'photos',
         'facilities' => 'facilities',
         'donation_programs' => 'donationPrograms',
+        'pages_total' => 'pages',
     ];
 
     /**

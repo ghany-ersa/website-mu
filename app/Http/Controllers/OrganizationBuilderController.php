@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\OrganizationPage;
+use App\Services\PlanLimitService;
 use Illuminate\View\View;
 
 class OrganizationBuilderController extends Controller
 {
+    public function __construct(private readonly PlanLimitService $planLimitService) {}
+
     /**
      * Show the page builder for an organization's page, ensuring it owns a home page
      * (cloned from its template, or a blank "Beranda") on first visit.
@@ -26,6 +29,7 @@ class OrganizationBuilderController extends Controller
             'pages' => $organization->pages,
             'currentPage' => $currentPage,
             'sectionRegistry' => config('page-builder.sections'),
+            'canAddPage' => $this->planLimitService->canCreate($organization, 'pages_total'),
         ]);
     }
 
