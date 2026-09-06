@@ -701,7 +701,7 @@
                     activePanel === 'properties' ? 'flex' : 'hidden lg:flex',
                     propertiesPanelNeverOpened ? 'lg:w-0 lg:!border-l-0' : (propertiesPanelCollapsed ? 'lg:w-12' : 'lg:w-96'),
                 ]"
-                class="w-full bg-white lg:border-l border-gray-200/80 flex-col shrink-0 lg:transition-[width] lg:duration-200 lg:overflow-hidden">
+                class="w-full bg-white lg:border-l border-gray-200/80 flex-col shrink-0 lg:overflow-hidden">
                 {{-- Collapsed rail (desktop only): a slim strip with just a re-open button,
                      replacing the full panel so the canvas gets the freed-up width. Only
                      shown once a section has been selected at least once. --}}
