@@ -19,22 +19,33 @@
                 $blockedFromPublishing = $organization->status !== \App\Enums\OrganizationStatus::Published && $organization->violatesPlanRules();
             @endphp
             <div class="shrink-0 flex flex-col items-end gap-1.5">
-                <form action="{{ route('organizations.publish', $organization) }}" method="POST"
-                    x-data @submit.prevent="if (await confirmAction('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit" {{ $blockedFromPublishing ? 'disabled' : '' }}
-                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ring-1 ring-inset transition {{ $blockedFromPublishing ? 'bg-gray-50 text-gray-400 ring-gray-200 cursor-not-allowed' : 'cursor-pointer '.($organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-secondary text-white ring-secondary hover:bg-secondary/90' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50') }}">
-                        <span
-                            class="w-1.5 h-1.5 rounded-full {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-white' : 'bg-gray-400' }}"></span>
-                        {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Published' : 'Draft' }}
-                        <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <div class="flex items-center gap-1.5">
+                    <button type="button" id="btn-dashboard-tour" onclick="window.startOnboardingTour('dashboard')"
+                        title="Lihat tutorial dashboard"
+                        class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-primary hover:bg-gray-100 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                clip-rule="evenodd" />
                         </svg>
                     </button>
-                </form>
+                    <form id="btn-publish-status" action="{{ route('organizations.publish', $organization) }}" method="POST"
+                        x-data @submit.prevent="if (await confirmAction('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" {{ $blockedFromPublishing ? 'disabled' : '' }}
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ring-1 ring-inset transition {{ $blockedFromPublishing ? 'bg-gray-50 text-gray-400 ring-gray-200 cursor-not-allowed' : 'cursor-pointer '.($organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-secondary text-white ring-secondary hover:bg-secondary/90' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50') }}">
+                            <span
+                                class="w-1.5 h-1.5 rounded-full {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-white' : 'bg-gray-400' }}"></span>
+                            {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Published' : 'Draft' }}
+                            <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
                 @if ($blockedFromPublishing)
                     <a href="{{ route('organizations.plan.edit', $organization) }}" class="text-xs font-semibold text-amber-600 hover:underline whitespace-nowrap">
                         ⚠ Batasi paket dilanggar
@@ -44,7 +55,7 @@
         </div>
 
         {{-- Primary action: full-width, unmissable, distinct from the settings row below. --}}
-        <a href="{{ route('organizations.builder.edit', $organization) }}"
+        <a href="{{ route('organizations.builder.edit', $organization) }}" id="btn-open-builder"
             class="flex items-center justify-center gap-2 w-full px-4 py-3.5 sm:py-3 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:opacity-80 transition-opacity shadow-sm">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -107,7 +118,7 @@
         $checklistDone = count(array_filter($checklist));
     @endphp
     @unless ($checklist['brand'] && $checklist['contact'] && $checklist['content'] && $checklist['published'])
-        <div class="bg-white rounded-2xl shadow-soft p-6 mb-8">
+        <div id="onboarding-checklist" class="bg-white rounded-2xl shadow-soft p-6 mb-8">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="font-bold text-gray-800">Langkah Awal</h2>
                 <span class="text-xs font-semibold text-gray-400">{{ $checklistDone }}/{{ count($checklist) }} selesai</span>
@@ -329,4 +340,12 @@
             </form>
         </div>
     @endif
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.autoStartOnboardingTour('dashboard', @json($hasSeenDashboardTour));
+            });
+        </script>
+    @endpush
 @endsection

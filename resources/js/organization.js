@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs';
 import Sortable from 'sortablejs';
 import { initAllRichTextEditors } from './richtext-editor.js';
+import './onboarding-tour.js';
 
 window.Alpine = Alpine;
 // The CMS list pages (gallery, officers, facilities) drag-and-drop to reorder via

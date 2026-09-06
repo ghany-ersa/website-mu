@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\OnboardingTourController;
 use App\Http\Controllers\OrganizationAgendaController;
 use App\Http\Controllers\OrganizationAnnouncementController;
 use App\Http\Controllers\OrganizationBrandController;
@@ -90,6 +91,9 @@ Route::get('/templates/{template:slug}/use', TemplateUseController::class)
     ->name('templates.use');
 
 Route::middleware('auth')->group(function () {
+    Route::post('onboarding-tours', [OnboardingTourController::class, 'store'])
+        ->name('onboarding-tours.store');
+
     Route::resource('organizations', OrganizationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
     Route::patch('organizations/{organization}/publish', [OrganizationController::class, 'publish'])

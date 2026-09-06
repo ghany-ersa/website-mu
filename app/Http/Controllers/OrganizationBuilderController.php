@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use App\Services\PlanLimitService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class OrganizationBuilderController extends Controller
@@ -30,6 +31,7 @@ class OrganizationBuilderController extends Controller
             'currentPage' => $currentPage,
             'sectionRegistry' => config('page-builder.sections'),
             'canAddPage' => $this->planLimitService->canCreate($organization, 'pages_total'),
+            'hasSeenBuilderTour' => Auth::user()->hasSeenOnboardingTour('builder'),
         ]);
     }
 

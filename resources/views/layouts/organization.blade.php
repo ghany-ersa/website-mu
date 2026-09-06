@@ -13,6 +13,10 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
     </style>
+    <script>
+        window.csrfToken = @json(csrf_token());
+        window.onboardingTourUrl = @json(route('onboarding-tours.store'));
+    </script>
 </head>
 
 <body class="bg-softBg text-gray-800 min-h-screen lg:flex">

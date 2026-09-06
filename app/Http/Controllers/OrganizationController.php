@@ -88,6 +88,7 @@ class OrganizationController extends Controller
             'canManageMembers' => Auth::user()->can('manageMembers', $organization),
             'canDelete' => Auth::user()->can('delete', $organization),
             'tenantDomain' => config('tenancy.domain'),
+            'hasSeenDashboardTour' => Auth::user()->hasSeenOnboardingTour('dashboard'),
         ]);
     }
 

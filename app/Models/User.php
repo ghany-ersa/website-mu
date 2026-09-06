@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'onboarding_tours_seen'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,7 +29,26 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'onboarding_tours_seen' => 'array',
         ];
+    }
+
+    public function hasSeenOnboardingTour(string $tour): bool
+    {
+        return in_array($tour, $this->onboarding_tours_seen ?? [], strict: true);
+    }
+
+    public function markOnboardingTourSeen(string $tour): void
+    {
+        $seen = $this->onboarding_tours_seen ?? [];
+
+        if (in_array($tour, $seen, strict: true)) {
+            return;
+        }
+
+        $seen[] = $tour;
+
+        $this->forceFill(['onboarding_tours_seen' => $seen])->save();
     }
 
     /**

@@ -63,6 +63,7 @@
         window.mediaIndexUrl = @json(route('organizations.media.index', $organization));
         window.mediaStoreUrl = @json(route('organizations.media.store', $organization));
         window.csrfToken = @json(csrf_token());
+        window.onboardingTourUrl = @json(route('onboarding-tours.store'));
     </script>
 </head>
 {{-- Mobile-first: below lg, only one of sections/canvas/properties shows at a time via
@@ -217,7 +218,7 @@
                  per-page publish toggle (OrganizationPage::published_at) that the public
                  site never read, deliberately removed so there's no second source of
                  truth that could drift out of sync. --}}
-            <div class="relative" x-data="{
+            <div id="page-switcher" class="relative" x-data="{
                     open: false,
                     modal: null,
                     openCreate() { this.modal = 'create'; this.open = false; },
@@ -380,6 +381,16 @@
                 </div>
             </div>
 
+            <button type="button" id="btn-builder-tour" @click="window.startOnboardingTour && window.startOnboardingTour('builder')"
+                title="Lihat tutorial builder"
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+
             @if ($organization->status === \App\Enums\OrganizationStatus::Published)
                 <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-300 pr-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -444,7 +455,7 @@
             {{-- Sidebar: section list, add/remove/duplicate/reorder.
                  Mobile: full-width panel shown only when activePanel === 'sections'.
                  lg+: fixed-width column, always visible. --}}
-            <aside :class="activePanel === 'sections' ? 'flex' : 'hidden'"
+            <aside id="section-sidebar" :class="activePanel === 'sections' ? 'flex' : 'hidden'"
                 class="lg:flex w-full lg:w-80 bg-white lg:border-r border-gray-200/80 flex-col shrink-0">
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
@@ -466,7 +477,7 @@
                     }" @keydown.escape.window="open = false">
                     <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2.5">Tambah Section</p>
 
-                    <button type="button" @click="openPicker()"
+                    <button type="button" id="btn-add-section" @click="openPicker()"
                         class="w-full flex items-center justify-between rounded-xl border border-gray-200 pl-3 pr-2.5 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition">
                         <span class="inline-flex items-center gap-1.5">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-primary">
@@ -709,7 +720,7 @@
                  reclaim its width on narrower desktop/laptop screens. Before a section is
                  ever selected there's nothing to show or re-open, so the panel (and its
                  rail) stay fully hidden and the canvas gets the space instead. --}}
-            <aside :class="[
+            <aside id="properties-panel" :class="[
                     activePanel === 'properties' ? 'flex' : 'hidden lg:flex',
                     propertiesPanelNeverOpened ? 'lg:w-0 lg:!border-l-0' : (propertiesPanelCollapsed ? 'lg:w-12' : 'lg:w-96'),
                 ]"
@@ -1290,6 +1301,12 @@
             });
         </script>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            window.autoStartOnboardingTour('builder', @json($hasSeenBuilderTour));
+        });
+    </script>
 
     @include('partials.confirm-modal')
 
