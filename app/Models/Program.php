@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\ProgramFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,8 @@ class Program extends Model
 {
     /** @use HasFactory<ProgramFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
 
     /**
      * @return BelongsTo<Organization, $this>

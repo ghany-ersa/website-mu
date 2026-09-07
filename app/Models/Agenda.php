@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PublishStatus;
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\AgendaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,8 @@ class Agenda extends Model
 {
     /** @use HasFactory<AgendaFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
 
     /**
      * @return array<string, string>

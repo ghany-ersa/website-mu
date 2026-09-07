@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\OrganizationPageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,8 @@ class OrganizationPage extends Model
 {
     /** @use HasFactory<OrganizationPageFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
 
     /**
      * @return array<string, string>

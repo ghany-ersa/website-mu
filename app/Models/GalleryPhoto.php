@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\GalleryPhotoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,8 @@ class GalleryPhoto extends Model
 {
     /** @use HasFactory<GalleryPhotoFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
 
     /**
      * @return BelongsTo<Organization, $this>

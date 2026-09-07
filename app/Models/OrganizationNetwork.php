@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\OrganizationNetworkFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,8 @@ class OrganizationNetwork extends Model
 {
     /** @use HasFactory<OrganizationNetworkFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
 
     /**
      * @return BelongsTo<Organization, $this>

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Enums\PlanChangeRequestStatus;
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use App\Services\CmsSampleDataSeeder;
 use App\Services\PlanLimitService;
 use Database\Factories\OrganizationFactory;
@@ -44,6 +45,8 @@ class Organization extends Model
     /** @use HasFactory<OrganizationFactory> */
     use HasFactory;
 
+    use InvalidatesTenantPageCache;
+
     /**
      * @return array<string, string>
      */
@@ -54,6 +57,16 @@ class Organization extends Model
             'published_at' => 'datetime',
             'plan_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The organization IS itself the tenant here (unlike every other model using this trait,
+     * which relates to one) - covers brand/plan_id/plan_expires_at/status changes, e.g.
+     * PlanChangeRequestService::approve() updating plan_id after a Midtrans settlement.
+     */
+    public function tenantOrganizationId(): ?int
+    {
+        return $this->id;
     }
 
     /**

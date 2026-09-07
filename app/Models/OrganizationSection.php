@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\OrganizationSectionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,17 @@ class OrganizationSection extends Model
 {
     /** @use HasFactory<OrganizationSectionFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
+
+    /**
+     * Resolved through the parent page rather than a direct column - OrganizationSection has no
+     * organization_id of its own (see organization_page_id above).
+     */
+    public function tenantOrganizationId(): ?int
+    {
+        return $this->page?->organization_id;
+    }
 
     /**
      * @return array<string, string>

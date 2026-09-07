@@ -9,6 +9,8 @@ use App\Models\Announcement;
 use App\Models\DonationProgram;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
+use App\Services\TenantPageCache;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class OrganizationSiteController extends Controller
@@ -18,19 +20,30 @@ class OrganizationSiteController extends Controller
      * unauthorized by design - once Published, the site is public. The status filter
      * lives in the lookup query itself so a Draft organization's subdomain 404s
      * identically to one that was never claimed, instead of leaking its existence.
+     *
+     * The rendered HTML itself is cached (see TenantPageCache) - unlike preview()/
+     * previewDonationProgram(), which stay uncached so an owner editing the builder always
+     * sees their latest save immediately. A cache lookup still costs the readonly-connection
+     * lookup in publishedOrganization() below to resolve the organization and its 404/draft
+     * gate; only the expensive part (loading pages/sections/CMS content and rendering every
+     * section partial) is skipped on a hit.
      */
-    public function show(string $organization_slug): View
+    public function show(string $organization_slug): Response
     {
         $organization = $this->publishedOrganization($organization_slug);
 
-        $organization->load('pages.sections', 'limitOverrides', 'planChangeRequests');
-        $page = $organization->pages->firstWhere('is_home', true) ?? $organization->pages->first();
-        abort_if($page === null, 404);
+        $html = TenantPageCache::remember($organization, 'home', function () use ($organization) {
+            $this->loadForRender($organization, ['pages.sections', 'limitOverrides', 'planChangeRequests']);
+            $page = $organization->pages->firstWhere('is_home', true) ?? $organization->pages->first();
+            abort_if($page === null, 404);
 
-        return view('organizations.public.show', [
-            'organization' => $organization,
-            'page' => $page,
-        ]);
+            return view('organizations.public.show', [
+                'organization' => $organization,
+                'page' => $page,
+            ])->render();
+        });
+
+        return response($html);
     }
 
     /**
@@ -63,18 +76,22 @@ class OrganizationSiteController extends Controller
      * doc comment in the builder view for why per-page publish state was deliberately
      * removed) - any page belonging to a Published organization is public.
      */
-    public function showPage(string $organization_slug, string $page_slug): View
+    public function showPage(string $organization_slug, string $page_slug): Response
     {
         $organization = $this->publishedOrganization($organization_slug);
 
-        $organization->load('pages.sections', 'limitOverrides', 'planChangeRequests');
-        $page = $organization->pages->firstWhere('slug', $page_slug);
-        abort_if($page === null, 404);
+        $html = TenantPageCache::remember($organization, "page:{$page_slug}", function () use ($organization, $page_slug) {
+            $this->loadForRender($organization, ['pages.sections', 'limitOverrides', 'planChangeRequests']);
+            $page = $organization->pages->firstWhere('slug', $page_slug);
+            abort_if($page === null, 404);
 
-        return view('organizations.public.show', [
-            'organization' => $organization,
-            'page' => $page,
-        ]);
+            return view('organizations.public.show', [
+                'organization' => $organization,
+                'page' => $page,
+            ])->render();
+        });
+
+        return response($html);
     }
 
     /**
@@ -96,48 +113,63 @@ class OrganizationSiteController extends Controller
         ]);
     }
 
-    public function post(string $organization_slug, string $post_slug): View
+    public function post(string $organization_slug, string $post_slug): Response
     {
         $organization = $this->publishedOrganization($organization_slug);
-        $organization->load('limitOverrides', 'planChangeRequests', 'pages.sections');
 
-        $post = $organization->posts()
-            ->published()
-            ->where('slug', $post_slug)
-            ->firstOrFail();
+        $html = TenantPageCache::remember($organization, "post:{$post_slug}", function () use ($organization, $post_slug) {
+            $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages.sections']);
 
-        return view('organizations.public.post', [
-            'organization' => $organization,
-            'post' => $post,
-        ]);
+            $post = $organization->posts()
+                ->published()
+                ->where('slug', $post_slug)
+                ->firstOrFail();
+
+            return view('organizations.public.post', [
+                'organization' => $organization,
+                'post' => $post,
+            ])->render();
+        });
+
+        return response($html);
     }
 
-    public function announcement(string $organization_slug, Announcement $announcement): View
+    public function announcement(string $organization_slug, Announcement $announcement): Response
     {
         $organization = $this->publishedOrganization($organization_slug);
-        $organization->load('limitOverrides', 'planChangeRequests', 'pages.sections');
 
         abort_unless($announcement->organization_id === $organization->id, 404);
         abort_unless($announcement->status === PublishStatus::Published, 404);
 
-        return view('organizations.public.announcement', [
-            'organization' => $organization,
-            'announcement' => $announcement,
-        ]);
+        $html = TenantPageCache::remember($organization, "announcement:{$announcement->id}", function () use ($organization, $announcement) {
+            $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages.sections']);
+
+            return view('organizations.public.announcement', [
+                'organization' => $organization,
+                'announcement' => $announcement,
+            ])->render();
+        });
+
+        return response($html);
     }
 
-    public function agenda(string $organization_slug, Agenda $agenda): View
+    public function agenda(string $organization_slug, Agenda $agenda): Response
     {
         $organization = $this->publishedOrganization($organization_slug);
-        $organization->load('limitOverrides', 'planChangeRequests', 'pages.sections');
 
         abort_unless($agenda->organization_id === $organization->id, 404);
         abort_unless($agenda->status === PublishStatus::Published, 404);
 
-        return view('organizations.public.agenda', [
-            'organization' => $organization,
-            'agenda' => $agenda,
-        ]);
+        $html = TenantPageCache::remember($organization, "agenda:{$agenda->id}", function () use ($organization, $agenda) {
+            $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages.sections']);
+
+            return view('organizations.public.agenda', [
+                'organization' => $organization,
+                'agenda' => $agenda,
+            ])->render();
+        });
+
+        return response($html);
     }
 
     /**
@@ -149,20 +181,25 @@ class OrganizationSiteController extends Controller
      * organization only creates one when it wants to collect for it, so belonging to this
      * published organization is the whole gate.
      */
-    public function donationProgram(string $organization_slug, string $program_slug): View
+    public function donationProgram(string $organization_slug, string $program_slug): Response
     {
         $organization = $this->publishedOrganization($organization_slug);
-        $organization->load('limitOverrides', 'planChangeRequests', 'pages');
 
-        $program = $organization->donationPrograms()
-            ->with('transactions')
-            ->where('slug', $program_slug)
-            ->firstOrFail();
+        $html = TenantPageCache::remember($organization, "donation:{$program_slug}", function () use ($organization, $program_slug) {
+            $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages']);
 
-        return view('organizations.public.donation-program', [
-            'organization' => $organization,
-            'program' => $program,
-        ]);
+            $program = $organization->donationPrograms()
+                ->with('transactions')
+                ->where('slug', $program_slug)
+                ->firstOrFail();
+
+            return view('organizations.public.donation-program', [
+                'organization' => $organization,
+                'program' => $program,
+            ])->render();
+        });
+
+        return response($html);
     }
 
     /**
@@ -170,20 +207,38 @@ class OrganizationSiteController extends Controller
      * unpublished organization's subdomain/detail pages 404 identically to
      * one that was never claimed, instead of leaking its existence.
      *
-     * Eager-loads 'plan.limits' so PlanLimitService::effectiveLimitForFreshOrganization()
-     * (used by Organization::planViolations(), rendered on every public tenant page) can read
-     * the plan off this instance instead of re-querying plans/plan_limits per limit key. Safe
-     * here specifically because every caller of this method fetches the organization fresh and
-     * never mutates its plan_id before rendering - unlike preview()/previewDonationProgram(),
-     * which resolve their Organization via route-model binding and deliberately don't get this
-     * eager load (see PlanLimitService::effectivePlan()'s doc comment for why a just-mutated
-     * plan_id needs a fresh reload rather than the cached relation).
+     * Deliberately minimal (no eager loading): every caller needs this row just to resolve the
+     * slug and check the published gate before even touching TenantPageCache, so on a cache
+     * hit nothing else about the organization is used at all. See loadForRender() for the
+     * heavier eager-loading, done only inside a cache-miss closure.
      */
     private function publishedOrganization(string $organization_slug): Organization
     {
-        return Organization::with('plan.limits')
-            ->where('slug', $organization_slug)
+        return Organization::where('slug', $organization_slug)
             ->where('status', OrganizationStatus::Published)
             ->firstOrFail();
+    }
+
+    /**
+     * Eager-loads what rendering (as opposed to just resolving) an organization's tenant page
+     * needs, run only on a TenantPageCache cache miss - see publishedOrganization()'s doc
+     * comment for why that lookup itself stays bare.
+     *
+     * 'plan.limits' lets PlanLimitService::effectiveLimitForFreshOrganization() (used by
+     * Organization::planViolations(), rendered on every public tenant page) read the plan off
+     * this instance instead of re-querying plans/plan_limits per limit key. Safe here
+     * specifically because every caller fetches the organization fresh and never mutates its
+     * plan_id before rendering - unlike preview()/previewDonationProgram(), which resolve their
+     * Organization via route-model binding and deliberately don't get this eager load (see
+     * PlanLimitService::effectivePlan()'s doc comment for why a just-mutated plan_id needs a
+     * fresh reload rather than the cached relation).
+     *
+     * @param  array<int, string>  $relations  Additional relations beyond 'plan.limits', varying
+     *                                          per page type (e.g. 'pages.sections' for a builder
+     *                                          page, just 'pages' for a donation program detail).
+     */
+    private function loadForRender(Organization $organization, array $relations): void
+    {
+        $organization->load([...$relations, 'plan.limits']);
     }
 }

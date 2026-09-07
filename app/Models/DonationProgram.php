@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\DonationProgramFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,8 @@ class DonationProgram extends Model
 {
     /** @use HasFactory<DonationProgramFactory> */
     use HasFactory;
+
+    use InvalidatesTenantPageCache;
 
     private ?int $collectedAmountCache = null;
 
