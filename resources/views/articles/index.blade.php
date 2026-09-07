@@ -19,7 +19,7 @@
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 
     @php
-        $ctaUrl = auth()->check() ? route('organizations.create') : route('register');
+        $ctaUrl = auth()->check() ? route('organizations.create') : route('login');
         $articleDefaultImage = 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80';
     @endphp
 

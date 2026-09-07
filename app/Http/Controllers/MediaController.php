@@ -9,8 +9,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\WebpEncoder;
+use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
 
 class MediaController extends Controller
@@ -66,7 +68,13 @@ class MediaController extends Controller
         $category = $validated['category'] ?? 'lainnya';
 
         $uploaded = collect($validated['files'])->map(function ($file) use ($organization, $request, $manager, $disk, $category) {
-            $image = $manager->decodePath($file->getRealPath());
+            try {
+                $image = $manager->decodePath($file->getRealPath());
+            } catch (DecoderException) {
+                throw ValidationException::withMessages([
+                    'files' => "Gambar \"{$file->getClientOriginalName()}\" tidak bisa diproses. Coba simpan ulang gambar sebagai JPG atau PNG lalu unggah lagi.",
+                ]);
+            }
             $image->scaleDown(width: self::MAX_DIMENSION, height: self::MAX_DIMENSION);
             $encoded = $image->encode(new WebpEncoder(quality: self::WEBP_QUALITY));
 

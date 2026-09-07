@@ -74,7 +74,7 @@
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 
     @php
-        $ctaUrl = auth()->check() ? route('organizations.create') : route('register');
+        $ctaUrl = auth()->check() ? route('organizations.create') : route('login');
         $ctaLabel = auth()->check() ? 'Buat Organisasi' : 'Buat Web Sekarang';
         $heroCtaLabel = auth()->check() ? 'Buat Organisasi Sekarang' : 'Buat Web Gratis Sekarang';
     @endphp

@@ -49,9 +49,14 @@
                     <label for="slug" class="block text-sm font-semibold text-gray-700 mb-1">Slug (subdomain)</label>
                     <div class="flex rounded-lg border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary/30">
                         <input type="text" name="slug" id="slug" value="{{ old('slug') }}" required
+                               placeholder="pcm-ambulu"
                                class="w-full px-3 py-2 text-sm font-mono focus:outline-none">
                         <span class="flex items-center px-3 text-sm font-mono text-gray-400 bg-gray-50 border-l border-gray-200 whitespace-nowrap">.website-mu.id</span>
                     </div>
+                    <p class="mt-1.5 text-xs text-gray-400">
+                        Ini akan jadi alamat website organisasi Anda, contoh: <span class="font-mono text-gray-500">pcm-ambulu.website-mu.id</span>.
+                        Gunakan huruf kecil, angka, dan tanda hubung (-), tanpa spasi.
+                    </p>
                 </div>
 
                 <div>

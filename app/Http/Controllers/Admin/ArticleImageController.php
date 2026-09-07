@@ -7,8 +7,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\WebpEncoder;
+use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
 
 /**
@@ -32,7 +34,13 @@ class ArticleImageController extends Controller
         $manager = new ImageManager(new Driver);
         $disk = config('media.disk');
 
-        $image = $manager->decodePath($validated['file']->getRealPath());
+        try {
+            $image = $manager->decodePath($validated['file']->getRealPath());
+        } catch (DecoderException) {
+            throw ValidationException::withMessages([
+                'file' => 'Gambar tidak bisa diproses. Coba simpan ulang gambar sebagai JPG atau PNG lalu unggah lagi.',
+            ]);
+        }
         $image->scaleDown(width: self::MAX_DIMENSION, height: self::MAX_DIMENSION);
         $encoded = $image->encode(new WebpEncoder(quality: self::WEBP_QUALITY));
 
