@@ -1,4 +1,4 @@
 User-agent: *
-Disallow:
+Disallow: /templates/*/use
 
 Sitemap: https://website-mu.id/sitemap.xml
