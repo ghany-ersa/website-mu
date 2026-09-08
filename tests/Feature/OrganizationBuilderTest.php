@@ -206,7 +206,7 @@ class OrganizationBuilderTest extends TestCase
         $this->assertTrue($page->sections()->where('key', 'footer')->exists());
     }
 
-    public function test_footer_section_cannot_be_added_updated_duplicated_or_deleted(): void
+    public function test_footer_section_cannot_be_added_duplicated_or_deleted(): void
     {
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
@@ -219,10 +219,6 @@ class OrganizationBuilderTest extends TestCase
             ->assertSessionHasErrors('key');
 
         $this->actingAs($user)
-            ->patch(route('organizations.sections.update', [$organization, $footer]), ['is_visible' => '0'])
-            ->assertForbidden();
-
-        $this->actingAs($user)
             ->post(route('organizations.sections.duplicate', [$organization, $footer]))
             ->assertForbidden();
 
@@ -231,6 +227,66 @@ class OrganizationBuilderTest extends TestCase
             ->assertForbidden();
 
         $this->assertSame(1, $page->sections()->count());
+    }
+
+    public function test_header_and_footer_org_name_can_be_overridden_and_falls_back_when_cleared(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create(['name' => 'Pimpinan Cabang Muhammadiyah Ambulu']);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $header = $page->sections()->create(['key' => 'header', 'content' => [], 'order' => 0]);
+        $footer = $page->sections()->create(['key' => 'footer', 'content' => [], 'order' => 1]);
+
+        foreach ([$header, $footer] as $section) {
+            $this->actingAs($user)
+                ->patch(route('organizations.sections.update', [$organization, $section]), [
+                    'content' => ['org_name' => 'PCM Ambulu'],
+                    'is_visible' => '1',
+                ])
+                ->assertRedirect();
+
+            $this->assertSame('PCM Ambulu', $section->refresh()->content['org_name']);
+        }
+
+        // Assert on the rendered wordmarks specifically: the page's <title> always carries the
+        // organization's full name, so a plain assertDontSee() could never distinguish them.
+        $this->assertSame(
+            ['PCM Ambulu', 'PCM Ambulu'],
+            $this->wordmarksOn($user, $organization, $page)
+        );
+
+        // Clearing the override must fall back to the organization's real name rather than
+        // rendering an empty wordmark - '' is not null, so the views test with filled().
+        foreach ([$header, $footer] as $section) {
+            $this->actingAs($user)
+                ->patch(route('organizations.sections.update', [$organization, $section]), [
+                    'content' => ['org_name' => ''],
+                    'is_visible' => '1',
+                ])
+                ->assertRedirect();
+        }
+
+        $this->assertSame(
+            ['Pimpinan Cabang Muhammadiyah Ambulu', 'Pimpinan Cabang Muhammadiyah Ambulu'],
+            $this->wordmarksOn($user, $organization, $page)
+        );
+    }
+
+    /**
+     * The header and footer wordmark text as rendered on the builder canvas.
+     *
+     * @return array<int, string>
+     */
+    private function wordmarksOn(User $user, Organization $organization, OrganizationPage $page): array
+    {
+        $html = $this->actingAs($user)
+            ->get(route('organizations.builder.canvas', [$organization, $page]))
+            ->getContent();
+
+        preg_match_all('/(?:tracking-tight|text-lg leading-tight)">([^<]*)</', $html, $matches);
+
+        return array_map('trim', $matches[1]);
     }
 
     public function test_footer_shows_organization_contact_info_and_platform_watermark(): void

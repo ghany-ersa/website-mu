@@ -42,8 +42,8 @@ class OrganizationSectionController extends Controller
 
     /**
      * Unlike delete/duplicate, editing content is only blocked for locked sections that have
-     * no editable fields at all (currently just `footer`) - header is locked in position but
-     * still exposes `org_name`, which the user must be able to edit from the builder.
+     * no editable fields at all - header and footer are locked in position but still expose
+     * `org_name`, which the user must be able to edit from the builder.
      */
     private function ensureContentEditable(OrganizationSection $section): void
     {

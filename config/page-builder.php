@@ -13,9 +13,12 @@
 // the "Tambah Section" picker and must not let the user delete, duplicate, or drag-reorder - see
 // OrganizationPage::footerSection()/ensureFooter() and OrganizationSectionController for the
 // enforcement. `header` and `footer` are locked: every page must always start with exactly one
-// header and end with exactly one footer. Both have no editable `fields` - they always show the
-// organization's own name (see header.blade.php/footer.blade.php) with no override - so neither
-// is clickable in the builder sidebar (see edit.blade.php's $hasFields guard).
+// header and end with exactly one footer. Locked is independent of editability: both expose an
+// `org_name` field so a long organization name can be shortened for the wordmark (it defaults to
+// the organization's own name when blank - see header/footer standar.blade.php), which is what
+// makes them clickable in the builder sidebar (edit.blade.php's $hasFields guard) and editable
+// server-side (OrganizationSectionController::ensureContentEditable()). They still can't be
+// added, deleted, duplicated, or reordered.
 //
 // `hidden` (bool, default false), when true, marks a section still under development: the
 // "Tambah Section" picker must not offer it (edit.blade.php's $sectionRegistry filter) and it
@@ -52,12 +55,12 @@ return [
         ],
         'header' => [
             'label' => 'Header',
-            'fields' => [],
+            'fields' => ['org_name'],
             'locked' => true,
         ],
         'footer' => [
             'label' => 'Footer',
-            'fields' => [],
+            'fields' => ['org_name'],
             'locked' => true,
         ],
         'tentang-organisasi' => [

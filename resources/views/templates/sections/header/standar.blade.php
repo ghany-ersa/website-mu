@@ -1,8 +1,11 @@
 @php
-    $orgName = $section['content']['org_name']
-        ?? $template->structure['sample_org_name'] ?? null
-        ?? $organization->name ?? null
-        ?? '[Nama Organisasi]';
+    // filled() rather than ?? so a deliberately cleared override falls back to the real name
+    // instead of rendering an empty wordmark.
+    $orgName = filled($section['content']['org_name'] ?? null)
+        ? $section['content']['org_name']
+        : ($template->structure['sample_org_name'] ?? null
+            ?? $organization->name ?? null
+            ?? '[Nama Organisasi]');
     $orgLogo = $organization->logo ?? null;
 
     // Two nav modes, picked by how many pages the organization actually has:
