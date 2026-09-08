@@ -106,11 +106,16 @@
     @if ($hasPlanIssue)
         {{-- Fixed (not sticky) so it stays pinned above the header section's own `sticky
              top-0` (see templates/sections/header.blade.php) rather than competing with it
-             for the same scroll-anchored slot - the body's padding-top above makes room. --}}
-        <div id="plan-banner" class="fixed top-0 inset-x-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
-            <div class="max-w-6xl mx-auto flex items-center gap-2.5 px-4 py-2 text-xs sm:text-sm font-medium text-center sm:text-left">
-                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+             for the same scroll-anchored slot - the body's padding-top above makes room.
+             Deliberately understated (slate, not amber/red) - this is seen by ordinary site
+             visitors, not just the owner, so it reads as a small housekeeping note rather than
+             an alarming warning that makes the site itself look broken or untrustworthy. --}}
+        <div id="plan-banner" class="fixed top-0 inset-x-0 z-50 bg-slate-800 text-slate-200 border-b border-slate-700/60">
+            <div class="max-w-6xl mx-auto flex items-center gap-2 px-4 py-1.5 text-xs text-center sm:text-left">
+                <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9" />
+                    <path stroke-linecap="round" d="M12 11v5" />
+                    <circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none" />
                 </svg>
                 <span class="min-w-0">
                     @if ($organization->planIsExpired())
