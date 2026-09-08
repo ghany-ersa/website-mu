@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\PlanChangeRequestStatus;
+use App\Enums\PlanOverrideAction;
 use App\Http\Controllers\Controller;
 use App\Models\PlanChangeRequest;
 use App\Services\PlanChangeRequestService;
@@ -88,7 +89,7 @@ class PlanChangeRequestController extends Controller
             $planChangeRequest->organization->planOverrideLogs()->create([
                 'plan_change_request_id' => $planChangeRequest->id,
                 'admin_user_id' => $admin->id,
-                'action' => \App\Enums\PlanOverrideAction::RetryApprove,
+                'action' => PlanOverrideAction::RetryApprove,
                 'from_plan_id' => $fromPlanId,
                 'to_plan_id' => $planChangeRequest->requested_plan_id,
                 'from_expires_at' => $fromExpiresAt,

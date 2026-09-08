@@ -40,4 +40,22 @@ class TenantPageUrl
             ? route('tenant.home', ['organization_slug' => $organization->slug])
             : route('tenant.pages.show', ['organization_slug' => $organization->slug, 'page_slug' => $page->slug]);
     }
+
+    /**
+     * URL of a pupil's public profile, or null when there isn't one to link to - which is the
+     * case in template preview (no organization yet) and whenever tenant routes aren't
+     * registered at all, i.e. local `php artisan serve` with no wildcard subdomain configured.
+     * Callers render plain text instead of a dead link.
+     */
+    public static function student(?Organization $organization, string $slug): ?string
+    {
+        if (! $organization || ! $organization->exists || ! Route::has('tenant.students.show')) {
+            return null;
+        }
+
+        return route('tenant.students.show', [
+            'organization_slug' => $organization->slug,
+            'student_slug' => $slug,
+        ]);
+    }
 }

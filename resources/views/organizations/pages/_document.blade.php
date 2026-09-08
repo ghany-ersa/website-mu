@@ -62,6 +62,11 @@
         <meta name="twitter:description" content="{{ $metaDescription }}">
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('organizations.pages._brand-head', [
+        'font' => $font,
+        'fontPair' => $organization->fontPair(),
+        'primaryRgb' => $primaryRgb,
+    ])
     <style>
         :root {
             --color-primary: {{ $primaryColor }};

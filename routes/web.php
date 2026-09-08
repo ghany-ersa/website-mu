@@ -14,6 +14,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\OnboardingTourController;
+use App\Http\Controllers\OrganizationAchievementController;
 use App\Http\Controllers\OrganizationAgendaController;
 use App\Http\Controllers\OrganizationAnnouncementController;
 use App\Http\Controllers\OrganizationBrandController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\OrganizationPostController;
 use App\Http\Controllers\OrganizationProgramController;
 use App\Http\Controllers\OrganizationSectionController;
 use App\Http\Controllers\OrganizationSiteController;
+use App\Http\Controllers\OrganizationStudentController;
 use App\Http\Controllers\OrganizationTemplateController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplateController;
@@ -161,6 +163,10 @@ Route::middleware('auth')->group(function () {
             ->except(['show']);
         Route::resource('organizations.networks', OrganizationNetworkController::class)
             ->except(['show']);
+        Route::resource('organizations.students', OrganizationStudentController::class)
+            ->except(['show']);
+        Route::resource('organizations.achievements', OrganizationAchievementController::class)
+            ->except(['show']);
 
         Route::post('organizations/{organization}/gallery/reorder', [OrganizationGalleryController::class, 'reorder'])
             ->name('organizations.gallery.reorder');
@@ -276,6 +282,7 @@ if ($tenantDomain = config('tenancy.domain')) {
         Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
         Route::get('/agenda/{agenda}', [OrganizationSiteController::class, 'agenda'])->name('tenant.agendas.show');
         Route::get('/donasi/{program_slug}', [OrganizationSiteController::class, 'donationProgram'])->name('tenant.donations.show');
+        Route::get('/siswa/{student_slug}', [OrganizationSiteController::class, 'student'])->name('tenant.students.show');
 
         // Catch-all for any other builder page (e.g. /donasi, /laporan-keuangan) - must stay
         // last in this group so it never shadows the specific routes above.

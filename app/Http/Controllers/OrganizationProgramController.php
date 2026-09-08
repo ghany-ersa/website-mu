@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class OrganizationProgramController extends Controller
@@ -17,29 +18,46 @@ class OrganizationProgramController extends Controller
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
     /**
-     * Program and Layanan are the same entity (type column), both rendered by the same
-     * templates/sections/program-unggulan.blade.php partial - see prd.md for the rationale.
-     * ?type=layanan switches the whole index/form to the "layanan" pool; anything else
-     * defaults to "program".
+     * Program, Layanan and Kegiatan are the same entity (type column), each rendered by its own
+     * section partial - see prd.md for the rationale. ?type= switches the whole index/form to
+     * that pool; anything unrecognised defaults to "program".
+     *
+     * `kegiatan` is a school's activities (the Activity entity of the standalone
+     * comprof-SD-Madya project), which adds the image/category/date columns; program and
+     * layanan leave those null.
      */
     private function type(Request $request): string
     {
-        return $request->query('type') === 'layanan' ? 'layanan' : 'program';
+        $type = (string) $request->query('type');
+
+        return in_array($type, ['layanan', 'kegiatan'], true) ? $type : 'program';
     }
 
     private function sectionKey(string $type): string
     {
-        return $type === 'layanan' ? 'layanan' : 'program-unggulan';
+        return match ($type) {
+            'layanan' => 'layanan',
+            'kegiatan' => 'kegiatan',
+            default => 'program-unggulan',
+        };
     }
 
     private function indexLabel(string $type): string
     {
-        return $type === 'layanan' ? 'Layanan' : 'Program Unggulan';
+        return match ($type) {
+            'layanan' => 'Layanan',
+            'kegiatan' => 'Kegiatan',
+            default => 'Program Unggulan',
+        };
     }
 
     private function formLabel(string $type): string
     {
-        return $type === 'layanan' ? 'Layanan' : 'Program';
+        return match ($type) {
+            'layanan' => 'Layanan',
+            'kegiatan' => 'Kegiatan',
+            default => 'Program',
+        };
     }
 
     public function index(Request $request, Organization $organization): View
@@ -68,7 +86,7 @@ class OrganizationProgramController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'programs')) {
             return redirect()
                 ->route('organizations.programs.index', ['organization' => $organization, 'type' => $type])
-                ->with('warning', ($type === 'layanan' ? 'Batas jumlah layanan' : 'Batas jumlah program').' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah '.strtolower($this->formLabel($type)).' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
         }
 
         return view('organizations.programs.form', [
@@ -91,7 +109,7 @@ class OrganizationProgramController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'programs')) {
             return redirect()
                 ->route('organizations.programs.index', ['organization' => $organization, 'type' => $type])
-                ->with('warning', ($type === 'layanan' ? 'Batas jumlah layanan' : 'Batas jumlah program').' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah '.strtolower($this->formLabel($type)).' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
         }
 
         $organization->programs()->create([
@@ -102,7 +120,7 @@ class OrganizationProgramController extends Controller
 
         return redirect()
             ->route('organizations.programs.index', $this->builderIndexParams($request, ['organization' => $organization, 'type' => $type]))
-            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program').' berhasil ditambahkan.');
+            ->with('status', $this->formLabel($type).' berhasil ditambahkan.');
     }
 
     public function edit(Request $request, Organization $organization, Program $program): View
@@ -128,7 +146,7 @@ class OrganizationProgramController extends Controller
 
         return redirect()
             ->route('organizations.programs.index', $this->builderIndexParams($request, ['organization' => $organization, 'type' => $program->type]))
-            ->with('status', ($program->type === 'layanan' ? 'Layanan' : 'Program').' berhasil diperbarui.');
+            ->with('status', $this->formLabel($program->type).' berhasil diperbarui.');
     }
 
     public function destroy(Request $request, Organization $organization, Program $program): RedirectResponse
@@ -141,7 +159,7 @@ class OrganizationProgramController extends Controller
 
         return redirect()
             ->route('organizations.programs.index', $this->builderIndexParams($request, ['organization' => $organization, 'type' => $type]))
-            ->with('status', ($type === 'layanan' ? 'Layanan' : 'Program').' berhasil dihapus.');
+            ->with('status', $this->formLabel($type).' berhasil dihapus.');
     }
 
     /**
@@ -153,6 +171,9 @@ class OrganizationProgramController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'icon' => ['nullable', 'string', 'max:10'],
+            'image' => ['nullable', 'string'],
+            'category' => ['nullable', Rule::in(Program::CATEGORIES)],
+            'date' => ['nullable', 'date'],
         ]);
     }
 

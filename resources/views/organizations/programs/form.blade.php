@@ -18,7 +18,7 @@
         }">
         <x-crud.back-link
             :href="route('organizations.programs.index', $organization).$indexQuery"
-            :label="'Kembali ke '.($label === 'Layanan' ? 'Layanan' : 'Program Unggulan')" />
+            :label="'Kembali ke '.match ($type) { 'layanan' => 'Layanan', 'kegiatan' => 'Kegiatan', default => 'Program Unggulan' }" />
 
         <x-crud.page-header
             :title="$program->exists ? 'Edit '.$label : 'Tambah '.$label"
@@ -59,6 +59,24 @@
                                class="ml-1 w-16 rounded-lg border border-gray-200 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
                     </p>
                 </div>
+
+                {{-- Foto, kategori, dan tanggal hanya relevan untuk Kegiatan (sekolah).
+                     Program/Layanan cukup memakai ikon emoji di atas. --}}
+                @if ($type === 'kegiatan')
+                    <x-form.image-picker :organization="$organization" name="image" label="Foto (opsional)"
+                        :value="$program->image" category="kegiatan" />
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <x-form.select-field name="category" label="Kategori" :selected="$program->category"
+                            :options="['' => 'Tanpa kategori'] + array_combine(\App\Models\Program::CATEGORIES, \App\Models\Program::CATEGORIES)" />
+
+                        <x-form.field name="date" label="Tanggal (opsional)" type="date"
+                            :value="$program->date?->format('Y-m-d')" />
+                    </div>
+                    <p class="-mt-2 text-xs text-gray-400">
+                        Kosongkan tanggal untuk kegiatan rutin yang tidak terikat satu tanggal, mis. Sholat Dhuha.
+                    </p>
+                @endif
 
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <a href="{{ route('organizations.programs.index', $organization) }}{{ $indexQuery }}"

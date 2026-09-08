@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class OrganizationGalleryController extends Controller
@@ -129,10 +130,20 @@ class OrganizationGalleryController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'url' => ['required', 'string'],
+            'title' => ['nullable', 'string', 'max:255'],
             'caption' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'category' => ['nullable', Rule::in(GalleryPhoto::CATEGORIES)],
+            'is_active' => ['nullable', 'boolean'],
         ]);
+
+        // An unchecked checkbox posts nothing, which on update would leave is_active untouched
+        // and keep a photo the user just hid still visible.
+        $validated['is_active'] = $request->boolean('is_active');
+
+        return $validated;
     }
 
     private function ensureBelongsToOrganization(Organization $organization, GalleryPhoto $photo): void

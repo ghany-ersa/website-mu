@@ -10,13 +10,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['organization_id', 'type', 'title', 'description', 'icon', 'order'])]
+#[Fillable(['organization_id', 'type', 'title', 'description', 'icon', 'image', 'category', 'date', 'order'])]
 class Program extends Model
 {
+    /**
+     * Categories for the `kegiatan` type (a school's activities), used to group them on the
+     * public page. Stored as a plain string column - this list, not a DB constraint, is what
+     * keeps the values honest; the controller validates against it.
+     *
+     * @var list<string>
+     */
+    public const CATEGORIES = ['Keagamaan', 'Ekstrakurikuler', 'Akademik', 'Sosial', 'Lainnya'];
+
     /** @use HasFactory<ProgramFactory> */
     use HasFactory;
 
     use InvalidatesTenantPageCache;
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'date' => 'date',
+        ];
+    }
 
     /**
      * @return BelongsTo<Organization, $this>

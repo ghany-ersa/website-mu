@@ -23,7 +23,22 @@
                 <x-form.field name="name" label="Nama" :value="$officer->name" required />
 
                 <x-form.field name="role" label="Jabatan" :value="$officer->role" required
-                    placeholder="mis. Ketua, Sekretaris, Bendahara" />
+                    placeholder="mis. Ketua, Sekretaris, Kepala Sekolah, Guru Kelas 6A" />
+
+                {{-- Bidang berikut dipakai oleh varian `tim-pengajar` (sekolah). Untuk
+                     struktur pengurus biasa boleh dikosongkan. --}}
+                <x-form.field name="subject" label="Mata Pelajaran / Bidang" :value="$officer->subject"
+                    placeholder="mis. Matematika (opsional)" />
+
+                <x-form.textarea-field name="bio" label="Bio / Kutipan" :value="$officer->bio" rows="3"
+                    placeholder="Kalimat singkat yang ditampilkan pada kartu (opsional)" />
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <x-form.field name="email" label="Email" type="email" :value="$officer->email"
+                        placeholder="opsional" />
+                    <x-form.field name="phone" label="Telepon / WhatsApp" :value="$officer->phone"
+                        placeholder="opsional" />
+                </div>
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Foto</label>
@@ -42,6 +57,18 @@
                         </button>
                     </div>
                 </div>
+
+                <label class="flex items-start gap-3 cursor-pointer pt-1">
+                    {{-- Paired hidden input so unchecking actually posts a value; the
+                         controller reads it with $request->boolean(). --}}
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" name="is_active" value="1" class="mt-0.5 rounded border-gray-300 text-primary focus:ring-primary/30"
+                        @checked(old('is_active', $officer->exists ? $officer->is_active : true))>
+                    <span>
+                        <span class="block text-sm font-semibold text-gray-700">Tampilkan di situs</span>
+                        <span class="block text-xs text-gray-400">Nonaktifkan untuk menyembunyikan tanpa menghapus data.</span>
+                    </span>
+                </label>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <a href="{{ route('organizations.officers.index', $organization) }}{{ $builderQuery }}"

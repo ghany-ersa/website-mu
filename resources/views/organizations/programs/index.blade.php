@@ -16,7 +16,7 @@
             <x-slot:actions>
                 <a href="{{ route('organizations.programs.create', $organization) }}{{ $builderQuery }}"
                    class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:opacity-90 shrink-0">
-                    + Tambah {{ $type === 'layanan' ? 'Layanan' : 'Program' }}
+                    + Tambah {{ $label }}
                 </a>
             </x-slot:actions>
         </x-crud.index-header>

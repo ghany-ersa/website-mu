@@ -29,6 +29,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview - {{ $template->name }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('organizations.pages._brand-head', [
+        'font' => $font,
+        'fontPair' => array_key_exists($brand['font_pair'] ?? '', config('branding.font_pairs', [])) ? $brand['font_pair'] : null,
+        'primaryRgb' => $primaryRgb,
+    ])
     <style>
         :root {
             --color-primary: {{ $primaryColor }};

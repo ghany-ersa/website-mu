@@ -39,8 +39,28 @@
                     @error('url') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                <x-form.field name="title" label="Judul" :value="$photo->title"
+                    placeholder="mis. Wisuda Tahfidz Angkatan ke-8 (opsional)" />
+
                 <x-form.field name="caption" label="Keterangan" :value="$photo->caption"
                     placeholder="mis. Kegiatan bakti sosial, Januari 2026" />
+
+                <x-form.textarea-field name="description" label="Deskripsi" :value="$photo->description" rows="3"
+                    placeholder="Penjelasan lebih panjang (opsional)" />
+
+                {{-- Kategori dipakai sebagai filter pada galeri varian `sd-madya`. --}}
+                <x-form.select-field name="category" label="Kategori" :selected="$photo->category"
+                    :options="['' => 'Tanpa kategori'] + array_combine(\App\Models\GalleryPhoto::CATEGORIES, \App\Models\GalleryPhoto::CATEGORIES)" />
+
+                <label class="flex items-start gap-3 cursor-pointer pt-1">
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" name="is_active" value="1" class="mt-0.5 rounded border-gray-300 text-primary focus:ring-primary/30"
+                        @checked(old('is_active', $photo->exists ? $photo->is_active : true))>
+                    <span>
+                        <span class="block text-sm font-semibold text-gray-700">Tampilkan di situs</span>
+                        <span class="block text-xs text-gray-400">Nonaktifkan untuk menyembunyikan tanpa menghapus foto.</span>
+                    </span>
+                </label>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <a href="{{ route('organizations.gallery.index', $organization) }}{{ $builderQuery }}"

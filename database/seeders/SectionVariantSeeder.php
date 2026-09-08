@@ -22,6 +22,7 @@ class SectionVariantSeeder extends Seeder
                 'nurul-huda' => ['view' => 'templates.sections.hero.nurul-huda', 'exclusive' => true],
                 'modern' => ['view' => 'templates.sections.hero.modern', 'exclusive' => true],
                 'headline-berita' => ['view' => 'templates.sections.hero.headline-berita', 'exclusive' => true],
+                'sd-madya' => ['view' => 'templates.sections.hero.sd-madya', 'exclusive' => true],
             ],
             'header' => [
                 'standar' => ['view' => 'templates.sections.header.standar', 'exclusive' => false, 'default' => true],
@@ -32,6 +33,7 @@ class SectionVariantSeeder extends Seeder
             'tentang-organisasi' => [
                 'standar' => ['view' => 'templates.sections.tentang-organisasi.standar', 'exclusive' => false, 'default' => true],
                 'modern' => ['view' => 'templates.sections.tentang-organisasi.modern', 'exclusive' => true],
+                'sd-madya' => ['view' => 'templates.sections.tentang-organisasi.sd-madya', 'exclusive' => true],
             ],
             'sambutan-ketua' => [
                 'standar' => ['view' => 'templates.sections.sambutan-ketua.standar', 'exclusive' => false, 'default' => true],
@@ -40,10 +42,12 @@ class SectionVariantSeeder extends Seeder
             'struktur-pengurus' => [
                 'standar' => ['view' => 'templates.sections.struktur-pengurus.standar', 'exclusive' => false, 'default' => true],
                 'modern' => ['view' => 'templates.sections.struktur-pengurus.modern', 'exclusive' => true],
+                'tim-pengajar' => ['view' => 'templates.sections.struktur-pengurus.tim-pengajar', 'exclusive' => true],
             ],
             'program-unggulan' => [
                 'standar' => ['view' => 'templates.sections.program-unggulan.standar', 'exclusive' => false, 'default' => true],
                 'modern' => ['view' => 'templates.sections.program-unggulan.modern', 'exclusive' => true],
+                'sd-madya' => ['view' => 'templates.sections.program-unggulan.sd-madya', 'exclusive' => true],
             ],
             'layanan' => [
                 'standar' => ['view' => 'templates.sections.layanan.standar', 'exclusive' => false, 'default' => true],
@@ -64,6 +68,7 @@ class SectionVariantSeeder extends Seeder
             ],
             'galeri' => [
                 'standar' => ['view' => 'templates.sections.galeri.standar', 'exclusive' => false, 'default' => true],
+                'sd-madya' => ['view' => 'templates.sections.galeri.sd-madya', 'exclusive' => true],
             ],
             'jadwal-salat' => [
                 'standar' => ['view' => 'templates.sections.jadwal-salat.standar', 'exclusive' => false, 'default' => true],
@@ -80,8 +85,20 @@ class SectionVariantSeeder extends Seeder
             'ppdb' => [
                 'standar' => ['view' => 'templates.sections.ppdb.standar', 'exclusive' => false, 'default' => true],
             ],
+            'kegiatan' => [
+                'standar' => ['view' => 'templates.sections.kegiatan.standar', 'exclusive' => false, 'default' => true],
+                'sd-madya' => ['view' => 'templates.sections.kegiatan.sd-madya', 'exclusive' => true],
+            ],
+            'testimoni' => [
+                'standar' => ['view' => 'templates.sections.testimoni.standar', 'exclusive' => false, 'default' => true],
+            ],
+            'prestasi' => [
+                'standar' => ['view' => 'templates.sections.prestasi.standar', 'exclusive' => false, 'default' => true],
+                'sd-madya' => ['view' => 'templates.sections.prestasi.sd-madya', 'exclusive' => true],
+            ],
             'formulir-kontak' => [
                 'standar' => ['view' => 'templates.sections.formulir-kontak.standar', 'exclusive' => false, 'default' => true],
+                'sd-madya' => ['view' => 'templates.sections.formulir-kontak.sd-madya', 'exclusive' => true],
             ],
             'lokasi-peta' => [
                 'standar' => ['view' => 'templates.sections.lokasi-peta.standar', 'exclusive' => false, 'default' => true],
@@ -105,6 +122,7 @@ class SectionVariantSeeder extends Seeder
                 'standar' => ['view' => 'templates.sections.cta.standar', 'exclusive' => false, 'default' => true],
                 'modern' => ['view' => 'templates.sections.cta.modern', 'exclusive' => true],
                 'newsletter' => ['view' => 'templates.sections.cta.newsletter', 'exclusive' => true],
+                'sd-madya' => ['view' => 'templates.sections.cta.sd-madya', 'exclusive' => true],
             ],
         ];
 

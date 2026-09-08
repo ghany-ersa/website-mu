@@ -123,6 +123,23 @@ class Organization extends Model
     }
 
     /**
+     * Effective headline/body font pairing key (see config('branding.font_pairs')), or null
+     * when the template declares none - which is every template but the SD-Madya one, and the
+     * case in which both roles fall back to the document's own body font.
+     *
+     * Unlike primaryColor()/fontFamily() there is no per-organization override: a pairing is a
+     * property of the template's design, not a brand setting the owner picks.
+     */
+    public function fontPair(): ?string
+    {
+        $pair = $this->template?->structure['brand']['font_pair'] ?? null;
+
+        return is_string($pair) && array_key_exists($pair, config('branding.font_pairs', []))
+            ? $pair
+            : null;
+    }
+
+    /**
      * Effective border radius token (see config('branding.radii')) - same fallback chain
      * as primaryColor()/fontFamily().
      */
@@ -299,6 +316,8 @@ class Organization extends Model
             'gallery_photos' => ['photos', 'Foto Galeri'],
             'facilities' => ['facilities', 'Fasilitas'],
             'donation_programs' => ['donationPrograms', 'Program Donasi'],
+            'students' => ['students', 'Data Siswa'],
+            'achievements' => ['achievements', 'Prestasi'],
         ];
 
         // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
@@ -442,6 +461,25 @@ class Organization extends Model
     public function programs(): HasMany
     {
         return $this->hasMany(Program::class)->orderBy('order');
+    }
+
+    /**
+     * @return HasMany<Student, $this>
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class)->orderBy('order');
+    }
+
+    /**
+     * Newest first: a wall of fame leads with the most recent win. `year` is a string but
+     * sorts correctly for four-digit years, and `order` breaks ties within a year.
+     *
+     * @return HasMany<Achievement, $this>
+     */
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(Achievement::class)->orderByDesc('year')->orderBy('order');
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Plan;
+use App\Models\PlanLimit;
 use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        \App\Models\PlanLimit::where('key', 'pages_total')->delete();
+        PlanLimit::where('key', 'pages_total')->delete();
     }
 };

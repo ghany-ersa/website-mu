@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\OrganizationRole;
 use App\Models\Organization;
 use App\Models\User;
 
@@ -44,7 +45,7 @@ class OrganizationPolicy
      */
     public function delete(User $user, Organization $organization): bool
     {
-        return $organization->roleFor($user) === \App\Enums\OrganizationRole::Owner;
+        return $organization->roleFor($user) === OrganizationRole::Owner;
     }
 
     /**
@@ -53,6 +54,6 @@ class OrganizationPolicy
      */
     public function manageBilling(User $user, Organization $organization): bool
     {
-        return $organization->roleFor($user) === \App\Enums\OrganizationRole::Owner;
+        return $organization->roleFor($user) === OrganizationRole::Owner;
     }
 }

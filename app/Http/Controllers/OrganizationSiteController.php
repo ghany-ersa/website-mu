@@ -203,6 +203,33 @@ class OrganizationSiteController extends Controller
     }
 
     /**
+     * A pupil's public profile: their details plus every achievement they're credited with.
+     * Inactive pupils 404 rather than rendering, so hiding one from the CMS also takes its
+     * profile page down.
+     */
+    public function student(string $organization_slug, string $student_slug): Response
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        $html = TenantPageCache::remember($organization, "student:{$student_slug}", function () use ($organization, $student_slug) {
+            $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages']);
+
+            $student = $organization->students()
+                ->active()
+                ->with(['achievements' => fn ($query) => $query->active()->orderByDesc('year')])
+                ->where('slug', $student_slug)
+                ->firstOrFail();
+
+            return view('organizations.public.student', [
+                'organization' => $organization,
+                'student' => $student,
+            ])->render();
+        });
+
+        return response($html);
+    }
+
+    /**
      * Shared published-organization lookup - status filter lives here so an
      * unpublished organization's subdomain/detail pages 404 identically to
      * one that was never claimed, instead of leaking its existence.

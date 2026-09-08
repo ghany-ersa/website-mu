@@ -65,7 +65,9 @@ return [
         ],
         'tentang-organisasi' => [
             'label' => 'Tentang Organisasi',
-            'fields' => ['title', 'body', 'image', 'stats'],
+            // label/vision_*/values_*: extra copy slots the `sd-madya` variant lays out
+            // (eyebrow label, a vision card and a values card); ignored by `standar`.
+            'fields' => ['title', 'body', 'image', 'stats', 'label', 'vision_title', 'vision_body', 'values_title', 'values'],
             'defaults' => [
                 'title' => 'Tentang Organisasi',
                 // Same fallback templates/sections/tentang-organisasi.blade.php already shows
@@ -85,13 +87,14 @@ return [
         ],
         'struktur-pengurus' => [
             'label' => 'Struktur Pengurus',
-            'fields' => ['title', 'items'],
+            // label/subtitle are read only by the `tim-pengajar` variant's header block.
+            'fields' => ['title', 'items', 'label', 'subtitle'],
             'defaults' => ['title' => 'Struktur Pengurus'],
             'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
         ],
         'program-unggulan' => [
             'label' => 'Program Unggulan',
-            'fields' => ['title', 'items'],
+            'fields' => ['title', 'items', 'subtitle'],
             'defaults' => ['title' => 'Program Unggulan'],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Program', 'params' => ['type' => 'program']],
         ],
@@ -100,6 +103,27 @@ return [
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Layanan'],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Layanan', 'params' => ['type' => 'layanan']],
+        ],
+        // A school's activities. Same Program model as program-unggulan/layanan, keyed by the
+        // `kegiatan` type - see OrganizationProgramController::type().
+        'kegiatan' => [
+            'label' => 'Kegiatan',
+            'fields' => ['title', 'items', 'subtitle'],
+            'defaults' => ['title' => 'Kegiatan Sekolah'],
+            'cms' => ['route' => 'organizations.programs.index', 'label' => 'Kegiatan', 'params' => ['type' => 'kegiatan']],
+        ],
+        // Quotes from alumni/parents. Content-only: written once at setup and rarely changed,
+        // so they live in the section's own `items` rather than earning a CMS table.
+        'testimoni' => [
+            'label' => 'Testimoni',
+            'fields' => ['title', 'label', 'items'],
+            'defaults' => ['title' => 'Apa Kata Mereka?'],
+        ],
+        'prestasi' => [
+            'label' => 'Prestasi',
+            'fields' => ['title', 'subtitle', 'label', 'items', 'limit', 'stats'],
+            'defaults' => ['title' => 'Prestasi'],
+            'cms' => ['route' => 'organizations.achievements.index', 'label' => 'Prestasi'],
         ],
         'jaringan-aum-ortom' => [
             'label' => 'Jaringan AUM/Ortom',
@@ -178,7 +202,9 @@ return [
         ],
         'formulir-kontak' => [
             'label' => 'Formulir Kontak',
-            'fields' => ['title', 'subtitle', 'wa_number', 'wa_message'],
+            // address/hours/form_*/grades/cta_label: laid out only by the `sd-madya` variant,
+            // which renders an enrolment form beside the contact details.
+            'fields' => ['title', 'subtitle', 'wa_number', 'wa_message', 'address', 'hours', 'hours_title', 'form_title', 'form_subtitle', 'grades', 'cta_label'],
             'defaults' => [
                 'title' => 'Hubungi Kami',
                 'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',

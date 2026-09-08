@@ -57,8 +57,11 @@ class OrganizationOfficerController extends Controller
                 ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
         }
 
+        $validated = $this->validated($request);
+
         $organization->officers()->create([
-            ...$this->validated($request),
+            ...$validated,
+            'slug' => $this->uniqueSlug($organization, $validated['name']),
             'order' => $organization->officers()->max('order') + 1,
         ]);
 
@@ -84,7 +87,15 @@ class OrganizationOfficerController extends Controller
         $this->authorize('update', $officer);
         $this->ensureBelongsToOrganization($organization, $officer);
 
-        $officer->update($this->validated($request));
+        $validated = $this->validated($request);
+
+        // Only re-slug on an actual rename, so an officer's public URL stays stable across
+        // unrelated edits (fixing a typo in the bio must not break an existing link).
+        if ($validated['name'] !== $officer->name || $officer->slug === null) {
+            $validated['slug'] = $this->uniqueSlug($organization, $validated['name'], $officer);
+        }
+
+        $officer->update($validated);
 
         return redirect()
             ->route('organizations.officers.index', $this->builderIndexParams($request, ['organization' => $organization]))
@@ -129,11 +140,43 @@ class OrganizationOfficerController extends Controller
      */
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'role' => ['required', 'string', 'max:255'],
+            'subject' => ['nullable', 'string', 'max:255'],
+            'bio' => ['nullable', 'string', 'max:2000'],
             'photo' => ['nullable', 'string'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'is_active' => ['nullable', 'boolean'],
         ]);
+
+        // An unchecked checkbox posts nothing at all, which would otherwise leave is_active
+        // untouched on update and silently keep a hidden officer visible.
+        $validated['is_active'] = $request->boolean('is_active');
+
+        return $validated;
+    }
+
+    /**
+     * Slugs are unique per organization, not globally - two schools may each have a
+     * "budi-santoso". $ignore lets an update keep its own slug instead of colliding with it.
+     */
+    private function uniqueSlug(Organization $organization, string $name, ?Officer $ignore = null): string
+    {
+        $base = str($name)->slug();
+        $slug = (string) $base;
+        $suffix = 1;
+
+        while ($organization->officers()
+            ->where('slug', $slug)
+            ->when($ignore?->exists, fn ($query) => $query->whereKeyNot($ignore->getKey()))
+            ->exists()
+        ) {
+            $slug = "{$base}-".++$suffix;
+        }
+
+        return $slug;
     }
 
     private function ensureBelongsToOrganization(Organization $organization, Officer $officer): void

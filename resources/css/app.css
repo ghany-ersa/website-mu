@@ -40,6 +40,30 @@
     --color-accent: var(--color-accent);
     --color-softBg: var(--color-softBg);
     --radius-brand: var(--radius-brand);
+
+    /*
+     * Material-3 surface ramp and its text/hairline companions, so sections can write
+     * `bg-surface-container-low` or `text-on-surface-variant` as ordinary utilities. The
+     * values are set per-document in organizations/pages/_brand-head.blade.php, derived from
+     * that organization's own primary color; the fallbacks here keep the classes meaningful
+     * in any context that doesn't emit that block (platform chrome, a bare preview).
+     */
+    --color-surface: var(--color-surface, #f7f9fb);
+    --color-surface-container-lowest: var(--color-surface-container-lowest, #ffffff);
+    --color-surface-container-low: var(--color-surface-container-low, #f2f4f6);
+    --color-surface-container: var(--color-surface-container, #eceef0);
+    --color-surface-container-high: var(--color-surface-container-high, #e6e8ea);
+    --color-surface-container-highest: var(--color-surface-container-highest, #e0e3e5);
+    --color-on-surface: var(--color-on-surface, #191c1e);
+    --color-on-surface-variant: var(--color-on-surface-variant, #43474e);
+    --color-outline-variant: var(--color-outline-variant, #c3c6cf);
+    --color-primary-container: var(--color-primary-container, #1b3a5f);
+
+    --font-headline: var(--font-headline, var(--font-sans));
+    --font-body: var(--font-body, var(--font-sans));
+
+    --shadow-ambient: var(--shadow-ambient, 0 12px 32px rgba(27, 58, 95, 0.06));
+    --shadow-ambient-lg: var(--shadow-ambient-lg, 0 12px 32px rgba(27, 58, 95, 0.12));
 }
 
 [x-cloak] {
