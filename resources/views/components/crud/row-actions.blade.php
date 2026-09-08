@@ -9,7 +9,7 @@
 <div class="flex items-center gap-3 shrink-0">
     <a href="{{ $editHref }}" class="text-primary text-sm font-semibold hover:underline">Edit</a>
     <form action="{{ $deleteAction }}" method="POST"
-          x-data @submit.prevent="if (await confirmAction('{{ $confirmMessage }}')) $el.submit()">
+          x-data="{ confirmMessage: @js($confirmMessage) }" @submit.prevent="if (await confirmAction(confirmMessage)) $el.submit()">
         @csrf
         @method('DELETE')
         @if ($fromBuilder)

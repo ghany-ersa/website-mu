@@ -60,7 +60,7 @@
                         <td class="px-5 py-4 text-right space-x-3">
                             <a href="{{ route('admin.discount-codes.edit', $discountCode) }}" class="text-gray-600 font-medium hover:underline">Edit</a>
                             <form action="{{ route('admin.discount-codes.destroy', $discountCode) }}" method="POST" class="inline"
-                                  x-data @submit.prevent="if (await confirmAction(`Hapus kode ${@json($discountCode->code)}?`)) $el.submit()">
+                                  x-data="{ code: @js($discountCode->code) }" @submit.prevent="if (await confirmAction('Hapus kode ' + code + '?')) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 font-medium hover:underline">Hapus</button>

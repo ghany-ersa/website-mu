@@ -53,7 +53,7 @@
                         <td class="px-5 py-4 text-right space-x-3">
                             <a href="{{ route('admin.plans.edit', $plan) }}" class="text-gray-600 font-medium hover:underline">Edit</a>
                             <form action="{{ route('admin.plans.destroy', $plan) }}" method="POST" class="inline"
-                                  x-data @submit.prevent="if (await confirmAction(`Hapus paket ${@json($plan->name)}?`)) $el.submit()">
+                                  x-data="{ name: @js($plan->name) }" @submit.prevent="if (await confirmAction('Hapus paket ' + name + '?')) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 font-medium hover:underline">Hapus</button>

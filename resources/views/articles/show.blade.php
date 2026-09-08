@@ -31,6 +31,8 @@
         .prose ul, .prose ol { margin-top: 1em; margin-bottom: 1em; padding-left: 1.5rem; }
         .prose ul { list-style: disc; }
         .prose ol { list-style: decimal; }
+        .prose li { margin-top: 0.25em; margin-bottom: 0.25em; }
+        .prose li > p { margin-top: 0.5em; margin-bottom: 0.5em; }
     </style>
 </head>
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
@@ -58,8 +60,8 @@
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
             Kembali ke Berita
         </a>
-
         @if ($article->category)
+            <br>
             <span class="text-secondary text-xs font-bold uppercase tracking-wider bg-green-50 px-3 py-1.5 rounded-full">{{ $article->category }}</span>
         @endif
         <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4 leading-tight">{{ $article->title }}</h1>
@@ -95,17 +97,7 @@
         </section>
     @endif
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white pt-12 pb-8 rounded-t-[3rem] mx-2 md:mx-4">
-        <div class="container mx-auto px-4 max-w-6xl text-center">
-            <h3 class="text-2xl font-extrabold mb-2">website-mu<span class="text-secondary">.id</span></h3>
-            <p class="text-gray-400 text-xs mb-8">Platform Pembuatan Website &amp; Digitalisasi Persyarikatan Muhammadiyah</p>
-            <div class="border-t border-gray-800 pt-6 text-xs text-gray-500 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p>&copy; 2026 website-mu.id. All rights reserved.</p>
-                <p>Mendorong Gerakan Dakwah Digital Berkemajuan.</p>
-            </div>
-        </div>
-    </footer>
+    <x-marketing.footer />
 
 </body>
 </html>

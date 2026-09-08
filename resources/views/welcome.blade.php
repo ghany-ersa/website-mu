@@ -142,15 +142,15 @@
                 <div class="lg:col-span-7 text-center lg:text-left">
                     <span class="inline-flex items-center gap-2 bg-green-100 text-secondary px-4 py-1.5 rounded-full text-xs md:text-sm font-bold mb-6">
                         <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-                        Tanpa Developer, Tanpa Biaya Bulanan Mencekik
+                        Semudah Isi Formulir
                     </span>
 
                     <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-[1.15] mb-6">
-                        Bukan Developer. <br><span class="text-gradient">Tapi Tetap Bisa Bikin Website Organisasi.</span>
+                        <span class="text-gradient">Rumah Digital Muhammadiyah.</span>
                     </h1>
 
                     <p class="text-gray-600 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
-                        Tidak perlu sewa developer atau nunggu proyek IT setengah jalan. Pilih template PRM, PCM, PDM, Sekolah, Masjid, atau AUM Anda - isi profil, terbitkan sendiri.
+                        Bikin Website Resmi Profil Muhammadiyah. Kurang dari 30 Menit. Tanpa coding. Bapak-bapak pun bisa bikin.
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -169,7 +169,7 @@
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Template Siap Pakai</p>
                         </div>
                         <div>
-                            <p class="text-2xl md:text-3xl font-extrabold text-secondary">&lt;30 Menit</p>
+                            <p class="text-2xl md:text-3xl font-extrabold text-secondary">&lt; 30 Menit </p>
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Target Waktu Terbit</p>
                         </div>
                         <div>
@@ -188,7 +188,7 @@
                             <span class="w-3 h-3 rounded-full bg-green-400"></span>
                             <span class="ml-2 text-xs font-mono text-gray-400 bg-gray-50 px-3 py-1 rounded-full w-full text-center">pcm-ambulu.website-mu.id</span>
                         </div>
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80" alt="Website Template Preview" class="rounded-2xl w-full object-cover shadow-sm h-64 md:h-80">
+                        <img src="{{ asset('home.jpeg') }}" alt="Website Template Preview" class="rounded-2xl w-full object-cover shadow-sm h-64 md:h-80">
 
                         <!-- Floating Badge inside Mockup -->
                         <div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-soft border border-gray-100 flex items-center gap-3">
@@ -465,28 +465,23 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
                 <div class="lg:col-span-6">
                     <span class="bg-white/10 text-green-300 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-wider">Mulai Digitalisasi</span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mt-4 mb-4">Siap Memodernkan Web Muhammadiyah Anda?</h2>
+                    <h2 class="text-3xl md:text-4xl font-extrabold mt-4 mb-4">Siap Digitalisasi Organisasi Anda?</h2>
                     <p class="text-blue-100 text-sm leading-relaxed mb-6">Konsultasikan kebutuhan pembuatan website pimpinan atau AUM Anda secara gratis bersama tim kami.</p>
 
                     <div class="space-y-3 text-sm">
                         <p class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-secondary"></span> WhatsApp: +62 851-8322-0977</p>
-                        <p class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-secondary"></span> Email: salam@website-mu.id</p>
                     </div>
                 </div>
 
                 <div class="lg:col-span-6">
                     <form
                         class="bg-white text-gray-800 p-6 md:p-8 rounded-[2rem] space-y-4 shadow-lg"
-                        x-data="{ nama: '', whatsapp: '', template: '{{ $templates->first()->name ?? 'Lainnya / Custom' }}' }"
-                        x-on:submit.prevent="window.open('https://wa.me/6285183220977?text=' + encodeURIComponent('Assalamualaikum, saya dari ' + nama + '. Nomor WA saya ' + whatsapp + '. Saya tertarik dengan template ' + template + ' untuk website organisasi kami.'), '_blank')"
+                        x-data="{ nama: '', template: '{{ $templates->first()->name ?? 'Lainnya / Custom' }}' }"
+                        x-on:submit.prevent="window.open('https://wa.me/6285183220977?text=' + encodeURIComponent('Assalamualaikum, saya dari ' + nama + '. Saya tertarik dengan template ' + template + ' untuk website organisasi kami.'), '_blank')"
                     >
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nama / Nama Cabang / AUM</label>
                             <input x-model="nama" required type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary text-sm" placeholder="Contoh: PCM Ambulu / SD Muhammadiyah 1">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nomor WhatsApp</label>
-                            <input x-model="whatsapp" required type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary text-sm" placeholder="08123456789">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Template yang Diminati</label>
@@ -507,18 +502,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white pt-12 pb-8 rounded-t-[3rem] mx-2 md:mx-4">
-        <div class="container mx-auto px-4 max-w-6xl text-center">
-            <h3 class="text-2xl font-extrabold mb-2">website-mu<span class="text-secondary">.id</span></h3>
-            <p class="text-gray-400 text-xs mb-8">Platform Pembuatan Website & Digitalisasi Persyarikatan Muhammadiyah</p>
-
-            <div class="border-t border-gray-800 pt-6 text-xs text-gray-500 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p>&copy; 2026 website-mu.id. All rights reserved.</p>
-                <p>Mendorong Gerakan Dakwah Digital Berkemajuan.</p>
-            </div>
-        </div>
-    </footer>
+    <x-marketing.footer />
 
 </body>
 </html>

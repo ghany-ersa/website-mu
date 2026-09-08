@@ -49,7 +49,7 @@
                         <td class="px-5 py-4 text-right space-x-3">
                             <a href="{{ route('admin.articles.edit', $article) }}" class="text-gray-600 font-medium hover:underline">Edit</a>
                             <form action="{{ route('admin.articles.destroy', $article) }}" method="POST" class="inline"
-                                  x-data @submit.prevent="if (await confirmAction(`Hapus artikel ${@json($article->title)}?`)) $el.submit()">
+                                  x-data="{ title: @js($article->title) }" @submit.prevent="if (await confirmAction('Hapus artikel ' + title + '?')) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 font-medium hover:underline">Hapus</button>
