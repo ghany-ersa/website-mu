@@ -65,8 +65,8 @@
                                x-model.number="selected" class="sr-only">
 
                         <div class="aspect-[4/3] bg-gray-100">
-                            @if ($template->thumbnail_path)
-                                <img src="{{ $template->thumbnail_path }}" alt="{{ $template->name }}" class="w-full h-full object-cover">
+                            @if ($template->thumbnailUrl())
+                                <img src="{{ $template->thumbnailUrl() }}" alt="{{ $template->name }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-gray-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10">
@@ -105,8 +105,8 @@
                 @foreach ($lockedTemplates as $template)
                     <div class="relative block rounded-2xl border-2 border-transparent overflow-hidden bg-white shadow-soft opacity-60">
                         <div class="aspect-[4/3] bg-gray-100">
-                            @if ($template->thumbnail_path)
-                                <img src="{{ $template->thumbnail_path }}" alt="{{ $template->name }}" class="w-full h-full object-cover grayscale">
+                            @if ($template->thumbnailUrl())
+                                <img src="{{ $template->thumbnailUrl() }}" alt="{{ $template->name }}" class="w-full h-full object-cover grayscale">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-gray-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10">

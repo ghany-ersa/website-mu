@@ -8,7 +8,7 @@
         <a href="{{ route('admin.templates.index') }}" class="text-sm text-gray-500 hover:underline">&larr; Kembali</a>
     </div>
 
-    <form action="{{ route('admin.templates.store') }}" method="POST">
+    <form action="{{ route('admin.templates.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @include('admin.templates._form')
 

@@ -1,3 +1,7 @@
+{{-- Shared by create.blade.php (no $template) and edit.blade.php, so normalize it once here
+     rather than guarding every use below. --}}
+@php($template = $template ?? null)
+
 @if ($errors->any())
     <div class="mb-6 rounded-lg bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
         <ul class="list-disc list-inside space-y-1">
@@ -41,10 +45,39 @@
                   class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('description', $template->description ?? '') }}</textarea>
     </div>
 
-    <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1" for="thumbnail_path">Path Thumbnail</label>
-        <input type="text" name="thumbnail_path" id="thumbnail_path" value="{{ old('thumbnail_path', $template->thumbnail_path ?? '') }}"
-               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+    <div x-data="{ preview: null, name: null }">
+        <label class="block text-sm font-semibold text-gray-700 mb-1" for="thumbnail">Thumbnail</label>
+
+        <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+            {{-- Current image, or the newly picked file once one is chosen. --}}
+            <div class="w-full sm:w-40 shrink-0 aspect-[4/3] rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+                <template x-if="preview">
+                    <img :src="preview" alt="Pratinjau thumbnail" class="w-full h-full object-cover">
+                </template>
+                <div x-show="! preview" class="w-full h-full">
+                    @if ($template?->thumbnailUrl())
+                        <img src="{{ $template->thumbnailUrl() }}" alt="{{ $template->name }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-gray-300 text-xs">Belum ada</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <input type="file" name="thumbnail" id="thumbnail" accept="image/*"
+                       x-on:change="const f = $event.target.files[0]; name = f?.name ?? null; preview = f ? URL.createObjectURL(f) : null"
+                       class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:text-sm file:font-semibold hover:file:bg-primary/20 file:cursor-pointer">
+                <p class="text-xs text-gray-400 mt-1.5">JPG, PNG, atau WebP. Maksimal 5 MB — otomatis dikecilkan dan dikonversi ke WebP.</p>
+
+                @if ($template?->thumbnail_path)
+                    <label class="inline-flex items-center gap-2 mt-3 text-sm text-gray-600">
+                        <input type="checkbox" name="remove_thumbnail" value="1"
+                               class="rounded border-gray-300 text-primary focus:ring-primary/30">
+                        Hapus thumbnail saat ini
+                    </label>
+                @endif
+            </div>
+        </div>
     </div>
 
     <details class="rounded-lg border border-gray-200" @if ($errors->has('structure')) open @endif>
