@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\PlanChangeRequest;
 use App\Services\MidtransService;
+use App\Services\PlanChangeRequestService;
 use App\Services\PlanLimitService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -75,7 +76,7 @@ class OrganizationPlanController extends Controller
      * (called from MidtransWebhookController once payment settles, or by an admin retrying it)
      * actually flips it.
      */
-    public function store(Request $request, Organization $organization, MidtransService $midtrans): RedirectResponse
+    public function store(Request $request, Organization $organization, MidtransService $midtrans, PlanChangeRequestService $planChangeRequestService): RedirectResponse
     {
         $this->authorize('manageBilling', $organization);
 
@@ -123,6 +124,20 @@ class OrganizationPlanController extends Controller
             $discountCode->increment('used_count');
         }
 
+        // A discount that fully covers the plan's price (plus admin fee, if any) leaves nothing
+        // to charge - Midtrans' Snap API rejects a zero gross_amount, so approve directly
+        // instead of ever creating a Snap transaction. Safe to auto-approve without payment
+        // confirmation because the amount owed is derived entirely server-side (DiscountCode::
+        // amountFor() clamps the discount to the plan's own price - see PlanChangeRequestService
+        // for how discount_amount reaches here), never from user input.
+        if ($planChangeRequest->gatewayAmount() === 0) {
+            $planChangeRequestService->approve($planChangeRequest, note: 'Disetujui otomatis - dibayar penuh dengan kode diskon.');
+
+            return redirect()
+                ->route('organizations.plan.edit', $organization)
+                ->with('success', 'Paket berhasil diaktifkan menggunakan kode diskon.');
+        }
+
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
 
         return redirect()->away($redirectUrl);
@@ -134,12 +149,22 @@ class OrganizationPlanController extends Controller
      * fresh Snap transaction under a new order_id each time, since Midtrans requires order_id
      * to be unique forever (a previous transaction may have already expired).
      */
-    public function pay(Organization $organization, PlanChangeRequest $planChangeRequest, MidtransService $midtrans): RedirectResponse
+    public function pay(Organization $organization, PlanChangeRequest $planChangeRequest, MidtransService $midtrans, PlanChangeRequestService $planChangeRequestService): RedirectResponse
     {
         $this->authorize('manageBilling', $organization);
 
         abort_unless($planChangeRequest->organization_id === $organization->id, 404);
         abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+
+        // See store() - a pre-existing request whose discount already covers the full amount
+        // (e.g. from before this guard existed) should never reach Midtrans either.
+        if ($planChangeRequest->gatewayAmount() === 0) {
+            $planChangeRequestService->approve($planChangeRequest, note: 'Disetujui otomatis - dibayar penuh dengan kode diskon.');
+
+            return redirect()
+                ->route('organizations.plan.edit', $organization)
+                ->with('success', 'Paket berhasil diaktifkan menggunakan kode diskon.');
+        }
 
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
 
