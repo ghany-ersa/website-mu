@@ -85,7 +85,7 @@
                             @if ($template->is_exclusive)
                                 <a href="{{ route('templates.preview', $template->slug) }}" class="w-full text-center bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition">Lihat Detail Template</a>
                             @else
-                                <a href="{{ route('templates.preview', $template->slug) }}" class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat Preview</a>
+                                <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat Preview</a>
                                 <a href="{{ route('templates.use', $template->slug) }}" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">Gunakan Template</a>
                             @endif
                         </div>

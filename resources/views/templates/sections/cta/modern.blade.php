@@ -13,7 +13,7 @@
             $content['cta_wa_number'] ?? ($organization->whatsapp ?? null),
             str_replace('{org_name}', $orgName, $content['cta_wa_message'] ?? config('page-builder.sections.cta.defaults.cta_wa_message', ''))
         ),
-        'scroll' => filled($content['cta_section'] ?? null) ? '#canvas-section-'.$content['cta_section'] : null,
+        'scroll' => \App\Services\SectionAnchor::href($content['cta_section'] ?? null, $organization === null),
         'url' => filled($content['cta_url'] ?? null) ? $content['cta_url'] : null,
         default => null,
     };

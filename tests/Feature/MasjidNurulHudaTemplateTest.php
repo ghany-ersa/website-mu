@@ -184,7 +184,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $response->assertOk();
         // Unchanged behaviour for the single-page templates that are still the common case.
-        $response->assertSee('#canvas-section-', false);
+        $response->assertSee('#section-', false);
     }
 
     public function test_jadwal_kajian_section_is_editable_and_manageable(): void

@@ -105,10 +105,15 @@
     <main>
         @foreach ($currentPage['sections'] as $section)
             @continue(config("page-builder.sections.{$section['key']}.hidden"))
-            @includeFirst([
-                \App\Services\SectionVariantResolver::resolve($section['key'], $section['variant'] ?? null),
-                'templates.sections._missing',
-            ], ['section' => $section, 'template' => $template])
+            {{-- Anchor wrapper mirrors organizations/pages/_render.blade.php so "scroll" CTAs
+                 resolve here too. Keyed by section key rather than row id: preview renders
+                 straight from the template's structure JSON, which has no persisted ids. --}}
+            <div id="{{ \App\Services\SectionAnchor::id($section['key']) }}" class="scroll-mt-24">
+                @includeFirst([
+                    \App\Services\SectionVariantResolver::resolve($section['key'], $section['variant'] ?? null),
+                    'templates.sections._missing',
+                ], ['section' => $section, 'template' => $template])
+            </div>
         @endforeach
     </main>
 

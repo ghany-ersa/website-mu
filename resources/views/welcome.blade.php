@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,12 +89,12 @@
 
             <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-gray-600">
                 <a href="#keunggulan" class="hover:text-primary transition">Keunggulan</a>
-                <a href="#template" class="hover:text-primary transition">Pilihan Template</a>
+                <a href="#pilihan-template" class="hover:text-primary transition">Pilihan Template</a>
                 <a href="#cara-kerja" class="hover:text-primary transition">Cara Kerja</a>
                 @if ($articles->isNotEmpty())
-                    <a href="#berita" class="hover:text-primary transition">Berita</a>
+                    <a href="#berita-artikel" class="hover:text-primary transition">Berita</a>
                 @endif
-                <a href="#harga" class="hover:text-primary transition">Harga Paket</a>
+                <a href="#harga-paket" class="hover:text-primary transition">Harga Paket</a>
             </div>
 
             <div class="hidden md:flex items-center gap-3">
@@ -118,12 +118,12 @@
                 class="md:hidden absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-float border border-gray-100 p-6 flex flex-col gap-4 text-sm font-semibold text-gray-600"
             >
                 <a href="#keunggulan" x-on:click="mobileOpen = false" class="hover:text-primary transition">Keunggulan</a>
-                <a href="#template" x-on:click="mobileOpen = false" class="hover:text-primary transition">Pilihan Template</a>
+                <a href="#pilihan-template" x-on:click="mobileOpen = false" class="hover:text-primary transition">Pilihan Template</a>
                 <a href="#cara-kerja" x-on:click="mobileOpen = false" class="hover:text-primary transition">Cara Kerja</a>
                 @if ($articles->isNotEmpty())
-                    <a href="#berita" x-on:click="mobileOpen = false" class="hover:text-primary transition">Berita</a>
+                    <a href="#berita-artikel" x-on:click="mobileOpen = false" class="hover:text-primary transition">Berita</a>
                 @endif
-                <a href="#harga" x-on:click="mobileOpen = false" class="hover:text-primary transition">Harga Paket</a>
+                <a href="#harga-paket" x-on:click="mobileOpen = false" class="hover:text-primary transition">Harga Paket</a>
                 <a href="{{ $ctaUrl }}" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-full text-center font-bold shadow-soft transition-all">
                     {{ $ctaLabel }}
                 </a>
@@ -157,7 +157,7 @@
                         <a href="{{ $ctaUrl }}" class="w-full sm:w-auto bg-primary hover:bg-secondary text-white px-8 py-4 rounded-full font-bold text-center shadow-float transition-all hover:scale-105">
                             {{ $heroCtaLabel }}
                         </a>
-                        <a href="#template" class="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-8 py-4 rounded-full font-bold text-center transition-all shadow-sm">
+                        <a href="#pilihan-template" class="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-8 py-4 rounded-full font-bold text-center transition-all shadow-sm">
                             Lihat Contoh Template
                         </a>
                     </div>
@@ -208,7 +208,7 @@
 
     <!-- Berita & Artikel (National-media-style news section) -->
     @if ($articles->isNotEmpty())
-        <section id="berita" class="py-20 container mx-auto px-4 max-w-6xl">
+        <section id="berita-artikel" class="scroll-mt-28 py-20 container mx-auto px-4 max-w-6xl">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
                     <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Kabar Terbaru</span>
@@ -263,7 +263,7 @@
     @endif
 
     <!-- Mengapa Penting (Why Digitize?) -->
-    <section id="keunggulan" class="py-20 container mx-auto px-4 max-w-6xl">
+    <section id="keunggulan" class="scroll-mt-28 py-20 container mx-auto px-4 max-w-6xl">
         <div class="text-center mb-16">
             <span class="text-secondary font-bold tracking-wider uppercase text-sm bg-green-50 px-4 py-1.5 rounded-full">Mengapa Harus website-mu.id?</span>
             <h2 class="text-3xl md:text-5xl font-extrabold text-primary mt-4">Tingkatkan Kepercayaan Umat Melalui Transparansi Digital</h2>
@@ -301,7 +301,7 @@
     </section>
 
     <!-- Template Showcase (Interactive Gallery) -->
-    <section id="template" class="py-20 bg-softBg rounded-[3rem] mx-2 md:mx-6 px-4 my-10">
+    <section id="pilihan-template" class="scroll-mt-28 py-20 bg-softBg rounded-[3rem] mx-2 md:mx-6 px-4 my-10">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
                 <div>
@@ -375,7 +375,7 @@
     </section>
 
     <!-- Cara Kerja (3 Easy Steps) -->
-    <section id="cara-kerja" class="py-20 container mx-auto px-4 max-w-6xl">
+    <section id="cara-kerja" class="scroll-mt-28 py-20 container mx-auto px-4 max-w-6xl">
         <div class="text-center mb-16">
             <span class="text-secondary font-bold tracking-wider uppercase text-sm bg-green-50 px-4 py-1.5 rounded-full">Langkah Mudah</span>
             <h2 class="text-3xl md:text-4xl font-extrabold text-primary mt-4">Hanya 3 Langkah Cepat</h2>
@@ -406,7 +406,7 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="harga" class="py-20 bg-softBg rounded-[3rem] mx-2 md:mx-6 px-4 my-10">
+    <section id="harga-paket" class="scroll-mt-28 py-20 bg-softBg rounded-[3rem] mx-2 md:mx-6 px-4 my-10">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Investasi Dakwah</span>
@@ -460,7 +460,7 @@
     </section>
 
     <!-- Form Konsultasi & Pemesanan -->
-    <section id="kontak" class="py-20 container mx-auto px-4 max-w-5xl">
+    <section id="kontak" class="scroll-mt-28 py-20 container mx-auto px-4 max-w-5xl">
         <div class="bg-primary text-white rounded-[3rem] p-8 md:p-14 shadow-float relative overflow-hidden">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
                 <div class="lg:col-span-6">

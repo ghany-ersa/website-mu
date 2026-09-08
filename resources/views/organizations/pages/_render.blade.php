@@ -9,7 +9,7 @@
 @endphp
 @foreach ($orderedSections as $section)
     @if ($section->is_visible && empty(config("page-builder.sections.{$section->key}.hidden")))
-        <div id="canvas-section-{{ $section->id }}">
+        <div id="{{ \App\Services\SectionAnchor::id($section->id) }}" class="scroll-mt-24">
             @includeFirst([
                 \App\Services\SectionVariantResolver::resolveFrom($sectionVariantRows, $section->key, $section->variant),
                 'templates.sections._missing',

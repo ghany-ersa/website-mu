@@ -20,7 +20,7 @@
     $anchorFor = function (array $keys) use ($pageSections) {
         $match = $pageSections->first(fn ($s) => in_array($s->key, $keys, true) && $s->is_visible);
 
-        return $match ? '#canvas-section-'.$match->id : null;
+        return $match ? '#'.\App\Services\SectionAnchor::id($match->id) : null;
     };
 
     $pages = $organization->pages ?? collect();

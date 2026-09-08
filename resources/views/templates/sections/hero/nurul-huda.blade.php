@@ -23,7 +23,7 @@
                 $content[$prefix.'_wa_number'] ?? ($organization->whatsapp ?? null),
                 str_replace('{org_name}', $orgName, $content[$prefix.'_wa_message'] ?? config("page-builder.sections.hero.defaults.{$prefix}_wa_message", ''))
             ),
-            'scroll' => filled($content[$prefix.'_section'] ?? null) ? '#canvas-section-'.$content[$prefix.'_section'] : null,
+            'scroll' => \App\Services\SectionAnchor::href($content[$prefix.'_section'] ?? null, $organization === null),
             'url' => filled($content[$prefix.'_url'] ?? null) ? $content[$prefix.'_url'] : null,
             default => null,
         };

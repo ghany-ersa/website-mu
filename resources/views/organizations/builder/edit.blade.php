@@ -1243,7 +1243,9 @@
                 const frame = document.getElementById('canvas-frame');
                 if (!frame) return;
 
-                const target = frame.contentDocument?.getElementById('canvas-section-' + id);
+                // Must match \App\Services\SectionAnchor::id() - the wrapper id emitted by
+                // organizations/pages/_render.blade.php inside the canvas iframe.
+                const target = frame.contentDocument?.getElementById('section-' + id);
 
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
