@@ -397,6 +397,27 @@
                     Live
                 </span>
             @endif
+
+            {{-- Template design mode: this organization is a sandbox standing in for a Template
+                 (see TemplateSandboxService), so the builder is editing template structure rather
+                 than a real tenant's site. Lives in the header (not a banner below it) because
+                 <body> is a fixed-height overflow-hidden flex column - an extra row there gets
+                 clipped out of view. --}}
+            @if ($organization->is_sandbox && $organization->template)
+                <span class="hidden md:inline-flex items-center gap-1.5 text-xs text-amber-300 pr-1"
+                      title="Perubahan di sini disimpan ke template {{ $organization->template->name }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    Mode Template
+                </span>
+                <form action="{{ route('admin.templates.design.update', $organization->template) }}" method="POST"
+                      class="shrink-0">
+                    @csrf
+                    <button type="submit"
+                            class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-bold transition whitespace-nowrap">
+                        Simpan ke Template
+                    </button>
+                </form>
+            @endif
         </div>
     </header>
 

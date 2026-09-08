@@ -58,6 +58,7 @@
                             @endif
                         </td>
                         <td class="px-5 py-4 text-right space-x-3">
+                            <a href="{{ route('admin.templates.design', $template) }}" class="text-secondary font-medium hover:underline">Edit Visual</a>
                             <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary font-medium hover:underline">Preview</a>
                             <a href="{{ route('admin.templates.edit', $template) }}" class="text-gray-600 font-medium hover:underline">Edit</a>
                             <form action="{{ route('admin.templates.destroy', $template) }}" method="POST" class="inline"

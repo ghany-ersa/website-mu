@@ -6,6 +6,8 @@
     <div class="flex items-center justify-between mb-8">
         <h1 class="text-2xl font-extrabold text-primary">Edit Template</h1>
         <div class="flex items-center gap-4 text-sm">
+            <a href="{{ route('admin.templates.design', $template) }}"
+               class="px-4 py-2 rounded-full bg-secondary text-white font-semibold">Edit Visual</a>
             <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary hover:underline">Preview &rarr;</a>
             <a href="{{ route('admin.templates.index') }}" class="text-gray-500 hover:underline">&larr; Kembali</a>
         </div>

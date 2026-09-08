@@ -25,6 +25,7 @@ class OrganizationController extends Controller
         $typeId = request('organization_type_id');
 
         $organizations = Organization::query()
+            ->excludingSandbox()
             ->with(['organizationType', 'members' => function ($query) {
                 $query->wherePivot('role', OrganizationRole::Owner->value);
             }])

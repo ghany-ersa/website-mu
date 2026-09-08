@@ -214,7 +214,8 @@ class OrganizationSiteController extends Controller
      */
     private function publishedOrganization(string $organization_slug): Organization
     {
-        return Organization::where('slug', $organization_slug)
+        return Organization::excludingSandbox()
+            ->where('slug', $organization_slug)
             ->where('status', OrganizationStatus::Published)
             ->firstOrFail();
     }
@@ -234,8 +235,8 @@ class OrganizationSiteController extends Controller
      * fresh reload rather than the cached relation).
      *
      * @param  array<int, string>  $relations  Additional relations beyond 'plan.limits', varying
-     *                                          per page type (e.g. 'pages.sections' for a builder
-     *                                          page, just 'pages' for a donation program detail).
+     *                                         per page type (e.g. 'pages.sections' for a builder
+     *                                         page, just 'pages' for a donation program detail).
      */
     private function loadForRender(Organization $organization, array $relations): void
     {

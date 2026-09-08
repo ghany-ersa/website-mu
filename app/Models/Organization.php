@@ -10,6 +10,7 @@ use App\Services\CmsSampleDataSeeder;
 use App\Services\PlanLimitService;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 #[Fillable([
     'organization_type_id',
     'template_id',
+    'is_sandbox',
     'plan_id',
     'plan_expires_at',
     'name',
@@ -56,6 +58,7 @@ class Organization extends Model
             'status' => OrganizationStatus::class,
             'published_at' => 'datetime',
             'plan_expires_at' => 'datetime',
+            'is_sandbox' => 'boolean',
         ];
     }
 
@@ -144,6 +147,19 @@ class Organization extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(Template::class);
+    }
+
+    /**
+     * Hides the throwaway organizations that back admin template editing (see
+     * TemplateSandboxService) from anything that lists real tenants - they belong to whichever
+     * admin opened the template designer and would otherwise show up in that admin's own
+     * dashboard and in the admin organization table as if they were customers.
+     *
+     * @param  Builder<Organization>  $query
+     */
+    public function scopeExcludingSandbox(Builder $query): void
+    {
+        $query->where('is_sandbox', false);
     }
 
     /**

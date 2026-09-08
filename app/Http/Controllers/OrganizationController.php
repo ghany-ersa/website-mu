@@ -20,7 +20,7 @@ class OrganizationController extends Controller
      */
     public function index(): View
     {
-        $organizations = Auth::user()->organizations()->with('organizationType')->get();
+        $organizations = Auth::user()->organizations()->excludingSandbox()->with('organizationType')->get();
 
         return view('organizations.index', ['organizations' => $organizations]);
     }

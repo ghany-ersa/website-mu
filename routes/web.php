@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\PlanChangeRequestController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\SectionVariantController;
 use App\Http\Controllers\Admin\SectionVariantPreviewController;
+use App\Http\Controllers\Admin\TemplateBuilderController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MediaController;
@@ -234,6 +235,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('templates', AdminTemplateController::class)->except(['show']);
+    Route::get('templates/{template}/design', [TemplateBuilderController::class, 'edit'])->name('templates.design');
+    Route::post('templates/{template}/design', [TemplateBuilderController::class, 'update'])->name('templates.design.update');
+    Route::post('templates/{template}/design/resync', [TemplateBuilderController::class, 'resync'])->name('templates.design.resync');
     Route::resource('articles', AdminArticleController::class)->except(['show']);
     Route::post('articles/images', [ArticleImageController::class, 'store'])->name('articles.images.store');
     Route::resource('plans', AdminPlanController::class)->except(['show']);

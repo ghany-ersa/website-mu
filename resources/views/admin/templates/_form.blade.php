@@ -47,16 +47,25 @@
                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
     </div>
 
-    <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1" for="structure">
-            Struktur Halaman (JSON)
-        </label>
-        <p class="text-xs text-gray-400 mb-2">
-            Format: <code>&#123;"pages": [&#123;"slug", "name", "sections": [&#123;"key", "variant", "content"&#125;]&#125;]&#125;</code>
-        </p>
-        <textarea name="structure" id="structure" rows="16"
-                  class="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('structure', isset($template) ? json_encode($template->structure, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : '') }}</textarea>
-    </div>
+    <details class="rounded-lg border border-gray-200" @if ($errors->has('structure')) open @endif>
+        <summary class="cursor-pointer px-4 py-3 text-sm font-semibold text-gray-700">
+            Struktur Halaman (JSON) — Lanjutan
+        </summary>
+        <div class="px-4 pb-4">
+            @isset($template)
+                <p class="text-xs text-gray-500 mb-2">
+                    Cara termudah menyusun struktur adalah lewat
+                    <a href="{{ route('admin.templates.design', $template) }}" class="text-secondary font-semibold hover:underline">Edit Visual</a>.
+                    Ubah JSON di sini hanya bila perlu penyesuaian manual.
+                </p>
+            @endisset
+            <p class="text-xs text-gray-400 mb-2">
+                Format: <code>&#123;"pages": [&#123;"slug", "name", "sections": [&#123;"key", "variant", "content"&#125;]&#125;]&#125;</code>
+            </p>
+            <textarea name="structure" id="structure" rows="16"
+                      class="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('structure', isset($template) ? json_encode($template->structure, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : '') }}</textarea>
+        </div>
+    </details>
 
     <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
         <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $template->is_active ?? true))
