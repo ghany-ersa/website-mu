@@ -227,7 +227,7 @@
                 }" @keydown.escape.window="open = false; closeModal()">
                 <button type="button" @click="open = !open"
                     class="flex items-center gap-1.5 min-w-0 px-2.5 py-1.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 transition">
-                    <span class="truncate max-w-[8rem] sm:max-w-[14rem]">{{ $currentPage->name }}</span>
+                    <span class="truncate max-w-[8rem] sm:max-w-[14rem]" title="{{ $currentPage->name }}">{{ $currentPage->name }}</span>
                     @if ($currentPage->is_home)
                         <span title="Beranda" class="hidden sm:flex items-center justify-center w-4 h-4 rounded-full bg-white/10 text-gray-300 shrink-0">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-2.5 h-2.5">
@@ -251,7 +251,7 @@
                             <li class="group flex items-center gap-1 px-2 py-0.5">
                                 <a href="{{ route('organizations.builder.page', [$organization, $p]) }}"
                                     class="flex-1 min-w-0 flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm truncate transition {{ $p->is($currentPage) ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
-                                    <span class="truncate">{{ $p->name }}</span>
+                                    <span class="truncate" data-tip="{{ $p->name }}">{{ $p->name }}</span>
                                     @if ($p->is_home)
                                         <span title="Beranda" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-100 text-gray-400 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-2.5 h-2.5">
@@ -477,7 +477,7 @@
                  Mobile: full-width panel shown only when activePanel === 'sections'.
                  lg+: fixed-width column, always visible. --}}
             <aside id="section-sidebar" :class="activePanel === 'sections' ? 'flex' : 'hidden'"
-                class="lg:flex w-full lg:w-80 bg-white lg:border-r border-gray-200/80 flex-col shrink-0">
+                class="lg:flex w-full lg:w-72 bg-white lg:border-r border-gray-200/80 flex-col shrink-0">
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
                         previewKey: null,
@@ -557,7 +557,7 @@
                             <ul class="flex-1 overflow-y-auto px-2.5 pb-2">
                                 <template x-for="(meta, key) in options" :key="key">
                                     <li>
-                                        <button type="button" @click="previewKey = key"
+                                        <button type="button" @click="previewKey = key" :data-tip="meta.label"
                                             class="w-full text-left px-3 py-2.5 rounded-lg text-sm truncate transition"
                                             :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50'"
                                             x-text="meta.label"></button>
@@ -623,9 +623,11 @@
                                 </svg>
                             </span>
 
-                            <button type="button" class="flex-1 min-w-0 text-left text-sm font-semibold truncate"
+                            @php $sectionLabel = $sectionRegistry[$section->key]['label'] ?? $section->key; @endphp
+                            <button type="button" data-tip="{{ $sectionLabel }}"
+                                class="flex-1 min-w-0 text-left text-sm font-semibold truncate"
                                 :class="editingSectionId === {{ $section->id }} ? 'text-primary' : 'text-gray-700'">
-                                {{ $sectionRegistry[$section->key]['label'] ?? $section->key }}
+                                {{ $sectionLabel }}
                             </button>
 
                             <svg data-hidden-icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -771,7 +773,8 @@
                             <div class="min-w-0">
                                 <p class="text-[11px] font-bold uppercase tracking-wider text-primary/70 mb-1">Edit
                                     Section</p>
-                                <h2 class="font-bold text-gray-800 leading-tight truncate">
+                                <h2 class="font-bold text-gray-800 leading-tight truncate"
+                                    title="{{ $sectionRegistry[$section->key]['label'] ?? $section->key }}">
                                     {{ $sectionRegistry[$section->key]['label'] ?? $section->key }}</h2>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">

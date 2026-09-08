@@ -17,7 +17,7 @@
         ];
     @endphp
 
-    <aside class="bg-white border-b border-gray-200 lg:w-80 lg:shrink-0 lg:border-b-0 lg:border-r lg:min-h-screen lg:flex lg:flex-col">
+    <aside class="bg-white border-b border-gray-200 lg:w-72 lg:shrink-0 lg:border-b-0 lg:border-r lg:min-h-screen lg:flex lg:flex-col">
         <div class="px-4 sm:px-6 py-4 lg:py-6">
             <a href="{{ route('organizations.index') }}" class="flex items-center">
                 <img src="{{ asset('logo.png') }}" alt="Website-mu" class="h-8 w-auto">

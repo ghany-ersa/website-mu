@@ -54,3 +54,35 @@
 button:not(:disabled) {
     cursor: pointer;
 }
+
+/*
+ * The single tooltip bubble shared by every [data-tip] element, positioned by
+ * resources/js/tooltip.js. It's appended to <body> rather than drawn as an ::after on the
+ * trigger because the lists that need it scroll: `overflow-y: auto` clips descendants on both
+ * axes, and no z-index escapes that.
+ */
+.app-tooltip {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    max-width: 18rem;
+    width: max-content;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.5rem;
+    background: rgb(17 24 39);
+    box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.25);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.app-tooltip.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
