@@ -31,6 +31,7 @@ class OrganizationTypeSeeder extends Seeder
                 'AUM Pendidikan' => 'AUM Pendidikan',
                 'AUM Sosial' => 'AUM Sosial',
                 'Masjid/Mushola' => 'Masjid/Mushola',
+                'Media/Portal Berita' => 'Media/Portal Berita',
             ]],
         ];
 

@@ -272,6 +272,7 @@ if ($tenantDomain = config('tenancy.domain')) {
     // run against a SELECT-only DB connection - see UseReadOnlyConnection's docblock.
     Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware('web')->middleware('tenant')->group(function () {
         Route::get('/', [OrganizationSiteController::class, 'show'])->name('tenant.home');
+        Route::get('/berita-lebih-banyak', [OrganizationSiteController::class, 'loadMoreBerita'])->name('tenant.posts.load-more');
         Route::get('/berita/{post_slug}', [OrganizationSiteController::class, 'post'])->name('tenant.posts.show');
         Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
         Route::get('/agenda/{agenda}', [OrganizationSiteController::class, 'agenda'])->name('tenant.agendas.show');

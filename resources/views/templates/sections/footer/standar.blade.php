@@ -29,8 +29,10 @@
     $address = $organization->address ?? null;
     $instagramUrl = $organization->instagram_url ?? null;
     $facebookUrl = $organization->facebook_url ?? null;
+    $tiktokUrl = $organization->tiktok_url ?? null;
+    $youtubeUrl = $organization->youtube_url ?? null;
     $whatsappHref = \App\Services\WhatsAppNumber::href($whatsapp);
-    $hasSocial = $instagramUrl || $facebookUrl;
+    $hasSocial = $instagramUrl || $facebookUrl || $tiktokUrl || $youtubeUrl;
     $hideBranding = $organization->plan?->hide_branding ?? false;
 
     // Page links only make sense once there's more than one page to move between; a
@@ -77,6 +79,22 @@
                            class="w-9 h-9 rounded-brand bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
                                 <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.77l-.44 2.91h-2.33V22C18.34 21.24 22 17.08 22 12.06Z" />
+                            </svg>
+                        </a>
+                    @endif
+                    @if ($tiktokUrl)
+                        <a href="{{ $tiktokUrl }}" target="_blank" rel="noopener" aria-label="TikTok {{ $orgName }}"
+                           class="w-9 h-9 rounded-brand bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                                <path d="M16.6 5.82c-.83-.72-1.36-1.75-1.44-2.9V2.6h-3.16v13.7c0 1.5-1.22 2.72-2.72 2.72a2.72 2.72 0 0 1-1.36-5.08c.24-.14.5-.24.77-.31V10.4a5.94 5.94 0 0 0-.77-.05A5.9 5.9 0 1 0 13.86 16V9.03a7.6 7.6 0 0 0 4.44 1.42V7.3a4.85 4.85 0 0 1-1.7-1.48Z" />
+                            </svg>
+                        </a>
+                    @endif
+                    @if ($youtubeUrl)
+                        <a href="{{ $youtubeUrl }}" target="_blank" rel="noopener" aria-label="YouTube {{ $orgName }}"
+                           class="w-9 h-9 rounded-brand bg-white/5 flex items-center justify-center hover:bg-secondary hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                                <path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.88.55 9.38.55 9.38.55s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81ZM9.6 15.6V8.4l6.27 3.6-6.27 3.6Z" />
                             </svg>
                         </a>
                     @endif

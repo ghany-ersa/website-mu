@@ -174,6 +174,22 @@
                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
                         @error('facebook_url') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
+
+                    <div>
+                        <label for="tiktok_url" class="block text-sm font-semibold text-gray-700 mb-1">TikTok</label>
+                        <input type="url" name="tiktok_url" id="tiktok_url" value="{{ old('tiktok_url', $organization->tiktok_url) }}"
+                               placeholder="https://tiktok.com/@organisasi"
+                               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
+                        @error('tiktok_url') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label for="youtube_url" class="block text-sm font-semibold text-gray-700 mb-1">YouTube</label>
+                        <input type="url" name="youtube_url" id="youtube_url" value="{{ old('youtube_url', $organization->youtube_url) }}"
+                               placeholder="https://youtube.com/@organisasi"
+                               class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition">
+                        @error('youtube_url') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
 

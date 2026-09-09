@@ -10,7 +10,11 @@ use App\Models\DonationProgram;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use App\Services\TenantPageCache;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class OrganizationSiteController extends Controller
@@ -92,6 +96,63 @@ class OrganizationSiteController extends Controller
         });
 
         return response($html);
+    }
+
+    /**
+     * "Muat Lebih Banyak" batch endpoint for daftar-berita's ringkas/standar variants (see the
+     * Alpine `loadMore()` component inline in those partials): fetches exactly the next `limit`
+     * published posts after `offset`, in the same order and shape the section's own initial
+     * query used, and renders them through the same card partial - never the full list, so a
+     * long-running news portal's list never re-fetches everything it already fetched on an
+     * earlier click. Deliberately uncached (unlike show()/showPage()): TenantPageCache stores
+     * one fixed render per page, with no room for per-offset variants, and this response is
+     * cheap enough (one bounded SELECT) that caching it would add complexity for no real gain.
+     *
+     * `hasMore` comes from fetching one extra row (`take($limit + 1)`) instead of a separate
+     * `count()` query over every matching post - that count would only get more expensive as
+     * the portal accumulates posts, to answer a question this single indexed, LIMITed SELECT
+     * already has the answer to (see ringkas/standar.blade.php's matching comment for their own
+     * initial-render use of the same trick).
+     */
+    public function loadMoreBerita(Request $request, string $organization_slug): JsonResponse
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        $variant = $request->query('variant');
+        abort_unless(in_array($variant, ['ringkas', 'standar'], true), 404);
+
+        $categoryFilter = $request->query('category_filter') ?: null;
+        $offset = max(0, (int) $request->query('offset', 0));
+        // Clamped the same way a builder-authored `limit` would be malformed into 0 elsewhere
+        // on this section - see daftar-berita/ringkas|standar.blade.php's own `limit` handling.
+        $limit = max(1, min(50, (int) $request->query('limit', 6)));
+
+        $items = $organization->posts()->published()
+            ->when($categoryFilter, fn ($q) => $q->where('category', $categoryFilter))
+            ->skip($offset)->take($limit + 1)->get()->map(fn ($post) => [
+                'title' => $post->title,
+                'image' => $post->image,
+                'category' => $post->category,
+                'date' => $post->published_at?->translatedFormat('d M Y'),
+                'excerpt' => Str::limit(strip_tags($post->body), 140),
+                'url' => Route::has('tenant.posts.show')
+                    ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
+                    : '#',
+            ]);
+
+        $hasMore = $items->count() > $limit;
+        $items = $hasMore ? $items->take($limit) : $items;
+
+        $html = view("templates.sections.daftar-berita._items-{$variant}", [
+            'items' => $items,
+            'startIndex' => $offset,
+        ])->render();
+
+        return response()->json([
+            'html' => $html,
+            'nextOffset' => $offset + $items->count(),
+            'hasMore' => $hasMore,
+        ]);
     }
 
     /**

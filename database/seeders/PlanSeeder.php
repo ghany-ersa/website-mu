@@ -76,7 +76,7 @@ class PlanSeeder extends Seeder
             ['key' => 'posts', 'max_count' => 20],
             ['key' => 'agendas', 'max_count' => 10],
             ['key' => 'announcements', 'max_count' => 9],
-            ['key' => 'officers', 'max_count' => 12],
+            ['key' => 'officers', 'max_count' => 20],
             ['key' => 'programs', 'max_count' => 9],
             ['key' => 'gallery_photos', 'max_count' => 40],
             ['key' => 'facilities', 'max_count' => 15],

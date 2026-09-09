@@ -27,11 +27,8 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             OrganizationTypeSeeder::class,
             SectionVariantSeeder::class,
-            // TemplateSeeder and MasjidNurulHudaTemplateSeeder are temporarily out of the
-            // seeding chain while template/org sample data is rebuilt from scratch, starting
-            // with AUM Kesehatan (KlinikAisyiyahAmbuluTemplateSeeder). Both files still exist
-            // in database/seeders/ and can be added back once their own content is redone.
             KlinikAisyiyahAmbuluTemplateSeeder::class,
+            SuaraMuhammadiyahAmbuluTemplateSeeder::class,
             // OrganizationSeeder::class,
             ArticleSeeder::class,
         ]);

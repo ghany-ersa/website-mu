@@ -109,6 +109,39 @@ class OrganizationBuilderTest extends TestCase
         $this->assertSame(1, $page->sections()->count());
     }
 
+    /**
+     * Regression test: 'items' has no form control in edit.blade.php for a CMS-backed section
+     * (daftar-berita, struktur-pengurus, etc. - it only renders a "Kelola ... ->" link, never
+     * an <input name="content[items]">), so update() used to write null for it on every save,
+     * silently wiping the section's fallback sample content (which the public tenant page
+     * doesn't need - it queries live CMS records - but a TEMPLATE preview with no organization
+     * yet falls back to exactly that content['items'] array). Saving any OTHER field (here,
+     * 'title') must leave 'items' untouched.
+     */
+    public function test_updating_a_section_does_not_wipe_fields_the_edit_form_has_no_input_for(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $section = $page->sections()->create([
+            'key' => 'daftar-berita',
+            'content' => ['title' => 'Berita Terbaru', 'items' => [['title' => 'Contoh Berita']]],
+            'order' => 0,
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.sections.update', [$organization, $section]), [
+                'content' => ['title' => 'Kabar Terkini'],
+                'is_visible' => '1',
+            ])
+            ->assertRedirect();
+
+        $fresh = $section->fresh();
+        $this->assertSame('Kabar Terkini', $fresh->content['title']);
+        $this->assertSame([['title' => 'Contoh Berita']], $fresh->content['items']);
+    }
+
     public function test_updating_a_section_via_ajax_returns_rendered_canvas_instead_of_redirecting(): void
     {
         $user = User::factory()->create();

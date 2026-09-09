@@ -9,15 +9,16 @@ use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Database\Seeder;
 
 /**
  * Seeds one dummy organization per template (see TemplateSeeder) so staging has representative
  * data to test against without anyone manually clicking through "create organization" a dozen
- * times. Temporarily reduced to just the Klinik Pratama Aisyiyah Ambulu showcase while
- * template/org sample data is rebuilt from scratch, organization type by organization type -
- * see DatabaseSeeder and TemplateSeeder's doc comments. Reintroduce more entries here as more
- * templates are redone.
+ * times. Temporarily reduced to the Klinik Pratama Aisyiyah Ambulu and Suara Muhammadiyah
+ * Ambulu showcases while template/org sample data is rebuilt from scratch, organization type
+ * by organization type - see DatabaseSeeder and TemplateSeeder's doc comments. Reintroduce
+ * more entries here as more templates are redone.
  *
  * Every organization is owned by the same user (admin@website-mu.id) so all dummy orgs are
  * reachable from one login without switching accounts.
@@ -45,6 +46,12 @@ class OrganizationSeeder extends Seeder
             'address' => KlinikAisyiyahAmbuluSamples::ADDRESS,
             'instagram_url' => KlinikAisyiyahAmbuluSamples::INSTAGRAM,
         ],
+        'suara-muhammadiyah' => [
+            'whatsapp' => SuaraMuhammadiyahAmbuluSamples::WHATSAPP,
+            'phone' => SuaraMuhammadiyahAmbuluSamples::WHATSAPP,
+            'instagram_url' => SuaraMuhammadiyahAmbuluSamples::INSTAGRAM,
+            'tiktok_url' => SuaraMuhammadiyahAmbuluSamples::TIKTOK,
+        ],
     ];
 
     public function run(): void
@@ -53,6 +60,7 @@ class OrganizationSeeder extends Seeder
 
         $organizations = [
             ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
+            ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'suara-muhammadiyah'],
         ];
 
         foreach ($organizations as $spec) {

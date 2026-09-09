@@ -16,6 +16,7 @@ use App\Models\OrganizationNetwork;
 use App\Models\Post;
 use App\Models\Program;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
 
 /**
@@ -67,6 +68,14 @@ class CmsSampleDataSeeder
     ];
 
     /**
+     * The Suara Muhammadiyah Ambulu news-portal showcase (see
+     * SuaraMuhammadiyahAmbuluTemplateSeeder and App\Services\Samples\
+     * SuaraMuhammadiyahAmbuluSamples). Organizations on this template get the outlet's real
+     * news stories and 16-member editorial team instead of generic placeholders.
+     */
+    private const SUARA_MUHAMMADIYAH_TEMPLATE_SLUG = SuaraMuhammadiyahAmbuluSamples::TEMPLATE_SLUG;
+
+    /**
      * Sample imagery for this template is hotlinked from the live Masjid Nurul Huda Ambulu
      * site's own S3 bucket (each URL checked to return 200), so a fresh organization previews
      * the actual mosque instead of stand-in stock photography. Every section guards on an
@@ -105,9 +114,16 @@ class CmsSampleDataSeeder
         $slug = $organization->template?->slug;
         $isNurulHuda = $slug === self::NURUL_HUDA_TEMPLATE_SLUG;
         $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
+        $isSuaraMuhammadiyah = $slug === self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUG;
 
         if (in_array('daftar-berita', $keys, true)) {
-            self::seedPosts($organization, $limits, $isKlinik ? KlinikAisyiyahAmbuluSamples::beritaItems() : null);
+            $postSamples = match (true) {
+                $isKlinik => KlinikAisyiyahAmbuluSamples::beritaItems(),
+                $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::beritaItems(),
+                default => null,
+            };
+
+            self::seedPosts($organization, $limits, $postSamples);
         }
 
         if (in_array('pengumuman', $keys, true)) {
@@ -131,7 +147,13 @@ class CmsSampleDataSeeder
         }
 
         if (in_array('struktur-pengurus', $keys, true)) {
-            self::seedOfficers($organization, $limits, $isNurulHuda ? self::nurulHudaOfficerSamples() : null);
+            $officerSamples = match (true) {
+                $isNurulHuda => self::nurulHudaOfficerSamples(),
+                $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::timRedaksi(),
+                default => null,
+            };
+
+            self::seedOfficers($organization, $limits, $officerSamples);
         }
 
         if (in_array('jaringan-aum-ortom', $keys, true)) {
