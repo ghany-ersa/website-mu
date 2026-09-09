@@ -16,6 +16,7 @@ use App\Models\OrganizationNetwork;
 use App\Models\Post;
 use App\Models\Program;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\PcmAmbuluSamples;
 use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
 
@@ -76,6 +77,16 @@ class CmsSampleDataSeeder
     private const SUARA_MUHAMMADIYAH_TEMPLATE_SLUG = SuaraMuhammadiyahAmbuluSamples::TEMPLATE_SLUG;
 
     /**
+     * The PCM Ambulu cabang-profile showcase (see PcmAmbuluTemplateSeeder and
+     * App\Services\Samples\PcmAmbuluSamples). Unlike the two above, this template is NOT
+     * exclusive, so these samples are the ones a Starter/Organization cabang actually lands on
+     * - and the ones most likely to be truncated by a tight plan limit, which is why the sample
+     * lists are ordered so their first few entries stand on their own (see
+     * PcmAmbuluSamples::pimpinanHarian()'s note on officer limits).
+     */
+    private const PCM_TEMPLATE_SLUG = PcmAmbuluSamples::TEMPLATE_SLUG;
+
+    /**
      * Sample imagery for this template is hotlinked from the live Masjid Nurul Huda Ambulu
      * site's own S3 bucket (each URL checked to return 200), so a fresh organization previews
      * the actual mosque instead of stand-in stock photography. Every section guards on an
@@ -115,11 +126,13 @@ class CmsSampleDataSeeder
         $isNurulHuda = $slug === self::NURUL_HUDA_TEMPLATE_SLUG;
         $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
         $isSuaraMuhammadiyah = $slug === self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUG;
+        $isPcm = $slug === self::PCM_TEMPLATE_SLUG;
 
         if (in_array('daftar-berita', $keys, true)) {
             $postSamples = match (true) {
                 $isKlinik => KlinikAisyiyahAmbuluSamples::beritaItems(),
                 $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::beritaItems(),
+                $isPcm => PcmAmbuluSamples::beritaItems(),
                 default => null,
             };
 
@@ -131,7 +144,11 @@ class CmsSampleDataSeeder
         }
 
         if (in_array('agenda', $keys, true)) {
-            $agendaSamples = $isNurulHuda ? self::nurulHudaKajianSamples() : null;
+            $agendaSamples = match (true) {
+                $isNurulHuda => self::nurulHudaKajianSamples(),
+                $isPcm => PcmAmbuluSamples::agendaItems(),
+                default => null,
+            };
 
             self::seedAgendas($organization, $limits, $agendaSamples);
         }
@@ -150,6 +167,7 @@ class CmsSampleDataSeeder
             $officerSamples = match (true) {
                 $isNurulHuda => self::nurulHudaOfficerSamples(),
                 $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::timRedaksi(),
+                $isPcm => PcmAmbuluSamples::pimpinanHarian(),
                 default => null,
             };
 
@@ -157,7 +175,7 @@ class CmsSampleDataSeeder
         }
 
         if (in_array('jaringan-aum-ortom', $keys, true)) {
-            self::seedNetworks($organization);
+            self::seedNetworks($organization, $isPcm ? PcmAmbuluSamples::jaringanItems() : null);
         }
 
         // Both section keys are handled in ONE call: 'program' and 'layanan' share a single
@@ -169,7 +187,11 @@ class CmsSampleDataSeeder
         $requestedPrograms = [];
 
         if (in_array('program-unggulan', $keys, true)) {
-            $requestedPrograms['program'] = $isKlinik ? KlinikAisyiyahAmbuluSamples::programItems() : null;
+            $requestedPrograms['program'] = match (true) {
+                $isKlinik => KlinikAisyiyahAmbuluSamples::programItems(),
+                $isPcm => PcmAmbuluSamples::programItems(),
+                default => null,
+            };
         }
 
         if (in_array('layanan', $keys, true)) {
@@ -408,24 +430,35 @@ class CmsSampleDataSeeder
     /**
      * Not plan-limited: 'jaringan-aum-ortom' isn't a PlanLimitService resource key (it has no
      * per-plan quota, unlike the CMS resources above), so there's no limit to cap this
-     * against.
+     * against - $customSamples is inserted in full.
+     *
+     * @param  array<int, array{name: string, type?: string|null}>|null  $customSamples
      */
-    private static function seedNetworks(Organization $organization): void
+    private static function seedNetworks(Organization $organization, ?array $customSamples = null): void
     {
         if ($organization->networks()->exists()) {
             return;
         }
 
+        $samples = $customSamples ?? array_map(
+            fn (int $index) => ['name' => '[Nama AUM/Ortom '.$index.']', 'type' => null],
+            range(1, 3),
+        );
+
+        if ($samples === []) {
+            return;
+        }
+
         $now = now();
 
-        OrganizationNetwork::insert(array_map(fn ($index) => [
+        OrganizationNetwork::insert(array_map(fn ($sample, $index) => [
             'organization_id' => $organization->id,
-            'name' => '[Nama AUM/Ortom '.$index.']',
-            'type' => null,
+            'name' => $sample['name'],
+            'type' => $sample['type'] ?? null,
             'order' => $index,
             'created_at' => $now,
             'updated_at' => $now,
-        ], range(1, 3)));
+        ], $samples, array_keys($samples)));
     }
 
     /**

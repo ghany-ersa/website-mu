@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\PcmAmbuluSamples;
 use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Database\Seeder;
 
@@ -40,6 +41,11 @@ class OrganizationSeeder extends Seeder
      * @var array<string, array<string, string>>
      */
     private const CONTACTS = [
+        'pcm-ambulu' => [
+            'whatsapp' => PcmAmbuluSamples::WHATSAPP,
+            'phone' => PcmAmbuluSamples::WHATSAPP,
+            'address' => PcmAmbuluSamples::ADDRESS,
+        ],
         'klinik' => [
             'whatsapp' => KlinikAisyiyahAmbuluSamples::WHATSAPP,
             'phone' => KlinikAisyiyahAmbuluSamples::WHATSAPP,
@@ -59,6 +65,10 @@ class OrganizationSeeder extends Seeder
         $plans = Plan::whereIn('key', ['starter', 'organization', 'professional'])->get()->keyBy('key');
 
         $organizations = [
+            // On the `organization` plan, not `professional` like the two exclusive showcases
+            // below - this template is non-exclusive and the whole point of the showcase is to
+            // demo what a cabang on a standard paid plan actually receives, limits included.
+            ['template' => PcmAmbuluTemplateSeeder::SLUG, 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true, 'contact' => 'pcm-ambulu'],
             ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
             ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'suara-muhammadiyah'],
         ];

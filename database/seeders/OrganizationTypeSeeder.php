@@ -10,14 +10,17 @@ class OrganizationTypeSeeder extends Seeder
 {
     /**
      * Seed the organization type list - currently only types that already have a matching
-     * seeded Template (see KlinikAisyiyahAmbuluTemplateSeeder, SuaraMuhammadiyahAmbuluTemplateSeeder),
-     * while template/org sample data is rebuilt from scratch. Add a type back here once its
-     * template exists, so organizations can't be created against a type with nothing to seed
-     * their pages from.
+     * seeded Template (see PcmAmbuluTemplateSeeder, KlinikAisyiyahAmbuluTemplateSeeder,
+     * SuaraMuhammadiyahAmbuluTemplateSeeder), while template/org sample data is rebuilt from
+     * scratch. Add a type back here once its template exists, so organizations can't be created
+     * against a type with nothing to seed their pages from.
      */
     public function run(): void
     {
         $types = [
+            [OrganizationCategory::Persyarikatan, [
+                'Pimpinan Cabang Muhammadiyah' => 'Pimpinan Cabang Muhammadiyah',
+            ]],
             [OrganizationCategory::Aum, [
                 'AUM Kesehatan' => 'AUM Kesehatan',
                 'Media/Portal Berita' => 'Media/Portal Berita',

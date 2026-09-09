@@ -32,7 +32,7 @@
                 {{ $content['title'] ?? 'Struktur Pengurus' }}
             </h2>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xs:grid-cols-2 gap-x-8 gap-y-12">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-8 gap-y-12">
             @foreach ($items as $item)
                 <div class="reveal text-center" style="transition-delay: {{ $loop->index * 80 }}ms">
                     <button type="button"

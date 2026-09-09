@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             OrganizationTypeSeeder::class,
             SectionVariantSeeder::class,
+            PcmAmbuluTemplateSeeder::class,
             KlinikAisyiyahAmbuluTemplateSeeder::class,
             SuaraMuhammadiyahAmbuluTemplateSeeder::class,
             // OrganizationSeeder::class,
