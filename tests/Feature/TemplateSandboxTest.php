@@ -147,6 +147,36 @@ class TemplateSandboxTest extends TestCase
         $this->assertSame('Gabung Sekarang', $cta['content']['title']);
     }
 
+    /**
+     * Regression test: TemplateSandboxService::sandboxFor() never sets a plan_id, so the
+     * sandbox has none - Organization::canUseExclusiveTemplates() used to read that as "no
+     * entitlement" and block picking an exclusive section variant (hero/modern here) while an
+     * admin was designing the template, even though the template itself may well be intended
+     * as exclusive. is_sandbox now always qualifies (see that method's doc comment).
+     */
+    public function test_admin_can_pick_an_exclusive_variant_while_designing_a_template(): void
+    {
+        $admin = $this->admin();
+        $template = $this->richTemplate();
+        $sandbox = app(TemplateSandboxService::class)->sandboxFor($template, $admin);
+
+        $this->assertNull($sandbox->plan_id);
+        $this->assertTrue($sandbox->canUseExclusiveTemplates());
+
+        $heroSection = $sandbox->pages()->where('is_home', true)->first()
+            ->sections()->where('key', 'hero')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->patch(route('organizations.sections.update', [$sandbox, $heroSection]), [
+                'content' => ['headline' => 'Judul Eksklusif'],
+                'variant' => 'modern',
+                'is_visible' => '1',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('modern', $heroSection->fresh()->variant);
+    }
+
     public function test_non_admin_cannot_open_the_template_designer(): void
     {
         $template = $this->richTemplate();

@@ -41,6 +41,8 @@ use Illuminate\Support\Facades\DB;
     'address',
     'instagram_url',
     'facebook_url',
+    'tiktok_url',
+    'youtube_url',
 ])]
 class Organization extends Model
 {
@@ -361,7 +363,18 @@ class Organization extends Model
      * Whether this organization's plan grants access to templates marked
      * Template::is_exclusive - used to gate the "Ganti Template" picker
      * (see OrganizationTemplateController) so a Starter/Organization-plan org can't
-     * switch onto a Professional-only design.
+     * switch onto a Professional-only design. Also gates picking an exclusive section
+     * *variant* for a section it already has (OrganizationSectionController::update()) and
+     * adding an exclusive-flagged *section* in the first place (::store()) - see
+     * config/page-builder.php's own `exclusive` doc comment for how those two gates differ.
+     *
+     * A sandbox organization (TemplateSandboxService - the throwaway org behind the admin's
+     * "Edit Visual" template designer) always qualifies, regardless of plan_id: it has none
+     * (TemplateSandboxService::sandboxFor() never sets one), so without this an admin
+     * designing ANY template - not just an already-exclusive one - couldn't pick an exclusive
+     * hero/daftar-berita/etc. variant while building it, even though the template being
+     * designed may itself end up is_exclusive. The plan system exists to gate paying tenants,
+     * not the platform's own template design tool.
      *
      * Reloads the plan relation (plan()->first(), not the cached $this->plan) for the same
      * reason PlanLimitService::effectivePlan() does: belongsTo's cache isn't invalidated by
@@ -370,6 +383,10 @@ class Organization extends Model
      */
     public function canUseExclusiveTemplates(): bool
     {
+        if ($this->is_sandbox) {
+            return true;
+        }
+
         return (bool) $this->plan()->first()?->has_exclusive_templates;
     }
 
