@@ -86,20 +86,26 @@ class SectionVariantSeeder extends Seeder
             'lokasi-peta' => [
                 'standar' => ['view' => 'templates.sections.lokasi-peta.standar', 'exclusive' => false, 'default' => true],
             ],
+            // These five arrived with the Masjid Nurul Huda exclusive template and have never had
+            // a non-exclusive variant, so their sole variant is named for its provenance rather
+            // than called 'standar' - `standar` elsewhere in this registry means "the variant
+            // any plan may use", which was never true of these. The section itself is gated too
+            // (config/page-builder.php's `exclusive` flag); the variant flag alone only stopped
+            // an exclusive variant being *picked*, not the section being added.
             'fasilitas-masjid' => [
-                'standar' => ['view' => 'templates.sections.fasilitas-masjid.standar', 'exclusive' => true, 'default' => true],
+                'nurul-huda' => ['view' => 'templates.sections.fasilitas-masjid.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
             'donasi-progress' => [
-                'standar' => ['view' => 'templates.sections.donasi-progress.standar', 'exclusive' => true, 'default' => true],
+                'nurul-huda' => ['view' => 'templates.sections.donasi-progress.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
             'laporan-keuangan' => [
-                'standar' => ['view' => 'templates.sections.laporan-keuangan.standar', 'exclusive' => true, 'default' => true],
+                'nurul-huda' => ['view' => 'templates.sections.laporan-keuangan.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
             'kalkulator-zakat' => [
-                'standar' => ['view' => 'templates.sections.kalkulator-zakat.standar', 'exclusive' => true, 'default' => true],
+                'nurul-huda' => ['view' => 'templates.sections.kalkulator-zakat.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
             'sewa-aula' => [
-                'standar' => ['view' => 'templates.sections.sewa-aula.standar', 'exclusive' => true, 'default' => true],
+                'nurul-huda' => ['view' => 'templates.sections.sewa-aula.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
             'cta' => [
                 'standar' => ['view' => 'templates.sections.cta.standar', 'exclusive' => false, 'default' => true],

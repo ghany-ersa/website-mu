@@ -27,6 +27,16 @@
 // own editor still shows and lets existing instances be edited/removed, so in-progress work isn't
 // blocked - only end-user-facing surfaces are gated.
 //
+// `exclusive` (bool, default false), when true, marks a section only an organization on a plan
+// with `has_exclusive_templates` may add - Organization::canUseExclusiveTemplates(). The "Tambah
+// Section" picker still lists it, greyed out and badged, so the capability is discoverable rather
+// than invisible; OrganizationSectionController::store() is what actually enforces it. This is a
+// *section*-level gate and is deliberately separate from the variant-level `is_exclusive` column
+// (see below): that one only governs which layout may be picked for a section the organization
+// already has, so on its own it let any plan add these sections and simply render their sole
+// variant. The premium mosque sections (fasilitas-masjid, donasi-progress, laporan-keuangan,
+// kalkulator-zakat, sewa-aula) need both flags.
+//
 // `cms`, when present, is the single source of truth for a section whose `items` field is backed
 // by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
 // inline in the builder) - both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
@@ -191,24 +201,28 @@ return [
         ],
         'fasilitas-masjid' => [
             'label' => 'Fasilitas Masjid',
+            'exclusive' => true,
             'fields' => ['title', 'items', 'limit'],
             'defaults' => ['title' => 'Fasilitas Masjid'],
             'cms' => ['route' => 'organizations.facilities.index', 'label' => 'Fasilitas'],
         ],
         'donasi-progress' => [
             'label' => 'Donasi & Progress',
+            'exclusive' => true,
             'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Program Donasi Aktif'],
             'cms' => ['route' => 'organizations.donations.index', 'label' => 'Program Donasi'],
         ],
         'laporan-keuangan' => [
             'label' => 'Laporan Keuangan',
+            'exclusive' => true,
             'fields' => ['title'],
             'defaults' => ['title' => 'Laporan Keuangan'],
             'cms' => ['route' => 'organizations.financial-reports.index', 'label' => 'Laporan Keuangan'],
         ],
         'kalkulator-zakat' => [
             'label' => 'Kalkulator Zakat',
+            'exclusive' => true,
             'fields' => ['title', 'gold_price_per_gram', 'nisab_grams', 'cta_label', 'wa_number', 'wa_message'],
             'defaults' => [
                 'title' => 'Kalkulator Zakat',
@@ -220,6 +234,7 @@ return [
         ],
         'sewa-aula' => [
             'label' => 'Sewa Aula/Venue',
+            'exclusive' => true,
             'fields' => [
                 'hero_title', 'hero_subtitle', 'availability_badge',
                 'wa_number', 'facilities', 'image',

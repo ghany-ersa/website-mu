@@ -481,12 +481,24 @@
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
                         previewKey: null,
-                        options: @js(collect($sectionRegistry)->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))->map(fn ($meta, $key) => ['label' => $meta['label']])),
+                        {{-- Plan-gated sections stay in the list but are marked `locked` so they
+                             render greyed out with a badge rather than vanishing - an owner on a
+                             lower plan can still see (and preview) what upgrading would unlock.
+                             OrganizationSectionController::store() is the real enforcement. --}}
+                        options: @js(collect($sectionRegistry)
+                            ->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))
+                            ->map(fn ($meta, $key) => [
+                                'label' => $meta['label'],
+                                'locked' => ! empty($meta['exclusive']) && ! $organization->canUseExclusiveTemplates(),
+                            ])),
                         openPicker() {
                             this.previewKey = Object.keys(this.options)[0] ?? null;
                             this.open = true;
                         },
                         choose(key) {
+                            if (! key || this.options[key]?.locked) {
+                                return;
+                            }
                             this.previewKey = key;
                             this.open = false;
                             this.$refs.addForm.requestSubmit();
@@ -557,18 +569,39 @@
                             <ul class="flex-1 overflow-y-auto px-2.5 pb-2">
                                 <template x-for="(meta, key) in options" :key="key">
                                     <li>
+                                        {{-- Still selectable so the preview pane works: browsing a
+                                             locked section is how an owner decides to upgrade. Only
+                                             the confirm button is disabled. --}}
                                         <button type="button" @click="previewKey = key" :data-tip="meta.label"
-                                            class="w-full text-left px-3 py-2.5 rounded-lg text-sm truncate transition"
-                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50'"
-                                            x-text="meta.label"></button>
+                                            class="w-full flex items-center gap-2 text-left px-3 py-2.5 rounded-lg text-sm transition"
+                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : (meta.locked ? 'text-gray-400 hover:bg-gray-50' : 'text-gray-600 hover:bg-gray-50')">
+                                            <span class="truncate" x-text="meta.label"></span>
+                                            <template x-if="meta.locked">
+                                                <span class="ml-auto shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
+                                                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    Profesional
+                                                </span>
+                                            </template>
+                                        </button>
                                     </li>
                                 </template>
                             </ul>
 
                             <div class="p-4 border-t border-gray-100 shrink-0">
-                                <button type="button" @click="choose(previewKey)" :disabled="!previewKey"
-                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60">
-                                    Pilih komponen ini
+                                <template x-if="previewKey && options[previewKey]?.locked">
+                                    <p class="mb-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                        Komponen ini tersedia di paket Profesional.
+                                        <a href="{{ route('organizations.plan.edit', $organization) }}"
+                                            class="font-semibold underline underline-offset-2 hover:text-amber-900">Upgrade paket</a>
+                                        untuk memakainya.
+                                    </p>
+                                </template>
+                                <button type="button" @click="choose(previewKey)"
+                                    :disabled="!previewKey || options[previewKey]?.locked"
+                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-sm"
+                                    x-text="previewKey && options[previewKey]?.locked ? 'Perlu paket Profesional' : 'Pilih komponen ini'">
                                 </button>
                             </div>
                         </div>
@@ -848,17 +881,21 @@
                                         $variantOptions[$variantKey] = $variantMeta;
                                     }
 
-                                    // Hide any variant the organization's plan doesn't grant access to - each
-                                    // variant's own explicit `exclusive` flag decides this (never inferred from
-                                    // its name), mirrored in OrganizationSectionController::update()'s
-                                    // acceptance check via SectionVariantResolver::isExclusive().
-                                    if (! $organization->canUseExclusiveTemplates()) {
-                                        $variantOptions = array_filter(
-                                            $variantOptions,
-                                            fn ($meta) => ! ($meta['exclusive'] ?? false)
-                                        );
-                                    }
+                                    // Variants the organization's plan doesn't grant are shown but disabled,
+                                    // rather than filtered out - same treatment as the "Tambah Section"
+                                    // picker, so an owner on a lower plan can see what upgrading unlocks
+                                    // instead of a premium layout silently not existing. Each variant's own
+                                    // explicit `exclusive` flag decides this (never inferred from its name);
+                                    // OrganizationSectionController::update() is the real enforcement, via
+                                    // SectionVariantResolver::isExclusive() - a disabled <option> is only a
+                                    // UI affordance and a crafted POST must still be rejected there.
+                                    $canUseExclusive = $organization->canUseExclusiveTemplates();
 
+                                    // The section's own variant can still be missing from the options after
+                                    // the dedup-by-view pass above collapsed it into an alias sharing its
+                                    // view (plan gating no longer removes anything). Re-point the selection
+                                    // at the surviving key so the dropdown doesn't fall back to showing the
+                                    // first option as if that were the current layout.
                                     $currentVariant = $section->variant ?? $variantRows->firstWhere('is_default', true)?->variant_key;
                                     $currentVariantView = $variants[$currentVariant]['view'] ?? null;
                                     if (! array_key_exists($currentVariant, $variantOptions)) {
@@ -869,14 +906,28 @@
                                             }
                                         }
                                     }
+
                                 @endphp
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tampilan</label>
                                     <select name="variant" @change="saveSection($event.target.form, $data)"
                                         class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
-                                        @foreach (array_keys($variantOptions) as $variantKey)
-                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)>
-                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}
+                                        @foreach ($variantOptions as $variantKey => $variantMeta)
+                                            {{-- Never disable the variant the section is already on: a
+                                                 `selected disabled` option submits no value at all, which
+                                                 would both blank out `variant` on save and trap the user on
+                                                 a layout they can't switch away from. This happens for real
+                                                 whenever a Professional organization downgrades - its
+                                                 sections keep the exclusive variant they were built with. --}}
+                                            @php $variantLocked = ! $canUseExclusive
+                                                && ($variantMeta['exclusive'] ?? false)
+                                                && $variantKey !== $currentVariant; @endphp
+                                            {{-- A padlock plus the plan name, the same cue the "Tambah
+                                                 Section" picker uses - an <option> can't carry markup, so
+                                                 the emoji stands in for that list's badge. --}}
+                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)
+                                                @disabled($variantLocked)>
+                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}{{ $variantLocked ? ' 🔒 (Profesional)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>

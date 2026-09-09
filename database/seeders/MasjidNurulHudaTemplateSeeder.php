@@ -24,6 +24,10 @@ use Illuminate\Database\Seeder;
  *     other exclusive templates), rounded-2xl white cards with a slate-100 border.
  *   - header/footer use the `nurul-huda` section variants for its cross-page top nav and
  *     app-style mobile bottom nav (see resources/views/templates/sections/header|footer/).
+ *   - The five premium mosque sections it introduced (fasilitas-masjid, donasi-progress,
+ *     laporan-keuangan, kalkulator-zakat, sewa-aula) use the `nurul-huda` variant, which is
+ *     their only one. Those sections are themselves plan-gated via config/page-builder.php's
+ *     `exclusive` flag, so a lower-plan organization can't add them from the page builder.
  *   - Copy is lifted from that project's own Blade views; the matching CMS sample records
  *     (13 facilities, 5 donation programs, 6 months of books, 4 kajian, 2 takmir, 8 gallery
  *     captions) come from CmsSampleDataSeeder, which keys off this template's slug.
@@ -95,7 +99,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                                         ['value' => '100%', 'label' => 'Dana Transparan'],
                                     ],
                                 ]],
-                                ['key' => 'fasilitas-masjid', 'variant' => 'standar', 'content' => [
+                                ['key' => 'fasilitas-masjid', 'variant' => 'nurul-huda', 'content' => [
                                     'title' => 'Fasilitas Masjid',
                                     'limit' => 6,
                                 ]],
@@ -103,7 +107,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                                     'title' => 'Dokumentasi Kegiatan',
                                     'limit' => 8,
                                 ]],
-                                ['key' => 'donasi-progress', 'variant' => 'standar', 'content' => [
+                                ['key' => 'donasi-progress', 'variant' => 'nurul-huda', 'content' => [
                                     'title' => 'Program Donasi Aktif',
                                     'limit' => 3,
                                 ]],
@@ -137,12 +141,12 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Donasi',
                             'sections' => [
                                 $header,
-                                ['key' => 'donasi-progress', 'variant' => 'standar', 'content' => [
+                                ['key' => 'donasi-progress', 'variant' => 'nurul-huda', 'content' => [
                                     'title' => 'Program Donasi',
                                     'subtitle' => 'Setiap donasi yang masuk dapat dilihat riwayat dan peruntukannya secara transparan.',
                                     'limit' => 9,
                                 ]],
-                                ['key' => 'kalkulator-zakat', 'variant' => 'standar', 'content' => [
+                                ['key' => 'kalkulator-zakat', 'variant' => 'nurul-huda', 'content' => [
                                     'title' => 'Zakat & Infaq',
                                     'cta_label' => 'Hubungi Lazismu',
                                     'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar zakat.',
@@ -155,7 +159,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Laporan Keuangan',
                             'sections' => [
                                 $header,
-                                ['key' => 'laporan-keuangan', 'variant' => 'standar', 'content' => [
+                                ['key' => 'laporan-keuangan', 'variant' => 'nurul-huda', 'content' => [
                                     'title' => 'Laporan Keuangan',
                                 ]],
                                 $footer,
@@ -178,7 +182,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Akad Venue',
                             'sections' => [
                                 $header,
-                                ['key' => 'sewa-aula', 'variant' => 'standar', 'content' => [
+                                ['key' => 'sewa-aula', 'variant' => 'nurul-huda', 'content' => [
                                     'hero_title' => 'Akad Nikah di Aula Serbaguna',
                                     'hero_subtitle' => 'Rayakan momen sakral Anda di tempat yang teduh, penuh berkah, dan siap menampung hingga 150 tamu undangan.',
                                     'availability_badge' => 'Terbuka untuk Pemesanan',

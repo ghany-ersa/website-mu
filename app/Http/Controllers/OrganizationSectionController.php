@@ -70,9 +70,16 @@ class OrganizationSectionController extends Controller
     {
         $this->authorize('update', $organization);
 
+        // `exclusive` sections are plan-gated (config/page-builder.php). The picker greys them
+        // out for organizations that can't use them, but the check has to live here too: the
+        // add form posts a plain `key`, so without this a starter-plan organization could add
+        // a premium section by crafting the request - the variant-level is_exclusive flag
+        // wouldn't have stopped it, since it only governs picking a *different* layout.
         $addableKeys = array_keys(array_filter(
             config('page-builder.sections'),
-            fn (array $meta) => empty($meta['locked']) && empty($meta['hidden'])
+            fn (array $meta) => empty($meta['locked'])
+                && empty($meta['hidden'])
+                && (empty($meta['exclusive']) || $organization->canUseExclusiveTemplates())
         ));
 
         $validated = $request->validate([
