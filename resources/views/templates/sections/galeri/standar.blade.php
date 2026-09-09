@@ -12,7 +12,7 @@
             'image' => $photo->url,
             'caption' => $photo->caption,
         ])
-        : ($content['items'] ?? array_fill(0, 4, ['caption' => 'Foto kegiatan']));
+        : array_slice($content['items'] ?? array_fill(0, 4, ['caption' => 'Foto kegiatan']), 0, $limit);
 
     // Normalized once here (rather than inline per-item below) so the lightbox's JS array
     // and the grid's rendering both agree on the same [{image, caption}, ...] shape regardless

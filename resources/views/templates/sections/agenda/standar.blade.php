@@ -17,7 +17,7 @@
                 ? route('tenant.agendas.show', ['organization_slug' => $organization->slug, 'agenda' => $agenda->id])
                 : '#',
         ])
-        : ($content['items'] ?? array_fill(0, $limit, []));
+        : array_slice($content['items'] ?? array_fill(0, $limit, []), 0, $limit);
 @endphp
 
 <section class="py-16 bg-softBg">

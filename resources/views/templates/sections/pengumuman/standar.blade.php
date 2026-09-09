@@ -14,7 +14,7 @@
                 ? route('tenant.announcements.show', ['organization_slug' => $organization->slug, 'announcement' => $announcement->id])
                 : '#',
         ])
-        : ($content['items'] ?? array_fill(0, $limit, []));
+        : array_slice($content['items'] ?? array_fill(0, $limit, []), 0, $limit);
     $priorityColor = fn ($p) => match ($p) {
         'Tinggi' => 'border-red-400 bg-red-50',
         'Sedang' => 'border-secondary bg-secondary/5',

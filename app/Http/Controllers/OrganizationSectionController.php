@@ -135,7 +135,9 @@ class OrganizationSectionController extends Controller
 
         $content = [];
         foreach ($fields as $field) {
-            $content[$field] = $request->input("content.$field");
+            $content[$field] = $request->has("content.$field")
+                ? $request->input("content.$field")
+                : ($section->content[$field] ?? null);
         }
 
         if (in_array('map_embed', $fields, true) && filled($content['map_embed'] ?? null)) {

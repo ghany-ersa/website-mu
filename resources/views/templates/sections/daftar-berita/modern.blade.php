@@ -25,7 +25,7 @@
                 ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
                 : '#',
         ])
-        : collect($content['items'] ?? array_fill(0, $limit, []));
+        : collect($content['items'] ?? array_fill(0, $limit, []))->take($limit);
 @endphp
 
 <section class="py-24">
