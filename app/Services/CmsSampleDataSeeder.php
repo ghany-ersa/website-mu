@@ -16,6 +16,7 @@ use App\Models\OrganizationNetwork;
 use App\Models\Post;
 use App\Models\Program;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\PcaAmbuluSamples;
 use App\Services\Samples\PcmAmbuluSamples;
 use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
@@ -87,6 +88,15 @@ class CmsSampleDataSeeder
     private const PCM_TEMPLATE_SLUG = PcmAmbuluSamples::TEMPLATE_SLUG;
 
     /**
+     * The PCA Ambulu cabang-Aisyiyah showcase (see PcaAmbuluTemplateSeeder and
+     * App\Services\Samples\PcaAmbuluSamples). Non-exclusive like the PCM template above, but
+     * aimed at the STARTER plan specifically - so its sample lists are the ones most often
+     * truncated here, and are ordered with that in mind (see PcaAmbuluSamples' per-method notes
+     * on which entries survive which quota).
+     */
+    private const PCA_TEMPLATE_SLUG = PcaAmbuluSamples::TEMPLATE_SLUG;
+
+    /**
      * Sample imagery for this template is hotlinked from the live Masjid Nurul Huda Ambulu
      * site's own S3 bucket (each URL checked to return 200), so a fresh organization previews
      * the actual mosque instead of stand-in stock photography. Every section guards on an
@@ -127,12 +137,14 @@ class CmsSampleDataSeeder
         $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
         $isSuaraMuhammadiyah = $slug === self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUG;
         $isPcm = $slug === self::PCM_TEMPLATE_SLUG;
+        $isPca = $slug === self::PCA_TEMPLATE_SLUG;
 
         if (in_array('daftar-berita', $keys, true)) {
             $postSamples = match (true) {
                 $isKlinik => KlinikAisyiyahAmbuluSamples::beritaItems(),
                 $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::beritaItems(),
                 $isPcm => PcmAmbuluSamples::beritaItems(),
+                $isPca => PcaAmbuluSamples::beritaItems(),
                 default => null,
             };
 
@@ -147,6 +159,7 @@ class CmsSampleDataSeeder
             $agendaSamples = match (true) {
                 $isNurulHuda => self::nurulHudaKajianSamples(),
                 $isPcm => PcmAmbuluSamples::agendaItems(),
+                $isPca => PcaAmbuluSamples::agendaItems(),
                 default => null,
             };
 
@@ -157,6 +170,7 @@ class CmsSampleDataSeeder
             $gallerySamples = match (true) {
                 $isNurulHuda => self::nurulHudaGallerySamples(),
                 $isKlinik => self::toGalleryPhotoSamples(KlinikAisyiyahAmbuluSamples::ruanganPhotos()),
+                $isPca => self::toGalleryPhotoSamples(PcaAmbuluSamples::kegiatanPhotos()),
                 default => null,
             };
 
@@ -168,6 +182,7 @@ class CmsSampleDataSeeder
                 $isNurulHuda => self::nurulHudaOfficerSamples(),
                 $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::timRedaksi(),
                 $isPcm => PcmAmbuluSamples::pimpinanHarian(),
+                $isPca => PcaAmbuluSamples::pimpinanCabang(),
                 default => null,
             };
 
@@ -175,7 +190,11 @@ class CmsSampleDataSeeder
         }
 
         if (in_array('jaringan-aum-ortom', $keys, true)) {
-            self::seedNetworks($organization, $isPcm ? PcmAmbuluSamples::jaringanItems() : null);
+            self::seedNetworks($organization, match (true) {
+                $isPcm => PcmAmbuluSamples::jaringanItems(),
+                $isPca => PcaAmbuluSamples::jaringanItems(),
+                default => null,
+            });
         }
 
         // Both section keys are handled in ONE call: 'program' and 'layanan' share a single
@@ -190,6 +209,7 @@ class CmsSampleDataSeeder
             $requestedPrograms['program'] = match (true) {
                 $isKlinik => KlinikAisyiyahAmbuluSamples::programItems(),
                 $isPcm => PcmAmbuluSamples::programItems(),
+                $isPca => PcaAmbuluSamples::programItems(),
                 default => null,
             };
         }

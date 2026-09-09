@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\PcaAmbuluSamples;
 use App\Services\Samples\PcmAmbuluSamples;
 use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Database\Seeder;
@@ -46,6 +47,11 @@ class OrganizationSeeder extends Seeder
             'phone' => PcmAmbuluSamples::WHATSAPP,
             'address' => PcmAmbuluSamples::ADDRESS,
         ],
+        'pca-ambulu' => [
+            'whatsapp' => PcaAmbuluSamples::WHATSAPP,
+            'phone' => PcaAmbuluSamples::WHATSAPP,
+            'address' => PcaAmbuluSamples::ADDRESS,
+        ],
         'klinik' => [
             'whatsapp' => KlinikAisyiyahAmbuluSamples::WHATSAPP,
             'phone' => KlinikAisyiyahAmbuluSamples::WHATSAPP,
@@ -69,6 +75,11 @@ class OrganizationSeeder extends Seeder
             // below - this template is non-exclusive and the whole point of the showcase is to
             // demo what a cabang on a standard paid plan actually receives, limits included.
             ['template' => PcmAmbuluTemplateSeeder::SLUG, 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true, 'contact' => 'pcm-ambulu'],
+            // On `starter`, the cheapest plan and the one PcaAmbuluTemplateSeeder is designed
+            // for - so this showcase doubles as the live check that a Starter cabang really
+            // does keep a coherent site after CmsSampleDataSeeder truncates its sample lists
+            // to that plan's quotas (officers 3, programs 3, agendas 3, gallery 3).
+            ['template' => PcaAmbuluTemplateSeeder::SLUG, 'name' => 'PCA Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => true, 'contact' => 'pca-ambulu'],
             ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
             ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'suara-muhammadiyah'],
         ];
