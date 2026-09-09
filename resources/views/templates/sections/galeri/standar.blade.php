@@ -6,13 +6,19 @@
 --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = $content['limit'] ?? 8;
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap - null
+    // is the right value for that on both branches below: Builder::take(null) omits the SQL
+    // LIMIT clause entirely, and array_slice(..., 0, null) returns every item.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
     $items = isset($organization)
         ? $organization->photos()->take($limit)->get()->map(fn ($photo) => [
             'image' => $photo->url,
             'caption' => $photo->caption,
         ])
-        : array_slice($content['items'] ?? array_fill(0, 4, ['caption' => 'Foto kegiatan']), 0, $limit);
+        // array_fill's placeholder-card count only needs a number when there's neither a real
+        // `items` sample list nor a `limit` to size it by - 4 keeps that specific edge case's
+        // look unchanged; it never caps a real (or genuinely limitless) `items` list.
+        : array_slice($content['items'] ?? array_fill(0, $limit ?? 4, ['caption' => 'Foto kegiatan']), 0, $limit);
 
     // Normalized once here (rather than inline per-item below) so the lightbox's JS array
     // and the grid's rendering both agree on the same [{image, caption}, ...] shape regardless

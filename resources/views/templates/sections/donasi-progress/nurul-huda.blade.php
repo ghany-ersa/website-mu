@@ -4,7 +4,9 @@
      struktur-pengurus/standar.blade.php for the pattern. --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = (int) ($content['limit'] ?? 3);
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap -
+    // Collection::take(null) returns every item.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
 
     // Currently-running programs first, then largest target - so a section with a small
     // `limit` (e.g. the home page's 3) leads with the flagship appeal people are most likely

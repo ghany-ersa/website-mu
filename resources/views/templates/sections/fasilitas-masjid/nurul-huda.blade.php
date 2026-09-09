@@ -7,7 +7,9 @@
      where facility photos open full-size rather than being decoration only. --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = (int) ($content['limit'] ?? 6);
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap -
+    // Collection::take(null) returns every item.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
 
     $items = isset($organization)
         ? $organization->facilities()->get()->map(fn ($facility) => [

@@ -12,7 +12,10 @@
 --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = $content['limit'] ?? 3;
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap - null
+    // is the right value for that on both branches below: Builder::take(null) omits the SQL
+    // LIMIT clause entirely, and Collection::take(null) returns every item.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
     $categoryFilter = $content['category_filter'] ?? null;
     $items = isset($organization)
         ? $organization->posts()->published()
@@ -27,7 +30,10 @@
                 ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
                 : '#',
         ])
-        : collect($content['items'] ?? array_fill(0, $limit, []))->take($limit);
+        // array_fill's placeholder-card count only needs a number when there's neither a real
+        // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's
+        // look unchanged; it never caps a real (or genuinely limitless) `items` list.
+        : collect($content['items'] ?? array_fill(0, $limit ?? 3, []))->take($limit);
 @endphp
 
 <section class="py-14 bg-softBg">

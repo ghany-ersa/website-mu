@@ -4,7 +4,10 @@
      for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = $content['limit'] ?? 3;
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap - null
+    // is the right value for that on both branches below: Builder::take(null) omits the SQL
+    // LIMIT clause entirely, and array_slice(..., 0, null) returns every item.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
     $items = isset($organization)
         ? $organization->announcements()->published()->take($limit)->get()->map(fn ($announcement) => [
             'title' => $announcement->title,
@@ -14,7 +17,10 @@
                 ? route('tenant.announcements.show', ['organization_slug' => $organization->slug, 'announcement' => $announcement->id])
                 : '#',
         ])
-        : array_slice($content['items'] ?? array_fill(0, $limit, []), 0, $limit);
+        // array_fill's placeholder-card count only needs a number when there's neither a real
+        // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's
+        // look unchanged; it never caps a real (or genuinely limitless) `items` list.
+        : array_slice($content['items'] ?? array_fill(0, $limit ?? 3, []), 0, $limit);
     $priorityColor = fn ($p) => match ($p) {
         'Tinggi' => 'border-red-400 bg-red-50',
         'Sedang' => 'border-secondary bg-secondary/5',

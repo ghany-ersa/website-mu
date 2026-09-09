@@ -9,7 +9,9 @@
      agenda, contact - in the artwork itself and is unreadable at card size. --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = (int) ($content['limit'] ?? 6);
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap - both
+    // Builder::take(null) and Collection::take(null) below return every item unbounded.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
 
     $items = isset($organization)
         ? $organization->agendas()->published()->take($limit)->get()->map(fn ($agenda) => [
