@@ -104,28 +104,16 @@ class TemplateController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Template $template): RedirectResponse
-    {
-        $this->deleteThumbnail($template);
-        $template->delete();
-
-        return redirect()
-            ->route('admin.templates.index')
-            ->with('status', 'Template berhasil dihapus.');
-    }
-
-    /**
      * @return array<string, mixed>
      */
     private function prepare(StoreTemplateRequest|UpdateTemplateRequest $request, ?Template $template = null): array
     {
         $attributes = [
-            ...$request->safe()->except(['structure', 'is_active', 'is_exclusive', 'thumbnail', 'remove_thumbnail']),
+            ...$request->safe()->except(['structure', 'is_active', 'is_exclusive', 'is_featured', 'thumbnail', 'remove_thumbnail']),
             'structure' => json_decode((string) $request->validated('structure'), true),
             'is_active' => $request->boolean('is_active'),
             'is_exclusive' => $request->boolean('is_exclusive'),
+            'is_featured' => $request->boolean('is_featured'),
         ];
 
         // A new upload replaces whatever the template had; ticking "remove" clears it. Absent

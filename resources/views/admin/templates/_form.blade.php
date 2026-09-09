@@ -111,4 +111,10 @@
                class="rounded border-gray-300 text-primary focus:ring-primary/30">
         Eksklusif <span class="font-normal text-gray-400">(hanya untuk organisasi dengan paket yang mendukung template eksklusif)</span>
     </label>
+
+    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $template->is_featured ?? false))
+               class="rounded border-gray-300 text-primary focus:ring-primary/30">
+        Tampilkan di Landing Page <span class="font-normal text-gray-400">(muncul di grid pilihan template halaman utama)</span>
+    </label>
 </div>

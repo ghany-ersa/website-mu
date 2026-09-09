@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['organization_type_id', 'name', 'slug', 'description', 'thumbnail_path', 'structure', 'is_active', 'is_exclusive'])]
+#[Fillable(['organization_type_id', 'name', 'slug', 'description', 'thumbnail_path', 'structure', 'is_active', 'is_exclusive', 'is_featured'])]
 class Template extends Model
 {
     /** @use HasFactory<TemplateFactory> */
@@ -26,6 +26,7 @@ class Template extends Model
             'structure' => 'array',
             'is_active' => 'boolean',
             'is_exclusive' => 'boolean',
+            'is_featured' => 'boolean',
         ];
     }
 

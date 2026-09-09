@@ -45,25 +45,15 @@ use App\Models\Template;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // Curated set, not the full catalog: one representative per organization-type grouping
-    // so the homepage grid stays a short, skimmable preview instead of all ~13 templates
+    // Curated set, not the full catalog: only templates an admin has flagged is_featured show
+    // here, so the homepage grid stays a short, skimmable preview instead of all ~13 templates
     // (most of which only differ from a sibling by brand color/copy - see templates.index for
-    // the full, filterable list). 'muhammadiyah-eksekutif' stands in for Persyarikatan instead
-    // of the standard 'muhammadiyah' template, since both target the same PDM/PCM/PRM audience
-    // and showing both here would look like duplication rather than distinct choices.
-    $homepageTemplateSlugs = [
-        'muhammadiyah-eksekutif',
-        'pemuda-muhammadiyah',
-        'aum-pendidikan',
-        'aum-kesehatan-sosial',
-        'masjid-mushola',
-    ];
-
+    // the full, filterable list). Toggled per-template from admin/templates rather than a
+    // hardcoded slug list, so which templates appear can change without a deploy.
     $templates = Template::where('is_active', true)
-        ->whereIn('slug', $homepageTemplateSlugs)
-        ->get()
-        ->sortBy(fn ($template) => array_search($template->slug, $homepageTemplateSlugs))
-        ->values();
+        ->where('is_featured', true)
+        ->orderBy('name')
+        ->get();
 
     $plans = Plan::with('limits')
         ->where('is_active', true)
@@ -234,7 +224,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('templates', AdminTemplateController::class)->except(['show']);
+    Route::resource('templates', AdminTemplateController::class)->except(['show', 'destroy']);
     Route::get('templates/{template}/design', [TemplateBuilderController::class, 'edit'])->name('templates.design');
     Route::post('templates/{template}/design', [TemplateBuilderController::class, 'update'])->name('templates.design.update');
     Route::post('templates/{template}/design/resync', [TemplateBuilderController::class, 'resync'])->name('templates.design.resync');

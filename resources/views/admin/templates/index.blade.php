@@ -56,17 +56,14 @@
                             @if ($template->is_exclusive)
                                 <span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">Eksklusif</span>
                             @endif
+                            @if ($template->is_featured)
+                                <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Landing Page</span>
+                            @endif
                         </td>
                         <td class="px-5 py-4 text-right space-x-3">
                             <a href="{{ route('admin.templates.design', $template) }}" class="text-secondary font-medium hover:underline">Edit Visual</a>
                             <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary font-medium hover:underline">Preview</a>
                             <a href="{{ route('admin.templates.edit', $template) }}" class="text-gray-600 font-medium hover:underline">Edit</a>
-                            <form action="{{ route('admin.templates.destroy', $template) }}" method="POST" class="inline"
-                                  x-data="{ name: @js($template->name) }" @submit.prevent="if (await confirmAction('Hapus template ' + name + '?')) $el.submit()">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-500 font-medium hover:underline">Hapus</button>
-                            </form>
                         </td>
                     </tr>
                 @empty

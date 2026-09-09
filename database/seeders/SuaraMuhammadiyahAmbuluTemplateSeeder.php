@@ -55,6 +55,7 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                 'description' => 'Template eksklusif portal berita untuk media digitalisasi cabang: beranda yang mengenalkan profil dan tim redaksi lengkap dengan berita terkini, halaman berita lengkap, dan halaman kontak untuk WhatsApp dan media sosial redaksi. Khusus paket dengan entitlement template eksklusif.',
                 'is_active' => true,
                 'is_exclusive' => true,
+                'is_featured' => true,
                 'structure' => [
                     'sample_org_name' => 'Suara Muhammadiyah Ambulu',
                     // Muhammadiyah blue/green, matching the persyarikatan it reports on. Serif

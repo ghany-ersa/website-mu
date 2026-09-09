@@ -55,6 +55,7 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                 'description' => 'Template eksklusif multi-halaman untuk klinik dan AUM Kesehatan: beranda dengan layanan unggulan dan profil klinik, halaman katalog layanan lengkap dengan galeri fasilitas dan ruangan, jadwal praktik dokter tersendiri, serta halaman kontak dengan peta lokasi. Khusus paket dengan entitlement template eksklusif.',
                 'is_active' => true,
                 'is_exclusive' => true,
+                'is_featured' => true,
                 'structure' => [
                     'sample_org_name' => 'Klinik Pratama Aisyiyah Ambulu',
                     // Aisyiyah green led, Muhammadiyah blue as the secondary - the reverse of the
