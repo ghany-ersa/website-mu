@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\OrganizationType;
 use App\Models\Template;
+use App\Models\User;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples as Samples;
+use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -45,7 +47,7 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];
 
-        Template::updateOrCreate(
+        $template = Template::updateOrCreate(
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
@@ -189,5 +191,9 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                 ],
             ],
         );
+
+        if ($admin = User::where('is_admin', true)->first()) {
+            app(TemplateSandboxService::class)->sandboxFor($template, $admin);
+        }
     }
 }
