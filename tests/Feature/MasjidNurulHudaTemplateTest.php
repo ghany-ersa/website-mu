@@ -4,9 +4,11 @@ namespace Tests\Feature;
 
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
+use App\Enums\PublishStatus;
 use App\Models\Organization;
 use App\Models\OrganizationType;
 use App\Models\Plan;
+use App\Models\SectionVariant;
 use App\Models\Template;
 use App\Models\User;
 use App\Services\PlanLimitService;
@@ -188,27 +190,148 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $response->assertSee('#section-', false);
     }
 
-    public function test_jadwal_kajian_section_is_editable_and_manageable(): void
+    public function test_kajian_section_is_editable_and_manageable(): void
     {
         $organization = $this->makeOrganization();
 
         // Empty `fields` used to make this section unclickable in the builder sidebar (see
         // edit.blade.php's $hasFields guard) and silently drop its title/limit on save.
-        $fields = config('page-builder.sections.jadwal-kajian.fields');
+        $fields = config('page-builder.sections.agenda.fields');
         $this->assertContains('title', $fields);
         $this->assertContains('limit', $fields);
 
         $owner = User::factory()->create();
         $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
 
-        // jadwal-kajian is backed by the `agendas` table, so its "Kelola" link must open even
-        // though this template ships no 'agenda' section.
+        // This template's kajian section is the `agenda` section on its `kajian` variant, so
+        // the agendas CMS must open for it.
         $this->actingAs($owner)
             ->get(route('organizations.agendas.index', $organization))
             ->assertOk();
     }
 
-    public function test_jadwal_kajian_title_survives_a_builder_save(): void
+    /**
+     * 'jadwal-kajian' was merged into 'agenda' as its `kajian` variant - the two sections read
+     * the same `agendas` table through views that had become byte-for-byte identical.
+     */
+    public function test_jadwal_kajian_is_no_longer_a_separate_section(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->load('pages.sections');
+
+        $this->assertNull(config('page-builder.sections.jadwal-kajian'));
+        $this->assertSame(
+            [],
+            SectionVariant::where('section_key', 'jadwal-kajian')->pluck('variant_key')->all(),
+        );
+
+        // No page still carries the retired key.
+        $this->assertEmpty($organization->pages->flatMap->sections->where('key', 'jadwal-kajian'));
+
+        $variants = SectionVariantResolver::variantsFor('agenda');
+        $this->assertEqualsCanonicalizing(['standar', 'poster'], $variants->pluck('variant_key')->all());
+
+        // The wording-only variant was replaced by `poster`, which renders agendas.poster and
+        // is a genuine premium feature - so unlike its predecessor it is plan-gated.
+        $this->assertTrue(SectionVariantResolver::isExclusive('agenda', 'poster'));
+        $this->assertFalse(SectionVariantResolver::isExclusive('agenda', 'standar'));
+
+        // The variant resolves to its own view, not silently back to the default.
+        $this->assertSame(
+            'templates.sections.agenda.poster',
+            SectionVariantResolver::resolve('agenda', 'poster'),
+        );
+    }
+
+    /**
+     * The poster variant's whole point: show the flyer an organization uploaded. Also covers
+     * the mixed case, since a CMS is rarely fully filled in - a poster-less agenda must still
+     * render as a card rather than a hole in the grid.
+     */
+    public function test_poster_variant_shows_uploaded_posters_and_falls_back_without_one(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $withPoster = $organization->agendas()->first();
+        $withPoster->update([
+            'poster' => 'https://example test/poster-kajian.jpg',
+            'status' => PublishStatus::Published,
+        ]);
+
+        $response = $this->get($this->tenantUrl($organization, '/kajian-event'));
+
+        $response->assertOk();
+        $response->assertSee('poster-kajian.jpg', false);
+        // The date block stands in for agendas with no flyer yet.
+        $response->assertSee($withPoster->starts_at->translatedFormat('M'), false);
+    }
+
+    /**
+     * A shared kajian link has to carry the event: the poster as its preview image, and Event
+     * structured data so the acara can surface in Google's event results rather than as a plain
+     * link. Renders the page view directly rather than over HTTP - the tenant /agenda/{id} route
+     * 404s on a pre-existing bug unrelated to this change (see TenantDetailPagesTest, which
+     * fails the same way on main), and that would mask what this test is actually checking.
+     */
+    public function test_agenda_detail_page_carries_poster_and_event_structured_data(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $agenda = $organization->agendas()->first();
+        $agenda->update([
+            'poster' => 'https://example.test/poster-detail.jpg',
+            'description' => '<p>Kajian rutin bersama jamaah.</p>',
+            'location' => 'Masjid Nurul Huda Ambulu',
+            'status' => PublishStatus::Published,
+        ]);
+
+        $html = view('organizations.public.agenda', [
+            'organization' => $organization->fresh(),
+            'agenda' => $agenda->fresh(),
+        ])->render();
+
+        // The description was always stored; this page is where it actually renders.
+        $this->assertStringContainsString('Kajian rutin bersama jamaah.', $html);
+        $this->assertStringContainsString('poster-detail.jpg', $html);
+        $this->assertStringContainsString('og:image', $html);
+
+        $this->assertStringContainsString('application/ld+json', $html);
+        $this->assertStringContainsString('"@type":"Event"', $html);
+        $this->assertStringContainsString('"startDate"', $html);
+        $this->assertStringContainsString('Masjid Nurul Huda Ambulu', $html);
+    }
+
+    /**
+     * An agenda with no venue must omit `location` rather than emit an empty Place, which would
+     * fail Google's Event validation.
+     */
+    public function test_event_structured_data_omits_an_empty_location(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $agenda = $organization->agendas()->first();
+        $agenda->update(['location' => null, 'status' => PublishStatus::Published]);
+
+        $html = view('organizations.public.agenda', [
+            'organization' => $organization->fresh(),
+            'agenda' => $agenda->fresh(),
+        ])->render();
+
+        $this->assertStringContainsString('"@type":"Event"', $html);
+        $this->assertStringNotContainsString('"location"', $html);
+    }
+
+    public function test_poster_variant_renders_the_kajian_page(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $response = $this->get($this->tenantUrl($organization, '/kajian-event'));
+
+        $response->assertOk();
+        $response->assertSee('Jadwal Kajian &amp; Event', false);
+    }
+
+    public function test_kajian_title_survives_a_builder_save(): void
     {
         $organization = $this->makeOrganization();
         $organization->load('pages.sections');
@@ -218,7 +341,9 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $section = $organization->pages
             ->flatMap->sections
-            ->firstWhere('key', 'jadwal-kajian');
+            ->firstWhere('key', 'agenda');
+
+        $this->assertSame('poster', $section->variant);
 
         $this->actingAs($owner)
             ->patch(route('organizations.sections.update', [$organization, $section]), [

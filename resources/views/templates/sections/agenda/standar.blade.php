@@ -22,9 +22,17 @@
 
 <section class="py-16 bg-softBg">
     <div class="max-w-6xl mx-auto px-6">
-        <h2 class="reveal text-3xl font-extrabold text-primary mb-10">
-            {{ $content['title'] ?? 'Agenda Kegiatan' }}
-        </h2>
+        {{-- The spacing that used to sit on the h2 moved here so the subtitle stays attached to
+             the heading; `subtitle` is a registry field for this section, so both variants must
+             render it or an organization's copy silently disappears when it switches variant. --}}
+        <div class="mb-10">
+            <h2 class="reveal text-3xl font-extrabold text-primary">
+                {{ $content['title'] ?? 'Agenda Kegiatan' }}
+            </h2>
+            @if (! empty($content['subtitle']))
+                <p class="reveal mt-2 text-gray-600">{{ $content['subtitle'] }}</p>
+            @endif
+        </div>
         <div class="space-y-4">
             @foreach ($items as $item)
                 <a href="{{ $item['url'] ?? '#' }}"

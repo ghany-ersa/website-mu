@@ -97,7 +97,7 @@ class CmsSampleDataSeeder
             self::seedAnnouncements($organization, $limits);
         }
 
-        if (in_array('agenda', $keys, true) || in_array('jadwal-kajian', $keys, true)) {
+        if (in_array('agenda', $keys, true)) {
             self::seedAgendas($organization, $limits, $isNurulHuda ? self::nurulHudaKajianSamples() : null);
         }
 

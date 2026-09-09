@@ -56,8 +56,14 @@ class SectionVariantSeeder extends Seeder
                 'modern' => ['view' => 'templates.sections.daftar-berita.modern', 'exclusive' => true],
                 'ringkas' => ['view' => 'templates.sections.daftar-berita.ringkas', 'exclusive' => true],
             ],
+            // This section absorbed the former 'jadwal-kajian', whose view had become
+            // byte-for-byte identical to agenda/standar. Its replacement is 'poster', which
+            // earns its keep: a grid of the flyers masjid already design per kajian, reading
+            // agendas.poster. That is a real premium feature, hence exclusive - unlike the
+            // wording-only variant it replaces.
             'agenda' => [
                 'standar' => ['view' => 'templates.sections.agenda.standar', 'exclusive' => false, 'default' => true],
+                'poster' => ['view' => 'templates.sections.agenda.poster', 'exclusive' => true],
             ],
             'pengumuman' => [
                 'standar' => ['view' => 'templates.sections.pengumuman.standar', 'exclusive' => false, 'default' => true],
@@ -67,9 +73,6 @@ class SectionVariantSeeder extends Seeder
             ],
             'jadwal-salat' => [
                 'standar' => ['view' => 'templates.sections.jadwal-salat.standar', 'exclusive' => false, 'default' => true],
-            ],
-            'jadwal-kajian' => [
-                'standar' => ['view' => 'templates.sections.jadwal-kajian.standar', 'exclusive' => false, 'default' => true],
             ],
             'jadwal-praktik' => [
                 'standar' => ['view' => 'templates.sections.jadwal-praktik.standar', 'exclusive' => false, 'default' => true],

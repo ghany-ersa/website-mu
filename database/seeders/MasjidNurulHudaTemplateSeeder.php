@@ -111,7 +111,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                                     'title' => 'Program Donasi Aktif',
                                     'limit' => 3,
                                 ]],
-                                ['key' => 'jadwal-kajian', 'variant' => 'standar', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'poster', 'content' => [
                                     'title' => 'Kajian & Event Terdekat',
                                     'limit' => 3,
                                 ]],
@@ -170,7 +170,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Kajian & Event',
                             'sections' => [
                                 $header,
-                                ['key' => 'jadwal-kajian', 'variant' => 'standar', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'poster', 'content' => [
                                     'title' => 'Jadwal Kajian & Event',
                                     'limit' => 10,
                                 ]],

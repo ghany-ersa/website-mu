@@ -20,6 +20,7 @@
     };
 
     $ctaHref = $resolveCtaHref('cta');
+    $ctaSecondaryHref = $resolveCtaHref('cta_secondary');
 @endphp
 
 <section class="relative overflow-hidden bg-gray-900 h-[420px] md:h-[540px] flex items-end">
@@ -44,21 +45,31 @@
                 {{ $content['subheadline'] ?? 'Ringkasan singkat berita utama yang sedang menjadi sorotan.' }}
             </p>
 
-            @if (! empty($content['cta_label']))
-                @if ($ctaHref)
-                    <a href="{{ $ctaHref }}" {{ ($content['cta_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
-                        class="reveal inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-secondary"
-                        style="transition-delay: 240ms">
-                        {{ $content['cta_label'] }}
-                        <span>&rarr;</span>
-                    </a>
-                @else
-                    <button type="button" class="reveal inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-secondary"
-                            style="transition-delay: 240ms">
-                        {{ $content['cta_label'] }}
-                        <span>&rarr;</span>
-                    </button>
-                @endif
+            {{-- Both CTAs, not just the primary one: `cta_secondary_*` are registry fields for
+                 this section, so an organization can fill them in from the builder - rendering
+                 only the first would drop that copy silently on this variant alone. Styled as
+                 muted text links rather than the other hero variants' buttons, matching this
+                 variant's editorial look. --}}
+            @if (! empty($content['cta_label']) || ! empty($content['cta_secondary_label']))
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    @foreach ([['cta', $ctaHref], ['cta_secondary', $ctaSecondaryHref]] as [$prefix, $href])
+                        @continue(empty($content[$prefix.'_label']))
+                        @if ($href)
+                            <a href="{{ $href }}" {{ ($content[$prefix.'_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
+                                class="reveal inline-flex items-center gap-2 text-sm font-semibold {{ $prefix === 'cta' ? 'text-white' : 'text-white/70' }} transition-colors hover:text-secondary"
+                                style="transition-delay: 240ms">
+                                {{ $content[$prefix.'_label'] }}
+                                <span>&rarr;</span>
+                            </a>
+                        @else
+                            <button type="button" class="reveal inline-flex items-center gap-2 text-sm font-semibold {{ $prefix === 'cta' ? 'text-white' : 'text-white/70' }} transition-colors hover:text-secondary"
+                                    style="transition-delay: 240ms">
+                                {{ $content[$prefix.'_label'] }}
+                                <span>&rarr;</span>
+                            </button>
+                        @endif
+                    @endforeach
+                </div>
             @endif
         </div>
     </div>

@@ -21,6 +21,16 @@
             <x-ui.card>
                 <x-form.field name="title" label="Judul" :value="$agenda->title" required />
 
+                {{-- Portrait crop: kajian flyers are shared as vertical posters, and the
+                     `poster` variant of the agenda section renders them at 3:4. --}}
+                <x-form.image-picker
+                    :organization="$organization"
+                    name="poster"
+                    label="Poster Kegiatan"
+                    :value="$agenda->poster"
+                    category="agenda"
+                    aspect="aspect-[3/4] w-40" />
+
                 <x-form.field type="datetime-local" name="starts_at" label="Tanggal &amp; Waktu"
                     :value="$agenda->starts_at?->format('Y-m-d\TH:i')" required />
 

@@ -20,7 +20,7 @@ class OrganizationAgendaController extends Controller
 
     public function index(Request $request, Organization $organization): View
     {
-        abort_unless($organization->hasSection('agenda', 'jadwal-kajian'), 404);
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('viewAny', [Agenda::class, $organization]);
 
         return view('organizations.agendas.index', [
@@ -32,7 +32,7 @@ class OrganizationAgendaController extends Controller
 
     public function create(Request $request, Organization $organization): View|RedirectResponse
     {
-        abort_unless($organization->hasSection('agenda', 'jadwal-kajian'), 404);
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
 
         if (! $this->planLimitService->canCreate($organization, 'agendas')) {
@@ -50,7 +50,7 @@ class OrganizationAgendaController extends Controller
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
-        abort_unless($organization->hasSection('agenda', 'jadwal-kajian'), 404);
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
 
         if (! $this->planLimitService->canCreate($organization, 'agendas')) {
@@ -109,6 +109,9 @@ class OrganizationAgendaController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            // A media-library URL, same contract as masjid_facilities.photo - the picker writes
+            // the chosen file's URL into this field rather than uploading through this request.
+            'poster' => ['nullable', 'string'],
             'starts_at' => ['required', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:255'],

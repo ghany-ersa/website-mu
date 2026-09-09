@@ -2,6 +2,14 @@
     <div class="max-w-3xl mx-auto px-6">
         <a href="{{ route('tenant.home', ['organization_slug' => $organization->slug]) }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
 
+        {{-- The flyer, when there is one: on a shared kajian link the poster is what people
+             recognise, and it usually carries details the fields don't (speaker, rundown).
+             Sits above the card rather than inside it so it can run full width on mobile. --}}
+        @if ($agenda->poster)
+            <img src="{{ $agenda->poster }}" alt="Poster {{ $agenda->title }}"
+                 class="mt-6 w-full max-w-md mx-auto rounded-2xl shadow-soft">
+        @endif
+
         <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-soft mt-6">
             <div class="w-16 h-16 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center leading-none">
                 <span class="text-xl font-extrabold">{{ $agenda->starts_at->format('d') }}</span>

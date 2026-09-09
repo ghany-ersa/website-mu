@@ -387,9 +387,8 @@ class Organization extends Model
      * and the underlying CRUD routes (organizations.gallery.*, organizations.posts.*, etc.) for
      * content types the organization's template never gave it a section to display.
      *
-     * Takes several keys because one CMS can back more than one section: 'jadwal-kajian' and
-     * 'agenda' both read the `agendas` table, so a template that only ships the former must
-     * still open organizations.agendas.*.
+     * Takes several keys because one CMS can back more than one section - e.g. a content type
+     * displayed by two different sections must open its CRUD routes for either of them.
      */
     public function hasSection(string ...$keys): bool
     {

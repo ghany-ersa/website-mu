@@ -127,11 +127,16 @@ return [
             'defaults' => ['title' => 'Berita Terbaru'],
             'cms' => ['route' => 'organizations.posts.index', 'label' => 'Berita'],
         ],
+        // Absorbed the former 'jadwal-kajian' section, whose view had become byte-for-byte
+        // identical to this one over the same `agendas` table. The section itself stays open to
+        // every plan; only its `poster` variant is exclusive (see SectionVariantSeeder), so a
+        // lower plan still gets its agenda list - it just doesn't get the flyer grid.
+        // `subtitle` is read by the poster variant only.
         'agenda' => [
-            'label' => 'Agenda',
-            'fields' => ['title', 'items', 'limit'],
+            'label' => 'Agenda / Jadwal',
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Agenda Kegiatan'],
-            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda'],
+            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda & Kajian'],
         ],
         'pengumuman' => [
             'label' => 'Pengumuman',
@@ -153,17 +158,6 @@ return [
             // hidden from new-section picker and public render until that's built. See the
             // `hidden` doc comment above.
             'hidden' => true,
-        ],
-        'jadwal-kajian' => [
-            'label' => 'Jadwal Kajian',
-            // Backed by the same `agendas` table as the 'agenda' section (see
-            // CmsSampleDataSeeder::seed(), which seeds both from one method) - the two differ
-            // only in presentation, so this points at the same CMS. Previously this had no
-            // fields at all, which left it unclickable in the builder sidebar (see edit.blade
-            // .php's $hasFields guard) and silently dropped its title/limit on save.
-            'fields' => ['title', 'items', 'limit'],
-            'defaults' => ['title' => 'Jadwal Kajian'],
-            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda & Kajian'],
         ],
         'jadwal-praktik' => [
             'label' => 'Jadwal Praktik Dokter',

@@ -704,7 +704,7 @@ class TemplateSeeder extends Seeder
                                         ['title' => 'Jadwal Imam dan Khatib Jumat Bulan Ini', 'date' => '10 Agt 2026'],
                                     ],
                                 ]],
-                                ['key' => 'jadwal-kajian', 'variant' => 'standar', 'content' => [
+                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadwal Kajian Rutin',
                                     'items' => [
                                         ['title' => 'Kajian Subuh', 'ustadz' => 'Ustadz H. Fauzi Rahman', 'day' => 'Setiap Ahad', 'time' => 'Ba\'da Subuh'],

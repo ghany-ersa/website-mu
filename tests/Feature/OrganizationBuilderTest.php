@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class OrganizationBuilderTest extends TestCase
@@ -458,5 +459,64 @@ class OrganizationBuilderTest extends TestCase
 
         $orderedKeys = $page->sections()->get()->pluck('key')->all();
         $this->assertSame(['hero', 'footer'], $orderedKeys);
+    }
+
+    /**
+     * Every variant of a section must read the same registry `fields`, because the builder shows
+     * one properties panel per section regardless of variant: a field one variant renders and
+     * another ignores means an organization types copy in, switches variant, and watches it
+     * vanish with no indication it is still stored.
+     *
+     * Text-level check on the Blade sources rather than a render, so it covers variants no
+     * fixture happens to exercise. A variant may reach a field through a computed key rather
+     * than a literal one - hero/headline-berita resolves both CTAs through a $prefix.'_type'
+     * helper - so a field whose name is only a suffix of that computed form counts as read when
+     * the source builds it that way.
+     */
+    public function test_every_variant_of_a_section_reads_the_same_registry_fields(): void
+    {
+        $inconsistent = [];
+
+        foreach (config('page-builder.sections') as $key => $meta) {
+            $dir = resource_path('views/templates/sections/'.$key);
+
+            if (! is_dir($dir)) {
+                continue;
+            }
+
+            $views = array_values(array_filter(
+                scandir($dir),
+                fn ($file) => str_ends_with($file, '.blade.php') && ! str_starts_with($file, '_')
+            ));
+
+            if (count($views) < 2) {
+                continue;
+            }
+
+            foreach ($meta['fields'] ?? [] as $field) {
+                $renders = [];
+
+                foreach ($views as $view) {
+                    $source = file_get_contents($dir.'/'.$view);
+
+                    $renders[$view] = str_contains($source, "['".$field."']")
+                        || str_contains($source, "'".$field."'")
+                        // e.g. $content[$prefix.'_type'] covers cta_type and cta_secondary_type.
+                        || (bool) preg_match('/\$\w+\s*\.\s*\x27_'.preg_quote(
+                            Str::afterLast($field, '_'),
+                            '/'
+                        ).'\x27/', $source);
+                }
+
+                // Only a field some variants read and others don't is a problem; one no variant
+                // reads is a separate (harmless) case, and one every variant reads is correct.
+                if (count(array_unique($renders)) > 1) {
+                    $missing = array_keys(array_filter($renders, fn ($read) => ! $read));
+                    $inconsistent[] = $key.'.'.$field.' missing from: '.implode(', ', $missing);
+                }
+            }
+        }
+
+        $this->assertSame([], $inconsistent, "Some variants ignore fields their siblings render:\n".implode("\n", $inconsistent));
     }
 }
