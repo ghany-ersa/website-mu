@@ -33,7 +33,9 @@
                    class="reveal block border-l-4 {{ $priorityColor($item['priority'] ?? null) }} rounded-r-brand p-4 transition-transform duration-300 hover:translate-x-1"
                    style="transition-delay: {{ $loop->index * 80 }}ms">
                     <p class="font-semibold text-gray-800">{{ $item['title'] ?? 'Pengumuman contoh '.$loop->iteration }}</p>
-                    <p class="text-sm text-gray-500">Berlaku hingga {{ $item['valid_until'] ?? '[tanggal]' }}</p>
+                    @if (! empty($item['valid_until']))
+                        <p class="text-sm text-gray-500">Berlaku hingga {{ $item['valid_until'] }}</p>
+                    @endif
                 </a>
             @endforeach
         </div>

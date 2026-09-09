@@ -8,17 +8,19 @@ use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
+use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
 use Illuminate\Database\Seeder;
 
 /**
  * Seeds one dummy organization per template (see TemplateSeeder) so staging has representative
  * data to test against without anyone manually clicking through "create organization" a dozen
- * times: different organization types (PDM, school, clinic, mosque, Ortom, ...), different
- * plans (to exercise plan limits/component gating across tiers), and a mix of draft/published
- * so both builder and public-site views have something to look at.
+ * times. Temporarily reduced to just the Klinik Pratama Aisyiyah Ambulu showcase while
+ * template/org sample data is rebuilt from scratch, organization type by organization type -
+ * see DatabaseSeeder and TemplateSeeder's doc comments. Reintroduce more entries here as more
+ * templates are redone.
  *
- * Every organization is owned by the same user (ghany@ghany.id) so all dummy orgs are reachable
- * from one login without switching accounts.
+ * Every organization is owned by the same user (admin@website-mu.id) so all dummy orgs are
+ * reachable from one login without switching accounts.
  *
  * Relies on Organization::ensureHomePageExists() - same path OrganizationBuilderController::edit()
  * uses on first visit - to clone the template's pages/sections, which in turn triggers
@@ -27,23 +29,30 @@ use Illuminate\Database\Seeder;
  */
 class OrganizationSeeder extends Seeder
 {
+    /**
+     * Real contact details for the showcase organizations, keyed by a `contact` tag on the
+     * specs below. Sections like formulir-kontak/donasi-zakat-infak fall back to the
+     * organization's own `whatsapp` when a section's `wa_number` is blank, and header/footer
+     * render `address`/`instagram_url`, so an organization without these renders half-empty
+     * contact blocks - fine for a placeholder org, wrong for one meant to demo a finished site.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private const CONTACTS = [
+        'klinik' => [
+            'whatsapp' => KlinikAisyiyahAmbuluSamples::WHATSAPP,
+            'phone' => KlinikAisyiyahAmbuluSamples::WHATSAPP,
+            'address' => KlinikAisyiyahAmbuluSamples::ADDRESS,
+            'instagram_url' => KlinikAisyiyahAmbuluSamples::INSTAGRAM,
+        ],
+    ];
+
     public function run(): void
     {
         $plans = Plan::whereIn('key', ['starter', 'organization', 'professional'])->get()->keyBy('key');
 
         $organizations = [
-            ['template' => 'muhammadiyah', 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
-            ['template' => 'aisyiyah', 'name' => 'PCA Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
-            ['template' => 'aum-pendidikan', 'name' => 'SD Muhammadiyah 1 Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true],
-            ['template' => 'aum-kesehatan-sosial', 'name' => 'Klinik Muhammadiyah Sehati', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true],
-            ['template' => 'aum-sosial', 'name' => 'Panti Asuhan Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
-            ['template' => 'masjid-mushola', 'name' => 'Masjid Al-Ikhlas Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => true],
-            ['template' => 'pemuda-muhammadiyah', 'name' => 'Pemuda Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
-            ['template' => 'nasyiatul-aisyiyah', 'name' => 'Nasyiatul Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
-            ['template' => 'imm', 'name' => 'IMM Komisariat Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
-            ['template' => 'ipm', 'name' => 'IPM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
-            ['template' => 'tapak-suci', 'name' => 'Tapak Suci Putera Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true],
-            ['template' => 'hizbul-wathan', 'name' => 'Hizbul Wathan Qabilah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false],
+            ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
         ];
 
         foreach ($organizations as $spec) {
@@ -75,6 +84,8 @@ class OrganizationSeeder extends Seeder
                     'description' => $template->description,
                     'status' => $spec['published'] ? OrganizationStatus::Published : OrganizationStatus::Draft,
                     'published_at' => $spec['published'] ? now() : null,
+                    ...$this->brandFrom($template),
+                    ...self::CONTACTS[$spec['contact'] ?? ''] ?? [],
                 ]
             );
 
@@ -84,5 +95,26 @@ class OrganizationSeeder extends Seeder
 
             $organization->ensureHomePageExists();
         }
+    }
+
+    /**
+     * Copy the template's brand identity onto the organization, the same way
+     * TemplateSandboxService::forTemplate() and StoreOrganizationRequest do when a real user
+     * picks a template. Without this the dummy orgs all rendered in the platform default
+     * blue/green regardless of their template, so an exclusive template's distinct palette
+     * (and its serif font / sharp radius) never showed up in the seeded showcase.
+     *
+     * @return array<string, string|null>
+     */
+    private function brandFrom(Template $template): array
+    {
+        $brand = $template->structure['brand'] ?? [];
+
+        return [
+            'primary_color' => $brand['primary'] ?? null,
+            'secondary_color' => $brand['secondary'] ?? null,
+            'font_family' => $brand['font'] ?? null,
+            'border_radius' => $brand['radius'] ?? null,
+        ];
     }
 }

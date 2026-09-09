@@ -15,6 +15,7 @@ use App\Models\Organization;
 use App\Models\OrganizationNetwork;
 use App\Models\Post;
 use App\Models\Program;
+use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
 
 /**
@@ -52,6 +53,20 @@ class CmsSampleDataSeeder
     private const NURUL_HUDA_TEMPLATE_SLUG = 'masjid-nurul-huda-eksklusif';
 
     /**
+     * The Klinik Pratama Aisyiyah Ambulu showcase (see KlinikAisyiyahAmbuluTemplateSeeder and
+     * App\Services\Samples\KlinikAisyiyahAmbuluSamples, the actual source of its content).
+     * Organizations on this template get the clinic's real services/announcements/gallery
+     * instead of the generic "Contoh Berita Kegiatan" / "Layanan Administrasi" placeholders -
+     * exactly what this showcase organization exists to avoid. A list (not a single const) so
+     * a future standard-tier AUM Kesehatan template can share the same samples once rebuilt.
+     *
+     * @var array<int, string>
+     */
+    private const KLINIK_TEMPLATE_SLUGS = [
+        KlinikAisyiyahAmbuluSamples::TEMPLATE_SLUG,
+    ];
+
+    /**
      * Sample imagery for this template is hotlinked from the live Masjid Nurul Huda Ambulu
      * site's own S3 bucket (each URL checked to return 200), so a fresh organization previews
      * the actual mosque instead of stand-in stock photography. Every section guards on an
@@ -87,22 +102,32 @@ class CmsSampleDataSeeder
     {
         $keys = array_unique($sectionKeys);
         $limits = app(PlanLimitService::class);
-        $isNurulHuda = $organization->template?->slug === self::NURUL_HUDA_TEMPLATE_SLUG;
+        $slug = $organization->template?->slug;
+        $isNurulHuda = $slug === self::NURUL_HUDA_TEMPLATE_SLUG;
+        $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
 
         if (in_array('daftar-berita', $keys, true)) {
-            self::seedPosts($organization, $limits);
+            self::seedPosts($organization, $limits, $isKlinik ? KlinikAisyiyahAmbuluSamples::beritaItems() : null);
         }
 
         if (in_array('pengumuman', $keys, true)) {
-            self::seedAnnouncements($organization, $limits);
+            self::seedAnnouncements($organization, $limits, $isKlinik ? KlinikAisyiyahAmbuluSamples::pengumumanItems() : null);
         }
 
         if (in_array('agenda', $keys, true)) {
-            self::seedAgendas($organization, $limits, $isNurulHuda ? self::nurulHudaKajianSamples() : null);
+            $agendaSamples = $isNurulHuda ? self::nurulHudaKajianSamples() : null;
+
+            self::seedAgendas($organization, $limits, $agendaSamples);
         }
 
         if (in_array('galeri', $keys, true)) {
-            self::seedGalleryPhotos($organization, $limits, $isNurulHuda ? self::nurulHudaGallerySamples() : null);
+            $gallerySamples = match (true) {
+                $isNurulHuda => self::nurulHudaGallerySamples(),
+                $isKlinik => self::toGalleryPhotoSamples(KlinikAisyiyahAmbuluSamples::ruanganPhotos()),
+                default => null,
+            };
+
+            self::seedGalleryPhotos($organization, $limits, $gallerySamples);
         }
 
         if (in_array('struktur-pengurus', $keys, true)) {
@@ -113,13 +138,23 @@ class CmsSampleDataSeeder
             self::seedNetworks($organization);
         }
 
+        // Both section keys are handled in ONE call: 'program' and 'layanan' share a single
+        // 'programs' plan quota, and seedPrograms() guards on that combined count, so seeding
+        // them as two independent calls meant whichever ran second was skipped outright - a
+        // page with both sections (e.g. the exclusive clinic template) rendered its 'layanan'
+        // section empty on the live site. Passing both types lets the one call split the
+        // available quota between them instead.
+        $requestedPrograms = [];
+
         if (in_array('program-unggulan', $keys, true)) {
-            self::seedPrograms($organization, 'program', $limits);
+            $requestedPrograms['program'] = $isKlinik ? KlinikAisyiyahAmbuluSamples::programItems() : null;
         }
 
         if (in_array('layanan', $keys, true)) {
-            self::seedPrograms($organization, 'layanan', $limits);
+            $requestedPrograms['layanan'] = $isKlinik ? KlinikAisyiyahAmbuluSamples::layananItems() : null;
         }
+
+        self::seedPrograms($organization, $limits, $requestedPrograms);
 
         if (in_array('fasilitas-masjid', $keys, true)) {
             self::seedFacilities($organization, $limits);
@@ -147,13 +182,16 @@ class CmsSampleDataSeeder
         return $limit === null ? $available : max(0, min($available, $limit));
     }
 
-    private static function seedPosts(Organization $organization, PlanLimitService $limits): void
+    /**
+     * @param  array<int, array{title: string, category: string, body: string}>|null  $customSamples
+     */
+    private static function seedPosts(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
     {
         if ($organization->posts()->exists()) {
             return;
         }
 
-        $samples = [
+        $samples = $customSamples ?? [
             ['title' => 'Contoh Berita Kegiatan', 'category' => 'Kegiatan', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
             ['title' => 'Contoh Berita Pengumuman Program', 'category' => 'Program', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
             ['title' => 'Contoh Berita Sosial Kemasyarakatan', 'category' => 'Sosial', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
@@ -180,13 +218,16 @@ class CmsSampleDataSeeder
         ], $samples, array_keys($samples)));
     }
 
-    private static function seedAnnouncements(Organization $organization, PlanLimitService $limits): void
+    /**
+     * @param  array<int, array{title: string, priority: string, body?: string, ongoing?: bool}>|null  $customSamples
+     */
+    private static function seedAnnouncements(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
     {
         if ($organization->announcements()->exists()) {
             return;
         }
 
-        $samples = [
+        $samples = $customSamples ?? [
             ['title' => 'Contoh Pengumuman Penting', 'priority' => 'Tinggi'],
             ['title' => 'Contoh Pengumuman Kegiatan', 'priority' => 'Sedang'],
             ['title' => 'Contoh Pengumuman Umum', 'priority' => 'Rendah'],
@@ -203,9 +244,13 @@ class CmsSampleDataSeeder
         Announcement::insert(array_map(fn ($sample) => [
             'organization_id' => $organization->id,
             'title' => $sample['title'],
-            'body' => '<p>Isi pengumuman akan tampil di sini. Edit atau hapus contoh ini kapan saja.</p>',
+            'body' => '<p>'.($sample['body'] ?? 'Isi pengumuman akan tampil di sini. Edit atau hapus contoh ini kapan saja.').'</p>',
             'priority' => $sample['priority'],
-            'valid_until' => $now->copy()->addMonth(),
+            // 'ongoing' => true (e.g. standing clinic operating-hours notices) leaves this
+            // unset - pengumuman/standar.blade.php only shows "Berlaku hingga ..." when
+            // valid_until is present, so an announcement that never expires doesn't render a
+            // misleading date.
+            'valid_until' => ($sample['ongoing'] ?? false) ? null : $now->copy()->addMonth(),
             'status' => PublishStatus::Published->value,
             'created_at' => $now,
             'updated_at' => $now,
@@ -255,6 +300,10 @@ class CmsSampleDataSeeder
     private const PLACEHOLDER_PHOTO_URL = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect width="400" height="400" fill="%23e5e7eb"/%3E%3C/svg%3E';
 
     /**
+     * `photo` is either a path relative to this class's S3 constant (the nurul-huda samples,
+     * which all live in that one bucket) or an absolute http(s) URL, so a template whose
+     * imagery isn't hosted there can supply its own.
+     *
      * @param  array<int, array{caption: string, photo: string}>|null  $customSamples
      */
     private static function seedGalleryPhotos(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
@@ -273,14 +322,32 @@ class CmsSampleDataSeeder
 
         GalleryPhoto::insert(array_map(fn ($index) => [
             'organization_id' => $organization->id,
-            'url' => $customSamples
-                ? self::S3.$customSamples[$index]['photo']
-                : self::PLACEHOLDER_PHOTO_URL,
+            'url' => match (true) {
+                ! $customSamples => self::PLACEHOLDER_PHOTO_URL,
+                str_starts_with($customSamples[$index]['photo'], 'http') => $customSamples[$index]['photo'],
+                default => self::S3.$customSamples[$index]['photo'],
+            },
             'caption' => $customSamples[$index]['caption'] ?? 'Foto kegiatan '.($index + 1),
             'order' => $index,
             'created_at' => $now,
             'updated_at' => $now,
         ], range(0, $count - 1)));
+    }
+
+    /**
+     * Adapts a template's `galeri` section content shape ({image, caption} - see
+     * templates/sections/galeri/standar.blade.php) to seedGalleryPhotos()'s custom-sample
+     * shape ({photo, caption}), so a sample list defined once (e.g.
+     * KlinikAisyiyahAmbuluSamples::ruanganPhotos()) can feed both the template's own preview
+     * content and the organization's real GalleryPhoto records without being duplicated in
+     * two different key shapes.
+     *
+     * @param  array<int, array{image: string, caption: string}>  $items
+     * @return array<int, array{photo: string, caption: string}>
+     */
+    private static function toGalleryPhotoSamples(array $items): array
+    {
+        return array_map(fn (array $item) => ['photo' => $item['image'], 'caption' => $item['caption']], $items);
     }
 
     /**
@@ -339,52 +406,89 @@ class CmsSampleDataSeeder
         ], range(1, 3)));
     }
 
-    private static function seedPrograms(Organization $organization, string $type, PlanLimitService $limits): void
+    /**
+     * Seeds sample programs for every requested type in one pass.
+     *
+     * `$requested` maps each wanted Program type ('program' and/or 'layanan') to its custom
+     * sample list, or null to use that type's generic placeholders. Both types are handled
+     * together because they share ONE plan quota: 'programs' is the PlanLimitService key for
+     * both (see RESOURCE_RELATIONS and Organization::programs(), which counts them together),
+     * so the budget has to be divided between them rather than each type claiming it in full.
+     *
+     * The quota is split evenly, with any remainder going to the earlier type, and any share a
+     * type doesn't use (its sample list being shorter than its share) returned to the pool for
+     * the other - so a 5-program budget across 3 'program' + 6 'layanan' samples seeds all 3
+     * programs and 2 services, rather than 3 and none.
+     *
+     * @param  array<string, array<int, array{title: string, description: string, icon: string}>|null>  $requested
+     */
+    private static function seedPrograms(Organization $organization, PlanLimitService $limits, array $requested): void
     {
-        // Guards on the combined 'programs' resource (both types together), not
-        // ofType($type) alone: 'program' and 'layanan' share one plan_limits quota (see the
-        // comment below), so seeding 'layanan' samples on top of already-seeded 'program'
-        // samples - e.g. after switching to a template with a different section via
-        // OrganizationTemplateController, which drops pages/sections but never deletes CMS
-        // records - would push the organization over its own plan's limit even though this
-        // method never lets a single call insert more samples than that limit allows.
-        if ($organization->programs()->exists()) {
+        // Guards on the combined resource, not ofType() per type: an organization that already
+        // has programs from a previous template (switching templates via
+        // OrganizationTemplateController drops pages/sections but never deletes CMS records)
+        // would otherwise be pushed past its own plan's limit by a second round of samples.
+        if ($requested === [] || $organization->programs()->exists()) {
             return;
         }
 
-        $samples = $type === 'layanan'
-            ? [
-                ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
-                ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
-                ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
-            ]
-            : [
+        $defaults = [
+            'program' => [
                 ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
                 ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
                 ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
-            ];
+            ],
+            'layanan' => [
+                ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
+                ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
+                ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
+            ],
+        ];
 
-        // 'programs' is the plan_limits/PlanLimitService key for both types (program and
-        // layanan aren't tracked separately there) - see PlanLimitService::RESOURCE_RELATIONS
-        // and Organization::programs(), which counts both together.
-        $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'programs', count($samples)));
+        $pools = [];
 
-        if ($samples === []) {
-            return;
+        foreach ($requested as $type => $customSamples) {
+            $pools[$type] = $customSamples ?? $defaults[$type] ?? [];
         }
 
-        $now = now();
+        $budget = self::sampleCount(
+            $organization,
+            $limits,
+            'programs',
+            array_sum(array_map('count', $pools)),
+        );
 
-        Program::insert(array_map(fn ($sample, $index) => [
-            'organization_id' => $organization->id,
-            'type' => $type,
-            'title' => $sample['title'],
-            'description' => $sample['description'],
-            'icon' => $sample['icon'],
-            'order' => $index,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ], $samples, array_keys($samples)));
+        $rows = [];
+        $now = now();
+        $remaining = count($pools);
+
+        foreach ($pools as $type => $samples) {
+            // Ceil so the remainder of an uneven split goes to the earlier type rather than
+            // being lost; whatever this type leaves unused stays in $budget for the next one.
+            $share = min(count($samples), (int) ceil($budget / max(1, $remaining)));
+            $budget -= $share;
+            $remaining--;
+
+            // array_slice reindexes from 0, so `order` restarts per type - each type is
+            // queried and rendered on its own (Program::ofType()), so their orderings are
+            // independent sequences rather than one shared run.
+            foreach (array_values(array_slice($samples, 0, $share)) as $index => $sample) {
+                $rows[] = [
+                    'organization_id' => $organization->id,
+                    'type' => $type,
+                    'title' => $sample['title'],
+                    'description' => $sample['description'],
+                    'icon' => $sample['icon'],
+                    'order' => $index,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+
+        if ($rows !== []) {
+            Program::insert($rows);
+        }
     }
 
     /**
