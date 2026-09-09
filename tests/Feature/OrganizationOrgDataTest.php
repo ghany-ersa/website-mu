@@ -258,7 +258,10 @@ class OrganizationOrgDataTest extends TestCase
         $response = $this->actingAs($user)->get(route('organizations.builder.canvas', [$organization, $page]));
 
         $response->assertOk();
-        $response->assertSee('https://example.test/foto-kegiatan.jpg', false);
+        // The grid is Alpine-driven (x-for over a `photos` array - see galeri/standar.blade.php)
+        // so the photo data lands in the page as a JSON-encoded string (slashes escaped), not a
+        // plain <img src> - assert on the filename rather than the full URL to sidestep that.
+        $response->assertSee('foto-kegiatan.jpg', false);
         $response->assertSee('Kegiatan bakti sosial');
     }
 }

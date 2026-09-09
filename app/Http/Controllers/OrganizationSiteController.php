@@ -156,6 +156,41 @@ class OrganizationSiteController extends Controller
     }
 
     /**
+     * "Muat Lebih Banyak" batch endpoint for galeri/standar (see the Alpine `loadMore()`
+     * component inline in that partial): fetches exactly the next `limit` gallery photos after
+     * `offset`, same order as the section's own initial query. Returns plain {image, caption}
+     * data rather than rendered HTML (contrast loadMoreBerita()): the grid is driven by an
+     * Alpine `photos` array that the shared lightbox component also indexes into, so a new
+     * batch has to land in that same reactive array, not be appended as inert markup next to
+     * it - see galeri/standar.blade.php's doc comment.
+     *
+     * `hasMore` comes from fetching one extra row (`take($limit + 1)`) instead of a separate
+     * `count()` query, the same trick loadMoreBerita() uses - see that method's doc comment.
+     */
+    public function loadMoreGaleri(Request $request, string $organization_slug): JsonResponse
+    {
+        $organization = $this->publishedOrganization($organization_slug);
+
+        $offset = max(0, (int) $request->query('offset', 0));
+        // Clamped the same way a builder-authored `limit` would be malformed into 0 elsewhere
+        // on this section - see galeri/standar.blade.php's own `limit` handling.
+        $limit = max(1, min(50, (int) $request->query('limit', 4)));
+
+        $photos = $organization->photos()
+            ->skip($offset)->take($limit + 1)->get()
+            ->map(fn ($photo) => ['image' => $photo->url, 'caption' => $photo->caption]);
+
+        $hasMore = $photos->count() > $limit;
+        $photos = $hasMore ? $photos->take($limit) : $photos;
+
+        return response()->json([
+            'photos' => $photos->values(),
+            'nextOffset' => $offset + $photos->count(),
+            'hasMore' => $hasMore,
+        ]);
+    }
+
+    /**
      * Preview one donation program's detail page from the main app domain, the same way
      * preview() does for builder pages - without it the only way to reach this page is the
      * tenant subdomain, which isn't routable under `php artisan serve` locally, so neither an
