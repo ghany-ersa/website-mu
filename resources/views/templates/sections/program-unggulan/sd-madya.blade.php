@@ -30,22 +30,22 @@
     $tones = ['light', 'primary', 'accent'];
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface-container-low">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6">
-        <div class="text-center mb-10 sm:mb-12 md:mb-16">
-            <h2 class="reveal font-headline text-2xl md:text-3xl font-extrabold text-primary uppercase tracking-[0.2em] mb-4">
+<section class="section-y bg-surface-container-low">
+    <div class="shell shell-wide">
+        <div class="text-center mb-8 sm:mb-10">
+            <h2 class="reveal font-headline t-h2 font-extrabold text-primary uppercase tracking-[0.15em] mb-3">
                 {{ $content['title'] ?? 'Program Unggulan' }}
             </h2>
-            <div class="h-1 w-20 bg-secondary mx-auto"></div>
+            <div class="h-0.5 w-14 bg-secondary mx-auto"></div>
             @if (! empty($content['subtitle']))
-                <p class="reveal font-body text-lg text-on-surface-variant max-w-2xl mx-auto mt-6">{{ $content['subtitle'] }}</p>
+                <p class="reveal font-body t-body text-on-surface-variant measure mx-auto mt-4">{{ $content['subtitle'] }}</p>
             @endif
         </div>
 
         @if (empty($items))
             <p class="text-center font-body text-on-surface-variant">Belum ada program.</p>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:auto-rows-[280px]">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:auto-rows-[235px]">
                 @foreach ($items as $index => $item)
                     @php
                         $span = $spans[$index % count($spans)];
@@ -59,30 +59,30 @@
                         $heading = $tone === 'light' ? 'text-primary' : 'text-white';
                         $tall = str_contains($span, 'row-span-2');
                     @endphp
-                    <div class="reveal {{ $span }} {{ $card }} rounded-2xl p-5 sm:p-6 md:p-8 overflow-hidden group flex {{ $tall ? 'flex-col justify-between' : 'items-center gap-4 sm:gap-6' }}"
+                    <div class="reveal {{ $span }} {{ $card }} rounded-2xl p-5 sm:p-6 overflow-hidden group flex {{ $tall ? 'flex-col justify-between' : 'items-center gap-4 sm:gap-6' }}"
                          style="transition-delay: {{ min($index * 60, 240) }}ms">
                         <div class="{{ $tall ? '' : 'flex-1 min-w-0' }}">
                             @if (! empty($item['icon']))
-                                <span class="block text-3xl mb-3">{{ $item['icon'] }}</span>
+                                <span class="block text-2xl mb-2.5">{{ $item['icon'] }}</span>
                             @endif
                             @if (! empty($item['category']))
                                 <span class="block font-headline text-[10px] font-bold uppercase tracking-widest {{ $muted }} mb-1">{{ $item['category'] }}</span>
                             @endif
-                            <h3 class="font-headline font-bold text-xl md:text-2xl {{ $heading }} mb-2">{{ $item['title'] ?? '' }}</h3>
+                            <h3 class="font-headline font-bold t-h3 {{ $heading }} mb-1.5">{{ $item['title'] ?? '' }}</h3>
                             @if (! empty($item['description']))
-                                <p class="font-body {{ $muted }} text-sm md:text-base">{{ $item['description'] }}</p>
+                                <p class="font-body {{ $muted }} text-[13px] leading-relaxed">{{ $item['description'] }}</p>
                             @endif
                         </div>
 
                         @if (! empty($item['image']))
                             @if ($tall)
                                 <img src="{{ $item['image'] }}" alt="{{ $item['title'] ?? '' }}" loading="lazy"
-                                     class="mt-6 rounded-xl h-40 w-full object-cover shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
+                                     class="mt-5 rounded-xl h-32 w-full object-cover shadow-lg opacity-80 group-hover:opacity-100 transition-opacity">
                             @else
                                 {{-- Hidden on the narrowest screens: at that width the circle
                                      would squeeze the text it is meant to accompany. --}}
                                 <img src="{{ $item['image'] }}" alt="{{ $item['title'] ?? '' }}" loading="lazy"
-                                     class="hidden sm:block w-28 h-28 rounded-full object-cover border-4 border-white shadow-xl shrink-0">
+                                     class="hidden sm:block w-24 h-24 rounded-full object-cover border-4 border-white shadow-xl shrink-0">
                             @endif
                         @endif
                     </div>

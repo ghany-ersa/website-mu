@@ -15,36 +15,36 @@
     ];
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface-container-low">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6">
-        <div class="text-center mb-10 sm:mb-12 md:mb-16 space-y-3 sm:space-y-4">
+<section class="section-y bg-surface-container-low">
+    <div class="shell">
+        <div class="text-center mb-8 sm:mb-10 space-y-2.5">
             @if (! empty($content['label']))
                 <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-xs">
                     {{ $content['label'] }}
                 </span>
             @endif
-            <h2 class="reveal font-headline font-bold text-3xl md:text-4xl text-primary">
+            <h2 class="reveal font-headline font-bold t-h2 text-primary">
                 {{ $content['title'] ?? 'Apa Kata Mereka?' }}
             </h2>
-            <div class="w-20 h-1 bg-secondary mx-auto"></div>
+            <div class="w-14 h-0.5 bg-secondary mx-auto"></div>
         </div>
 
         {{-- 2-up at tablet, 3-up only once there is room: three quote cards at 768px squeeze
              the attribution line until names truncate. --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             @foreach ($items as $index => $item)
-                <figure class="reveal relative bg-surface-container-lowest rounded-2xl p-6 sm:p-8 shadow-ambient flex flex-col"
+                <figure class="reveal relative bg-surface-container-lowest rounded-2xl p-5 sm:p-6 shadow-ambient flex flex-col"
                         style="transition-delay: {{ min($index * 80, 240) }}ms">
                     {{-- Oversized quote mark, low contrast: decoration, so it's hidden from
                          assistive tech rather than read out as punctuation. --}}
-                    <span aria-hidden="true" class="absolute top-6 right-6 font-headline text-6xl leading-none text-secondary/25 select-none">&rdquo;</span>
+                    <span aria-hidden="true" class="absolute top-4 right-5 font-headline text-4xl leading-none text-secondary/25 select-none">&rdquo;</span>
 
-                    <blockquote class="font-body italic text-on-surface-variant leading-relaxed relative z-10 mb-6">
+                    <blockquote class="font-body italic text-on-surface-variant text-sm leading-relaxed relative z-10 mb-5">
                         "{{ $item['quote'] ?? '' }}"
                     </blockquote>
 
                     <figcaption class="flex items-center gap-3 mt-auto">
-                        <div class="w-11 h-11 rounded-full overflow-hidden bg-surface-container-high shrink-0 flex items-center justify-center">
+                        <div class="w-9 h-9 rounded-full overflow-hidden bg-surface-container-high shrink-0 flex items-center justify-center">
                             @if (! empty($item['image']))
                                 <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? '' }}" loading="lazy" class="w-full h-full object-cover">
                             @else
@@ -52,7 +52,7 @@
                             @endif
                         </div>
                         <div class="min-w-0">
-                            <p class="font-headline font-bold text-sm text-primary">{{ $item['name'] ?? '' }}</p>
+                            <p class="font-headline font-bold text-[13px] text-primary">{{ $item['name'] ?? '' }}</p>
                             @if (! empty($item['role']))
                                 <p class="font-body text-xs text-on-surface-variant">{{ $item['role'] }}</p>
                             @endif

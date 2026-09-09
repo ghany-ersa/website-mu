@@ -33,19 +33,19 @@
     $small = array_slice($items, 1, 2);
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface-container-low">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6">
-        <div class="text-center mb-10 sm:mb-12 md:mb-16 space-y-3 sm:space-y-4">
+<section class="section-y bg-surface-container-low">
+    <div class="shell shell-wide">
+        <div class="text-center mb-8 sm:mb-10 space-y-2.5">
             @if (! empty($content['label']))
                 <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-xs">
                     {{ $content['label'] }}
                 </span>
             @endif
-            <h2 class="reveal font-headline font-bold text-3xl md:text-4xl text-primary">
+            <h2 class="reveal font-headline font-bold t-h2 text-primary">
                 {{ $content['title'] ?? 'Prestasi' }}
             </h2>
             @if (! empty($content['subtitle']))
-                <p class="reveal font-body text-lg text-on-surface-variant max-w-2xl mx-auto" style="transition-delay: 80ms">
+                <p class="reveal font-body t-body text-on-surface-variant measure mx-auto" style="transition-delay: 80ms">
                     {{ $content['subtitle'] }}
                 </p>
             @endif
@@ -54,23 +54,23 @@
         @if (empty($items))
             <p class="text-center font-body text-on-surface-variant">Belum ada prestasi.</p>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:auto-rows-[250px]">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 md:auto-rows-[215px]">
                 @if ($main)
-                    <div class="reveal md:col-span-2 md:row-span-2 bg-primary rounded-3xl p-6 sm:p-8 flex flex-col justify-end relative overflow-hidden group min-h-[280px] sm:min-h-[340px]">
+                    <div class="reveal md:col-span-2 md:row-span-2 bg-primary rounded-2xl p-5 sm:p-7 flex flex-col justify-end relative overflow-hidden group min-h-[250px] sm:min-h-[300px]">
                         @if (! empty($main['image']))
                             <img src="{{ $main['image'] }}" alt="{{ $main['title'] ?? '' }}" loading="lazy"
                                  class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-500">
                         @endif
                         <div class="absolute inset-0 bg-gradient-to-t from-primary to-transparent"></div>
-                        <div class="relative z-10 space-y-4">
+                        <div class="relative z-10 space-y-3">
                             @if (! empty($main['level']))
                                 <span class="inline-block px-3 py-1 rounded-full bg-secondary text-white font-headline text-[10px] font-bold uppercase tracking-wide">
                                     {{ $main['level'] }}
                                 </span>
                             @endif
-                            <h3 class="font-headline font-bold text-xl sm:text-2xl md:text-3xl text-white">{{ $main['title'] ?? '' }}</h3>
+                            <h3 class="font-headline font-bold t-h3 sm:text-2xl text-white">{{ $main['title'] ?? '' }}</h3>
                             @if (! empty($main['description']))
-                                <p class="font-body text-white/80 max-w-lg hidden md:block">{{ $main['description'] }}</p>
+                                <p class="font-body text-white/80 text-sm max-w-lg hidden md:block">{{ $main['description'] }}</p>
                             @endif
                         </div>
                     </div>
@@ -90,21 +90,21 @@
                         $inkMuted = ($gold && $flat) ? 'text-primary/75' : 'text-white/80';
                         $chip = ($gold && $flat) ? 'bg-primary/10' : 'bg-white/20 backdrop-blur-sm';
                     @endphp
-                    <div class="reveal relative rounded-3xl overflow-hidden min-h-[190px] sm:min-h-[220px] group {{ $flat ? ($gold ? 'bg-secondary' : 'bg-primary') : '' }}"
+                    <div class="reveal relative rounded-2xl overflow-hidden min-h-[170px] sm:min-h-[195px] group {{ $flat ? ($gold ? 'bg-secondary' : 'bg-primary') : '' }}"
                          style="transition-delay: {{ 80 + $index * 80 }}ms">
                         @if (! empty($item['image']))
                             <img src="{{ $item['image'] }}" alt="{{ $item['title'] ?? '' }}" loading="lazy"
                                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             <div class="absolute inset-0 bg-gradient-to-t {{ $tint }}"></div>
                         @endif
-                        <div class="relative z-10 p-5 sm:p-6 flex flex-col justify-between h-full">
-                            <div class="w-12 h-12 {{ $chip }} rounded-full flex items-center justify-center">
+                        <div class="relative z-10 p-4 sm:p-5 flex flex-col justify-between h-full">
+                            <div class="w-10 h-10 {{ $chip }} rounded-full flex items-center justify-center">
                                 <x-tenant.icon name="{{ $gold ? 'music_note' : 'menu_book' }}" filled class="{{ $ink }}" />
                             </div>
                             <div class="mt-4">
-                                <h4 class="font-headline font-bold {{ $ink }}">{{ $item['title'] ?? '' }}</h4>
+                                <h4 class="font-headline font-bold text-[15px] {{ $ink }}">{{ $item['title'] ?? '' }}</h4>
                                 @if (! empty($item['description']))
-                                    <p class="font-body {{ $inkMuted }} text-sm">{{ $item['description'] }}</p>
+                                    <p class="font-body {{ $inkMuted }} text-xs leading-relaxed">{{ $item['description'] }}</p>
                                 @endif
                             </div>
                         </div>

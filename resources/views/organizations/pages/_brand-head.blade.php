@@ -95,6 +95,51 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
 
+    /*
+     * Shared layout scale for the ported sections. Defined once here rather than as per-section
+     * utility soup, so "make the whole template a notch tighter" is a change in one place
+     * instead of a sweep through a dozen Blade files that inevitably drift apart.
+     *
+     * Widths: content stops well short of the viewport on a large screen. `--shell` is the
+     * default reading width; `--shell-wide` is for the few sections (galleries, bento grids)
+     * that genuinely earn more room. Both stay under the old max-w-7xl (1280px).
+     */
+    :root {
+        --shell: 1120px;
+        --shell-wide: 1280px;
+        --gutter: clamp(1rem, 4vw, 1.5rem);   /* 16px phone -> 24px desktop */
+
+        /* Section rhythm: ~40px phone, ~64px tablet, ~80px desktop. */
+        --section-y: clamp(2.5rem, 6vw, 5rem);
+
+        /* Type ramp. Each caps out at the size the design actually needs rather than the
+           largest step Tailwind happens to offer, and scales fluidly between. */
+        --t-hero: clamp(1.875rem, 1.1rem + 3.6vw, 3.25rem);   /* 30 -> 52px */
+        --t-h2: clamp(1.5rem, 1.15rem + 1.6vw, 2.25rem);      /* 24 -> 36px */
+        --t-h3: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);      /* 18 -> 22px */
+        --t-lead: clamp(1rem, 0.94rem + 0.35vw, 1.1875rem);   /* 16 -> 19px */
+        --t-body: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);/* 15 -> 17px */
+    }
+
+    .shell {
+        width: 100%;
+        max-width: var(--shell);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+    }
+    .shell-wide { max-width: var(--shell-wide); }
+
+    .section-y { padding-block: var(--section-y); }
+
+    .t-hero { font-size: var(--t-hero); line-height: 1.08; letter-spacing: -0.02em; }
+    .t-h2   { font-size: var(--t-h2);   line-height: 1.15; letter-spacing: -0.01em; }
+    .t-h3   { font-size: var(--t-h3);   line-height: 1.25; }
+    .t-lead { font-size: var(--t-lead); line-height: 1.6; }
+    .t-body { font-size: var(--t-body); line-height: 1.65; }
+
+    /* Comfortable measure for running text - roughly 65-75 characters. */
+    .measure { max-width: 62ch; }
+
     {{-- `font-headline` / `font-body` are real Tailwind utilities, generated from the
          --font-headline / --font-body theme entries in resources/css/app.css. --}}
 

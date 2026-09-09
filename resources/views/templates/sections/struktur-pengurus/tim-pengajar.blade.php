@@ -29,17 +29,17 @@
     $rest = collect($people)->reject(fn ($person, $index) => $index === ($headIndex === false ? 0 : $headIndex))->values();
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6">
-        <div class="mb-10 sm:mb-12 md:mb-16 text-center md:text-left max-w-2xl">
+<section class="section-y bg-surface">
+    <div class="shell">
+        <div class="mb-8 sm:mb-10 text-center md:text-left max-w-2xl">
             @if (! empty($content['label']))
-                <span class="reveal inline-block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-xs mb-4">{{ $content['label'] }}</span>
+                <span class="reveal inline-block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-[11px] mb-3">{{ $content['label'] }}</span>
             @endif
-            <h2 class="reveal font-headline font-extrabold text-3xl md:text-5xl text-primary tracking-tight leading-tight mb-4">
+            <h2 class="reveal font-headline font-extrabold t-h2 text-primary mb-3">
                 {{ $content['title'] ?? 'Tim Pengajar' }}
             </h2>
             @if (! empty($content['subtitle']))
-                <p class="reveal font-body text-lg md:text-xl text-on-surface-variant leading-relaxed italic" style="transition-delay: 80ms">
+                <p class="reveal font-body t-body text-on-surface-variant italic measure" style="transition-delay: 80ms">
                     "{{ $content['subtitle'] }}"
                 </p>
             @endif
@@ -48,27 +48,27 @@
         @if (empty($people))
             <p class="text-center font-body text-on-surface-variant">Belum ada data pengajar.</p>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 @if ($head)
                     <div class="reveal lg:col-span-3 grid md:grid-cols-5 bg-surface-container-lowest rounded-2xl overflow-hidden shadow-ambient border border-outline-variant/20">
-                        <div class="md:col-span-2 relative h-72 md:h-auto overflow-hidden">
+                        <div class="md:col-span-2 relative h-60 md:h-auto overflow-hidden">
                             @if (! empty($head['photo']))
                                 <img src="{{ $head['photo'] }}" alt="{{ $head['name'] ?? '' }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full min-h-[18rem] bg-surface-container-high flex items-center justify-center">
-                                    <x-tenant.icon name="person" class="text-6xl text-on-surface-variant" />
+                                    <x-tenant.icon name="person" class="text-5xl text-on-surface-variant" />
                                 </div>
                             @endif
                             <div class="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent"></div>
                         </div>
-                        <div class="md:col-span-3 p-6 sm:p-8 md:p-12 flex flex-col justify-center">
+                        <div class="md:col-span-3 p-5 sm:p-7 md:p-9 flex flex-col justify-center">
                             @if (! empty($head['role']))
                                 <span class="font-headline text-secondary font-bold text-xs uppercase tracking-widest mb-2">{{ $head['role'] }}</span>
                             @endif
-                            <h3 class="font-headline font-bold text-2xl md:text-3xl text-primary mb-4 italic">{{ $head['name'] ?? '' }}</h3>
-                            <div class="w-12 h-1 bg-secondary mb-6"></div>
+                            <h3 class="font-headline font-bold t-h3 sm:text-2xl text-primary mb-3 italic">{{ $head['name'] ?? '' }}</h3>
+                            <div class="w-10 h-0.5 bg-secondary mb-4"></div>
                             @if (! empty($head['bio']))
-                                <p class="font-body text-lg md:text-xl text-on-surface italic leading-relaxed">"{{ $head['bio'] }}"</p>
+                                <p class="font-body t-body text-on-surface italic">"{{ $head['bio'] }}"</p>
                             @endif
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                 @foreach ($rest as $index => $person)
                     <div class="reveal bg-surface-container-lowest rounded-2xl overflow-hidden shadow-ambient flex flex-col"
                          style="transition-delay: {{ min($index * 60, 240) }}ms">
-                        <div class="h-60 relative overflow-hidden group bg-surface-container-high">
+                        <div class="aspect-[4/3] relative overflow-hidden group bg-surface-container-high">
                             @if (! empty($person['photo']))
                                 {{-- Desaturated until hover, as in the source: it keeps a grid of
                                      photos from many different cameras looking like one set. --}}
@@ -85,7 +85,7 @@
                                      class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
-                                    <x-tenant.icon name="person" class="text-5xl text-on-surface-variant" />
+                                    <x-tenant.icon name="person" class="text-4xl text-on-surface-variant" />
                                 </div>
                             @endif
                             @if (! empty($person['subject']))
@@ -94,13 +94,13 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="p-5 sm:p-6 flex flex-col grow">
-                            <h4 class="font-headline font-bold text-xl text-primary mb-1">{{ $person['name'] ?? '' }}</h4>
+                        <div class="p-4 sm:p-5 flex flex-col grow">
+                            <h4 class="font-headline font-bold text-[15px] text-primary mb-0.5">{{ $person['name'] ?? '' }}</h4>
                             @if (! empty($person['role']))
-                                <p class="font-headline text-xs font-medium text-on-surface-variant mb-4">{{ $person['role'] }}</p>
+                                <p class="font-headline text-xs font-medium text-on-surface-variant mb-3">{{ $person['role'] }}</p>
                             @endif
                             @if (! empty($person['bio']))
-                                <p class="font-body italic text-on-surface leading-relaxed mt-auto border-l-2 border-secondary/40 pl-4">
+                                <p class="font-body italic text-[13px] text-on-surface leading-relaxed mt-auto border-l-2 border-secondary/40 pl-3">
                                     "{{ $person['bio'] }}"
                                 </p>
                             @endif

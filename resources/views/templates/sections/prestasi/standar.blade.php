@@ -41,7 +41,7 @@
     $categories = collect($items)->pluck('category')->filter()->unique()->values()->all();
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface"
+<section class="section-y bg-surface"
          x-data="{
             filter: 'Semua',
             q: '',
@@ -55,25 +55,25 @@
                 return this.$refs.grid ? [...this.$refs.grid.children].filter((el) => this.matches(el)).length : 0;
             },
          }">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6">
+    <div class="shell">
         @if (! empty($content['label']))
-            <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-xs mb-4">{{ $content['label'] }}</span>
+            <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-[11px] mb-3">{{ $content['label'] }}</span>
         @endif
 
-        <h2 class="reveal font-headline text-3xl md:text-4xl font-extrabold text-primary mb-3 leading-tight">
+        <h2 class="reveal font-headline t-h2 font-extrabold text-primary mb-2.5">
             {{ $content['title'] ?? 'Prestasi' }}
         </h2>
 
         @if (! empty($content['subtitle']))
-            <p class="reveal font-body text-lg text-on-surface-variant max-w-2xl mb-10">{{ $content['subtitle'] }}</p>
+            <p class="reveal font-body t-body text-on-surface-variant measure mb-8">{{ $content['subtitle'] }}</p>
         @endif
 
         @if ($stats)
-            <div class="reveal grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+            <div class="reveal grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10">
                 @foreach ($stats as $stat)
-                    <div class="bg-primary rounded-2xl p-6 text-center">
-                        <p class="font-headline text-2xl md:text-3xl font-extrabold text-white">{{ $stat['value'] ?? '' }}</p>
-                        <p class="font-body text-xs md:text-sm text-white/70 mt-1">{{ $stat['label'] ?? '' }}</p>
+                    <div class="bg-primary rounded-2xl p-5 text-center">
+                        <p class="font-headline text-xl md:text-2xl font-extrabold text-white">{{ $stat['value'] ?? '' }}</p>
+                        <p class="font-body text-xs text-white/70 mt-1">{{ $stat['label'] ?? '' }}</p>
                     </div>
                 @endforeach
             </div>
@@ -104,7 +104,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" x-ref="grid">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5" x-ref="grid">
                 @foreach ($items as $index => $item)
                     <div x-show="matches($el)"
                          data-category="{{ $item['category'] ?? '' }}"
@@ -112,12 +112,12 @@
                          class="reveal bg-surface-container-lowest rounded-2xl overflow-hidden flex flex-col border border-outline-variant/30 hover:shadow-ambient transition-shadow"
                          style="transition-delay: {{ min($index * 40, 200) }}ms">
                         @if (! empty($item['image']))
-                            <div class="h-44 overflow-hidden shrink-0">
+                            <div class="h-36 overflow-hidden shrink-0">
                                 <img src="{{ $item['image'] }}" alt="{{ $item['title'] ?? '' }}" loading="lazy" class="w-full h-full object-cover">
                             </div>
                         @endif
 
-                        <div class="p-6 flex flex-col gap-4 flex-1">
+                        <div class="p-5 flex flex-col gap-3 flex-1">
                             <div class="flex justify-between items-start gap-2">
                                 @if (! empty($item['level']))
                                     <span class="inline-block px-3 py-1 rounded-full bg-secondary/15 text-secondary font-headline text-[10px] font-bold uppercase tracking-wide">
@@ -130,19 +130,19 @@
                             </div>
 
                             <div class="flex items-start gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
+                                <div class="w-9 h-9 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
                                     <x-tenant.icon name="emoji_events" filled class="text-secondary text-xl" />
                                 </div>
                                 <div class="min-w-0">
                                     @if (! empty($item['category']))
                                         <span class="block font-headline text-[10px] font-bold uppercase tracking-widest text-secondary">{{ $item['category'] }}</span>
                                     @endif
-                                    <h3 class="font-headline text-base font-bold text-primary leading-snug mt-0.5">{{ $item['title'] ?? '' }}</h3>
+                                    <h3 class="font-headline text-[15px] font-bold text-primary leading-snug mt-0.5">{{ $item['title'] ?? '' }}</h3>
                                 </div>
                             </div>
 
                             @if (! empty($item['description']))
-                                <p class="font-body text-sm text-on-surface-variant leading-relaxed">{{ $item['description'] }}</p>
+                                <p class="font-body text-[13px] text-on-surface-variant leading-relaxed">{{ $item['description'] }}</p>
                             @endif
 
                             @if (! empty($item['students']))

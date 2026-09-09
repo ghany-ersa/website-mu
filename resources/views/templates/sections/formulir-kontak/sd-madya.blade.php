@@ -18,18 +18,18 @@
     $grades = $content['grades'] ?? ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'];
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-        <aside class="lg:col-span-4 space-y-8">
+<section class="section-y bg-surface">
+    <div class="shell grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
+        <aside class="lg:col-span-4 space-y-6">
             <div class="space-y-6">
-                <h2 class="reveal font-headline font-bold text-2xl md:text-3xl text-primary flex items-center gap-2">
+                <h2 class="reveal font-headline font-bold t-h3 sm:text-2xl text-primary flex items-center gap-2">
                     <x-tenant.icon name="contact_support" />
                     {{ $content['title'] ?? 'Hubungi Kami' }}
                 </h2>
 
                 @if ($address)
                     <div class="reveal flex gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
+                        <div class="w-9 h-9 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
                             <x-tenant.icon name="location_on" class="text-secondary" />
                         </div>
                         <div class="min-w-0">
@@ -41,7 +41,7 @@
 
                 @if ($waNumber)
                     <div class="reveal flex gap-4" style="transition-delay: 60ms">
-                        <div class="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
+                        <div class="w-9 h-9 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
                             <x-tenant.icon name="call" class="text-secondary" />
                         </div>
                         <div class="min-w-0">
@@ -53,10 +53,10 @@
             </div>
 
             @if ($hours)
-                <div class="reveal bg-primary p-6 sm:p-8 rounded-2xl text-white relative overflow-hidden" style="transition-delay: 120ms">
-                    <x-tenant.icon name="schedule" class="absolute -right-4 -bottom-4 text-white/5 text-9xl" />
-                    <h3 class="font-headline font-bold text-xl mb-6 relative z-10">{{ $content['hours_title'] ?? 'Jam Operasional' }}</h3>
-                    <ul class="space-y-4 relative z-10">
+                <div class="reveal bg-primary p-5 sm:p-6 rounded-2xl text-white relative overflow-hidden" style="transition-delay: 120ms">
+                    <x-tenant.icon name="schedule" class="absolute -right-4 -bottom-4 text-white/5 text-8xl" />
+                    <h3 class="font-headline font-bold text-base mb-4 relative z-10">{{ $content['hours_title'] ?? 'Jam Operasional' }}</h3>
+                    <ul class="space-y-3 relative z-10 text-sm">
                         @foreach ($hours as $row)
                             <li class="flex justify-between gap-4 border-b border-white/10 pb-2 last:border-0">
                                 <span class="font-body">{{ $row['day'] ?? '' }}</span>
@@ -68,12 +68,12 @@
             @endif
         </aside>
 
-        <div class="lg:col-span-8 bg-surface-container-lowest p-6 sm:p-8 md:p-12 rounded-2xl shadow-ambient">
-            <div class="mb-10">
-                <h3 class="reveal font-headline font-extrabold text-2xl md:text-3xl text-primary mb-3">
+        <div class="lg:col-span-8 bg-surface-container-lowest p-5 sm:p-7 md:p-9 rounded-2xl shadow-ambient">
+            <div class="mb-7">
+                <h3 class="reveal font-headline font-extrabold t-h3 sm:text-2xl text-primary mb-2">
                     {{ $content['form_title'] ?? 'Formulir Pendaftaran' }}
                 </h3>
-                <p class="reveal font-body text-on-surface-variant text-lg" style="transition-delay: 60ms">
+                <p class="reveal font-body text-on-surface-variant t-body" style="transition-delay: 60ms">
                     {{ $content['form_subtitle'] ?? 'Lengkapi data di bawah ini. Tim kami akan menghubungi Anda melalui WhatsApp.' }}
                 </p>
             </div>
@@ -81,7 +81,7 @@
             @if ($waDigits)
                 {{-- Composed and opened client-side: no server round-trip, and the parent keeps
                      their own copy of the message in their WhatsApp history. --}}
-                <form class="space-y-6"
+                <form class="space-y-4"
                       x-data="{
                         student: '',
                         guardian: '',
@@ -97,20 +97,20 @@
                     <div>
                         <label for="sd-madya-student" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Nama Lengkap Siswa</label>
                         <input id="sd-madya-student" type="text" x-model="student" required placeholder="Sesuai akta kelahiran"
-                               class="w-full bg-surface-container-high border-none rounded-xl p-4 font-body focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all">
+                               class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 font-body text-[15px] focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all">
                     </div>
 
                     <div>
                         <label for="sd-madya-guardian" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Nama Orang Tua / Wali</label>
                         <input id="sd-madya-guardian" type="text" x-model="guardian" required placeholder="Nama lengkap wali"
-                               class="w-full bg-surface-container-high border-none rounded-xl p-4 font-body focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all">
+                               class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 font-body text-[15px] focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all">
                     </div>
 
                     <div>
                         <label for="sd-madya-grade" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Mendaftar untuk</label>
                         <div class="relative">
                             <select id="sd-madya-grade" x-model="grade" required
-                                    class="w-full bg-surface-container-high border-none rounded-xl p-4 font-body focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+                                    class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 font-body text-[15px] focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
                                 <option value="" disabled>Pilih kelas</option>
                                 @foreach ($grades as $grade)
                                     <option value="{{ is_array($grade) ? ($grade['label'] ?? '') : $grade }}">{{ is_array($grade) ? ($grade['label'] ?? '') : $grade }}</option>
@@ -122,10 +122,10 @@
                         </div>
                     </div>
 
-                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <p class="font-body text-sm text-on-surface-variant italic order-2 sm:order-1">Anda akan diarahkan ke WhatsApp.</p>
                         <button type="submit"
-                                class="order-1 sm:order-2 w-full sm:w-auto px-10 py-4 bg-primary text-white font-headline font-bold rounded-xl shadow-ambient-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group">
+                                class="order-1 sm:order-2 w-full sm:w-auto px-7 py-3 bg-primary text-white font-headline font-bold rounded-xl shadow-ambient-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 group">
                             {{ $content['cta_label'] ?? 'Daftar Sekarang' }}
                             <x-tenant.icon name="arrow_forward" class="group-hover:translate-x-1 transition-transform" />
                         </button>

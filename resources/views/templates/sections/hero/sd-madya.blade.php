@@ -32,7 +32,7 @@
     $portrait = $content['portrait'] ?? $content['image'] ?? null;
 @endphp
 
-<section class="relative flex items-center overflow-hidden hero-gradient min-h-[620px] md:min-h-[751px]">
+<section class="relative flex items-center overflow-hidden hero-gradient min-h-[clamp(30rem,62vh,34rem)] md:min-h-[clamp(34rem,72vh,42rem)]">
     @if (! empty($content['image']))
         {{-- Barely-there backdrop: it sets the place without competing with the headline. --}}
         <div class="absolute inset-0 opacity-20">
@@ -40,12 +40,12 @@
         </div>
     @endif
 
-    <div class="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 py-14 sm:py-20 md:py-24 grid md:grid-cols-2 gap-10 md:gap-16 items-center w-full">
-        <div class="space-y-5 sm:space-y-6 md:space-y-8">
+    <div class="relative z-10 shell section-y grid md:grid-cols-2 gap-8 md:gap-12 items-center w-full">
+        <div class="space-y-4 sm:space-y-5 md:space-y-6">
             {{-- AppBadge's `subtle` variant in the source: a translucent gold chip with a
                  hairline border, not a plain white pill. --}}
             @if (! empty($content['badge']))
-                <span class="reveal inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 border border-secondary/30 text-secondary font-headline font-bold uppercase text-xs tracking-widest">
+                <span class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/20 border border-secondary/30 text-secondary font-headline font-bold uppercase text-[11px] tracking-widest">
                     <x-tenant.icon name="stars" filled class="text-sm" />
                     {{ $content['badge'] }}
                 </span>
@@ -54,11 +54,11 @@
             {{-- Caps out at 6xl rather than the source's 7xl: an organization name is editable
                  here and most are longer than "SD Muhammadiyah 01 Ambulu", so the larger step
                  pushed common names to three lines and unbalanced the two columns. --}}
-            <h1 class="reveal font-headline font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.1] tracking-tight" style="transition-delay: 80ms">
+            <h1 class="reveal font-headline font-extrabold t-hero text-white" style="transition-delay: 80ms">
                 {{ $content['headline'] ?? 'Headline Utama' }}
             </h1>
 
-            <p class="reveal font-body text-lg md:text-2xl text-white/90 leading-relaxed italic max-w-xl" style="transition-delay: 160ms">
+            <p class="reveal font-body t-lead text-white/90 italic measure" style="transition-delay: 160ms">
                 {{ $content['subheadline'] ?? 'Subheadline yang menjelaskan organisasi secara singkat.' }}
             </p>
 
@@ -69,15 +69,15 @@
                 @if (! empty($content['cta_label']))
                     <a @if ($ctaHref) href="{{ $ctaHref }}" @endif
                         {{ $ctaHref && ($content['cta_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
-                        class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-xl bg-secondary text-white font-headline font-bold shadow-ambient-lg transition-transform duration-200 hover:scale-105">
+                        class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 rounded-xl bg-secondary text-white font-headline font-bold shadow-ambient-lg transition-transform duration-200 hover:scale-105">
                         {{ $content['cta_label'] }}
-                        <x-tenant.icon name="arrow_forward" class="text-lg" />
+                        <x-tenant.icon name="arrow_forward" class="text-base" />
                     </a>
                 @endif
                 @if (! empty($content['cta_secondary_label']))
                     <a @if ($ctaSecondaryHref) href="{{ $ctaSecondaryHref }}" @endif
                         {{ $ctaSecondaryHref && ($content['cta_secondary_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
-                        class="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3.5 rounded-xl border border-white/40 text-white font-headline font-bold transition-colors duration-200 hover:bg-white/10">
+                        class="inline-flex items-center justify-center w-full sm:w-auto px-5 py-3 rounded-xl border border-white/40 text-white font-headline font-bold transition-colors duration-200 hover:bg-white/10">
                         {{ $content['cta_secondary_label'] }}
                     </a>
                 @endif
@@ -101,15 +101,15 @@
             @if (! empty($content['highlight_title']))
                 {{-- Overlapping the image's corner needs room to overlap into; on a phone there
                      is none, so it sits inline under the image instead of hanging off it. --}}
-                <div class="relative md:absolute md:-bottom-8 md:-left-8 mt-3 md:mt-0 bg-white p-4 md:p-6 rounded-2xl shadow-2xl md:max-w-xs z-20">
+                <div class="relative md:absolute md:-bottom-8 md:-left-8 mt-3 md:mt-0 bg-white p-4 md:p-5 rounded-2xl shadow-2xl md:max-w-[17rem] z-20">
                     <div class="flex gap-3 md:gap-4 items-center">
-                        <div class="w-11 h-11 md:w-12 md:h-12 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">
                             <x-tenant.icon name="workspace_premium" filled class="text-primary" />
                         </div>
                         <div class="min-w-0">
-                            <p class="font-headline font-bold text-primary text-base md:text-lg leading-tight">{{ $content['highlight_title'] }}</p>
+                            <p class="font-headline font-bold text-primary text-[15px] leading-tight">{{ $content['highlight_title'] }}</p>
                             @if (! empty($content['highlight_subtitle']))
-                                <p class="font-body text-on-surface-variant text-sm">{{ $content['highlight_subtitle'] }}</p>
+                                <p class="font-body text-on-surface-variant text-xs">{{ $content['highlight_subtitle'] }}</p>
                             @endif
                         </div>
                     </div>

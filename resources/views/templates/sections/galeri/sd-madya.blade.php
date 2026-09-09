@@ -46,7 +46,7 @@
     }
 @endphp
 
-<section class="py-14 sm:py-20 md:py-24 bg-surface"
+<section class="section-y bg-surface"
          x-data="{
             lightboxOpen: false,
             activeIndex: 0,
@@ -54,23 +54,23 @@
             filter: 'Semua',
             photos: {{ Js::from($photos->map(fn ($photo) => ['image' => $photo['image'], 'caption' => $photo['caption']])) }},
          }">
-    <div class="max-w-7xl mx-auto px-5 sm:px-6">
-        <div class="flex flex-col gap-4 mb-10 sm:mb-12">
+    <div class="shell shell-wide">
+        <div class="flex flex-col gap-3 mb-8 sm:mb-10">
             @if (! empty($content['label']))
-                <span class="reveal font-headline text-secondary font-bold tracking-[0.2em] uppercase text-xs">{{ $content['label'] }}</span>
+                <span class="reveal font-headline text-secondary font-bold tracking-[0.2em] uppercase text-[11px]">{{ $content['label'] }}</span>
             @endif
-            <h2 class="reveal font-headline text-3xl md:text-5xl font-extrabold text-primary tracking-tight max-w-3xl leading-tight">
+            <h2 class="reveal font-headline t-h2 font-extrabold text-primary max-w-3xl">
                 {{ $content['title'] ?? 'Galeri' }}
             </h2>
             @if (! empty($content['subtitle']))
-                <p class="reveal font-body text-lg md:text-xl text-on-surface-variant max-w-2xl leading-relaxed" style="transition-delay: 80ms">
+                <p class="reveal font-body t-body text-on-surface-variant measure" style="transition-delay: 80ms">
                     {{ $content['subtitle'] }}
                 </p>
             @endif
         </div>
 
         @if ($videoId)
-            <div class="reveal relative aspect-video rounded-3xl overflow-hidden shadow-ambient-lg bg-primary mb-10 sm:mb-16 group">
+            <div class="reveal relative aspect-video rounded-2xl overflow-hidden shadow-ambient-lg bg-primary mb-8 sm:mb-12 group">
                 <template x-if="!showVideo">
                     <div class="absolute inset-0">
                         @if (! empty($content['video_poster']))
@@ -81,12 +81,12 @@
                             {{-- The iframe is only created on click, so the page doesn't pull
                                  YouTube's player on every visit. --}}
                             <button type="button" @click="showVideo = true"
-                                    class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all mb-6">
-                                <x-tenant.icon name="play_arrow" filled class="text-3xl sm:text-4xl md:text-5xl" />
+                                    class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all mb-6">
+                                <x-tenant.icon name="play_arrow" filled class="text-3xl md:text-4xl" />
                             </button>
-                            <h3 class="font-headline text-base sm:text-xl md:text-3xl font-bold text-white mb-2">{{ $content['video_title'] ?? 'Video Profil' }}</h3>
+                            <h3 class="font-headline t-h3 sm:text-xl md:text-2xl font-bold text-white mb-1.5">{{ $content['video_title'] ?? 'Video Profil' }}</h3>
                             @if (! empty($content['video_subtitle']))
-                                <p class="font-body text-white/80 italic">{{ $content['video_subtitle'] }}</p>
+                                <p class="font-body text-white/80 italic text-sm">{{ $content['video_subtitle'] }}</p>
                             @endif
                         </div>
                     </div>
@@ -109,14 +109,14 @@
                                 :class="filter === {{ Js::from($category) }}
                                     ? 'bg-primary text-white'
                                     : 'bg-surface-container-high text-primary hover:bg-surface-container-highest'"
-                                class="px-6 py-2 rounded-full font-headline text-sm font-bold whitespace-nowrap transition-colors">
+                                class="px-4 py-1.5 rounded-full font-headline text-[13px] font-bold whitespace-nowrap transition-colors">
                             {{ $category }}
                         </button>
                     @endforeach
                 </div>
             @endif
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[130px] sm:auto-rows-[170px] md:auto-rows-[220px]">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 auto-rows-[120px] sm:auto-rows-[150px] md:auto-rows-[185px]">
                 @foreach ($photos as $index => $photo)
                     <button type="button"
                             @click="activeIndex = {{ $index }}; lightboxOpen = true"
@@ -133,12 +133,12 @@
                         @endif
 
                         @if (! empty($photo['caption']) || ! empty($photo['category']))
-                            <span class="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 md:p-6">
+                            <span class="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 md:p-4">
                                 @if (! empty($photo['category']))
                                     <span class="font-headline text-[10px] text-white/80 font-bold tracking-widest uppercase">{{ $photo['category'] }}</span>
                                 @endif
                                 @if (! empty($photo['caption']))
-                                    <span class="font-headline text-sm md:text-xl text-white font-bold">{{ $photo['caption'] }}</span>
+                                    <span class="font-headline text-[13px] md:text-base text-white font-bold">{{ $photo['caption'] }}</span>
                                 @endif
                             </span>
                         @endif
