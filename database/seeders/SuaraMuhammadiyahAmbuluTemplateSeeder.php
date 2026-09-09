@@ -152,10 +152,10 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                                 // sample copy's tone, not a URL this template publishes.
                                 ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Ikuti Kanal Media Sosial Kami',
-                                    'subtitle' => 'Dapatkan kabar terbaru Suara Muhammadiyah Ambulu setiap hari di Instagram dan TikTok kami.',
+                                    'subtitle' => 'Dapatkan kabar terbaru Suara Muhammadiyah Ambulu setiap hari di Sosial Media kami.',
                                     'cta_label' => 'Ikuti di Instagram',
                                     'cta_type' => 'url',
-                                    'cta_url' => Samples::INSTAGRAM,
+                                    'cta_url' => Samples::WEBSITE,
                                 ]],
                                 $footer,
                             ],
