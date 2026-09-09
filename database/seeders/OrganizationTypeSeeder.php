@@ -9,28 +9,17 @@ use Illuminate\Database\Seeder;
 class OrganizationTypeSeeder extends Seeder
 {
     /**
-     * Seed the simplified organization type list.
+     * Seed the organization type list - currently only types that already have a matching
+     * seeded Template (see KlinikAisyiyahAmbuluTemplateSeeder, SuaraMuhammadiyahAmbuluTemplateSeeder),
+     * while template/org sample data is rebuilt from scratch. Add a type back here once its
+     * template exists, so organizations can't be created against a type with nothing to seed
+     * their pages from.
      */
     public function run(): void
     {
         $types = [
-            [OrganizationCategory::Persyarikatan, [
-                'Muhammadiyah' => 'Muhammadiyah',
-            ]],
-            [OrganizationCategory::Ortom, [
-                'Aisyiyah' => 'Aisyiyah',
-                'Pemuda Muhammadiyah' => 'Pemuda Muhammadiyah',
-                'Nasyiatul Aisyiyah' => 'Nasyiatul Aisyiyah',
-                'Hizbul Wathan' => 'Hizbul Wathan',
-                'IPM' => 'Ikatan Pelajar Muhammadiyah',
-                'IMM' => 'Ikatan Mahasiswa Muhammadiyah',
-                'Tapak Suci' => 'Tapak Suci',
-            ]],
             [OrganizationCategory::Aum, [
                 'AUM Kesehatan' => 'AUM Kesehatan',
-                'AUM Pendidikan' => 'AUM Pendidikan',
-                'AUM Sosial' => 'AUM Sosial',
-                'Masjid/Mushola' => 'Masjid/Mushola',
                 'Media/Portal Berita' => 'Media/Portal Berita',
             ]],
         ];
