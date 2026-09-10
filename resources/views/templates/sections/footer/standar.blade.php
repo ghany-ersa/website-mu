@@ -23,14 +23,18 @@
             ?? $organization->name ?? null
             ?? '[Nama Organisasi]');
     $orgLogo = $organization->logo ?? null;
-    $phone = $organization->phone ?? null;
-    $email = $organization->email ?? null;
-    $whatsapp = $organization->whatsapp ?? null;
-    $address = $organization->address ?? null;
-    $instagramUrl = $organization->instagram_url ?? null;
-    $facebookUrl = $organization->facebook_url ?? null;
-    $tiktokUrl = $organization->tiktok_url ?? null;
-    $youtubeUrl = $organization->youtube_url ?? null;
+    // Template-preview context has no $organization at all, so fall back straight to the
+    // template's own structure['contact'] (see Organization::phone() etc. for the same chain
+    // when $organization is present).
+    $contact = $template->structure['contact'] ?? [];
+    $phone = $organization?->phone() ?? $contact['phone'] ?? null;
+    $email = $organization?->email() ?? $contact['email'] ?? null;
+    $whatsapp = $organization?->whatsapp() ?? $contact['whatsapp'] ?? null;
+    $address = $organization?->address() ?? $contact['address'] ?? null;
+    $instagramUrl = $organization?->instagramUrl() ?? $contact['instagram_url'] ?? null;
+    $facebookUrl = $organization?->facebookUrl() ?? $contact['facebook_url'] ?? null;
+    $tiktokUrl = $organization?->tiktokUrl() ?? $contact['tiktok_url'] ?? null;
+    $youtubeUrl = $organization?->youtubeUrl() ?? $contact['youtube_url'] ?? null;
     $whatsappHref = \App\Services\WhatsAppNumber::href($whatsapp);
     $hasSocial = $instagramUrl || $facebookUrl || $tiktokUrl || $youtubeUrl;
     $hideBranding = $organization->plan?->hide_branding ?? false;

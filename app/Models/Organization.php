@@ -136,6 +136,79 @@ class Organization extends Model
     }
 
     /**
+     * Effective phone number - same fallback chain as primaryColor(), but with no platform
+     * default: an organization/template with nothing set just has no phone to show.
+     */
+    public function phone(): ?string
+    {
+        return $this->phone
+            ?? $this->template?->structure['contact']['phone'] ?? null;
+    }
+
+    /**
+     * Effective contact email - see phone() for the fallback chain.
+     */
+    public function email(): ?string
+    {
+        return $this->email
+            ?? $this->template?->structure['contact']['email'] ?? null;
+    }
+
+    /**
+     * Effective WhatsApp number - see phone() for the fallback chain.
+     */
+    public function whatsapp(): ?string
+    {
+        return $this->whatsapp
+            ?? $this->template?->structure['contact']['whatsapp'] ?? null;
+    }
+
+    /**
+     * Effective address - see phone() for the fallback chain.
+     */
+    public function address(): ?string
+    {
+        return $this->address
+            ?? $this->template?->structure['contact']['address'] ?? null;
+    }
+
+    /**
+     * Effective Instagram URL - see phone() for the fallback chain.
+     */
+    public function instagramUrl(): ?string
+    {
+        return $this->instagram_url
+            ?? $this->template?->structure['contact']['instagram_url'] ?? null;
+    }
+
+    /**
+     * Effective Facebook URL - see phone() for the fallback chain.
+     */
+    public function facebookUrl(): ?string
+    {
+        return $this->facebook_url
+            ?? $this->template?->structure['contact']['facebook_url'] ?? null;
+    }
+
+    /**
+     * Effective TikTok URL - see phone() for the fallback chain.
+     */
+    public function tiktokUrl(): ?string
+    {
+        return $this->tiktok_url
+            ?? $this->template?->structure['contact']['tiktok_url'] ?? null;
+    }
+
+    /**
+     * Effective YouTube URL - see phone() for the fallback chain.
+     */
+    public function youtubeUrl(): ?string
+    {
+        return $this->youtube_url
+            ?? $this->template?->structure['contact']['youtube_url'] ?? null;
+    }
+
+    /**
      * @return BelongsTo<OrganizationType, $this>
      */
     public function organizationType(): BelongsTo

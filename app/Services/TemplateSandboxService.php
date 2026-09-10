@@ -59,6 +59,8 @@ class TemplateSandboxService
             $sandbox = DB::transaction(function () use ($template, $admin) {
                 $brand = $template->structure['brand'] ?? [];
 
+                $contact = $template->structure['contact'] ?? [];
+
                 $organization = Organization::create([
                     'organization_type_id' => $template->organization_type_id,
                     'template_id' => $template->id,
@@ -72,6 +74,14 @@ class TemplateSandboxService
                     'secondary_color' => $brand['secondary'] ?? null,
                     'font_family' => $brand['font'] ?? null,
                     'border_radius' => $brand['radius'] ?? null,
+                    'phone' => $contact['phone'] ?? null,
+                    'email' => $contact['email'] ?? null,
+                    'whatsapp' => $contact['whatsapp'] ?? null,
+                    'address' => $contact['address'] ?? null,
+                    'instagram_url' => $contact['instagram_url'] ?? null,
+                    'facebook_url' => $contact['facebook_url'] ?? null,
+                    'tiktok_url' => $contact['tiktok_url'] ?? null,
+                    'youtube_url' => $contact['youtube_url'] ?? null,
                 ]);
 
                 $organization->members()->attach($admin->id, ['role' => OrganizationRole::Owner->value]);
@@ -116,6 +126,20 @@ class TemplateSandboxService
             'secondary' => $sandbox->secondaryColor(),
             'font' => $sandbox->fontFamily(),
             'radius' => $sandbox->borderRadius(),
+        ];
+
+        // Contact info is edited on the sandbox org via the normal Brand Setting page
+        // (organizations.brand.edit) - captured here so "Simpan ke Template" carries it into
+        // structure just like it does for brand colors, instead of silently dropping it.
+        $structure['contact'] = [
+            'phone' => $sandbox->phone,
+            'email' => $sandbox->email,
+            'whatsapp' => $sandbox->whatsapp,
+            'address' => $sandbox->address,
+            'instagram_url' => $sandbox->instagram_url,
+            'facebook_url' => $sandbox->facebook_url,
+            'tiktok_url' => $sandbox->tiktok_url,
+            'youtube_url' => $sandbox->youtube_url,
         ];
 
         $structure['pages'] = $sandbox->pages->map(fn ($page) => [
