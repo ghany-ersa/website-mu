@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Klinik Pratama Aisyiyah Ambulu (Eksklusif)" template - currently the ONLY
+ * Seeds the "Klinik & Rumah Sakit Plus" template - currently the ONLY
  * seeded template in the app while template/org sample data is rebuilt from scratch,
  * starting with AUM Kesehatan (see DatabaseSeeder, TemplateSeeder::run() is temporarily
  * empty). Modeled on MasjidNurulHudaTemplateSeeder's pattern - its own seeder rather than an
@@ -56,8 +56,8 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Klinik Pratama Aisyiyah (Eksklusif)',
-                'description' => 'Template eksklusif multi-halaman untuk klinik dan AUM Kesehatan: beranda dengan layanan unggulan dan profil klinik, halaman katalog layanan lengkap dengan galeri fasilitas dan ruangan, jadwal praktik dokter tersendiri, serta halaman kontak dengan peta lokasi. Khusus paket dengan entitlement template eksklusif.',
+                'name' => 'Klinik Paripurna',
+                'description' => 'Layanan unggulan dan profil klinik tampil di beranda, katalog layanan lengkap dengan galeri fasilitas dan ruangan mendapat halamannya sendiri, ditambah halaman jadwal praktik dokter dan kontak dengan peta lokasi.',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The featured template for the Klinik/Rumah Sakit type - one per type, now that each

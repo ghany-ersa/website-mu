@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Suara Muhammadiyah Ambulu (Eksklusif)" template - a news/media-portal template
+ * Seeds the "Media Progresif" template - a news/media-portal template
  * for a cabang's own digitalisasi outlet, distinct from every other seeded template (which
  * models an organization's own institutional site). Same overall shape as
  * KlinikAisyiyahAmbuluTemplateSeeder: multi-page, its own seeder rather than an entry in
@@ -51,8 +51,8 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Suara Muhammadiyah Ambulu (Eksklusif)',
-                'description' => 'Template eksklusif portal berita untuk media digitalisasi cabang: beranda yang mengenalkan profil dan tim redaksi lengkap dengan berita terkini, halaman berita lengkap, dan halaman kontak untuk WhatsApp dan media sosial redaksi. Khusus paket dengan entitlement template eksklusif.',
+                'name' => 'Media Berkemajuan',
+                'description' => 'Beranda memperkenalkan profil dan tim redaksi lengkap dengan berita terkini, halaman Berita menampung seluruh arsip pemberitaan, dan halaman Kontak menghubungkan pembaca lewat WhatsApp dan media sosial redaksi.',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The featured template for the Media/Portal Berita type - one per type, now that each

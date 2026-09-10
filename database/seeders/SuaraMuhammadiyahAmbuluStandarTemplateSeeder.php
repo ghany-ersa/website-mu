@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Portal Berita Organisasi (Standar)" template - the NON-exclusive counterpart to
+ * Seeds the "Portal Berita Organisasi" template - the NON-exclusive counterpart to
  * SuaraMuhammadiyahAmbuluTemplateSeeder, built from the SAME SuaraMuhammadiyahAmbuluSamples
  * content so both tiers describe one identical outlet and differ only in what the plan buys.
  *
@@ -49,8 +49,8 @@ class SuaraMuhammadiyahAmbuluStandarTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Portal Berita Organisasi (Standar)',
-                'description' => 'Template satu halaman untuk media dan portal berita organisasi: profil redaksi, dua kanal berita terpisah (kabar persyarikatan dan kabar kaderisasi), tim redaksi, serta kontak untuk kiriman informasi dan siaran pers. Tersedia untuk semua paket.',
+                'name' => 'Berita Organisasi',
+                'description' => 'Perkenalkan profil redaksi dan pisahkan kabar persyarikatan dari kabar kaderisasi dalam dua kanal berita, tampilkan tim redaksi, dan buka jalur kontak untuk kiriman informasi serta siaran pers.',
                 'is_active' => true,
                 'is_exclusive' => false,
                 // The exclusive Suara template carries `is_featured` for this organization type.

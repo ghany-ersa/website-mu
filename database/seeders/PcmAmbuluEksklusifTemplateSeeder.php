@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Profil Cabang Muhammadiyah (Eksklusif)" template - the Professional-tier
+ * Seeds the "Cabang Muhammadiyah Plus" template - the Professional-tier
  * counterpart to PcmAmbuluTemplateSeeder, built from the SAME PcmAmbuluSamples content so the
  * two tiers describe one identical cabang and differ only in what the plan buys.
  *
@@ -53,8 +53,8 @@ class PcmAmbuluEksklusifTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Profil Cabang Muhammadiyah (Eksklusif)',
-                'description' => 'Template eksklusif multi-halaman untuk Pimpinan Cabang/Ranting Muhammadiyah: beranda dengan sambutan dan pimpinan harian, halaman program per bidang lengkap dengan agenda, halaman kabar cabang, serta halaman kontak dengan jaringan Ortom/AUM dan peta sekretariat. Khusus paket dengan entitlement template eksklusif.',
+                'name' => 'Muhammadiyah Plus',
+                'description' => 'Sambutan ketua, profil pimpinan harian, dan program tiap bidang tampil di halamannya masing-masing - lengkap dengan halaman kabar cabang dan kontak bersama jaringan Ortom/AUM serta peta sekretariat.',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The standard-tier PCM template carries the `is_featured` flag for this

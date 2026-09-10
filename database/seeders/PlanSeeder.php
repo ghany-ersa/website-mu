@@ -37,7 +37,7 @@ class PlanSeeder extends Seeder
             ['key' => 'gallery_photos', 'max_count' => 3],
             ['key' => 'facilities', 'max_count' => 3],
             ['key' => 'donation_programs', 'max_count' => 1],
-            ['key' => 'sections_total', 'max_count' => 10],
+            ['key' => 'sections_total', 'max_count' => 8],
             ['key' => 'pages_total', 'max_count' => 1],
         ]);
 

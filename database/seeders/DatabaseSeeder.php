@@ -27,9 +27,6 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             OrganizationTypeSeeder::class,
             SectionVariantSeeder::class,
-            // Two templates per organization type: one standard, one exclusive, both built
-            // from the same Samples class so each type's pair shows one identical organization
-            // at two tiers. See PcmAmbuluEksklusifTemplateSeeder's doc comment.
             PcmAmbuluTemplateSeeder::class,
             PcmAmbuluEksklusifTemplateSeeder::class,
             PcaAmbuluTemplateSeeder::class,
@@ -38,6 +35,8 @@ class DatabaseSeeder extends Seeder
             KlinikAisyiyahAmbuluStandarTemplateSeeder::class,
             SuaraMuhammadiyahAmbuluTemplateSeeder::class,
             SuaraMuhammadiyahAmbuluStandarTemplateSeeder::class,
+            MasjidNurulHudaTemplateSeeder::class,
+            MasjidNurulHudaStandarTemplateSeeder::class,
             // OrganizationSeeder::class,
             ArticleSeeder::class,
         ]);

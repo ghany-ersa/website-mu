@@ -16,15 +16,17 @@ use Illuminate\Database\Seeder;
 
 /**
  * Seeds one dummy organization per template so staging has representative data to test against
- * without anyone manually clicking through "create organization" a dozen times. Currently eight:
- * four organizations (PCM Ambulu, PCA Ambulu, Klinik Pratama Aisyiyah, Suara Muhammadiyah), each
- * appearing twice because each now has both a standard and an exclusive template built from one
- * shared Samples class - see PcmAmbuluEksklusifTemplateSeeder's doc comment.
+ * without anyone manually clicking through "create organization" a dozen times. Currently ten:
+ * five organizations (PCM Ambulu, PCA Ambulu, Klinik Pratama Aisyiyah, Suara Muhammadiyah, Masjid
+ * Nurul Huda), each appearing twice because each now has both a standard and an exclusive
+ * template - see PcmAmbuluEksklusifTemplateSeeder's doc comment. The first four pairs share one
+ * Samples class per organization; Masjid Nurul Huda's pair does not (see
+ * MasjidNurulHudaStandarTemplateSeeder's doc comment for why).
  *
  * Each is placed on a plan that can actually use its template: the exclusive ones on
  * `professional` (Organization::canUseExclusiveTemplates()), the standard ones on the tier they
  * were designed for. Only the first of each pair is `published` - the second-tier copies exist to
- * be inspected in the builder, not to be four more live sites saying the same thing.
+ * be inspected in the builder, not to be five more live sites saying the same thing.
  *
  * Every organization is owned by the same user (admin@website-mu.id) so all dummy orgs are
  * reachable from one login without switching accounts.
@@ -68,6 +70,15 @@ class OrganizationSeeder extends Seeder
             'instagram_url' => SuaraMuhammadiyahAmbuluSamples::INSTAGRAM,
             'tiktok_url' => SuaraMuhammadiyahAmbuluSamples::TIKTOK,
         ],
+        // MasjidNurulHudaStandarTemplateSeeder's narahubung (Tyas Hidayatullah, Sekretaris) -
+        // the only real contact detail either masjid template has; the exclusive template's
+        // content is a faithful port of the standalone nurul-huda project and predates having
+        // one (see MasjidNurulHudaTemplateSeeder's doc comment), so both showcases below share
+        // this contact rather than the exclusive one going without.
+        'masjid-nurul-huda' => [
+            'whatsapp' => MasjidNurulHudaStandarTemplateSeeder::WHATSAPP,
+            'phone' => MasjidNurulHudaStandarTemplateSeeder::WHATSAPP,
+        ],
     ];
 
     public function run(): void
@@ -75,25 +86,16 @@ class OrganizationSeeder extends Seeder
         $plans = Plan::whereIn('key', ['starter', 'organization', 'professional'])->get()->keyBy('key');
 
         $organizations = [
-            // On the `organization` plan, not `professional` like the two exclusive showcases
-            // below - this template is non-exclusive and the whole point of the showcase is to
-            // demo what a cabang on a standard paid plan actually receives, limits included.
             ['template' => PcmAmbuluTemplateSeeder::SLUG, 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true, 'contact' => 'pcm-ambulu'],
-            // On `starter`, the cheapest plan and the one PcaAmbuluTemplateSeeder is designed
-            // for - so this showcase doubles as the live check that a Starter cabang really
-            // does keep a coherent site after CmsSampleDataSeeder truncates its sample lists
-            // to that plan's quotas (officers 3, programs 3, agendas 3, gallery 3).
             ['template' => PcaAmbuluTemplateSeeder::SLUG, 'name' => 'PCA Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => true, 'contact' => 'pca-ambulu'],
             ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
             ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'suara-muhammadiyah'],
-            // The opposite tier of each of the four showcases above, on a plan that can actually
-            // use it. These exist so every seeded template has at least one live organization to
-            // inspect - without them the four templates added alongside them would only ever be
-            // visible as previews, and their CmsSampleDataSeeder wiring would go untested.
             ['template' => PcmAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCM Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => false, 'contact' => 'pcm-ambulu'],
             ['template' => PcaAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCA Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => false, 'contact' => 'pca-ambulu'],
             ['template' => KlinikAisyiyahAmbuluStandarTemplateSeeder::SLUG, 'name' => 'Klinik Aisyiyah Ambulu Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'klinik'],
             ['template' => SuaraMuhammadiyahAmbuluStandarTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'suara-muhammadiyah'],
+            ['template' => MasjidNurulHudaTemplateSeeder::SLUG, 'name' => 'Masjid Nurul Huda', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'masjid-nurul-huda'],
+            ['template' => MasjidNurulHudaStandarTemplateSeeder::SLUG, 'name' => 'Masjid Nurul Huda Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'masjid-nurul-huda'],
         ];
 
         foreach ($organizations as $spec) {

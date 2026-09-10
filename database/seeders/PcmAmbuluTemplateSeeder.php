@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Profil Cabang Muhammadiyah (Standar)" template - the first NON-exclusive template
+ * Seeds the "Cabang Muhammadiyah" template - the first NON-exclusive template
  * in the app, modeled on Pimpinan Cabang Muhammadiyah Ambulu. Every other seeded template
  * (Klinik Aisyiyah, Suara Muhammadiyah, Masjid Nurul Huda) is is_exclusive and therefore
  * Professional-only; this one is what a cabang on the Starter or Organization plan actually
@@ -19,14 +19,12 @@ use Illuminate\Database\Seeder;
  *   - SINGLE page. Starter and Organization both cap `pages_total` at 1 (see PlanSeeder), and
  *     the builder's page switcher is Professional-only - a multi-page structure here would
  *     seed pages the owner cannot see or edit.
- *   - TEN unlocked sections, which fits every plan: Starter allows 10 and Organization 15
- *     (raised from 5/8 by the 2026_09_10 raise_sections_total_plan_limits migration precisely
- *     because the old caps couldn't fit a complete cabang profile). header/footer are `locked`
- *     (config/page-builder.php) and don't count toward that limit, so the count is the ten
- *     between them. Organization::seedPagesFromTemplate() silently DROPS sections past the
- *     limit walking backward from the end, so the order below is still chosen defensively -
- *     what identifies the cabang first, what merely enriches it last - leaving Starter exactly
- *     at its cap and Organization five sections of headroom to add more.
+ *   - EIGHT unlocked sections, matching Starter's `sections_total` exactly (Organization
+ *     allows 15, so this template leaves it headroom to add more). header/footer are `locked`
+ *     (config/page-builder.php) and don't count toward that limit. sambutan-ketua and
+ *     jaringan-aum-ortom - real content, not filler - were the two sections cut to fit: a
+ *     sambutan is a voice the structure-as-story argument doesn't strictly need, and the
+ *     jaringan list is the one section here that isn't primarily about THIS cabang.
  *   - `standar` variants ONLY, and no `exclusive` section keys. SectionVariantSeeder marks
  *     modern/ringkas/newsletter/poster is_exclusive, and the five premium mosque sections are
  *     gated at the section level too - picking any of them would make this template unusable
@@ -64,8 +62,8 @@ class PcmAmbuluTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Profil Cabang Muhammadiyah (Standar)',
-                'description' => 'Template satu halaman untuk Pimpinan Cabang/Ranting Muhammadiyah: profil cabang, struktur pimpinan harian lengkap dengan koordinator bidang, program unggulan per bidang, agenda kegiatan, kabar cabang, jaringan Ortom dan Amal Usaha, serta kontak sekretariat. Tersedia untuk semua paket.',
+                'name' => 'Muhammadiyah Damai',
+                'description' => 'Perkenalkan pimpinan harian dan koordinator bidang cabang Anda, tunjukkan program unggulan tiap bidang, dan bagikan agenda serta kabar kegiatan - lengkap dengan jaringan Ortom dan Amal Usaha di satu halaman profil cabang.',
                 'is_active' => true,
                 'is_exclusive' => false,
                 'is_featured' => true,
@@ -119,18 +117,7 @@ class PcmAmbuluTemplateSeeder extends Seeder
                                         ['value' => '6', 'label' => 'Ortom & Amal Usaha'],
                                     ],
                                 ]],
-                                // 3. The ketua's own voice, between "what this cabang is" and
-                                // "who runs it" - the conventional opening of a persyarikatan
-                                // profile, kept because it's the one section that makes the page
-                                // sound like a person rather than an org chart. Sits after
-                                // tentang-organisasi, not before it, so a first-time visitor
-                                // learns what PCM Ambulu is before being addressed by its ketua.
-                                ['key' => 'sambutan-ketua', 'variant' => 'standar', 'content' => [
-                                    'nama' => 'Zainal Arifin',
-                                    'jabatan' => 'Ketua Pimpinan Cabang Muhammadiyah Ambulu',
-                                    'sambutan' => 'Assalamu\'alaikum warahmatullahi wabarakatuh. Selamat datang di laman resmi Pimpinan Cabang Muhammadiyah Ambulu. Melalui laman ini kami membuka pintu selebar-lebarnya bagi warga persyarikatan dan masyarakat umum untuk mengenal program, agenda, dan amal usaha yang kami jalankan. Muhammadiyah Ambulu berkomitmen menghadirkan gerakan dakwah yang berkemajuan - membina kader, memakmurkan masjid, menjaga amanah wakaf, memajukan pendidikan dan kesehatan, serta memberdayakan ekonomi warga. Mari bersama-sama kita gerakkan kebaikan untuk Ambulu.',
-                                ]],
-                                // 4. The nine pimpinan. Placed before the programs on purpose:
+                                // 3. The nine pimpinan. Placed before the programs on purpose:
                                 // each koorbid's name here is what makes the program below it
                                 // read as someone's responsibility rather than a wish list.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
@@ -159,14 +146,7 @@ class PcmAmbuluTemplateSeeder extends Seeder
                                     'limit' => 3,
                                     'items' => Samples::beritaItems(),
                                 ]],
-                                // 8. The cabang isn't alone. Also the section that tells a
-                                // visiting Ortom/AUM this platform is where their own site
-                                // would sit.
-                                ['key' => 'jaringan-aum-ortom', 'variant' => 'standar', 'content' => [
-                                    'title' => 'Ortom & Amal Usaha di Ambulu',
-                                    'items' => Samples::jaringanItems(),
-                                ]],
-                                // 9. The ask, at the bottom where it belongs. Named narahubung
+                                // 8. The ask, at the bottom where it belongs. Named narahubung
                                 // in the subtitle rather than a bare number - a warga texting
                                 // an organization wants to know who picks up. No separate `cta`
                                 // section above it: formulir-kontak already carries the same

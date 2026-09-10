@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Profil Cabang Aisyiyah (Standar)" template - the second NON-exclusive template,
+ * Seeds the "Cabang Aisyiyah" template - the second NON-exclusive template,
  * modeled on Pimpinan Cabang Aisyiyah Ambulu, and the first one aimed squarely at the STARTER
  * plan. It shares PcmAmbuluTemplateSeeder's structural constraints (single page, `standar`
  * variants only, no `exclusive` section keys - see that seeder's doc comment for why each is
@@ -22,7 +22,10 @@ use Illuminate\Database\Seeder;
  * green/economic programs, the three busiest recurring agendas, and all five news stories -
  * i.e. the specific subset that still tells the whole story. PcmAmbuluTemplateSeeder was
  * written for the Organization plan and is merely tolerant of Starter; this one is designed
- * for it. Ten unlocked sections is exactly Starter's `sections_total`, so nothing is dropped.
+ * for it. Eight unlocked sections is exactly Starter's `sections_total`, so nothing is
+ * dropped - agenda and jaringan-aum-ortom were cut to fit (see PcmAmbuluTemplateSeeder's own
+ * cut for the matching reasoning); galeri stayed because it's this profile's substitute for
+ * PCM's sambutan-ketua, the one section that makes a scrolling visitor believe the work is real.
  *
  * Content is PCA Ambulu's real profile: the seven-person pimpinan, the secretariat on
  * Jl. Hasanudin Gg. III No. 94 Dusun Krajan, Uswatun as narahubung, and its Amal Usaha (Klinik
@@ -55,8 +58,8 @@ class PcaAmbuluTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Profil Cabang Aisyiyah (Standar)',
-                'description' => 'Template satu halaman untuk Pimpinan Cabang/Ranting Aisyiyah: profil cabang, program lingkungan dan pemberdayaan ekonomi perempuan, agenda kegiatan ibu-ibu, galeri kegiatan, kabar cabang, struktur pimpinan, Amal Usaha (klinik dan TK ABA), serta kontak sekretariat. Tersedia untuk semua paket, dirancang pas untuk paket Starter.',
+                'name' => 'Aisyiyah Gembira',
+                'description' => 'Tampilkan program lingkungan dan pemberdayaan ekonomi perempuan cabang Anda, agenda kegiatan ibu-ibu, galeri dokumentasi, serta struktur pimpinan dan Amal Usaha - satu halaman profil yang menonjolkan kerja nyata cabang.',
                 'is_active' => true,
                 'is_exclusive' => false,
                 'is_featured' => true,
@@ -90,9 +93,9 @@ class PcaAmbuluTemplateSeeder extends Seeder
                                     'cta_label' => 'Lihat Program Kami',
                                     'cta_type' => 'scroll',
                                     'cta_section' => 'program-unggulan',
-                                    'cta_secondary_label' => 'Agenda Kegiatan',
+                                    'cta_secondary_label' => 'Kabar Terkini',
                                     'cta_secondary_type' => 'scroll',
-                                    'cta_secondary_section' => 'agenda',
+                                    'cta_secondary_section' => 'daftar-berita',
                                     'image' => Samples::HERO_IMAGE,
                                 ]],
                                 // 2. Who we are. `stats` are countable facts the cabang can
@@ -116,16 +119,7 @@ class PcaAmbuluTemplateSeeder extends Seeder
                                     'title' => 'Program Unggulan Aisyiyah Ambulu',
                                     'items' => Samples::programItems(),
                                 ]],
-                                // 4. Those programs on a calendar - and an open invitation.
-                                // The subtitle does real work here: it turns a schedule into a
-                                // "come join us", which is how a cabang actually recruits.
-                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
-                                    'title' => 'Agenda Kegiatan Ibu-Ibu',
-                                    'subtitle' => 'Terbuka untuk seluruh anggota Aisyiyah dan ibu-ibu warga sekitar. Datang saja, tidak perlu mendaftar.',
-                                    'limit' => 4,
-                                    'items' => Samples::agendaPreviewItems(),
-                                ]],
-                                // 5. Proof, in pictures. A bank sampah and a kebun gizi are
+                                // 4. Proof, in pictures. A bank sampah and a kebun gizi are
                                 // things you have to SEE - which is why a galeri earns a slot
                                 // on a page this tight, where the PCM profile spent that slot
                                 // on a sambutan instead.
@@ -134,28 +128,21 @@ class PcaAmbuluTemplateSeeder extends Seeder
                                     'limit' => 6,
                                     'items' => Samples::kegiatanPhotos(),
                                 ]],
-                                // 6. Proof, in words. `limit` 5 matches the sample count and
+                                // 5. Proof, in words. `limit` 5 matches the sample count and
                                 // Starter's `posts` quota, so nothing is truncated here.
                                 ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kabar Aisyiyah Ambulu',
                                     'limit' => 5,
                                     'items' => Samples::beritaItems(),
                                 ]],
-                                // 7. Only now: who is behind all of it. Deliberately AFTER the
+                                // 6. Only now: who is behind all of it. Deliberately AFTER the
                                 // work - the inverse of the PCM template, where the structure
                                 // is the argument and therefore leads.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
                                     'title' => 'Pimpinan Cabang Aisyiyah Ambulu',
                                     'items' => Samples::pimpinanCabang(),
                                 ]],
-                                // 8. The Amal Usaha - a clinic and four TK ABA. Concrete
-                                // institutions the cabang runs, which is the strongest possible
-                                // close to the "what we do" half of the page.
-                                ['key' => 'jaringan-aum-ortom', 'variant' => 'standar', 'content' => [
-                                    'title' => 'Amal Usaha Aisyiyah Ambulu',
-                                    'items' => Samples::jaringanItems(),
-                                ]],
-                                // 9. The ask. Names the narahubung rather than showing a bare
+                                // 7. The ask. Names the narahubung rather than showing a bare
                                 // number - an ibu texting an organization wants to know who
                                 // picks up.
                                 ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
@@ -164,7 +151,7 @@ class PcaAmbuluTemplateSeeder extends Seeder
                                     'wa_number' => Samples::WHATSAPP,
                                     'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar kegiatan Aisyiyah Ambulu.',
                                 ]],
-                                // 10. Where to find them. Same compound as Klinik Pratama
+                                // 8. Where to find them. Same compound as Klinik Pratama
                                 // Aisyiyah Ambulu - see Samples::MAP_EMBED.
                                 ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Sekretariat PCA Ambulu',

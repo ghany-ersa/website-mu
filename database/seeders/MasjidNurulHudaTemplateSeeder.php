@@ -4,10 +4,12 @@ namespace Database\Seeders;
 
 use App\Models\OrganizationType;
 use App\Models\Template;
+use App\Models\User;
+use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Masjid Nurul Huda" exclusive template - kept in its own seeder rather than
+ * Seeds the "Masjid & Mushola Plus" template - kept in its own seeder rather than
  * folded into TemplateSeeder::exclusiveTemplates() because, unlike every other exclusive
  * template today, it's deliberately MULTI-page (see Organization::seedPagesFromTemplate(),
  * which as of this template now clones every entry in structure['pages'], not just the
@@ -38,6 +40,8 @@ use Illuminate\Database\Seeder;
  */
 class MasjidNurulHudaTemplateSeeder extends Seeder
 {
+    public const SLUG = 'masjid-nurul-huda-eksklusif';
+
     /**
      * Imagery is hotlinked straight from the live Masjid Nurul Huda Ambulu site's own S3
      * bucket, so the template preview shows the actual mosque rather than stand-in stock
@@ -60,14 +64,15 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];
 
-        Template::updateOrCreate(
-            ['slug' => 'masjid-nurul-huda-eksklusif'],
+        $template = Template::updateOrCreate(
+            ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Masjid Nurul Huda (Eksklusif)',
-                'description' => 'Template eksklusif multi-halaman untuk masjid: beranda dengan fasilitas dan galeri, donasi & wakaf dengan progress bar, laporan keuangan transparan, jadwal kajian rutin, sewa aula untuk akad nikah, dan profil takmir - masing-masing sebagai halaman tersendiri. Khusus paket dengan entitlement template eksklusif.',
+                'name' => 'Masjid Peradaban',
+                'description' => 'Fasilitas dan galeri masjid tampil di beranda, donasi & wakaf dengan progress bar per program, laporan keuangan yang transparan, jadwal kajian rutin, sewa aula untuk akad nikah, dan profil takmir - masing-masing punya halaman sendiri.',
                 'is_active' => true,
                 'is_exclusive' => true,
+                'is_featured' => true,
                 'structure' => [
                     'sample_org_name' => 'Masjid Nurul Huda',
                     'brand' => ['primary' => '#2c368B', 'secondary' => '#1e79cc'],
@@ -206,5 +211,9 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                 ],
             ],
         );
+
+        if ($admin = User::where('is_admin', true)->first()) {
+            app(TemplateSandboxService::class)->sandboxFor($template, $admin);
+        }
     }
 }

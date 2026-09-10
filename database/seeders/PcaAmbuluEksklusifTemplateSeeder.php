@@ -10,7 +10,7 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Profil Cabang Aisyiyah (Eksklusif)" template - the Professional-tier counterpart to
+ * Seeds the "Cabang Aisyiyah Plus" template - the Professional-tier counterpart to
  * PcaAmbuluTemplateSeeder, built from the SAME PcaAmbuluSamples content so both tiers describe
  * one identical cabang and differ only in what the plan buys (see
  * PcmAmbuluEksklusifTemplateSeeder's doc comment for the full reasoning behind that pairing).
@@ -45,8 +45,8 @@ class PcaAmbuluEksklusifTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Profil Cabang Aisyiyah (Eksklusif)',
-                'description' => 'Template eksklusif multi-halaman untuk Pimpinan Cabang/Ranting Aisyiyah: beranda dengan profil gerakan perempuan dan kabar terkini, halaman program lingkungan dan pemberdayaan ekonomi lengkap dengan agenda dan galeri kegiatan, halaman kabar cabang, serta halaman kontak dengan struktur pimpinan, amal usaha, dan peta sekretariat. Khusus paket dengan entitlement template eksklusif.',
+                'name' => 'Aisyiyah Maju',
+                'description' => 'Program lingkungan dan pemberdayaan ekonomi perempuan mendapat halaman tersendiri lengkap dengan agenda dan galeri kegiatan - plus halaman kabar cabang dan kontak bersama struktur pimpinan, amal usaha, serta peta sekretariat.',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The standard-tier PCA template carries `is_featured` for this organization

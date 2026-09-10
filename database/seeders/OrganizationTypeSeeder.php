@@ -11,10 +11,10 @@ class OrganizationTypeSeeder extends Seeder
     /**
      * Seed the organization type list - currently only types that already have a matching
      * seeded Template (see PcmAmbuluTemplateSeeder, PcaAmbuluTemplateSeeder,
-     * KlinikAisyiyahAmbuluTemplateSeeder, SuaraMuhammadiyahAmbuluTemplateSeeder), while
-     * template/org sample data is rebuilt from scratch. Add a type back here once its template
-     * exists, so organizations can't be created against a type with nothing to seed their pages
-     * from.
+     * KlinikAisyiyahAmbuluTemplateSeeder, SuaraMuhammadiyahAmbuluTemplateSeeder,
+     * MasjidNurulHudaTemplateSeeder), while template/org sample data is rebuilt from scratch.
+     * Add a type back here once its template exists, so organizations can't be created against a
+     * type with nothing to seed their pages from.
      *
      * Types name the MOVEMENT or the INSTITUTION, never the tier or the category: 'Muhammadiyah'
      * rather than 'Pimpinan Cabang Muhammadiyah' (one type serves PDM/PCM/PRM alike, and a
@@ -38,6 +38,7 @@ class OrganizationTypeSeeder extends Seeder
             [OrganizationCategory::Aum, [
                 'Klinik/Rumah Sakit' => 'Klinik/Rumah Sakit',
                 'Media/Portal Berita' => 'Media/Portal Berita',
+                'Masjid/Mushola' => 'Masjid/Mushola',
             ]],
         ];
 

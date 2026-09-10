@@ -6,26 +6,29 @@ use Illuminate\Database\Migrations\Migration;
 return new class extends Migration
 {
     /**
-     * Raises 'sections_total' on the two non-exclusive plans: starter 5 -> 10, organization
-     * 8 -> 15. Professional (25) is untouched.
+     * Sets 'sections_total' on the two non-exclusive plans: starter 5 -> 8, organization 8 -> 15.
+     * Professional (25) is untouched.
      *
      * The old numbers were set before any standard-tier template existed, and turned out to be
      * the binding constraint on how complete a single-page profile could be - a cabang profile
-     * needs roughly eight sections just to cover identity, structure, programs, agenda, news,
-     * network, and contact (see PcmAmbuluTemplateSeeder), which left Starter unable to seed the
-     * back half of its own template at all: Organization::seedPagesFromTemplate() silently
-     * drops sections past the limit, so the owner never saw them. Ten and fifteen leave real
-     * headroom to ADD sections to a seeded template rather than only just fitting it.
+     * needs several sections just to cover identity, structure, programs, agenda, news, and
+     * contact, which left Starter unable to seed the back half of its own template at all:
+     * Organization::seedPagesFromTemplate() silently drops sections past the limit, so the owner
+     * never saw them. Every standard-tier template (Cabang Muhammadiyah, Cabang Aisyiyah, Klinik
+     * & Rumah Sakit, Masjid & Mushola, Portal Berita Organisasi) is written to exactly 7-8
+     * unlocked sections to match, so a Starter organization always gets its complete template,
+     * untruncated.
      *
-     * Only raises, never lowers: an organization already over a limit is in violation (see
-     * Organization::planViolations()), so this migration must not be the thing that puts one
-     * there. PlanSeeder is updated in step for fresh installs; plan_limits rows already live in
-     * every existing database need this migration too.
+     * Force-set rather than staged as raise-then-lower: no production data exists yet for this
+     * app, so there's no existing organization whose plan_violations() this could trip - the
+     * usual reason to raise a limit before lowering it in a separate, careful migration doesn't
+     * apply here. PlanSeeder is updated in step for fresh installs; plan_limits rows already
+     * live in any dev/staging database need this migration too.
      */
     public function up(): void
     {
         $limits = [
-            'starter' => 10,
+            'starter' => 8,
             'organization' => 15,
         ];
 
