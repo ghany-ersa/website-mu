@@ -44,7 +44,9 @@ class PcaAmbuluTemplateSeeder extends Seeder
 
     public function run(): void
     {
-        $organizationType = OrganizationType::where('slug', 'pimpinan-cabang-aisyiyah')->first();
+        // Named for the movement, not the tier ('Aisyiyah', not 'Pimpinan Cabang Aisyiyah') -
+        // see OrganizationTypeSeeder. One type serves PDA/PCA/PRA alike.
+        $organizationType = OrganizationType::where('slug', 'aisyiyah')->first();
 
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];

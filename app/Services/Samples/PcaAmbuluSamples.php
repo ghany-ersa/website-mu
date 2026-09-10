@@ -213,19 +213,15 @@ class PcaAmbuluSamples
      * lists can never drift apart, and computed from `now()` at seed time so a preview shows
      * plausible upcoming dates instead of a hardcoded year that ages out.
      *
-     * The 18:00 hour is NOT an editorial choice - it mirrors CmsSampleDataSeeder::seedAgendas(),
-     * which hardcodes that time for every template's Agenda rows. These are really ibu-ibu
-     * daytime activities (pengajian and posyandu run mid-morning), so a nicer preview would
-     * show 08:00 - but then the template preview and the seeded live site would disagree about
-     * the same four events, which is worse than a slightly-off hour. Change both together, or
-     * neither.
+     * Times differ from PcmAmbuluSamples' fixed 18:00: these are ibu-ibu daytime activities
+     * (pengajian and posyandu run mid-morning), so the hour is per-item rather than shared.
      *
      * @return array<int, array<string, string>>
      */
     public static function agendaPreviewItems(): array
     {
         return array_map(function (array $item) {
-            $date = now()->addDays($item['days'])->setTime(18, 0);
+            $date = now()->addDays($item['days'])->setTime(8, 0);
 
             return [
                 'title' => $item['title'],

@@ -51,7 +51,11 @@ class PcmAmbuluTemplateSeeder extends Seeder
 
     public function run(): void
     {
-        $organizationType = OrganizationType::where('slug', 'pimpinan-cabang-muhammadiyah')->first();
+        // Organization types are named for the MOVEMENT, not the tier ('Muhammadiyah', not
+        // 'Pimpinan Cabang Muhammadiyah') - see OrganizationTypeSeeder. The same type therefore
+        // serves PDM/PCM/PRM alike, which is why this template's copy says "Cabang/Ranting"
+        // rather than assuming a cabang.
+        $organizationType = OrganizationType::where('slug', 'muhammadiyah')->first();
 
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];

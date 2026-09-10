@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katalog Template - website-mu.id</title>
-    <meta name="description" content="Jelajahi semua template website organisasi Muhammadiyah: Persyarikatan, Ortom, AUM Pendidikan, AUM Kesehatan & Sosial, dan Masjid.">
+    <meta name="description" content="Jelajahi semua template website organisasi Muhammadiyah: Muhammadiyah, Aisyiyah, Klinik/Rumah Sakit, dan Media/Portal Berita.">
     <link rel="canonical" href="{{ route('templates.index') }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -28,7 +28,10 @@
         <div class="text-center max-w-2xl mx-auto mb-12">
             <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Katalog Template</span>
             <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Semua Template Website Organisasi</h1>
-            <p class="text-gray-500 mt-3 text-sm">{{ $templates->count() }} template tersedia untuk Persyarikatan, Ortom, AUM Pendidikan, AUM Kesehatan & Sosial, dan Masjid.</p>
+            {{-- Names the organization types that actually have a seeded template today (see
+                 OrganizationTypeSeeder) - the earlier copy listed AUM Pendidikan and Masjid,
+                 which a visitor would then look for in vain. --}}
+            <p class="text-gray-500 mt-3 text-sm">{{ $templates->count() }} template tersedia untuk Muhammadiyah, Aisyiyah, Klinik/Rumah Sakit, dan Media/Portal Berita.</p>
         </div>
 
         <div class="flex flex-wrap justify-center gap-2 mb-12">

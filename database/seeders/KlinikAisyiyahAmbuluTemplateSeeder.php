@@ -42,7 +42,12 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
 
     public function run(): void
     {
-        $organizationType = OrganizationType::where('slug', 'aum-kesehatan')->first();
+        // Str::slug('Klinik/Rumah Sakit') strips the '/' rather than treating it as a separator,
+        // producing 'klinikrumah-sakit' (see OrganizationTypeSeeder, and the same quirk noted in
+        // SuaraMuhammadiyahAmbuluTemplateSeeder) - not the 'klinik-rumah-sakit' a naive reading
+        // of the name would suggest. This type was named 'AUM Kesehatan' (slug 'aum-kesehatan')
+        // until the type list was reworded to name the institution rather than its category.
+        $organizationType = OrganizationType::where('slug', 'klinikrumah-sakit')->first();
 
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];
