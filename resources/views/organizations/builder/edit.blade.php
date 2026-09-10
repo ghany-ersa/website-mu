@@ -177,8 +177,9 @@
     {{-- Top bar --}}
     <header
         class="relative bg-gradient-to-r from-gray-900 via-[#1c2360] to-primary text-white text-sm shrink-0 shadow-lg z-10">
-        <div class="px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-3 min-w-0">
+        <div class="px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            {{-- Left group: leave builder, org identity, page switcher. --}}
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                 {{-- Mobile: while the properties panel is open, back means "close this
                      section and return to the preview", not "leave the builder" —
                      otherwise it's easy to accidentally exit while editing. lg+: all
@@ -206,6 +207,8 @@
                 </div>
             </div>
 
+            {{-- Center group: page switcher. --}}
+            <div class="flex items-center justify-center flex-1 min-w-0 order-3 lg:order-none basis-full lg:basis-auto">
             {{-- Page switcher: lets a user with multiple pages (e.g. cloned from a
                  multi-page template) pick which one they're editing. A plain link per
                  page - navigating reloads the builder scoped to that page, and every
@@ -380,44 +383,51 @@
                     </div>
                 </div>
             </div>
+            </div>
 
-            <button type="button" id="btn-builder-tour" @click="window.startOnboardingTour && window.startOnboardingTour('builder')"
-                title="Lihat tutorial builder"
-                class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                    <path fill-rule="evenodd"
-                        d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                        clip-rule="evenodd" />
-                </svg>
-            </button>
+            {{-- Right group: status indicators and actions, kept visually separate
+                 from the identity/navigation group on the left. --}}
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+                @if ($organization->status === \App\Enums\OrganizationStatus::Published)
+                    <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-300 px-2 py-1 rounded-lg bg-white/5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Live
+                    </span>
+                @endif
 
-            @if ($organization->status === \App\Enums\OrganizationStatus::Published)
-                <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-300 pr-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Live
-                </span>
-            @endif
+                {{-- Template design mode: this organization is a sandbox standing in for a Template
+                     (see TemplateSandboxService), so the builder is editing template structure rather
+                     than a real tenant's site. Lives in the header (not a banner below it) because
+                     <body> is a fixed-height overflow-hidden flex column - an extra row there gets
+                     clipped out of view. --}}
+                @if ($organization->is_sandbox && $organization->template)
+                    <span class="hidden md:inline-flex items-center gap-1.5 text-xs text-amber-300 px-2 py-1 rounded-lg bg-white/5"
+                          title="Perubahan di sini disimpan ke template {{ $organization->template->name }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        Mode Template
+                    </span>
+                    <form action="{{ route('admin.templates.design.update', $organization->template) }}" method="POST"
+                          class="shrink-0">
+                        @csrf
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-bold transition whitespace-nowrap">
+                            Simpan ke Template
+                        </button>
+                    </form>
+                @endif
 
-            {{-- Template design mode: this organization is a sandbox standing in for a Template
-                 (see TemplateSandboxService), so the builder is editing template structure rather
-                 than a real tenant's site. Lives in the header (not a banner below it) because
-                 <body> is a fixed-height overflow-hidden flex column - an extra row there gets
-                 clipped out of view. --}}
-            @if ($organization->is_sandbox && $organization->template)
-                <span class="hidden md:inline-flex items-center gap-1.5 text-xs text-amber-300 pr-1"
-                      title="Perubahan di sini disimpan ke template {{ $organization->template->name }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Mode Template
-                </span>
-                <form action="{{ route('admin.templates.design.update', $organization->template) }}" method="POST"
-                      class="shrink-0">
-                    @csrf
-                    <button type="submit"
-                            class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-bold transition whitespace-nowrap">
-                        Simpan ke Template
-                    </button>
-                </form>
-            @endif
+                <span class="w-px h-5 bg-white/10 mx-0.5 hidden sm:block"></span>
+
+                <button type="button" id="btn-builder-tour" @click="window.startOnboardingTour && window.startOnboardingTour('builder')"
+                    title="Lihat tutorial builder"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
