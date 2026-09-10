@@ -58,43 +58,60 @@ class CmsSampleDataSeeder
     /**
      * The Klinik Pratama Aisyiyah Ambulu showcase (see KlinikAisyiyahAmbuluTemplateSeeder and
      * App\Services\Samples\KlinikAisyiyahAmbuluSamples, the actual source of its content).
-     * Organizations on this template get the clinic's real services/announcements/gallery
-     * instead of the generic "Contoh Berita Kegiatan" / "Layanan Administrasi" placeholders -
-     * exactly what this showcase organization exists to avoid. A list (not a single const) so
-     * a future standard-tier AUM Kesehatan template can share the same samples once rebuilt.
+     * Organizations on either of these templates get the clinic's real services/announcements/
+     * gallery instead of the generic "Contoh Berita Kegiatan" / "Layanan Administrasi"
+     * placeholders - exactly what this showcase organization exists to avoid.
      *
      * @var array<int, string>
      */
     private const KLINIK_TEMPLATE_SLUGS = [
         KlinikAisyiyahAmbuluSamples::TEMPLATE_SLUG,
+        'klinik-aisyiyah-ambulu-standar',
     ];
 
     /**
      * The Suara Muhammadiyah Ambulu news-portal showcase (see
      * SuaraMuhammadiyahAmbuluTemplateSeeder and App\Services\Samples\
-     * SuaraMuhammadiyahAmbuluSamples). Organizations on this template get the outlet's real
+     * SuaraMuhammadiyahAmbuluSamples). Organizations on either template get the outlet's real
      * news stories and 16-member editorial team instead of generic placeholders.
+     *
+     * @var array<int, string>
      */
-    private const SUARA_MUHAMMADIYAH_TEMPLATE_SLUG = SuaraMuhammadiyahAmbuluSamples::TEMPLATE_SLUG;
+    private const SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS = [
+        SuaraMuhammadiyahAmbuluSamples::TEMPLATE_SLUG,
+        'suara-muhammadiyah-ambulu-standar',
+    ];
 
     /**
-     * The PCM Ambulu cabang-profile showcase (see PcmAmbuluTemplateSeeder and
-     * App\Services\Samples\PcmAmbuluSamples). Unlike the two above, this template is NOT
-     * exclusive, so these samples are the ones a Starter/Organization cabang actually lands on
-     * - and the ones most likely to be truncated by a tight plan limit, which is why the sample
-     * lists are ordered so their first few entries stand on their own (see
-     * PcmAmbuluSamples::pimpinanHarian()'s note on officer limits).
+     * The PCM Ambulu cabang-profile showcase (see PcmAmbuluTemplateSeeder,
+     * PcmAmbuluEksklusifTemplateSeeder, and App\Services\Samples\PcmAmbuluSamples).
+     *
+     * Every showcase here is a LIST of slugs because each organization now has both a standard
+     * and an exclusive template built from the same Samples class. Matching on a single slug -
+     * which is what these were before - silently sent the second tier down the `default => null`
+     * branch, so an organization on it got generic "Contoh Berita" placeholders instead of the
+     * real content the tier it paid for was supposed to showcase.
+     *
+     * @var array<int, string>
      */
-    private const PCM_TEMPLATE_SLUG = PcmAmbuluSamples::TEMPLATE_SLUG;
+    private const PCM_TEMPLATE_SLUGS = [
+        PcmAmbuluSamples::TEMPLATE_SLUG,
+        'pcm-ambulu-eksklusif',
+    ];
 
     /**
-     * The PCA Ambulu cabang-Aisyiyah showcase (see PcaAmbuluTemplateSeeder and
-     * App\Services\Samples\PcaAmbuluSamples). Non-exclusive like the PCM template above, but
-     * aimed at the STARTER plan specifically - so its sample lists are the ones most often
-     * truncated here, and are ordered with that in mind (see PcaAmbuluSamples' per-method notes
-     * on which entries survive which quota).
+     * The PCA Ambulu cabang-Aisyiyah showcase (see PcaAmbuluTemplateSeeder,
+     * PcaAmbuluEksklusifTemplateSeeder, and App\Services\Samples\PcaAmbuluSamples). The
+     * standard-tier one targets the STARTER plan specifically, so its sample lists are the ones
+     * most often truncated here and are ordered with that in mind (see PcaAmbuluSamples'
+     * per-method notes on which entries survive which quota).
+     *
+     * @var array<int, string>
      */
-    private const PCA_TEMPLATE_SLUG = PcaAmbuluSamples::TEMPLATE_SLUG;
+    private const PCA_TEMPLATE_SLUGS = [
+        PcaAmbuluSamples::TEMPLATE_SLUG,
+        'pca-ambulu-eksklusif',
+    ];
 
     /**
      * Sample imagery for this template is hotlinked from the live Masjid Nurul Huda Ambulu
@@ -135,9 +152,9 @@ class CmsSampleDataSeeder
         $slug = $organization->template?->slug;
         $isNurulHuda = $slug === self::NURUL_HUDA_TEMPLATE_SLUG;
         $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
-        $isSuaraMuhammadiyah = $slug === self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUG;
-        $isPcm = $slug === self::PCM_TEMPLATE_SLUG;
-        $isPca = $slug === self::PCA_TEMPLATE_SLUG;
+        $isSuaraMuhammadiyah = in_array($slug, self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS, true);
+        $isPcm = in_array($slug, self::PCM_TEMPLATE_SLUGS, true);
+        $isPca = in_array($slug, self::PCA_TEMPLATE_SLUGS, true);
 
         if (in_array('daftar-berita', $keys, true)) {
             $postSamples = match (true) {

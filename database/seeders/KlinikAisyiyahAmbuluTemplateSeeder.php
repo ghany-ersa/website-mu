@@ -60,6 +60,8 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                 'description' => 'Template eksklusif multi-halaman untuk klinik dan AUM Kesehatan: beranda dengan layanan unggulan dan profil klinik, halaman katalog layanan lengkap dengan galeri fasilitas dan ruangan, jadwal praktik dokter tersendiri, serta halaman kontak dengan peta lokasi. Khusus paket dengan entitlement template eksklusif.',
                 'is_active' => true,
                 'is_exclusive' => true,
+                // The featured template for the Klinik/Rumah Sakit type - one per type, now that each
+                // has both a standard and an exclusive variant to choose between.
                 'is_featured' => true,
                 'structure' => [
                     'sample_org_name' => 'Klinik Pratama Aisyiyah Ambulu',

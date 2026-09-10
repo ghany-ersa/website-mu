@@ -15,12 +15,16 @@ use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds one dummy organization per template (see TemplateSeeder) so staging has representative
- * data to test against without anyone manually clicking through "create organization" a dozen
- * times. Temporarily reduced to the Klinik Pratama Aisyiyah Ambulu and Suara Muhammadiyah
- * Ambulu showcases while template/org sample data is rebuilt from scratch, organization type
- * by organization type - see DatabaseSeeder and TemplateSeeder's doc comments. Reintroduce
- * more entries here as more templates are redone.
+ * Seeds one dummy organization per template so staging has representative data to test against
+ * without anyone manually clicking through "create organization" a dozen times. Currently eight:
+ * four organizations (PCM Ambulu, PCA Ambulu, Klinik Pratama Aisyiyah, Suara Muhammadiyah), each
+ * appearing twice because each now has both a standard and an exclusive template built from one
+ * shared Samples class - see PcmAmbuluEksklusifTemplateSeeder's doc comment.
+ *
+ * Each is placed on a plan that can actually use its template: the exclusive ones on
+ * `professional` (Organization::canUseExclusiveTemplates()), the standard ones on the tier they
+ * were designed for. Only the first of each pair is `published` - the second-tier copies exist to
+ * be inspected in the builder, not to be four more live sites saying the same thing.
  *
  * Every organization is owned by the same user (admin@website-mu.id) so all dummy orgs are
  * reachable from one login without switching accounts.
@@ -82,6 +86,14 @@ class OrganizationSeeder extends Seeder
             ['template' => PcaAmbuluTemplateSeeder::SLUG, 'name' => 'PCA Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => true, 'contact' => 'pca-ambulu'],
             ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
             ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'suara-muhammadiyah'],
+            // The opposite tier of each of the four showcases above, on a plan that can actually
+            // use it. These exist so every seeded template has at least one live organization to
+            // inspect - without them the four templates added alongside them would only ever be
+            // visible as previews, and their CmsSampleDataSeeder wiring would go untested.
+            ['template' => PcmAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCM Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => false, 'contact' => 'pcm-ambulu'],
+            ['template' => PcaAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCA Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => false, 'contact' => 'pca-ambulu'],
+            ['template' => KlinikAisyiyahAmbuluStandarTemplateSeeder::SLUG, 'name' => 'Klinik Aisyiyah Ambulu Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'klinik'],
+            ['template' => SuaraMuhammadiyahAmbuluStandarTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'suara-muhammadiyah'],
         ];
 
         foreach ($organizations as $spec) {
