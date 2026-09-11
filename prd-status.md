@@ -1,161 +1,136 @@
 # PRD - Status Pengembangan Website-mu (Snapshot)
 
-**Tanggal snapshot:** 2026-08-27 (update ke-2, commit `13c9f7e`)
-**Status:** Dokumen ini merangkum apa yang **sudah dibangun secara nyata** di codebase saat ini, sebagai pelengkap `prd.md` (visi produk jangka panjang). Gunakan `prd.md` untuk arah dan cakupan produk; gunakan dokumen ini untuk tahu di titik mana pembangunannya sekarang.
+**Tanggal snapshot:** 2026-09-12
+**Status:** Dokumen ini merangkum apa yang **benar-benar ada di codebase**, sebagai pelengkap `prd.md` (visi produk jangka panjang). Gunakan `prd.md` untuk arah produk; gunakan dokumen ini untuk tahu posisi pembangunan sekarang.
+
+> **Kondisi saat ini: fitur dianggap selesai dan stabil.** Pekerjaan yang tersisa adalah **mengisi aplikasi dengan data/konten yang sesuai**, bukan membangun subsistem baru. Jangan memulai sesi dengan menelusuri `git log`/`git diff` - semua yang perlu diketahui ada di dokumen ini dan di `CLAUDE.md`.
 
 ---
 
-## 1. Ringkasan Singkat
+## 1. Ringkasan
 
-Website-mu sudah keluar dari tahap prototipe HTML statis dan menjadi aplikasi Laravel 13 yang berfungsi: pengguna bisa daftar, membuat organisasi, memilih template, menyusun halaman lewat page builder berbasis section, mengisi konten CMS (berita, agenda, pengumuman, galeri, pengurus, program, jaringan), mengatur brand, **mengganti template kapan saja**, memilih paket langganan dengan **entitlement konkret** (hapus watermark, template eksklusif), dan menerbitkan situs ke subdomain publik. Ada juga panel admin dengan **pencarian dan pagination** untuk mengelola organisasi, template, paket, dan approval pembayaran.
+Website-mu adalah aplikasi Laravel 13 yang berfungsi penuh: pengguna mendaftar, membuat organisasi, memilih template, menyusun **beberapa halaman** lewat page builder berbasis section, mengisi konten CMS, mengatur brand, berlangganan lewat **pembayaran otomatis Midtrans**, dan menerbitkan situs ke subdomain publik yang ter-cache. Admin punya panel lengkap termasuk **editor template visual (sandbox)**.
 
-Total 29 commit sejak inisialisasi, dikerjakan berurutan dari fondasi organisasi → builder → CMS publik → brand/tema → subscription plan → **entitlement paket & tooling admin**.
+Skala kode: ~26 model, ~44 controller, ~65 migration, ~26 jenis section, 10 template ter-seed, 167 test.
 
 ---
 
-## 2. Yang Sudah Berfungsi (Fitur Utama)
+## 2. Yang Sudah Berfungsi
 
-### 2.1 Autentikasi & Organisasi
-- Register/login/logout standar Laravel (`routes/auth.php`).
-- CRUD organisasi (`OrganizationController`): buat, lihat, hapus, publish/unpublish.
-- Multi-user per organisasi via tabel pivot `organization_user` dengan role **Owner** dan **Editor** (`app/Enums/OrganizationRole.php`) - Owner bisa mengelola member, Editor tidak.
-- Onboarding checklist otomatis di dashboard: brand (logo diisi), kontak (salah satu dari telp/email/WA), konten (minimal 1 section tersimpan), published - lihat `Organization::onboardingChecklist()`.
+### 2.1 Autentikasi, Organisasi, Member
+- Register/login/logout (`routes/auth.php`).
+- CRUD organisasi + publish/unpublish.
+- Multi-user per organisasi (pivot `organization_user`), role **Owner** dan **Editor** (`OrganizationRole`). Hanya Owner yang mengelola member.
+- Onboarding checklist 4 item di dashboard (`Organization::onboardingChecklist()`): brand, kontak, konten, published.
+- **Onboarding tour interaktif** (driver.js) untuk `dashboard` dan `builder`, status tersimpan per user (`onboarding_tours_seen`).
 
 ### 2.2 Jenis Organisasi & Template
-- 12 jenis organisasi ter-seed (`OrganizationTypeSeeder`), dikelompokkan 3 kategori (`OrganizationCategory` enum: Persyarikatan, Ortom, AUM):
-  - Persyarikatan: Muhammadiyah
-  - Ortom: Aisyiyah, Pemuda Muhammadiyah, Nasyiatul Aisyiyah, Hizbul Wathan, IPM, IMM, Tapak Suci
-  - AUM: Kesehatan, Pendidikan, Sosial, Masjid/Mushola
-- Template disimpan sebagai JSON `structure` (halaman + section + brand warna default) di model `Template`, di-seed lewat `TemplateSeeder` - satu template awal per jenis organisasi, dengan warna brand berbeda per Ortom sesuai `prd.md` §7.
-- Preview template publik tanpa login (`/templates/{slug}/preview`) dan alur "pakai template ini" (`TemplateUseController`) yang meng-clone `structure` template ke organisasi baru.
-- Admin CRUD template (`Admin\TemplateController`).
+- **5 jenis organisasi** dalam **2 kategori** (`OrganizationCategory`):
+  - **Organisasi:** Muhammadiyah, Aisyiyah
+  - **Amal Usaha Muhammadiyah:** Klinik/Rumah Sakit, Media/Portal Berita, Masjid/Mushola
+  - Penamaan sengaja menyebut **gerakan atau institusi**, bukan tingkatan/kategori ("Muhammadiyah", bukan "Pimpinan Cabang Muhammadiyah"; "Klinik/Rumah Sakit", bukan "AUM Kesehatan").
+  - Kategori `Ortom` masih ada sebagai **alias deprecated** semata-mata agar baris lama tetap bisa di-cast.
+- **10 template ter-seed** - pasangan standar + eksklusif untuk masing-masing: PCM Ambulu, PCA Ambulu, Klinik Aisyiyah Ambulu, Suara Muhammadiyah Ambulu, Masjid Nurul Huda. Template eksklusif memakai section/variant premium dan multi-halaman.
+- `TemplateSeeder` dan `OrganizationSeeder` **sengaja kosong/dinonaktifkan** - template kini di-seed per organisasi lewat seeder masing-masing.
+- Preview template publik tanpa login, alur "pakai template ini", flag `is_featured` (tampil di homepage) dan `is_exclusive` (butuh entitlement paket).
 
-### 2.3 Page Builder (Drag & Drop - Sebagian)
-- Builder saat ini **hanya mendukung satu halaman per organisasi** (halaman "Beranda") - bukan multi-page seperti visi `prd.md` §9. `OrganizationPageController` ada untuk CRUD halaman tapi UI builder difokuskan ke satu halaman.
-- Registry section terpusat di `config/page-builder.php` - 18 jenis section terdaftar: `hero`, `header`, `footer`, `tentang-organisasi`, `sambutan-ketua`, `struktur-pengurus`, `program-unggulan`, `layanan`, `jaringan-aum-ortom`, `daftar-berita`, `agenda`, `pengumuman`, `galeri`, `jadwal-salat`, `jadwal-kajian`, `jadwal-praktik`, `donasi-zakat-infak`, `ppdb`, `formulir-kontak`, `lokasi-peta`, `cta`.
-- Setiap section punya `fields` (menentukan form panel properti) dan `defaults` (konten awal saat section ditambahkan) - jadi builder-nya *config-driven*, menambah section baru tidak perlu ubah banyak kode.
-- **Header dan footer dikunci (`locked: true`)**: selalu ada persis satu di awal dan satu di akhir halaman, tidak bisa dihapus/diduplikasi/di-drag, dan tidak muncul di picker "Tambah Section" - dipaksakan di level model (`OrganizationPage::sectionsInDisplayOrder()`) maupun controller.
-- Section bisa ditambah, dihapus, duplikasi, reorder (`OrganizationSectionController@reorder`), dan preview per-section (`sectionPreview`) serta preview seluruh halaman (`canvas`, `OrganizationSiteController@preview`) sebelum publish.
-- Data section tersimpan sebagai JSON `content` di tabel `organization_sections`.
+### 2.3 Page Builder (multi-halaman)
+- **Multi-halaman sudah nyata**, digerbangi limit paket `pages_total` (Starter/Organization = 1, Professional = 10). UI tambah/ubah/hapus halaman ada di builder.
+- Registry section terpusat di `config/page-builder.php`, **~26 jenis section**, config-driven (`fields`, `defaults`, `cms`).
+- Flag per section: `locked` (header/footer), `hidden` (belum siap - saat ini `jadwal-salat`), `exclusive` (butuh paket Professional).
+- **Section variant**: tiap section dirender dari `templates/sections/{key}/{variant}.blade.php` lewat tabel `section_variants` (`SectionVariantResolver`). Variant punya `is_exclusive` sendiri, terpisah dari `exclusive` di registry - keduanya diperlukan untuk 5 section masjid premium.
+- Tambah, hapus, duplikasi, reorder (SortableJS), preview per-section dan preview seluruh halaman.
 
 ### 2.4 CMS Konten
-Entitas CMS yang sudah diimplementasikan penuh (model + migration + controller resource + relasi ke Organization):
-- **Post/Berita** - judul, isi, gambar, status publish, tanggal.
-- **Agenda** - tanggal mulai, lokasi, deskripsi.
-- **Pengumuman** - judul, isi, status publish.
-- **Officer/Pengurus** - nama, jabatan, foto, urutan (bisa di-reorder).
-- **Program** - judul, deskripsi, ikon, tipe, urutan.
-- **OrganizationNetwork** - jaringan AUM/Ortom terkait, nama, tipe, urutan.
-- **GalleryPhoto** - url, caption, urutan (bisa di-reorder).
-- **Media library** - upload/hapus media, disimpan di Cloudflare R2 (lihat §2.6).
+Model + migration + controller resource lengkap, semua ter-scope ke organisasi: **Post/Berita, Agenda, Pengumuman, Officer/Pengurus, Program, OrganizationNetwork, GalleryPhoto, MasjidFacility, FinancialReport, DonationProgram, DonationTransaction, Media**.
+- Rich text lewat TipTap, disanitasi (`SanitizesRichText`, `config/purifier.php`).
+- Menu CMS hanya muncul untuk section yang benar-benar dipakai organisasi (`Organization::hasSection()`).
+- Sample data otomatis saat organisasi dibuat dari template (`CmsSampleDataSeeder` + `App\Services\Samples\*`).
 
-Semua resource ini di-scope ke `{organization}` lewat route model binding dan hanya bisa diakses jika section terkait ada di halaman organisasi (`Organization::hasSection()`), jadi tenant tidak melihat menu CMS untuk section yang templatenya tidak punya.
+### 2.5 Brand & Ganti Template
+- Warna primer/sekunder, logo, font, border radius. Fallback 3 tingkat: **override organisasi → default template → default platform**.
+- Font dan radius di-whitelist di `config/branding.php`.
+- Validasi warna terlalu terang (`NotTooLightColor`, luminance WCAG).
+- Ganti template kapan saja (destruktif: halaman lama dihapus dan di-clone ulang), hanya Owner.
+- Kontak & sosial media organisasi: telepon, email, WhatsApp, alamat, Instagram, Facebook, TikTok, YouTube - semua dengan fallback ke `template.structure.contact`.
 
-Sample data otomatis di-generate saat organisasi baru dibuat dari template (`CmsSampleDataSeeder`), supaya builder & halaman publik langsung berisi konten contoh yang bisa diedit, bukan kosong.
+### 2.6 Situs Publik Tenant
+- Subdomain routing native (`Route::domain()`), dikontrol `TENANT_DOMAIN`. Jika kosong, grup route tenant tidak didaftarkan sama sekali.
+- Middleware group `tenant` khusus (bukan `web`): tanpa session/CSRF, plus `UseReadOnlyConnection` (koneksi MySQL SELECT-only di produksi).
+- **`TenantPageCache`** - cache HTML penuh per halaman, invalidasi lewat version counter (bukan cache tags, karena store file/database tidak mendukungnya). Dibersihkan otomatis lewat trait `InvalidatesTenantPageCache` di setiap model CMS.
+- Halaman publik: beranda, halaman builder lain, detail berita/pengumuman/agenda/program donasi, load-more berita & galeri, JSON-LD, SEO meta, `sitemap.xml`.
+- Halaman error kustom (401/402/403/404/419/429/500/503).
 
-### 2.5 Brand Settings & Ganti Template
-- `OrganizationBrandController`: warna primer/sekunder, logo, font family, border radius.
-- Fallback chain 3 tingkat untuk setiap token brand (warna, font, radius): **override organisasi → default template → default platform** (`Organization::primaryColor()`, dst.) - konsisten dengan prinsip Guided Design System di `prd.md` §10.
-- UI elemen (tombol, avatar, badge) mengikuti `border_radius` organisasi.
-- **Baru:** `OrganizationTemplateController` - organisasi bisa mengganti template kapan saja (`organizations/{organization}/template`). Karena builder cuma dukung 1 halaman, ganti template berarti **halaman & section lama dihapus total** dan di-clone ulang dari template baru (bukan merge) - didesain sebagai aksi destruktif yang disengaja, hanya bisa dilakukan Owner.
-- Template bertanda `is_exclusive` hanya bisa dipilih organisasi dengan entitlement `has_exclusive_templates` dari paketnya (lihat §2.8) - template terkunci tetap ditampilkan (read-only) di halaman ganti template supaya tenant tahu ada pilihan lain jika upgrade.
+### 2.7 Paket Langganan & Pembayaran
+- **3 paket**: Starter Rp 10.000, Organization Rp 18.000, Professional Rp 25.000 per bulan.
+- Entitlement: `hide_branding`, `has_exclusive_templates`.
+- Limit per resource: posts, agendas, announcements, officers, programs, gallery_photos, facilities, donation_programs, `sections_total`, `pages_total`.
+- `PlanLimitService` - resolusi 3 tingkat: **override per-tenant → snapshot limit yang sudah dibayar → limit live paket**.
+- **Pembayaran otomatis lewat Midtrans Snap** (`config/billing.php`, `MidtransService`, `MidtransWebhookController` dengan verifikasi signature + re-fetch status). **Tidak ada** alur transfer manual.
+- State machine `PlanChangeRequestStatus`: Pending → PaymentConfirmed → Approved/Rejected, plus `PaymentReceivedNeedsReview` (pembayaran masuk tapi auto-approve gagal, admin bisa retry maksimal `max_approve_attempts`) dan `Expired`.
+- Kode diskon (`DiscountCode`), diskon durasi, auto-approve bila diskon menutup seluruh biaya.
+- `Organization::planViolations()` memblokir publish dan menampilkan badge bila melanggar.
+- Plan override oleh admin (`PlanOverrideLog`) untuk melewati pembayaran.
 
-### 2.6 Media & Storage
-- `MediaController` - upload, list, hapus media per organisasi.
-- Disimpan di **Cloudflare R2** (S3-compatible, via `league/flysystem-aws-s3-v3`), bukan disk lokal.
-- Resize/optimasi gambar via `intervention/image`.
+### 2.8 Admin Panel
+- Middleware `admin` (`is_admin`) menggerbangi `/admin/*`.
+- Kelola template (termasuk upload thumbnail, `is_featured`, `is_exclusive`), paket + limit, kode diskon, artikel/blog platform, daftar organisasi, approve/reject/retry plan change request, kelola section variant + preview-nya.
+- **Editor template visual (sandbox)** - fitur paling khas: admin tidak menulis JSON `Template::structure` manual. `TemplateSandboxService` membuat organisasi `is_sandbox` sekali pakai, admin mendesainnya lewat builder biasa, lalu "Simpan ke Template" meng-export balik ke `structure`. Sandbox disembunyikan dari listing tenant asli (`scopeExcludingSandbox`).
 
-### 2.7 Situs Publik Tenant (Multi-Tenancy via Subdomain)
-- Routing berbasis subdomain sungguhan sudah jalan: `Route::domain('{organization_slug}.'.$tenantDomain)` di `routes/web.php`, dikontrol oleh `config('tenancy.domain')` (env `TENANT_DOMAIN`).
-- Jika `TENANT_DOMAIN` kosong, grup route tenant **tidak didaftarkan sama sekali** - supaya `php artisan serve` lokal tetap jalan normal tanpa wildcard subdomain.
-- Halaman publik yang sudah ada: beranda tenant, detail berita, detail pengumuman, detail agenda - semua dengan SEO meta tags.
-- `SitemapController` - sitemap.xml otomatis.
-- Publish/unpublish digerbangi oleh aturan paket (lihat §2.8) - organisasi yang melanggar limit paket tidak bisa publish, dan situs yang sudah publish tapi jadi melanggar (misal downgrade) menampilkan badge peringatan alih-alih diturunkan paksa.
-
-### 2.8 Sistem Paket Langganan (Plan/Subscription)
-Ini bagian paling baru dan paling matang secara arsitektur (3 commit terakhir).
-
-**3 paket ter-seed** (`PlanSeeder`, harga masih draft/dummy, **naik dari snapshot sebelumnya**):
-| Paket | Harga/bulan | Entitlement | Catatan |
-|---|---|---|---|
-| Starter | Rp 10.000 | - | Limit kecil di semua resource (posts 5, sections_total 5) |
-| Organization | Rp 18.000 | - | CMS lebih lengkap, belum ada entitlement khusus |
-| Professional | Rp 25.000 | `hide_branding`, `has_exclusive_templates` | Limit paling longgar (posts 20, sections_total 25) + watermark hilang + akses template eksklusif |
-
-- Limit per resource: `posts`, `agendas`, `announcements`, `officers`, `programs`, `gallery_photos`, dan `sections_total` (total section builder non-locked di seluruh halaman).
-- **Baru - Entitlement biner per paket** (bukan cuma limit angka): kolom `hide_branding` dan `has_exclusive_templates` di tabel `plans`, plus `is_exclusive` di tabel `templates`.
-  - `hide_branding`: badge "Dibuat dengan website-mu.id" di footer publik disembunyikan untuk organisasi dengan paket berentitlement ini (`templates/sections/footer.blade.php`) - bukan sesuatu yang bisa di-toggle tenant sendiri.
-  - `has_exclusive_templates` (`Organization::canUseExclusiveTemplates()`): menggerbangi apakah organisasi boleh memilih template yang ditandai `is_exclusive` saat ganti template (lihat §2.5).
-  - Deskripsi paket di seeder sengaja hanya menyebut entitlement yang benar-benar ada di kode - sebelumnya sempat menyebut domain kustom/AI content yang belum dibangun, sudah dikoreksi.
-- **`PlanLimitService`** - resolusi limit 3 tingkat: **override per-tenant** (`OrganizationLimitOverride`, untuk negosiasi khusus) → **snapshot limit yang sudah dibayar** (`limits_snapshot` di `PlanChangeRequest`, dibekukan saat approval supaya perubahan limit paket di kemudian hari tidak merugikan tenant yang sudah bayar) → **limit live paket saat ini**.
-- **Alur ganti/upgrade paket** (`OrganizationPlanController` + `PlanChangeRequestService`) dengan state machine `PlanChangeRequestStatus`: `Pending` (menunggu bayar) → `PaymentConfirmed` (tenant klaim sudah bayar) → `Approved`/`Rejected` oleh admin. Admin approval memperpanjang `plan_expires_at` (extend dari expiry lama jika masih aktif, atau mulai dari sekarang) dan membekukan snapshot limit.
-- Hanya boleh ada satu `PlanChangeRequest` in-flight per organisasi.
-- `Organization::planViolations()` mengecek pelanggaran: konten CMS melebihi limit, total section melebihi limit, masa aktif paket habis, atau belum pernah dikonfirmasi pembayarannya - dipakai untuk memblokir publish dan menampilkan badge di situs publik.
-- Panel admin (`Admin\PlanController`, `Admin\PlanChangeRequestController`) untuk CRUD paket dan approve/reject permintaan ganti paket.
-
-### 2.9 Admin Panel
-- Middleware `admin` (kolom `is_admin` di tabel users) menggerbangi `/admin/*`.
-- Kelola template (termasuk toggle `is_exclusive`), kelola paket + limitnya (termasuk toggle `hide_branding`/`has_exclusive_templates`), lihat daftar semua organisasi, approve/reject plan change request.
-- **Baru - Pencarian & pagination** di semua listing admin (organisasi, template, paket, plan change request): komponen reusable `<x-crud.search-form>` (input `q` + slot filter tambahan + tombol reset), backend query pakai `->when()`/`->paginate(20)->withQueryString()`. Listing organisasi bisa dicari berdasarkan nama/slug organisasi maupun nama/email Owner-nya, dan difilter per jenis organisasi.
+### 2.9 Konten Platform
+- Blog/artikel platform (`/berita`), dikelola dari admin, 4 artikel terbaru tampil di homepage.
+- Homepage menampilkan template ber-`is_featured` (kurasi, bukan seluruh katalog) + daftar paket aktif.
 
 ---
 
-## 3. Arsitektur & Stack Teknis Aktual
+## 3. Stack Teknis Aktual
 
-- **Backend:** Laravel 13, PHP 8.3, SQLite (dev).
-- **Storage:** Cloudflare R2 (S3-compatible) untuk media upload.
-- **Image processing:** Intervention Image v4.
-- **Frontend:** Blade + Tailwind CDN pattern (belum migrasi ke Vite-compiled Tailwind untuk halaman aplikasi - masih konsisten dengan gaya prototipe HTML awal).
-- **Multi-tenancy:** subdomain-based routing native Laravel (`Route::domain()`), bukan paket multi-tenancy pihak ketiga.
-- **Konfigurasi khusus produk:** `config/page-builder.php` (registry section) dan `config/tenancy.php` (domain tenant) - pola config-driven, bukan hardcode di controller.
-- Kode secara konsisten didokumentasikan dengan komentar panjang yang menjelaskan *keputusan* dan *alasan* (bukan sekadar apa yang dilakukan kode) - memudahkan pembacaan ulang di masa depan.
-- **Baru - Refactor komponen UI organisasi**: view-view CMS organisasi (`agendas`, `announcements`, `gallery`, `networks`, `officers`, `posts`, `programs` - index & form) dirapikan ulang untuk memakai komponen Blade reusable (`components/ui/card`, `empty-state`, `list-panel`, `status-badge`) alih-alih markup berulang di tiap halaman. Mengurangi duplikasi tapi tidak menambah fitur baru.
-- File prototipe HTML lama (`index.html`, `prompt`) sudah dihapus dari root repo - dokumentasi produk kini sepenuhnya di `prd.md` + landing page hidup di `welcome.blade.php`. `tests/Feature/ExampleTest.php` bawaan Laravel juga sudah dibuang.
+- **Backend:** Laravel 13, PHP 8.3, SQLite (dev), MySQL (produksi, dengan user read-only terpisah untuk path tenant).
+- **Frontend:** **Vite + Tailwind v4** (`resources/css/app.css`). Pola Tailwind CDN sudah **dihapus sepenuhnya** - jangan diperkenalkan kembali.
+- **JS:** Alpine, TipTap, SortableJS, Litepicker, Swiper, driver.js.
+- **Storage:** Cloudflare R2 (`MEDIA_DISK=r2`); test memakai disk `public`.
+- **Pembayaran:** Midtrans Snap.
+- **Multi-tenancy:** native `Route::domain()`, bukan paket pihak ketiga.
+- **Config khusus produk:** `page-builder`, `tenancy`, `branding`, `billing`, `media`, `purifier`.
+- **Konvensi dokumentasi:** komentar panjang yang menjelaskan *keputusan* dan alternatif yang ditolak, bukan sekadar apa yang dilakukan kode. Pertahankan gaya ini.
 
 ---
 
-## 4. Yang Belum Dibangun (Gap terhadap Visi `prd.md`)
+## 4. Status Test
+
+`php artisan test` → **2 gagal, 2 error, 2 skip**, sisanya lulus (~168 test; totalnya bergeser mengikuti pekerjaan yang sedang berjalan).
+
+Keempat kegagalan ini **sudah ada sebelumnya** dan tetap muncul pada `HEAD` yang bersih (working tree di-stash) - bukan akibat pekerjaan yang sedang berjalan:
+
+| Test | Gejala | Sebab |
+|---|---|---|
+| `TenantDetailPagesTest::test_announcement_detail_page_renders` | 404 | Route cocok, tapi implicit model binding tidak tersubstitusi - parameter tetap string `"1"`, bukan model. Route berita sebelahnya lulus karena memakai slug string dan query manual. |
+| `TenantDetailPagesTest::test_agenda_detail_page_renders` | 404 | Sama seperti di atas (`tenant.agendas.show`). |
+| `OrganizationBrandTest::test_onboarding_checklist_reflects_logo_and_contact` | Error | `Organization` punya kolom `phone` **dan** method `phone()`. `onboardingChecklist()` membaca `filled($this->phone)`; bila atribut belum ter-load (instance hasil factory), Eloquent jatuh ke resolusi relasi lalu melempar error. Model hasil `fresh()`/route binding aman. Shadowing yang sama berlaku untuk `email`, `whatsapp`, `address`, dan 4 method URL sosial media. |
+| `OrganizationBrandTest::test_onboarding_checklist_content_is_done_once_a_page_has_a_section` | Error | Sama seperti di atas. |
+
+**Gunakan angka ini sebagai baseline.** Setelah mengubah kode, bandingkan dengan baseline ini, jangan berasumsi suite-nya hijau.
+
+---
+
+## 5. Yang Memang Belum Dibangun
+
+Diverifikasi tidak ada di codebase (bukan sekadar "belum dicek"):
 
 | Area | Status |
 |---|---|
-| Multi-page per organisasi | Builder baru mendukung 1 halaman ("Beranda"); model `OrganizationPage` sudah siap untuk multi-page tapi belum ada UI-nya |
-| Domain kustom (custom domain) | Belum ada - baru subdomain platform. Deskripsi paket sudah dikoreksi agar tidak over-promise soal ini |
-| AI Co-Pilot (draf konten, saran struktur) | Belum ada sama sekali |
-| Drag-and-drop reorder dengan interaksi visual (JS drag) | Section reorder ada endpoint-nya, belum dikonfirmasi UI-nya pakai drag interaktif atau tombol naik/turun |
-| Analytics dasar untuk tenant | Belum ada |
-| Verifikasi DNS/SSL untuk domain kustom | Belum ada (menyusul custom domain) |
-| Pembayaran otomatis (payment gateway) | Alur saat ini manual: tenant klaim sudah bayar → admin verifikasi manual, belum ada integrasi payment gateway |
-| Template per semua kategori (AUM Kesehatan, Sosial, dll.) | Baru 1 template per jenis organisasi (12 total), belum tentu semua varian section/konten khas per kategori sudah lengkap |
-| Testing otomatis | `tests/Feature/ExampleTest.php` bawaan sudah dihapus dan belum digantikan test fitur baru; `tests/TestCase.php` sempat disentuh (kemungkinan helper untuk setup plan/organization di test) tapi belum terlihat ada suite test untuk fitur-fitur di atas - perlu verifikasi terpisah dengan `composer test` |
-| Prototipe HTML root | Seluruh file `*.html` prototipe (`landingpage websitemu.html`, `index.html`, `PCA.html`, `PCM*.html`) dan `prompt` sudah dihapus dari repo - referensinya di `CLAUDE.md` sekarang usang dan perlu disesuaikan terpisah jika masih relevan |
+| Domain kustom (custom domain) | **Tidak ada.** Hanya subdomain platform. Tidak ada kolom, config, maupun kode terkait. |
+| AI Co-Pilot | **Tidak ada.** Tidak ada integrasi LLM apa pun. |
+| Analytics untuk tenant | **Tidak ada.** |
+| Verifikasi DNS/SSL | **Tidak ada** (mengikuti custom domain). |
+| Template marketplace | **Tidak ada.** |
+| Organization Network (parent-child, syndication) | Model `OrganizationNetwork` ada, tapi hanya sebagai **daftar tautan jaringan AUM/Ortom untuk ditampilkan**, bukan relasi organisasi bertingkat maupun distribusi konten. |
+| Role selain Owner/Editor | Hanya 2 role; PRD §15 menyebut lebih banyak. |
 
 ---
 
-## 5. Urutan Pembangunan (dari Git History)
+## 6. Catatan Penting untuk Sesi Berikutnya
 
-1. Inisialisasi project + organisasi dasar, upload media ke R2.
-2. Edit profil organisasi (nama, slug, deskripsi) + SEO publik.
-3. Halaman publik tenant untuk detail post/pengumuman/agenda + SEO.
-4. Footer terkunci → header terkunci, brand radius, layout organisasi.
-5. Section preview, CTA dinamis, penguncian header/footer disempurnakan.
-6. Update visual/warna template.
-7. **Sistem paket langganan** - model Plan/PlanLimit, `PlanLimitService`, gating publish.
-8. **Plan change request** - alur pengajuan-approval-pembayaran manual, admin panel.
-9. Perbaikan UX kecil (confirm dialog custom, progress bar usage).
-10. Bersih-bersih repo - hapus prototipe HTML lama dan test bawaan yang sudah tidak relevan.
-11. **Aturan publish berbasis kepatuhan paket** - `Organization::planViolations()`/`hasPaidForCurrentPlan()`, memblokir publish & menampilkan badge pelanggaran.
-12. **Entitlement paket konkret** - `hide_branding` (watermark footer) dan `has_exclusive_templates` (template terkunci), plus fitur ganti template organisasi (destruktif, clone ulang).
-13. Refactor komponen UI CMS organisasi ke komponen Blade reusable.
-14. **Pencarian & pagination** di seluruh listing panel admin.
-
----
-
-## 6. Rekomendasi Langkah Berikutnya (opsional, bukan keputusan)
-
-Berdasarkan gap di atas, kandidat prioritas berikutnya biasanya salah satu dari:
-- Multi-page builder (paling besar dampaknya untuk kelengkapan produk inti).
-- Integrasi payment gateway (mengurangi kerja manual admin approval - sekarang makin terasa karena alur approval, snapshot limit, dan entitlement paket sudah cukup matang di sisi manualnya).
-- AI Co-Pilot dasar (headline/deskripsi generation) - nilai jual pembeda dari builder biasa.
-- Test coverage untuk fitur inti (builder, plan gating, publish rules) - makin berisiko regresi seiring makin banyak logika bisnis (limit, snapshot, entitlement) yang saling bergantung.
-
-Keputusan prioritas ada di tangan Anda - dokumen ini hanya memetakan posisi saat ini.
+- **Prototipe HTML root (`*.html`, `prompt`) sudah dihapus** di commit `fa9545c`. Salinan basi masih ada di `.claude/worktrees/prd-masjid-kegiatan/` dan **ter-track git secara tidak sengaja** - abaikan direktori itu; pertimbangkan menghapusnya dari index.
+- **Hati-hati mengganti nama jenis organisasi.** Slug adalah kunci pencarian di semua template seeder, dan pencariannya null-safe (`$organizationType?->id`) sehingga slug basi **gagal diam-diam** - template ter-seed tanpa jenis organisasi. Ubah kedua sisi bersamaan.
+- Menambah section baru: cukup `config/page-builder.php` + view + baris di `section_variants`. Tidak perlu menyentuh controller.
