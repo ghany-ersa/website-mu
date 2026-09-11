@@ -22,9 +22,17 @@ class SuaraMuhammadiyahAmbuluSamples
      */
     public const WHATSAPP = '085183220977';
 
+    public const EMAIL = 'mediamu.ambulu@gmail.com';
+
+    public const ADDRESS = 'Jl. Raya Suyitman No. 178, Sumberan, Ambulu, Kabupaten Jember';
+
     public const INSTAGRAM = 'https://www.instagram.com/suaramuhammadiyahambulu';
 
+    public const FACEBOOK = 'https://www.facebook.com/share/14sYGQiqc4L/';
+
     public const TIKTOK = 'https://www.tiktok.com/@suaramuhammadiyahambulu';
+
+    public const YOUTUBE = 'https://www.youtube.com/@suaramuhammadiyahabl';
 
     /**
      * The redaksi's own pre-existing site, distinct from its website-mu.id-hosted profile.

@@ -39,6 +39,8 @@ class KlinikAisyiyahAmbuluSamples
 
     public const INSTAGRAM = 'https://www.instagram.com/aisyiyahambulu';
 
+    public const TIKTOK = 'https://www.tiktok.com/@klinikaisyiyahambulu';
+
     /**
      * Google Maps place embed for the clinic's own pin (the /maps/embed?pb=... form the
      * lokasi-peta partial drops straight into an <iframe>). Built from the shared map link the

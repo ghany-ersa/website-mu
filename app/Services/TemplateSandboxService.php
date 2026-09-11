@@ -74,6 +74,10 @@ class TemplateSandboxService
                     'secondary_color' => $brand['secondary'] ?? null,
                     'font_family' => $brand['font'] ?? null,
                     'border_radius' => $brand['radius'] ?? null,
+                    // Read back here (a sandbox reopening its own template's saved state) but
+                    // deliberately NOT read by seedPagesFromTemplate()/prepareForValidation() -
+                    // see export()'s comment on why a real organization never inherits this.
+                    'logo' => $brand['logo'] ?? null,
                     'phone' => $contact['phone'] ?? null,
                     'email' => $contact['email'] ?? null,
                     'whatsapp' => $contact['whatsapp'] ?? null,
@@ -121,11 +125,22 @@ class TemplateSandboxService
 
         $structure = $template->structure ?? [];
 
+        // 'logo' rides in `brand` alongside the colors/font/radius it's exported next to, but
+        // it is NOT read back the way those are: Organization::seedPagesFromTemplate() and
+        // OrganizationSeeder::brandFrom() only ever pull primary/secondary/font/radius from
+        // structure['brand'], and StoreOrganizationRequest::prepareForValidation() the same -
+        // none of them touch 'logo'. So a real organization created from this template never
+        // inherits the logo (see Organization::onboardingChecklist()'s doc comment: "logo,
+        // unlike the colors, is never auto-filled from a template") - it's captured here purely
+        // so the admin sees it again the next time sandboxFor() rebuilds this sandbox (that path
+        // DOES read structure['brand']['logo'] back, since re-opening the editor should show
+        // what was last saved).
         $structure['brand'] = [
             'primary' => $sandbox->primaryColor(),
             'secondary' => $sandbox->secondaryColor(),
             'font' => $sandbox->fontFamily(),
             'radius' => $sandbox->borderRadius(),
+            'logo' => $sandbox->logo,
         ];
 
         // Contact info is edited on the sandbox org via the normal Brand Setting page

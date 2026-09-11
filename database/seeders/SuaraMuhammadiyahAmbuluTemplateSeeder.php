@@ -68,6 +68,19 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                         'secondary' => '#079C4E',
                         'font' => 'Lora',
                         'radius' => 'sharp',
+                        'logo' => 'https://storage.ambulu.or.id/organizations/7/brand/133c8afb-9b33-4234-b362-8dbc6e020618.webp',
+                    ],
+                    // Read by Organization::phone()/whatsapp()/etc. as the fallback an
+                    // organization on this template shows before it fills in its own contact
+                    // fields - see those methods on the model. Not just sandbox-editor plumbing.
+                    'contact' => [
+                        'email' => Samples::EMAIL,
+                        'whatsapp' => Samples::WHATSAPP,
+                        'address' => Samples::ADDRESS,
+                        'instagram_url' => Samples::INSTAGRAM,
+                        'facebook_url' => Samples::FACEBOOK,
+                        'tiktok_url' => Samples::TIKTOK,
+                        'youtube_url' => Samples::YOUTUBE,
                     ],
                     'pages' => [
                         [
@@ -75,17 +88,28 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                             'name' => 'Beranda',
                             'sections' => [
                                 $header,
+                                // `cta_section`/`cta_secondary_section` point at daftar-berita and
+                                // struktur-pengurus by KEY - "Simpan ke Template" has TWICE now
+                                // written raw numeric section ids here instead ('99'/'101' as of
+                                // this writing), an artifact of how the sandbox's scroll-anchor
+                                // picker serializes a selection. SectionAnchor::href() only
+                                // resolves a key, so an id would 404 the scroll on any other
+                                // organization - restored to keys here. This is a builder bug,
+                                // not a seeder one, and will keep recurring on every re-save of
+                                // this hero's CTAs in the sandbox editor until fixed at the
+                                // source; re-check this field whenever resyncing this template
+                                // from the admin's "Simpan ke Template".
                                 ['key' => 'hero', 'variant' => 'modern', 'content' => [
-                                    'badge' => 'Media PCM Ambulu',
+                                    'badge' => 'Media Ambulu',
                                     'headline' => 'Suara Muhammadiyah Ambulu',
-                                    'subheadline' => 'Kanal media resmi Pimpinan Cabang Muhammadiyah Ambulu - meliput dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu, dikelola oleh tim redaksi 16 orang.',
+                                    'subheadline' => 'Kanal media resmi Muhammadiyah Ambulu - meliput dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu, dikelola oleh tim redaksi 16 orang.',
                                     'cta_label' => 'Baca Berita Terkini',
                                     'cta_type' => 'scroll',
                                     'cta_section' => 'daftar-berita',
                                     'cta_secondary_label' => 'Kenali Tim Redaksi',
                                     'cta_secondary_type' => 'scroll',
                                     'cta_secondary_section' => 'struktur-pengurus',
-                                    'image' => Samples::HERO_IMAGE,
+                                    'image' => 'https://storage.ambulu.or.id/organizations/7/builder/a0bfef2f-3a8f-4e70-b32e-b53d85135dd9.webp',
                                 ]],
                                 ['key' => 'daftar-berita', 'variant' => 'ringkas', 'content' => [
                                     'title' => 'Kabar Terkini',
@@ -93,13 +117,13 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                                     'items' => array_slice(Samples::beritaItems(), 0, 6),
                                 ]],
                                 ['key' => 'tentang-organisasi', 'variant' => 'modern', 'content' => [
-                                    'title' => 'Media Digitalisasi PCM Ambulu',
-                                    'body' => 'Suara Muhammadiyah Ambulu adalah media dan unit digitalisasi Pimpinan Cabang Muhammadiyah Ambulu, hadir untuk mendokumentasikan dan menyebarluaskan kabar dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu kepada warga persyarikatan maupun masyarakat umum.',
-                                    'image' => Samples::ABOUT_IMAGE,
+                                    'title' => 'Media Muhammadiyah Ambulu',
+                                    'body' => 'Suara Muhammadiyah Ambulu adalah media dan unit digitalisasi Muhammadiyah Ambulu, hadir untuk mendokumentasikan dan menyebarluaskan kabar dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu kepada warga persyarikatan maupun masyarakat umum.',
+                                    'image' => 'https://storage.ambulu.or.id/organizations/7/builder/804a27a1-cf7f-4c14-a5fa-7d5d964ee4ea.webp',
                                     'stats' => [
-                                        ['value' => '5K+', 'label' => 'Pengikut Instagram'],
+                                        ['value' => '5k+', 'label' => 'Pengikut Instagram'],
                                         ['value' => '2K+', 'label' => 'Pengikut TikTok'],
-                                        ['value' => '10+', 'label' => 'Kabar Berita'],
+                                        ['value' => '16', 'label' => 'Tim Redaksi'],
                                     ],
                                 ]],
                                 ['key' => 'struktur-pengurus', 'variant' => 'modern', 'content' => [
@@ -109,7 +133,7 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                                 ['key' => 'cta', 'variant' => 'newsletter', 'content' => [
                                     'title' => 'Jangan Lewatkan Kabar Muhammadiyah Ambulu',
                                     'subtitle' => 'Ikuti Sosial Media kami untuk update setiap hari.',
-                                    'cta_label' => 'Ikuti',
+                                    'cta_label' => 'Ikuti Kami',
                                     'cta_type' => 'url',
                                     'cta_url' => Samples::WEBSITE,
                                 ]],
@@ -130,7 +154,7 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                                 ['key' => 'daftar-berita', 'variant' => 'ringkas', 'content' => [
                                     'title' => 'Kabar Kaderisasi & Ortom',
                                     'category_filter' => null,
-                                    'limit' => null,
+                                    'limit' => 10,
                                     'items' => Samples::beritaItems(),
                                 ]],
                                 $footer,

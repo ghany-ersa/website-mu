@@ -64,7 +64,19 @@ class SuaraMuhammadiyahAmbuluStandarTemplateSeeder extends Seeder
                         'primary' => '#2C368B',
                         'secondary' => '#079C4E',
                         'font' => 'Plus Jakarta Sans',
-                        'radius' => 'rounded',
+                        'radius' => 'full',
+                        'logo' => 'https://storage.ambulu.or.id/organizations/8/brand/d94af499-afed-4383-8fb7-5ca2e67a3f77.webp',
+                    ],
+                    // See SuaraMuhammadiyahAmbuluTemplateSeeder's matching block for why this
+                    // exists and what reads it.
+                    'contact' => [
+                        'email' => Samples::EMAIL,
+                        'whatsapp' => Samples::WHATSAPP,
+                        'address' => Samples::ADDRESS,
+                        'instagram_url' => Samples::INSTAGRAM,
+                        'facebook_url' => Samples::FACEBOOK,
+                        'tiktok_url' => Samples::TIKTOK,
+                        'youtube_url' => Samples::YOUTUBE,
                     ],
                     'pages' => [
                         [
@@ -73,63 +85,71 @@ class SuaraMuhammadiyahAmbuluStandarTemplateSeeder extends Seeder
                             'sections' => [
                                 $header,
                                 // 1. Identity. An outlet's hero introduces the outlet, not a
-                                // headline - the news itself starts two sections down.
+                                // headline - the news itself starts two sections down. Scroll
+                                // targets are KEYS (daftar-berita/struktur-pengurus), not the raw
+                                // numeric section ids "Simpan ke Template" has repeatedly written
+                                // here - see SuaraMuhammadiyahAmbuluTemplateSeeder's matching
+                                // comment on that builder bug.
                                 ['key' => 'hero', 'variant' => 'standar', 'content' => [
-                                    'badge' => 'Media PCM Ambulu',
+                                    'badge' => 'Media Ambulu',
                                     'headline' => 'Suara Muhammadiyah Ambulu',
-                                    'subheadline' => 'Kanal media resmi Pimpinan Cabang Muhammadiyah Ambulu - meliput dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu.',
+                                    'subheadline' => 'Kanal media resmi Muhammadiyah Ambulu - meliput dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu.',
                                     'cta_label' => 'Baca Berita Terkini',
                                     'cta_type' => 'scroll',
                                     'cta_section' => 'daftar-berita',
                                     'cta_secondary_label' => 'Kenali Tim Redaksi',
                                     'cta_secondary_type' => 'scroll',
                                     'cta_secondary_section' => 'struktur-pengurus',
-                                    'image' => Samples::HERO_IMAGE,
+                                    'image' => 'https://storage.ambulu.or.id/organizations/8/builder/e8dad3da-cb85-48db-b923-b5312a2b6216.webp',
                                 ]],
-                                // 2. Lane one: institutional coverage. `category_filter` is a
-                                // registry field on daftar-berita and is NOT plan-gated, so
-                                // this split works on every plan - see the class doc comment for
-                                // why it matters this much here.
-                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
-                                    'title' => 'Kabar Persyarikatan',
-                                    'category_filter' => 'Organisasi',
-                                    'limit' => 4,
-                                    'items' => Samples::institutionalItems(),
-                                ]],
-                                // 3. Lane two: everything else. No filter, so on a live site
-                                // this is the general feed beneath the institutional one.
-                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
-                                    'title' => 'Kabar Kaderisasi & Ortom',
-                                    'category_filter' => null,
-                                    'limit' => 4,
-                                    'items' => Samples::kaderisasiItems(),
-                                ]],
-                                // 4. Who is behind the reporting - the credibility section, and
-                                // for a media outlet it is not optional.
+                                // 2. Who is behind the reporting - the credibility section, and
+                                // for a media outlet it is not optional. Moved ahead of the news
+                                // lanes by the admin's own drag-reorder in the builder (was
+                                // originally after both daftar-berita sections) - trust the
+                                // outlet before reading it, rather than the other way round.
                                 ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Media Digitalisasi PCM Ambulu',
                                     'body' => 'Suara Muhammadiyah Ambulu adalah media dan unit digitalisasi Pimpinan Cabang Muhammadiyah Ambulu, hadir untuk mendokumentasikan dan menyebarluaskan kabar dakwah, pendidikan, kesehatan, dan pemberdayaan umat dari seluruh jaringan Ortom dan Amal Usaha di Ambulu kepada warga persyarikatan maupun masyarakat umum.',
-                                    'image' => Samples::ABOUT_IMAGE,
+                                    'image' => 'https://storage.ambulu.or.id/organizations/8/builder/47952257-280e-4a34-b9bb-b080e2444e4b.webp',
                                     'stats' => [
                                         ['value' => '5K+', 'label' => 'Pengikut Instagram'],
                                         ['value' => '2K+', 'label' => 'Pengikut TikTok'],
                                         ['value' => '16', 'label' => 'Tim Redaksi'],
                                     ],
                                 ]],
-                                // 5. The masthead - all 16 of them. On Starter the `officers`
+                                // 3. Lane one: institutional coverage. `category_filter` is a
+                                // registry field on daftar-berita and is NOT plan-gated, so
+                                // this split works on every plan - see the class doc comment for
+                                // why it matters this much here.
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Kabar Persyarikatan',
+                                    'category_filter' => 'Organisasi',
+                                    'limit' => 3,
+                                    'items' => Samples::institutionalItems(),
+                                ]],
+                                // 4. The masthead - all 16 of them. On Starter the `officers`
                                 // quota of 3 trims the live CMS records hard (Organization
                                 // allows 7, Professional 20), but the template preview always
-                                // shows the full redaksi.
+                                // shows the full redaksi. Sits between the two news lanes (the
+                                // admin's own reorder) rather than after both.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tim Redaksi',
                                     'items' => Samples::timRedaksi(),
+                                ]],
+                                // 5. Lane two: everything else. No filter, so on a live site
+                                // this is the general feed the institutional lane doesn't cover.
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Kabar Kaderisasi & Ortom',
+                                    'category_filter' => null,
+                                    'limit' => 3,
+                                    'items' => Samples::kaderisasiItems(),
                                 ]],
                                 // 6. The follow ask. An outlet's real conversion is a social
                                 // follow, not a form submission.
                                 ['key' => 'cta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Ikuti Kanal Media Sosial Kami',
                                     'subtitle' => 'Dapatkan kabar terbaru Suara Muhammadiyah Ambulu setiap hari di Sosial Media kami.',
-                                    'cta_label' => 'Ikuti di Instagram',
+                                    'cta_label' => 'Ikuti Kami',
                                     'cta_type' => 'url',
                                     'cta_url' => Samples::WEBSITE,
                                 ]],

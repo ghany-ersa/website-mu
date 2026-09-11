@@ -63,7 +63,16 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                         'primary' => '#079C4E',
                         'secondary' => '#2C368B',
                         'font' => 'Plus Jakarta Sans',
-                        'radius' => 'rounded',
+                        'radius' => 'sharp',
+                        'logo' => 'https://storage.ambulu.or.id/organizations/6/brand/bda79c51-7293-4634-8dc7-9be52dcc9090.webp',
+                    ],
+                    // See KlinikAisyiyahAmbuluTemplateSeeder's matching block for why this
+                    // exists and what reads it.
+                    'contact' => [
+                        'whatsapp' => Samples::WHATSAPP,
+                        'address' => Samples::ADDRESS,
+                        'instagram_url' => Samples::INSTAGRAM,
+                        'tiktok_url' => Samples::TIKTOK,
                     ],
                     'pages' => [
                         [
@@ -75,6 +84,9 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                 // open, and a way to call. Unlike the cabang profiles, whose
                                 // hero CTAs scroll, this one dials straight into WhatsApp - a
                                 // clinic visitor may be in a hurry.
+                                // See KlinikAisyiyahAmbuluTemplateSeeder's matching hero image
+                                // comment - this is a real photo uploaded through the sandbox
+                                // editor (organization id 6), not Samples::HERO_IMAGE.
                                 ['key' => 'hero', 'variant' => 'standar', 'content' => [
                                     'badge' => 'Menerima Pasien Umum & BPJS',
                                     'headline' => 'Sehat Bersama, Melayani dengan Ikhlas',
@@ -83,10 +95,10 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                     'cta_type' => 'whatsapp',
                                     'cta_wa_number' => Samples::WHATSAPP,
                                     'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar layanan Klinik Pratama Aisyiyah Ambulu.',
-                                    'cta_secondary_label' => 'Jadwal Praktik Dokter',
+                                    'cta_secondary_label' => 'Jadwal Praktik',
                                     'cta_secondary_type' => 'scroll',
                                     'cta_secondary_section' => 'jadwal-praktik',
-                                    'image' => Samples::HERO_IMAGE,
+                                    'image' => 'https://storage.ambulu.or.id/organizations/6/builder/8c9b738c-4ec9-4cb6-aa93-69a0e4c5182c.webp',
                                 ]],
                                 // 2. What the clinic treats. High, because it is the most
                                 // common reason for the visit.
@@ -103,7 +115,7 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                 ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
                                     'title' => 'Amal Usaha Kesehatan Aisyiyah di Ambulu',
                                     'body' => 'Klinik Pratama Aisyiyah Ambulu adalah amal usaha bidang kesehatan milik Pimpinan Cabang Aisyiyah Ambulu. Kami hadir sebagai layanan kesehatan yang terjangkau dan dekat dengan masyarakat, menerima pasien umum maupun peserta BPJS Kesehatan, dengan unit gawat darurat dan rawat inap yang siaga 24 jam.',
-                                    'image' => Samples::ABOUT_IMAGE,
+                                    'image' => 'https://storage.ambulu.or.id/organizations/6/builder/d86132f0-f5b3-49d4-93b6-e3ed414be0ca.webp',
                                     'stats' => [
                                         ['value' => '24 Jam', 'label' => 'UGD & Rawat Inap'],
                                         ['value' => '5', 'label' => 'Layanan Poli'],

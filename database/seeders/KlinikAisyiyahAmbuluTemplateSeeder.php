@@ -73,6 +73,16 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                         'secondary' => '#2C368B',
                         'font' => 'Lora',
                         'radius' => 'sharp',
+                        'logo' => 'https://storage.ambulu.or.id/organizations/5/brand/9b123858-8f65-4a14-a470-577b5a5cbb74.webp',
+                    ],
+                    // Read by Organization::phone()/whatsapp()/etc. as the fallback an
+                    // organization on this template shows before it fills in its own contact
+                    // fields - see those methods on the model.
+                    'contact' => [
+                        'whatsapp' => Samples::WHATSAPP,
+                        'address' => Samples::ADDRESS,
+                        'instagram_url' => Samples::INSTAGRAM,
+                        'tiktok_url' => Samples::TIKTOK,
                     ],
                     'pages' => [
                         [
@@ -80,6 +90,15 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                             'name' => 'Beranda',
                             'sections' => [
                                 $header,
+                                // Hero/about images point at storage.ambulu.or.id/organizations/5/... -
+                                // real photos uploaded through the sandbox editor's Brand
+                                // Settings, not Samples::HERO_IMAGE/ABOUT_IMAGE. Copied here
+                                // verbatim to match what "Simpan ke Template" wrote, but these
+                                // are per-ORGANIZATION uploads (id 5, the sandbox), not a
+                                // public/stable asset the way Samples::HERO_IMAGE's Unsplash
+                                // URL is - if that organization or its storage is ever cleaned
+                                // up, these 404. Swap back to Samples::HERO_IMAGE/ABOUT_IMAGE if
+                                // that happens.
                                 ['key' => 'hero', 'variant' => 'modern', 'content' => [
                                     'badge' => 'Menerima Pasien Umum & BPJS',
                                     'headline' => 'Sehat Bersama, Melayani dengan Ikhlas',
@@ -91,18 +110,17 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                                     'cta_secondary_label' => 'Jadwal Praktik Dokter',
                                     'cta_secondary_type' => 'scroll',
                                     'cta_secondary_section' => 'jadwal-praktik',
-                                    'image' => Samples::HERO_IMAGE,
+                                    'image' => 'https://storage.ambulu.or.id/organizations/5/builder/f7481f24-dffa-44b4-9220-341cb8b64853.webp',
                                 ]],
                                 ['key' => 'tentang-organisasi', 'variant' => 'modern', 'content' => [
                                     'title' => 'Amal Usaha Kesehatan Aisyiyah di Ambulu',
                                     'body' => 'Klinik Pratama Aisyiyah Ambulu adalah amal usaha bidang kesehatan milik Pimpinan Cabang Aisyiyah Ambulu. Kami hadir sebagai layanan kesehatan yang terjangkau dan dekat dengan masyarakat, menerima pasien umum maupun peserta BPJS Kesehatan, dengan unit gawat darurat dan rawat inap yang siaga 24 jam.',
-                                    'image' => Samples::ABOUT_IMAGE,
-                                    'stats' => [
-                                        ['value' => '24 Jam', 'label' => 'UGD & Rawat Inap'],
-                                        ['value' => '5', 'label' => 'Layanan Poli'],
-                                        ['value' => 'Gratis', 'label' => 'Layanan Ambulans'],
-                                    ],
+                                    'image' => 'https://storage.ambulu.or.id/organizations/5/builder/10a6626c-27c4-4372-9965-651e93261b50.webp',
                                 ]],
+                                // `items` here is a preview-only fallback (this section
+                                // auto-binds to Organization::programs()->ofType('layanan') for
+                                // a real organization - see layanan/standar.blade.php), kept so
+                                // the template's own preview shows real content.
                                 ['key' => 'layanan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Unggulan',
                                     'items' => Samples::layananItems(),
