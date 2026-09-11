@@ -78,15 +78,7 @@ return [
             'fields' => ['title', 'body', 'image', 'stats'],
             'defaults' => [
                 'title' => 'Tentang Organisasi',
-                // Same fallback templates/sections/tentang-organisasi.blade.php already shows
-                // when `stats` is empty - seeded here too so a newly-added section starts with
-                // editable rows in the builder's properties panel instead of an empty stats
-                // editor that doesn't match what the canvas is actually rendering.
-                'stats' => [
-                    ['value' => '10+', 'label' => 'Tahun Berdiri'],
-                    ['value' => '100+', 'label' => 'Anggota'],
-                    ['value' => '5+', 'label' => 'Program Aktif'],
-                ],
+                'stats' => [],
             ],
         ],
         'sambutan-ketua' => [
@@ -115,7 +107,7 @@ return [
             'label' => 'Jaringan AUM/Ortom',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Jaringan AUM & Ortom'],
-            'cms' => ['route' => 'organizations.networks.index', 'label' => 'Jaringan AUM/Ortom'],
+            'cms' => ['route' => 'organizations.networks.index', 'label' => 'AUM/Ortom'],
         ],
         'daftar-berita' => [
             'label' => 'Daftar Berita',
@@ -136,7 +128,7 @@ return [
             'label' => 'Agenda / Jadwal',
             'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Agenda Kegiatan'],
-            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda & Kajian'],
+            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda'],
         ],
         'pengumuman' => [
             'label' => 'Pengumuman',
@@ -146,7 +138,9 @@ return [
         ],
         'galeri' => [
             'label' => 'Galeri',
-            'fields' => ['title', 'items', 'limit'],
+            // `subtitle` renders under the heading; without it here the builder's properties
+            // panel would never offer the field, leaving the copy unreachable rather than empty.
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Galeri'],
             'cms' => ['route' => 'organizations.gallery.index', 'label' => 'Galeri'],
         ],
@@ -196,7 +190,10 @@ return [
         'fasilitas-masjid' => [
             'label' => 'Fasilitas Masjid',
             'exclusive' => true,
-            'fields' => ['title', 'items', 'limit'],
+            // `subtitle` is rendered under the heading by the nurul-huda variant; without it
+            // here the builder's properties panel would never offer the field, so the copy
+            // would be unreachable rather than merely empty.
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Fasilitas Masjid'],
             'cms' => ['route' => 'organizations.facilities.index', 'label' => 'Fasilitas'],
         ],
