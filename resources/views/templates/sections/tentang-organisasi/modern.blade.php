@@ -29,8 +29,8 @@
             </div>
         </div>
         <div class="reveal relative">
-            <div class="absolute -inset-3 border border-primary/15 rounded-brand"></div>
-            <div class="relative aspect-[4/5] rounded-brand overflow-hidden shadow-soft">
+            <div class="absolute -top-4 -left-4 right-5 bottom-5 md:-inset-3 border border-primary/15 rounded-brand"></div>
+            <div class="relative aspect-[4/3] md:aspect-[16/10] rounded-brand overflow-hidden shadow-soft">
                 @if (! empty($content['image']))
                     <img src="{{ $content['image'] }}" alt="{{ $content['title'] ?? '' }}" class="w-full h-full object-cover">
                 @else

@@ -23,6 +23,9 @@
             ?? $organization->name ?? null
             ?? '[Nama Organisasi]');
     $orgLogo = $organization->logo ?? null;
+    if (blank($orgLogo)) {
+        $orgLogo = ($template ?? null)?->structure['brand']['logo'] ?? null;
+    }
     // Template-preview context has no $organization at all, so fall back straight to the
     // template's own structure['contact'] (see Organization::phone() etc. for the same chain
     // when $organization is present).

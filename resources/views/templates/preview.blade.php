@@ -79,8 +79,8 @@
                 @endif
                 <span class="text-gray-400">— pratinjau template</span>
             </div>
-            <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1">
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-1">
                     @foreach ($pages as $item)
                         <a href="{{ route('templates.preview', ['template' => $template->slug, 'page' => $item['slug']]) }}"
                            class="px-3 py-1 rounded-full transition-colors {{ $item['slug'] === $currentPage['slug'] ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700' }}">
@@ -112,7 +112,12 @@
                 @includeFirst([
                     \App\Services\SectionVariantResolver::resolve($section['key'], $section['variant'] ?? null),
                     'templates.sections._missing',
-                ], ['section' => $section, 'template' => $template])
+                ], [
+                    'section' => $section,
+                    'template' => $template,
+                    'previewPages' => $pages,
+                    'previewCurrentPage' => $currentPage,
+                ])
             </div>
         @endforeach
     </main>
