@@ -138,6 +138,15 @@ class OrganizationPlanController extends Controller
                 ->with('success', 'Paket berhasil diaktifkan menggunakan kode diskon.');
         }
 
+        // Midtrans disabled (config('billing.manual_transfer.only')) - leave the request Pending
+        // and send the tenant back to the plan page, which shows the transfer instructions in
+        // place of the Snap button rather than attempting a Snap call that would fail.
+        if (config('billing.manual_transfer.only')) {
+            return redirect()
+                ->route('organizations.plan.edit', $organization)
+                ->with('success', 'Permintaan dibuat. Silakan selesaikan pembayaran melalui transfer manual.');
+        }
+
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
 
         return redirect()->away($redirectUrl);
@@ -152,6 +161,10 @@ class OrganizationPlanController extends Controller
     public function pay(Organization $organization, PlanChangeRequest $planChangeRequest, MidtransService $midtrans, PlanChangeRequestService $planChangeRequestService): RedirectResponse
     {
         $this->authorize('manageBilling', $organization);
+
+        // Midtrans is off - the plan page hides the Snap button in this mode, so reaching here
+        // means a stale link or a hand-typed URL.
+        abort_if(config('billing.manual_transfer.only'), 404);
 
         abort_unless($planChangeRequest->organization_id === $organization->id, 404);
         abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
@@ -169,6 +182,32 @@ class OrganizationPlanController extends Controller
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
 
         return redirect()->away($redirectUrl);
+    }
+
+    /**
+     * Records that the tenant says they've paid by manual bank transfer (see
+     * config('billing.manual_transfer')) - always available, whether or not Midtrans is the
+     * primary option. Deliberately moves the request only to PaymentConfirmed, never Approved:
+     * this is an unverified tenant claim, so an admin still has to check the transfer actually
+     * landed and approve it from admin/plan-change-requests. PaymentConfirmed already counts as
+     * in-flight for Organization::pendingPlanChangeRequest(), so this can't be used to queue up
+     * extra requests.
+     */
+    public function confirmManualPayment(Organization $organization, PlanChangeRequest $planChangeRequest): RedirectResponse
+    {
+        $this->authorize('manageBilling', $organization);
+
+        abort_unless($planChangeRequest->organization_id === $organization->id, 404);
+        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+
+        $planChangeRequest->update([
+            'status' => PlanChangeRequestStatus::PaymentConfirmed,
+            'payment_confirmed_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('organizations.plan.edit', $organization)
+            ->with('success', 'Konfirmasi pembayaran terkirim. Paket akan aktif setelah tim kami memverifikasi transfer Anda.');
     }
 
     /**

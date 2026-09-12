@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\PlanChangeRequestStatus;
+use App\Enums\PlanOverrideAction;
 use App\Http\Controllers\Controller;
 use App\Models\PlanChangeRequest;
 use App\Services\PlanChangeRequestService;
@@ -43,14 +44,50 @@ class PlanChangeRequestController extends Controller
     }
 
     /**
+     * Approves a request the tenant paid for by manual bank transfer (see
+     * OrganizationPlanController::confirmManualPayment()). This is the only path to Approved
+     * that isn't driven by Midtrans, which is why it's gated on PaymentConfirmed: the tenant's
+     * claim alone never activates a plan, an admin has to verify the transfer landed first.
+     * Logged to plan_override_logs like every other manual plan change.
+     */
+    public function approveManual(Request $request, PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): RedirectResponse
+    {
+        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::PaymentConfirmed, 409, 'Permintaan ini tidak sedang menunggu verifikasi transfer.');
+
+        $validated = $request->validate([
+            'admin_note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $admin = Auth::user();
+        $fromPlanId = $planChangeRequest->organization->plan_id;
+        $fromExpiresAt = $planChangeRequest->organization->plan_expires_at;
+
+        $service->approve($planChangeRequest, $admin, $validated['admin_note'] ?? 'Disetujui setelah verifikasi transfer manual.');
+
+        $planChangeRequest->organization->planOverrideLogs()->create([
+            'plan_change_request_id' => $planChangeRequest->id,
+            'admin_user_id' => $admin->id,
+            'action' => PlanOverrideAction::ApproveManualTransfer,
+            'from_plan_id' => $fromPlanId,
+            'to_plan_id' => $planChangeRequest->requested_plan_id,
+            'from_expires_at' => $fromExpiresAt,
+            'to_expires_at' => $planChangeRequest->organization->fresh()->plan_expires_at,
+            'note' => 'Disetujui manual setelah verifikasi transfer bank.',
+        ]);
+
+        return redirect()
+            ->route('admin.plan-change-requests.index')
+            ->with('status', 'Paket berhasil disetujui setelah verifikasi transfer.');
+    }
+
+    /**
      * Cancels a request that was never paid for - e.g. the tenant abandoned checkout and it's
-     * cluttering the queue. There is no manual "Approve" here: since payment goes entirely
-     * through Midtrans, a request only becomes Approved via the webhook (or retryApprove()
-     * below, for one that Midtrans already settled but which failed to auto-approve).
+     * cluttering the queue. Also covers a PaymentConfirmed request whose transfer never actually
+     * landed, so an admin can clear a false claim out of the queue.
      */
     public function reject(Request $request, PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): RedirectResponse
     {
-        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+        abort_unless(in_array($planChangeRequest->status, [PlanChangeRequestStatus::Pending, PlanChangeRequestStatus::PaymentConfirmed], true), 409, 'Permintaan ini sudah diproses.');
 
         $validated = $request->validate([
             'admin_note' => ['nullable', 'string', 'max:500'],
@@ -88,7 +125,7 @@ class PlanChangeRequestController extends Controller
             $planChangeRequest->organization->planOverrideLogs()->create([
                 'plan_change_request_id' => $planChangeRequest->id,
                 'admin_user_id' => $admin->id,
-                'action' => \App\Enums\PlanOverrideAction::RetryApprove,
+                'action' => PlanOverrideAction::RetryApprove,
                 'from_plan_id' => $fromPlanId,
                 'to_plan_id' => $planChangeRequest->requested_plan_id,
                 'from_expires_at' => $fromExpiresAt,

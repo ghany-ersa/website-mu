@@ -87,6 +87,26 @@
                                         Batalkan
                                     </button>
                                 </form>
+                            @elseif ($request->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
+                                <div class="flex flex-col items-end gap-1.5">
+                                    <p class="text-xs text-gray-400">Verifikasi transfer sebelum menyetujui</p>
+                                    <div class="flex items-center gap-1.5">
+                                        <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
+                                              x-data @submit.prevent="if (await confirmAction('Tolak permintaan ini? Gunakan jika transfer tidak ditemukan.')) $el.submit()">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 rounded-full text-gray-500 text-xs font-semibold hover:bg-gray-100 transition-colors">
+                                                Tolak
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('admin.plan-change-requests.approve-manual', $request) }}" method="POST"
+                                              x-data @submit.prevent="if (await confirmAction('Setujui paket ini? Pastikan transfer sebesar Rp {{ number_format($request->gatewayAmount(), 0, ',', '.') }} sudah masuk.', { danger: false })) $el.submit()">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 rounded-full bg-secondary text-white text-xs font-semibold hover:bg-green-700 transition-colors">
+                                                Setujui
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             @elseif ($request->status === \App\Enums\PlanChangeRequestStatus::PaymentReceivedNeedsReview)
                                 <div class="flex flex-col items-end gap-1.5">
                                     @if ($request->approve_error)

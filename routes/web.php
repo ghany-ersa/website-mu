@@ -193,6 +193,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.plan.apply-discount');
         Route::get('organizations/{organization}/plan/{planChangeRequest}/pay', [OrganizationPlanController::class, 'pay'])
             ->name('organizations.plan.pay');
+        Route::post('organizations/{organization}/plan/{planChangeRequest}/confirm-manual-payment', [OrganizationPlanController::class, 'confirmManualPayment'])
+            ->name('organizations.plan.confirm-manual-payment');
     });
 
     // Outside scopeBindings(): that group derives the parent relation from the parameter name
@@ -242,6 +244,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('section-variants/{sectionVariant}/preview', [SectionVariantPreviewController::class, 'show'])->name('section-variants.preview');
 
     Route::get('plan-change-requests', [PlanChangeRequestController::class, 'index'])->name('plan-change-requests.index');
+    Route::post('plan-change-requests/{planChangeRequest}/approve-manual', [PlanChangeRequestController::class, 'approveManual'])->name('plan-change-requests.approve-manual');
     Route::post('plan-change-requests/{planChangeRequest}/reject', [PlanChangeRequestController::class, 'reject'])->name('plan-change-requests.reject');
     Route::post('plan-change-requests/{planChangeRequest}/retry-approve', [PlanChangeRequestController::class, 'retryApprove'])->name('plan-change-requests.retry-approve');
 });

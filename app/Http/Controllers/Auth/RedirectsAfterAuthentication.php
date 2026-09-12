@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\Template;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 trait RedirectsAfterAuthentication

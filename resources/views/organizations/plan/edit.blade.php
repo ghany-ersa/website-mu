@@ -137,6 +137,31 @@
                     </p>
                 </div>
             </div>
+        @elseif ($pendingRequest && $pendingRequest->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
+            <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/70 flex items-start gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-500 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                        <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-blue-900">Menunggu Verifikasi Pembayaran</p>
+                    <p class="text-sm text-blue-700 mt-1 leading-relaxed">
+                        Konfirmasi transfer Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                        ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->gatewayAmount(), 0, ',', '.') }})
+                        sudah kami terima pada {{ $pendingRequest->payment_confirmed_at?->translatedFormat('d M Y, H:i') }}.
+                        Tim kami akan memverifikasi dan mengaktifkan paket Anda.
+                    </p>
+                    @if (config('billing.manual_transfer.whatsapp'))
+                        <a href="https://wa.me/{{ config('billing.manual_transfer.whatsapp') }}"
+                           target="_blank" rel="noopener"
+                           class="inline-block mt-3 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+                            Hubungi admin via WhatsApp &rarr;
+                        </a>
+                    @endif
+                </div>
+            </div>
         @elseif ($pendingRequest)
             <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/70">
                 <div class="flex items-start gap-4 mb-5">
@@ -150,7 +175,12 @@
                         <p class="font-bold text-amber-900">Selesaikan Pembayaran</p>
                         <p class="text-sm text-amber-700 mt-1 leading-relaxed">
                             Permintaan pindah ke paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
-                            ({{ $pendingRequest->duration_months }} bulan) telah dibuat. Lanjutkan pembayaran melalui Midtrans untuk mengaktifkan paket.
+                            ({{ $pendingRequest->duration_months }} bulan) telah dibuat.
+                            @if (config('billing.manual_transfer.only'))
+                                Selesaikan pembayaran melalui transfer manual untuk mengaktifkan paket.
+                            @else
+                                Lanjutkan pembayaran melalui Midtrans untuk mengaktifkan paket.
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -176,10 +206,30 @@
                     </div>
                 </div>
 
-                <a href="{{ route('organizations.plan.pay', [$organization, $pendingRequest]) }}"
-                    class="inline-block mt-5 w-full sm:w-auto text-center px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-soft transition-colors">
-                    Bayar dengan Midtrans
-                </a>
+                @if (config('billing.manual_transfer.only'))
+                    <div class="mt-5">
+                        @include('organizations.plan._manual-transfer')
+                    </div>
+                @else
+                    <a href="{{ route('organizations.plan.pay', [$organization, $pendingRequest]) }}"
+                        class="inline-block mt-5 w-full sm:w-auto text-center px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-soft transition-colors">
+                        Bayar dengan Midtrans
+                    </a>
+
+                    <div class="mt-5 pt-5 border-t border-amber-200/70" x-data="{ open: false }">
+                        <button type="button" @click="open = !open"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-amber-800 hover:text-amber-900 transition-colors">
+                            <span>Midtrans bermasalah? Bayar via transfer manual</span>
+                            <svg class="w-3.5 h-3.5 transition-transform" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+
+                        <div x-show="open" x-collapse x-cloak class="mt-4">
+                            @include('organizations.plan._manual-transfer')
+                        </div>
+                    </div>
+                @endif
             </div>
         @else
             <form action="{{ route('organizations.plan.store', $organization) }}" method="POST"
@@ -426,7 +476,11 @@
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-6 sm:mt-8 bg-gray-50 rounded-2xl px-5 sm:px-6 py-4">
                     <p class="text-xs text-gray-500 text-center sm:text-left">
-                        Anda akan diarahkan ke Midtrans untuk menyelesaikan pembayaran. Paket aktif otomatis setelah pembayaran berhasil.
+                        @if (config('billing.manual_transfer.only'))
+                            Pembayaran dilakukan via transfer manual. Instruksi rekening muncul setelah permintaan dibuat, dan paket aktif setelah admin memverifikasi transfer Anda.
+                        @else
+                            Anda akan diarahkan ke Midtrans untuk menyelesaikan pembayaran. Paket aktif otomatis setelah pembayaran berhasil.
+                        @endif
                     </p>
                     <div class="flex items-center gap-3 shrink-0">
                         <a href="{{ route('organizations.show', $organization) }}"
@@ -456,7 +510,11 @@
                         <template x-if="selected">
                             <div class="text-sm text-gray-500 mb-6 text-left space-y-3">
                                 <p>
-                                    Anda akan diarahkan ke Midtrans untuk membayar paket
+                                    @if (config('billing.manual_transfer.only'))
+                                        Anda akan mendapat instruksi transfer manual untuk paket
+                                    @else
+                                        Anda akan diarahkan ke Midtrans untuk membayar paket
+                                    @endif
                                     <span class="font-semibold text-gray-800" x-text="plans[selected]?.name"></span>
                                     selama <span class="font-semibold text-gray-800" x-text="duration"></span> bulan.
                                 </p>
@@ -486,7 +544,13 @@
                                         <span class="font-semibold text-secondary" x-text="activeUntilLabel()"></span>
                                     </div>
                                 </div>
-                                <p class="text-xs">Paket aktif otomatis begitu Midtrans mengonfirmasi pembayaran berhasil.</p>
+                                <p class="text-xs">
+                                    @if (config('billing.manual_transfer.only'))
+                                        Paket aktif setelah admin memverifikasi transfer Anda.
+                                    @else
+                                        Paket aktif otomatis begitu Midtrans mengonfirmasi pembayaran berhasil.
+                                    @endif
+                                </p>
                             </div>
                         </template>
                         <div class="flex items-center justify-center gap-3">

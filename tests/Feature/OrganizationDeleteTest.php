@@ -6,6 +6,7 @@ use App\Enums\OrganizationRole;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Js;
 use Tests\TestCase;
 
 class OrganizationDeleteTest extends TestCase
@@ -34,6 +35,7 @@ class OrganizationDeleteTest extends TestCase
 
     /**
      * Regression test: the delete button previously used an Alpine confirmAction() modal whose
+     *
      * @submit.prevent expression had `&quot;` around the org name inside a JS template literal
      * — Blade renders that as a literal 6-character string, not a real quote character, making
      * the resulting JS a syntax error (button silently did nothing when clicked). Switched to a
@@ -50,7 +52,7 @@ class OrganizationDeleteTest extends TestCase
         $html = $this->actingAs($owner)->get(route('organizations.show', $org))->getContent();
 
         $this->assertStringContainsString("onsubmit=\"return confirm('Hapus organisasi ' + ", $html);
-        $this->assertStringContainsString(\Illuminate\Support\Js::from($org->name)->toHtml(), $html);
+        $this->assertStringContainsString(Js::from($org->name)->toHtml(), $html);
     }
 
     public function test_admin_delete_button_confirm_uses_safely_escaped_org_name(): void
@@ -61,7 +63,7 @@ class OrganizationDeleteTest extends TestCase
         $html = $this->actingAs($admin)->get(route('admin.organizations.show', $org))->getContent();
 
         $this->assertStringContainsString("onsubmit=\"return confirm('Hapus organisasi ' + ", $html);
-        $this->assertStringContainsString(\Illuminate\Support\Js::from($org->name)->toHtml(), $html);
+        $this->assertStringContainsString(Js::from($org->name)->toHtml(), $html);
     }
 
     public function test_editor_cannot_see_or_use_delete_on_tenant_page(): void
