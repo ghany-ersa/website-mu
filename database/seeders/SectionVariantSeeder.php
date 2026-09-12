@@ -107,8 +107,8 @@ class SectionVariantSeeder extends Seeder
             'kalkulator-zakat' => [
                 'nurul-huda' => ['view' => 'templates.sections.kalkulator-zakat.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
-            'sewa-aula' => [
-                'nurul-huda' => ['view' => 'templates.sections.sewa-aula.nurul-huda', 'exclusive' => true, 'default' => true],
+            'akad-venue' => [
+                'nurul-huda' => ['view' => 'templates.sections.akad-venue.nurul-huda', 'exclusive' => true, 'default' => true],
             ],
             'cta' => [
                 'standar' => ['view' => 'templates.sections.cta.standar', 'exclusive' => false, 'default' => true],

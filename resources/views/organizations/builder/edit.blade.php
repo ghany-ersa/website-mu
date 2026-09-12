@@ -999,7 +999,7 @@
                                 @endif
                                 <div>
                                     <label
-                                        class="block text-xs font-semibold text-gray-600 mb-1.5">{{ $field === 'org_name' ? 'Nama Tampilan' : ucfirst(str_replace('_', ' ', $field)) }}</label>
+                                        class="block text-xs font-semibold text-gray-600 mb-1.5">{{ ['org_name' => 'Nama Tampilan', 'infak_note' => 'Catatan Infak'][$field] ?? ucfirst(str_replace('_', ' ', $field)) }}</label>
                                     @if (in_array($field, ['body', 'sambutan', 'subheadline', 'wa_message'], true))
                                         @php
                                             $fieldValue = $section->resolvedFieldValue($field, $organization->name);
@@ -1037,17 +1037,9 @@
                                             </div>
                                         </div>
                                     @elseif ($field === 'items' && config("page-builder.sections.{$section->key}.cms"))
-                                        @php
-                                            $cmsConfig = config("page-builder.sections.{$section->key}.cms");
-                                            $cmsUrl = route($cmsConfig['route'], ['organization' => $organization, ...$cmsConfig['params'] ?? []]);
-                                            $cmsLabel = $cmsConfig['label'];
-                                            $cmsSeparator = str_contains($cmsUrl, '?') ? '&' : '?';
-                                        @endphp
-                                        <a href="{{ $cmsUrl }}{{ $cmsSeparator }}from=builder&amp;section={{ $section->id }}"
-                                            class="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-3 text-xs text-primary font-medium flex items-center justify-between gap-2 hover:bg-primary/10 transition">
-                                            Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
-                                            <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
-                                        </a>
+                                        {{-- Nothing: `items` on a CMS-backed section has no inline
+                                             editor, and the "Kelola ..." link that used to live here
+                                             now renders once after this loop (see below). --}}
                                     @elseif ($field === 'map_embed')
                                     <input type="url" name="content[{{ $field }}]" placeholder="Tempel link Google Maps, mis. https://maps.app.goo.gl/..."
                                         value="{{ $section->scalarContent($field) }}"
@@ -1080,6 +1072,36 @@
                                             + Tambah dokter
                                         </button>
                                     </div>
+                                @elseif ($field === 'facilities' && $section->key === 'akad-venue')
+                                        {{-- A list editor, not the generic text input this field used
+                                             to fall through to: that input wrote a bare string into
+                                             content[facilities], and the section renders it with
+                                             foreach(), so saving the panel once was enough to 500 the
+                                             page. Stored as a flat list of strings, matching what
+                                             akad-venue/nurul-huda.blade.php reads. --}}
+                                        <div x-data="{ items: @js(array_values(array_filter((array) ($section->content['facilities'] ?? []), 'is_string'))) }" class="space-y-2">
+                                            <template x-for="(item, index) in items" :key="index">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="text" placeholder="Fasilitas, mis. Sound system" x-model="items[index]"
+                                                        :name="`content[facilities][${index}]`"
+                                                        class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                                    <button type="button" @click="items.splice(index, 1)"
+                                                        class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            {{-- An empty list must still submit the key, otherwise
+                                                 removing every row leaves content[facilities] absent
+                                                 and the section silently falls back to its defaults. --}}
+                                            <template x-if="items.length === 0">
+                                                <input type="hidden" name="content[facilities]" value="">
+                                            </template>
+                                            <button type="button" @click="items.push('')"
+                                                class="w-full rounded-xl border border-dashed border-gray-200 px-3.5 py-2.5 text-xs font-semibold text-gray-500 hover:border-primary/40 hover:text-primary transition">
+                                                + Tambah fasilitas
+                                            </button>
+                                        </div>
                                 @elseif ($field === 'stats' && $section->key === 'tentang-organisasi')
                                         <div x-data="{ items: @js($section->content['stats'] ?? []) }" class="space-y-2">
                                             <template x-for="(item, index) in items" :key="index">
@@ -1142,6 +1164,29 @@
                                     @endif
                                 </div>
                             @endforeach
+
+                            {{-- The "Kelola X ->" link, for every section whose content lives in a
+                                 CMS rather than in `content[]`. Keyed off the registry's `cms` entry
+                                 alone: it used to be rendered from inside the field loop, on the
+                                 `items` branch, so a CMS-backed section that exposes no `items`
+                                 field never got one. laporan-keuangan (fields: ['title']) was
+                                 exactly that case - its CMS existed and was reachable from the
+                                 sidebar, but not from the section being edited. --}}
+                            @php
+                                $cmsConfig = config("page-builder.sections.{$section->key}.cms");
+                            @endphp
+                            @if ($cmsConfig)
+                                @php
+                                    $cmsUrl = route($cmsConfig['route'], ['organization' => $organization, ...$cmsConfig['params'] ?? []]);
+                                    $cmsLabel = $cmsConfig['label'];
+                                    $cmsSeparator = str_contains($cmsUrl, '?') ? '&' : '?';
+                                @endphp
+                                <a href="{{ $cmsUrl }}{{ $cmsSeparator }}from=builder&amp;section={{ $section->id }}"
+                                    class="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-3 text-xs text-primary font-medium flex items-center justify-between gap-2 hover:bg-primary/10 transition">
+                                    Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
+                                    <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
+                                </a>
+                            @endif
 
                             <label
                                 class="flex items-center gap-2.5 text-sm text-gray-600 bg-gray-50 rounded-xl px-3.5 py-3 cursor-pointer hover:bg-gray-100 transition">

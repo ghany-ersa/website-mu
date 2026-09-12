@@ -68,7 +68,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         // Order mirrors the nurul-huda project's own navbar: Beranda, Pengurus, Donasi,
         // Laporan Keuangan, Kajian & Event, Akad Venue.
-        $expectedSlugs = ['home', 'pengurus', 'donasi', 'laporan-keuangan', 'kajian-event', 'sewa-aula'];
+        $expectedSlugs = ['home', 'pengurus', 'donasi', 'laporan-keuangan', 'kajian-event', 'akad-venue'];
         $this->assertSame($expectedSlugs, $organization->pages->pluck('slug')->all());
 
         $this->assertTrue($organization->pages->firstWhere('slug', 'home')->is_home);
@@ -159,7 +159,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
         // Matched on host+path rather than the full route() URL: the test request is made over
         // http while route() builds from APP_URL's https, so comparing whole URLs would fail
         // on the scheme alone.
-        foreach (['donasi', 'laporan-keuangan', 'kajian-event', 'sewa-aula', 'pengurus'] as $slug) {
+        foreach (['donasi', 'laporan-keuangan', 'kajian-event', 'akad-venue', 'pengurus'] as $slug) {
             $response->assertSee($organization->slug.'.'.config('tenancy.domain').'/'.$slug, false);
         }
     }
@@ -380,7 +380,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $page = $organization->pages()->where('is_home', true)->firstOrFail();
 
-        foreach (['fasilitas-masjid', 'donasi-progress', 'laporan-keuangan', 'kalkulator-zakat', 'sewa-aula'] as $key) {
+        foreach (['fasilitas-masjid', 'donasi-progress', 'laporan-keuangan', 'kalkulator-zakat', 'akad-venue'] as $key) {
             $before = $page->sections()->where('key', $key)->count();
 
             $this->actingAs($owner)
@@ -572,7 +572,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $organization = $this->makeOrganization();
         $organization->load('pages.sections');
 
-        $keys = ['fasilitas-masjid', 'donasi-progress', 'laporan-keuangan', 'kalkulator-zakat', 'sewa-aula'];
+        $keys = ['fasilitas-masjid', 'donasi-progress', 'laporan-keuangan', 'kalkulator-zakat', 'akad-venue'];
 
         $sections = $organization->pages->flatMap->sections->whereIn('key', $keys);
         $this->assertNotEmpty($sections);
@@ -629,11 +629,11 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_sewa_aula_page_renders(): void
+    public function test_akad_venue_page_renders(): void
     {
         $organization = $this->makeOrganization();
 
-        $response = $this->get($this->tenantUrl($organization, '/sewa-aula'));
+        $response = $this->get($this->tenantUrl($organization, '/akad-venue'));
 
         $response->assertOk();
     }

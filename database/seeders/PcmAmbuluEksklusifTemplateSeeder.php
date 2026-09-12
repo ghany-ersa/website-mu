@@ -29,7 +29,7 @@ use Illuminate\Database\Seeder;
  *     what Starter/Organization allow (10/15).
  *
  * Deliberately NOT used: the five premium mosque sections (fasilitas-masjid, donasi-progress,
- * laporan-keuangan, kalkulator-zakat, sewa-aula). They are gated to mosque use cases and none
+ * laporan-keuangan, kalkulator-zakat, akad-venue). They are gated to mosque use cases and none
  * models a cabang's needs - same reasoning as KlinikAisyiyahAmbuluTemplateSeeder's note.
  *
  * Editorially this keeps the standard template's argument (structure as the story: a koorbid

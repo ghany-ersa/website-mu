@@ -28,7 +28,7 @@ use Illuminate\Database\Seeder;
  * placeholders, same as every non-showcase template.
  *
  * What the standard tier loses, and why: the five premium mosque sections
- * (fasilitas-masjid, donasi-progress, laporan-keuangan, kalkulator-zakat, sewa-aula) are gated
+ * (fasilitas-masjid, donasi-progress, laporan-keuangan, kalkulator-zakat, akad-venue) are gated
  * BOTH by section (`exclusive` in config/page-builder.php) and by their sole variant
  * (`nurul-huda`, `is_exclusive` in SectionVariantSeeder) - unlike the cabang/klinik/portal
  * templates, where only the *variant* was exclusive and a `standar` fallback existed, a masjid
@@ -39,7 +39,7 @@ use Illuminate\Database\Seeder;
  *     donation CTA, no per-program tracking)
  *   - kalkulator-zakat -> folded into that same donasi-zakat-infak CTA's copy
  *   - fasilitas-masjid -> galeri (photos instead of a structured facility list)
- *   - laporan-keuangan, sewa-aula -> dropped entirely; no non-exclusive equivalent exists
+ *   - laporan-keuangan, akad-venue -> dropped entirely; no non-exclusive equivalent exists
  *     for either (transparent bookkeeping and venue rental are the two things this tier
  *     genuinely cannot offer - the honest reason to upgrade)
  *   - agenda's `poster` variant (flyer grid) -> agenda/standar (a plain list)
@@ -63,6 +63,19 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
     public const WHATSAPP = '085213683653';
 
     public const NARAHUBUNG = 'Tyas Hidayatullah (Sekretaris)';
+
+    /**
+     * Uploaded through this template's own sandbox editor (organization id 10) - a separate
+     * file from the exclusive template's logo even though both show the same masjid, because
+     * each template gets its own sandbox. Per-ORGANIZATION storage, so it 404s if that sandbox
+     * is cleared; only ever read back by TemplateSandboxService::sandboxFor().
+     */
+    private const LOGO = 'https://storage.ambulu.or.id/organizations/10/brand/9c547178-919a-45f5-878b-74e20bb988c7.webp';
+
+    public const ADDRESS = 'Jl. Raya Suyitman No.178, Sumberan, Ambulu, Kec. Ambulu, Kabupaten Jember';
+
+    /** Google Maps place embed (the /maps/embed?pb=... form lokasi-peta drops into an iframe). */
+    public const MAP_EMBED = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m2!2m1!1s-8.342512%2C113.607005';
 
     public function run(): void
     {
@@ -93,7 +106,20 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                         'primary' => '#2c368B',
                         'secondary' => '#1e79cc',
                         'font' => 'Plus Jakarta Sans',
-                        'radius' => 'rounded',
+                        'radius' => 'sharp',
+                        'logo' => self::LOGO,
+                    ],
+                    // Same contact block as the exclusive template - see
+                    // MasjidNurulHudaTemplateSeeder::contact() for why the email and socials are
+                    // Suara Muhammadiyah's while the WhatsApp and address are the masjid's own.
+                    'contact' => [
+                        'email' => 'mediamu.ambulu@gmail.com',
+                        'whatsapp' => '6285213683653',
+                        'address' => self::ADDRESS,
+                        'instagram_url' => 'https://www.instagram.com/suaramuhammadiyahambulu',
+                        'facebook_url' => 'https://www.facebook.com/share/14sYGQiqc4L/',
+                        'tiktok_url' => 'https://www.tiktok.com/@suaramuhammadiyahambulu',
+                        'youtube_url' => 'https://www.youtube.com/@suaramuhammadiyahabl',
                     ],
                     'pages' => [
                         [
@@ -128,10 +154,15 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                                 ]],
                                 // 3. When to come - agenda/standar (a plain list) in place of
                                 // the exclusive tier's agenda/poster (a flyer grid).
+                                // `items` carries a `poster` key the `standar` variant ignores -
+                                // it is the superset shape TemplateSandboxService::export()
+                                // writes so the same list still works if a Professional-plan
+                                // masjid later switches this section to the `poster` variant.
                                 ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadwal Kajian & Event',
                                     'subtitle' => 'Kajian rutin dan kegiatan masjid terbuka untuk seluruh jamaah.',
                                     'limit' => 4,
+                                    'items' => MasjidNurulHudaTemplateSeeder::agendaItems(),
                                 ]],
                                 // 4. What it looks like - galeri stands in for the exclusive
                                 // tier's structured fasilitas-masjid list, which this plan
@@ -139,6 +170,7 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                                 ['key' => 'galeri', 'variant' => 'standar', 'content' => [
                                     'title' => 'Dokumentasi Kegiatan & Fasilitas',
                                     'limit' => 8,
+                                    'items' => MasjidNurulHudaTemplateSeeder::galeriItems(),
                                 ]],
                                 // 5. The ask - donasi-zakat-infak's one WhatsApp CTA folds in
                                 // what donasi-progress + kalkulator-zakat did on the exclusive
@@ -153,6 +185,7 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                                 // 6. Who runs the masjid.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
                                     'title' => 'Pengurus Masjid Nurul Huda',
+                                    'items' => MasjidNurulHudaTemplateSeeder::pengurusItems(),
                                 ]],
                                 // 7. Direct contact - names the narahubung, same as every other
                                 // standard-tier template's formulir-kontak.
@@ -165,6 +198,8 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                                 // 8. Where to find it.
                                 ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lokasi Masjid',
+                                    'address' => self::ADDRESS,
+                                    'map_embed' => self::MAP_EMBED,
                                 ]],
                                 $footer,
                             ],

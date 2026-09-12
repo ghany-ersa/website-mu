@@ -552,4 +552,54 @@ class OrganizationBuilderTest extends TestCase
 
         $this->assertSame([], $inconsistent, "Some variants ignore fields their siblings render:\n".implode("\n", $inconsistent));
     }
+
+    /**
+     * Every CMS-backed section must offer its "Kelola X ->" link from the section being edited,
+     * exactly once.
+     *
+     * The link used to be rendered from inside the properties-panel field loop, on the `items`
+     * branch, so it only appeared for sections that expose an `items` field. laporan-keuangan
+     * declares `fields => ['title']` and was therefore the one CMS-backed section with no way to
+     * reach its CMS from the builder, even though the CMS itself existed. Driving the assertion
+     * off the registry's `cms` entry means a future section that omits `items` fails here rather
+     * than silently shipping without the link.
+     */
+    public function test_every_cms_backed_section_links_to_its_cms_exactly_once(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+
+        $cmsKeys = collect(config('page-builder.sections'))
+            ->filter(fn ($meta) => isset($meta['cms']))
+            ->keys();
+
+        $this->assertNotEmpty($cmsKeys, 'no CMS-backed sections in the registry');
+
+        $order = 0;
+        foreach ($cmsKeys as $key) {
+            $page->sections()->create(['key' => $key, 'content' => [], 'order' => $order++]);
+        }
+
+        $html = $this->actingAs($user)
+            ->get(route('organizations.builder.page', [$organization, $page]))
+            ->getContent();
+
+        foreach ($page->sections()->get() as $section) {
+            $cms = config("page-builder.sections.{$section->key}.cms");
+            $url = route($cms['route'], ['organization' => $organization, ...$cms['params'] ?? []]);
+            $separator = str_contains($url, '?') ? '&' : '?';
+            // Blade escapes the href, so a route that already carries a query string (e.g.
+            // programs?type=program) appears with &amp; separators - compare against the
+            // escaped form rather than route()'s raw output.
+            $needle = e($url.$separator.'from=builder').'&amp;section='.$section->id;
+
+            $this->assertSame(
+                1,
+                substr_count($html, $needle),
+                "section {$section->key} should link to its CMS exactly once"
+            );
+        }
+    }
 }

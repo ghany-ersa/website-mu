@@ -32,7 +32,7 @@ use Illuminate\Database\Seeder;
  * organizations can pick it (see Organization::canUseExclusiveTemplates()).
  *
  * Deliberately does NOT use the five premium *mosque* sections (fasilitas-masjid,
- * donasi-progress, laporan-keuangan, kalkulator-zakat, sewa-aula): those are gated to mosque
+ * donasi-progress, laporan-keuangan, kalkulator-zakat, akad-venue): those are gated to mosque
  * use cases and none of them models a clinic's needs. The exclusivity here comes from the
  * multi-page structure and the exclusive section *variants* instead.
  */

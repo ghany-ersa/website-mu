@@ -4,6 +4,11 @@
      migration), so switching between the two variants never loses content - a poster-less
      agenda simply falls back to the date block that standar would have shown.
 
+     Cards crop at 4:3: agenda/kajian flyers are more often landscape than portrait, so a
+     portrait card would letterbox the common case. The detail page
+     (organizations/public/_agenda-body.blade.php) deliberately does NOT crop - it renders the
+     poster at its natural ratio - so an unusual portrait flyer is still seen in full there.
+
      Posters are click-to-zoom via the shared x-tenant.lightbox component (same {image, caption}
      Alpine contract as galeri/standar.blade.php), because a flyer carries the details - speaker,
      agenda, contact - in the artwork itself and is unreadable at card size. --}}
@@ -51,14 +56,18 @@
         @if ($items->isEmpty())
             <p class="mt-8 text-gray-500">Belum ada kajian terjadwal.</p>
         @else
-            <div class="mt-10 grid grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {{-- One card narrower per row than the portrait version used to allow: a 4:3 card is
+                 much wider than a 3:4 one at the same column count, so keeping 3-up on `lg`
+                 would have made each poster small enough that its artwork stopped being
+                 readable. --}}
+            <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 @foreach ($items as $item)
                     <article class="reveal bg-white rounded-brand overflow-hidden shadow-soft transition-all duration-300 hover:shadow-float hover:-translate-y-0.5 flex flex-col"
                         style="transition-delay: {{ $loop->index * 80 }}ms">
                         @if (! empty($item['poster']))
                             <button type="button"
                                 @click="activeIndex = {{ $loop->index }}; lightboxOpen = true"
-                                class="aspect-[3/4] bg-gray-100 overflow-hidden block w-full cursor-zoom-in">
+                                class="aspect-[4/3] bg-gray-100 overflow-hidden block w-full cursor-zoom-in">
                                 <img src="{{ $item['poster'] }}" alt="Poster {{ $item['title'] }}" loading="lazy"
                                     class="w-full h-full object-cover object-center hover:scale-105 transition duration-500">
                             </button>
@@ -66,7 +75,7 @@
                             {{-- No flyer uploaded: keep the card the same shape and show the date
                                  block standar would have used, so a half-filled CMS still reads
                                  as a deliberate grid rather than a broken one. --}}
-                            <div class="aspect-[3/4] bg-secondary/10 flex flex-col items-center justify-center text-secondary">
+                            <div class="aspect-[4/3] bg-secondary/10 flex flex-col items-center justify-center text-secondary">
                                 <span class="text-4xl font-extrabold leading-none">{{ $item['date_day'] ?? '--' }}</span>
                                 <span class="text-xs uppercase tracking-widest mt-1">{{ $item['date_month'] ?? '' }}</span>
                             </div>

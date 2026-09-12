@@ -75,24 +75,53 @@
         },
     }">
     <div class="max-w-6xl mx-auto px-6">
-        <h2 class="reveal text-3xl font-extrabold text-primary mb-8 text-center">
-            {{ $content['title'] ?? 'Galeri' }}
-        </h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {{-- Heading matches fasilitas-masjid/nurul-huda.blade.php: an eyebrow over a
+             font-semibold title rather than the old font-extrabold text-3xl, which read as
+             shouty beside the light body copy and made the two photo sections on this page
+             look like they came from different templates. --}}
+        <div class="reveal text-center mb-8">
+            <span class="text-secondary font-semibold text-xs uppercase tracking-widest">Galeri</span>
+            <h2 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-primary">
+                {{ $content['title'] ?? 'Galeri' }}
+            </h2>
+            @if (! empty($content['subtitle']))
+                <p class="mt-3 text-slate-600 leading-relaxed max-w-xl mx-auto">{{ $content['subtitle'] }}</p>
+            @endif
+        </div>
+
+        {{-- grid-cols-2 on mobile stays (a 4-up row would render thumbnails too small to read
+             on a phone), but the caption moves from a truncated one-liner to a two-line clamp
+             over a taller gradient, so a real caption like "Kegiatan Kajian Guru Besar Ramadhan
+             2026" is legible instead of cut after a few words. --}}
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
             <template x-for="(photo, index) in photos" :key="index">
                 <button type="button"
                         @click="activeIndex = index; lightboxOpen = true"
                         :disabled="!photo.image"
-                        class="reveal reveal-visible group aspect-square rounded-brand overflow-hidden bg-gray-100 relative ring-2 ring-transparent transition-shadow duration-300 hover:ring-secondary text-left disabled:cursor-default">
+                        class="reveal reveal-visible group aspect-square rounded-2xl overflow-hidden bg-slate-200 relative text-left disabled:cursor-default cursor-zoom-in">
                     <template x-if="photo.image">
                         <div>
-                            <img :src="photo.image" :alt="photo.caption ?? ''" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            <span x-show="photo.caption" x-text="photo.caption"
-                                  class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent text-white text-xs px-2 py-1.5 truncate"></span>
+                            <img :src="photo.image" :alt="photo.caption ?? ''" loading="lazy"
+                                 class="w-full h-full object-cover object-center transition duration-700 group-hover:scale-105">
+                            <div x-show="photo.caption"
+                                 class="pointer-events-none absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-slate-900/85 via-slate-900/35 to-transparent">
+                                <span x-text="photo.caption"
+                                      class="block text-white text-sm font-medium leading-snug drop-shadow-sm line-clamp-2"></span>
+                            </div>
+                            {{-- Same zoom affordance as the facilities tiles, so a photo that
+                                 opens a lightbox doesn't look inert on hover. --}}
+                            <span aria-hidden="true"
+                                  class="pointer-events-none absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/15 backdrop-blur
+                                         border border-white/25 text-white flex items-center justify-center
+                                         opacity-0 transition group-hover:opacity-100">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 110-14 7 7 0 010 14zM11 8v6M8 11h6" />
+                                </svg>
+                            </span>
                         </div>
                     </template>
                     <template x-if="!photo.image">
-                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm" x-text="photo.caption || 'Foto'"></div>
+                        <div class="w-full h-full flex items-center justify-center text-slate-400 text-sm px-3 text-center" x-text="photo.caption || 'Foto'"></div>
                     </template>
                 </button>
             </template>

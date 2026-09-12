@@ -62,6 +62,11 @@
                     <input type="file" accept="image/*" multiple class="hidden"
                            @change="upload($event.target.files); $event.target.value = ''">
                 </label>
+
+                {{-- Without this the upload()'s error state would be set but never shown, which
+                     is the failure mode that hid the rejected-category bug in the first place. --}}
+                <p x-show="picker.error" x-cloak x-text="picker.error"
+                   class="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></p>
             </div>
             <div class="flex-1 overflow-y-auto p-5">
                 <div x-show="picker.loading" class="text-center text-sm text-gray-400 py-8">Memuat…</div>
@@ -96,7 +101,7 @@
             document.addEventListener('alpine:init', () => {
                 Alpine.data('imagePicker', ({ initial, indexUrl, category, csrf }) => ({
                     photoUrl: initial,
-                    picker: { open: false, loading: false, items: [], fetched: false },
+                    picker: { open: false, loading: false, items: [], fetched: false, error: '' },
                     async openPicker() {
                         this.picker.open = true;
                         if (this.picker.fetched) return;
@@ -106,20 +111,45 @@
                         this.picker.fetched = true;
                         this.picker.loading = false;
                     },
+                    // A failed upload used to be invisible: the response was spread into
+                    // picker.items regardless of status, so a 422 (validation) or 413 (too
+                    // large) just left the modal looking idle with no file added and no reason
+                    // given. Surface the server's own message instead, and always clear the
+                    // loading flag so the picker can't get stuck spinning.
                     async upload(files) {
                         if (!files || !files.length) return;
                         const formData = new FormData();
                         [...files].forEach((file) => formData.append('files[]', file));
                         formData.append('category', category);
                         this.picker.loading = true;
-                        const res = await fetch(indexUrl, {
-                            method: 'POST',
-                            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
-                            body: formData,
-                        });
-                        const uploaded = await res.json();
-                        this.picker.items = [...uploaded, ...this.picker.items];
-                        this.picker.loading = false;
+                        this.picker.error = '';
+                        try {
+                            const res = await fetch(indexUrl, {
+                                method: 'POST',
+                                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
+                                body: formData,
+                            });
+
+                            if (!res.ok) {
+                                let message = 'Gagal mengunggah foto. Coba lagi.';
+                                try {
+                                    const body = await res.json();
+                                    // Laravel 422 shape: {message, errors: {field: [msg, ...]}}
+                                    message = Object.values(body?.errors ?? {}).flat()[0] ?? body?.message ?? message;
+                                } catch (e) {
+                                    if (res.status === 413) message = 'Ukuran file terlalu besar. Maks 10MB.';
+                                }
+                                this.picker.error = message;
+                                return;
+                            }
+
+                            const uploaded = await res.json();
+                            this.picker.items = [...uploaded, ...this.picker.items];
+                        } catch (e) {
+                            this.picker.error = 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.';
+                        } finally {
+                            this.picker.loading = false;
+                        }
                     },
                     async deleteMedia(item) {
                         if (!(await confirmAction('Hapus gambar ini dari galeri?'))) return;

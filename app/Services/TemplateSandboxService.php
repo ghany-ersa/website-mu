@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Backs the admin "Edit Visual" flow for templates: instead of hand-writing Template::structure
@@ -160,7 +161,7 @@ class TemplateSandboxService
         $structure['pages'] = $sandbox->pages->map(fn ($page) => [
             'slug' => $page->slug,
             'name' => $page->name,
-            'sections' => $page->sections->map(function ($section) {
+            'sections' => $page->sections->map(function ($section) use ($sandbox) {
                 $data = [
                     'key' => $section->key,
                     'variant' => $section->variant,
@@ -169,7 +170,7 @@ class TemplateSandboxService
                 // Locked sections (header/footer) carry no editable fields, and existing seeded
                 // templates omit `content` for them entirely - keep that shape.
                 if (filled($section->content)) {
-                    $data['content'] = $section->content;
+                    $data['content'] = $this->refreshBoundItems($sandbox, $section->key, $section->content);
                 }
 
                 return $data;
@@ -177,6 +178,140 @@ class TemplateSandboxService
         ])->values()->all();
 
         return $structure;
+    }
+
+    /**
+     * Rebuilds `content['items']` from the sandbox's own CMS records for every section key
+     * that auto-binds to one (see each partial's own "Auto-binds to the organization's ..."
+     * doc comment - daftar-berita, program-unggulan, layanan, struktur-pengurus,
+     * jaringan-aum-ortom, agenda, pengumuman, galeri, fasilitas-masjid, donasi-progress).
+     *
+     * Without this, `content['items']` in $section->content is whatever was last written to
+     * it - which for a bound section is only ever the placeholder ensureHomePageExists() seeds
+     * on first clone, since the sandbox editor itself always renders from the live CMS tables
+     * (Organization::programs(), ->donationPrograms(), ...), never from this field. An admin
+     * editing donations/officers/etc. through the CMS pages, then clicking "Simpan ke
+     * Template", would otherwise export that stale placeholder instead of what they just
+     * edited - exactly the mismatch this method exists to close.
+     *
+     * Deliberately duplicates each view's own $organization-branch mapping rather than the two
+     * sharing one implementation: the view runs inside a Blade template (no natural place to
+     * extract a shared PHP method both `resources/views` and `app/Services` could call without
+     * a new shared class solely for this), and the mapping is small and stable enough per
+     * section that keeping this switch in step with the matching view when either changes is a
+     * one-line diff, not a maintenance burden. `url` fields the view computes from the tenant
+     * subdomain are left null - a template-preview render has no tenant URL to link to for the
+     * SAME reason $content['items'] itself does not carry one; every other bound partial's
+     * `? $content['items'] ?? ...` fallback branch already treats a missing url the same way.
+     *
+     * Sections with no CMS binding pass through untouched, and that is verified rather than
+     * assumed - the full 25-key registry splits three ways:
+     *
+     *   - The 10 keys below: every registry entry carrying a `cms` route EXCEPT
+     *     laporan-keuangan (config/page-builder.php), i.e. everything an admin edits on a
+     *     separate CMS page and therefore everything that could go stale here.
+     *   - laporan-keuangan: has a `cms` route, but its partial reads financialReports() into
+     *     its own local variables and reads nothing from content beyond `title` - there is no
+     *     `items` shape to rebuild, so a template preview genuinely cannot show real figures.
+     *     Skipped deliberately, not overlooked.
+     *   - Everything else (hero, cta, formulir-kontak, tentang-organisasi, sambutan-ketua,
+     *     lokasi-peta, donasi-zakat-infak, ppdb, kalkulator-zakat, header, footer, and the
+     *     array-shaped-but-CMS-less jadwal-praktik `doctors`, akad-venue `facilities`,
+     *     jadwal-salat `times`): typed straight into the section's own content by the admin,
+     *     with no model or CMS route behind them (no Doctor/prayer-time/venue model exists),
+     *     so $section->content already IS the source of truth and copying it verbatim is right.
+     *
+     * Where a key has several variants, they were checked to map the same shape (daftar-berita
+     * standar/modern/ringkas, struktur-pengurus standar/modern, program-unggulan
+     * standar/modern all match); `agenda` is the one exception and is handled below.
+     *
+     * @param  array<string, mixed>  $content
+     * @return array<string, mixed>
+     */
+    private function refreshBoundItems(Organization $sandbox, string $sectionKey, array $content): array
+    {
+        $items = match ($sectionKey) {
+            'daftar-berita' => $sandbox->posts()->published()
+                ->when($content['category_filter'] ?? null, fn ($q) => $q->where('category', $content['category_filter']))
+                ->get()->map(fn ($post) => [
+                    'title' => $post->title,
+                    'image' => $post->image,
+                    'category' => $post->category,
+                    'date' => $post->published_at?->translatedFormat('d M Y'),
+                    'excerpt' => Str::limit(strip_tags($post->body), 140),
+                    'url' => null,
+                ])->all(),
+            'program-unggulan' => $sandbox->programs()->ofType('program')->get()->map(fn ($program) => [
+                'title' => $program->title,
+                'description' => $program->description,
+                'icon' => $program->icon,
+            ])->all(),
+            'layanan' => $sandbox->programs()->ofType('layanan')->get()->map(fn ($program) => [
+                'title' => $program->title,
+                'description' => $program->description,
+                'icon' => $program->icon,
+            ])->all(),
+            'struktur-pengurus' => $sandbox->officers()->get()->map(fn ($officer) => [
+                'name' => $officer->name,
+                'role' => $officer->role,
+                'photo' => $officer->photo,
+            ])->all(),
+            'jaringan-aum-ortom' => $sandbox->networks()->get()->map(fn ($network) => [
+                'name' => $network->name,
+                'type' => $network->type,
+            ])->all(),
+            // Superset of what BOTH agenda variants map: `standar` reads date_year, `poster`
+            // reads `poster` (agendas.poster, see the add_poster_to_agendas migration) and
+            // ignores date_year - neither variant minds the extra key, so one shape here keeps
+            // a template's flyers intact even if an admin switches variant after exporting.
+            'agenda' => $sandbox->agendas()->published()->get()->map(fn ($agenda) => [
+                'title' => $agenda->title,
+                'poster' => $agenda->poster,
+                'date_day' => $agenda->starts_at->format('d'),
+                'date_month' => $agenda->starts_at->translatedFormat('M'),
+                'date_year' => $agenda->starts_at->format('Y'),
+                'location' => $agenda->location,
+                'time' => $agenda->starts_at->format('H:i'),
+                'url' => null,
+            ])->all(),
+            'pengumuman' => $sandbox->announcements()->published()->get()->map(fn ($announcement) => [
+                'title' => $announcement->title,
+                'priority' => $announcement->priority,
+                'valid_until' => $announcement->valid_until?->translatedFormat('d M Y'),
+                'url' => null,
+            ])->all(),
+            'galeri' => $sandbox->photos()->get()->map(fn ($photo) => [
+                'image' => $photo->url,
+                'caption' => $photo->caption,
+            ])->all(),
+            'fasilitas-masjid' => $sandbox->facilities()->get()->map(fn ($facility) => [
+                'name' => $facility->name,
+                'photo' => $facility->photo,
+                'description' => $facility->description,
+            ])->all(),
+            'donasi-progress' => $sandbox->donationPrograms()->get()
+                ->sortBy(fn ($program) => [
+                    $program->ends_at !== null && $program->ends_at->isPast() ? 1 : 0,
+                    -$program->target_amount,
+                ])
+                ->values()
+                ->map(fn ($program) => [
+                    'name' => $program->name,
+                    'cover_photo' => $program->cover_photo,
+                    'target_amount' => $program->target_amount,
+                    'collected_amount' => $program->collectedAmount(),
+                    'percent' => $program->progressPercent(),
+                    'status' => $program->status(),
+                    'url' => null,
+                ])->all(),
+            default => null,
+        };
+
+        if ($items !== null) {
+            $content['items'] = $items;
+        }
+
+        return $content;
     }
 
     /**

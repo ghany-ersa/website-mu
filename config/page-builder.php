@@ -35,7 +35,7 @@
 // (see below): that one only governs which layout may be picked for a section the organization
 // already has, so on its own it let any plan add these sections and simply render their sole
 // variant. The premium mosque sections (fasilitas-masjid, donasi-progress, laporan-keuangan,
-// kalkulator-zakat, sewa-aula) need both flags.
+// kalkulator-zakat, akad-venue) need both flags.
 //
 // `cms`, when present, is the single source of truth for a section whose `items` field is backed
 // by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
@@ -209,7 +209,7 @@ return [
             'exclusive' => true,
             'fields' => ['title'],
             'defaults' => ['title' => 'Laporan Keuangan'],
-            'cms' => ['route' => 'organizations.financial-reports.index', 'label' => 'Laporan Keuangan'],
+            'cms' => ['route' => 'organizations.financial-reports.index', 'label' => 'Laporan'],
         ],
         'kalkulator-zakat' => [
             'label' => 'Kalkulator Zakat',
@@ -223,16 +223,21 @@ return [
                 'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar zakat di {org_name}.',
             ],
         ],
-        'sewa-aula' => [
-            'label' => 'Sewa Aula/Venue',
+        // Named 'akad-venue', not 'sewa-aula': many masjid deliberately avoid rental wording for
+        // a place of worship - it reads as monetising religious space - and ask for a voluntary
+        // infak instead. `infak_note` carries that framing and is blank by default, so a masjid
+        // that does charge a fixed fee can simply write that there instead.
+        'akad-venue' => [
+            'label' => 'Akad Nikah',
             'exclusive' => true,
             'fields' => [
                 'hero_title', 'hero_subtitle', 'availability_badge',
-                'wa_number', 'facilities', 'image',
+                'wa_number', 'facilities', 'infak_note', 'image',
             ],
             'defaults' => [
-                'hero_title' => 'Sewa Aula Serbaguna',
-                'availability_badge' => 'Terbuka untuk Pemesanan',
+                'hero_title' => 'Aula Serbaguna Masjid',
+                'availability_badge' => 'Terbuka untuk Jamaah',
+                'infak_note' => 'Tidak ada tarif sewa, jamaah dipersilakan berinfak semampunya.',
             ],
         ],
         'cta' => [

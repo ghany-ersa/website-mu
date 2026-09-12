@@ -68,10 +68,94 @@ class TemplateSandboxTest extends TestCase
 
         $exported = $service->export($sandbox, $template);
 
-        $this->assertSame($template->structure['pages'], $exported['pages']);
+        // Same page/section shape and every non-bound field survives the round trip untouched.
+        $this->assertCount(2, $exported['pages']);
+        $this->assertSame(
+            collect($template->structure['pages'])->map(fn ($page) => collect($page['sections'])->map->key->all())->all(),
+            collect($exported['pages'])->map(fn ($page) => collect($page['sections'])->map->key->all())->all(),
+        );
+        $this->assertSame('Program', collect($exported['pages'][0]['sections'])->firstWhere('key', 'program-unggulan')['content']['title']);
+        $this->assertSame('Berita', collect($exported['pages'][0]['sections'])->firstWhere('key', 'daftar-berita')['content']['title']);
+        $this->assertSame('Pengurus', collect($exported['pages'][1]['sections'])->firstWhere('key', 'struktur-pengurus')['content']['title']);
+        $this->assertSame('Galeri', collect($exported['pages'][1]['sections'])->firstWhere('key', 'galeri')['content']['title']);
         $this->assertSame('PCM Contoh', $exported['sample_org_name']);
         $this->assertSame('#111111', $exported['brand']['primary']);
         $this->assertSame('#222222', $exported['brand']['secondary']);
+
+        // Auto-bound sections (see TemplateSandboxService::refreshBoundItems()) instead carry
+        // whatever the sandbox's own CMS records hold at export time - here, the generic
+        // placeholders CmsSampleDataSeeder seeds on first clone, NOT the structure's original
+        // (absent) `items`. Confirms export() doesn't just echo back stale/missing content for
+        // these keys.
+        $this->assertNotEmpty(collect($exported['pages'][0]['sections'])->firstWhere('key', 'program-unggulan')['content']['items']);
+        $this->assertNotEmpty(collect($exported['pages'][1]['sections'])->firstWhere('key', 'struktur-pengurus')['content']['items']);
+        $this->assertNotEmpty(collect($exported['pages'][1]['sections'])->firstWhere('key', 'galeri')['content']['items']);
+    }
+
+    /**
+     * Regression test: TemplateSandboxService::export() used to copy $section->content as
+     * stored, so an admin editing a bound section's underlying CMS records (donations,
+     * officers, ...) through the normal builder pages and then clicking "Simpan ke Template"
+     * exported whatever content['items'] happened to already be - stale or absent - instead of
+     * what they had just edited. refreshBoundItems() closes that by rebuilding `items` from the
+     * sandbox's live CMS relation on every export.
+     */
+    public function test_export_reflects_cms_edits_made_after_the_sandbox_was_created(): void
+    {
+        $admin = $this->admin();
+        $template = $this->richTemplate();
+        $service = app(TemplateSandboxService::class);
+        $sandbox = $service->sandboxFor($template, $admin);
+
+        // Overwrite the CMS record a bound section reads, the way editing it through the
+        // builder's officers page would - not by touching $section->content directly.
+        $officer = $sandbox->officers()->first();
+        $officer->update(['name' => 'Nama Diedit Lewat CMS']);
+
+        $exported = $service->export($sandbox->fresh(), $template);
+
+        $names = collect($exported['pages'][1]['sections'])
+            ->firstWhere('key', 'struktur-pengurus')['content']['items'];
+
+        $this->assertContains('Nama Diedit Lewat CMS', collect($names)->pluck('name')->all());
+    }
+
+    /**
+     * The agenda section has two variants mapping DIFFERENT shapes: `standar` reads date_year,
+     * `poster` reads agendas.poster. export() writes one superset shape for the key, so a
+     * template built on the poster variant keeps its flyers - this guards the `poster` field
+     * specifically, which an earlier version of refreshBoundItems() dropped.
+     */
+    public function test_export_keeps_agenda_posters_for_the_poster_variant(): void
+    {
+        $admin = $this->admin();
+        $template = Template::factory()->create([
+            'structure' => [
+                'sample_org_name' => 'Masjid Contoh',
+                'brand' => ['primary' => '#111111', 'secondary' => '#222222'],
+                'pages' => [[
+                    'slug' => 'home',
+                    'name' => 'Beranda',
+                    'sections' => [
+                        ['key' => 'header', 'variant' => 'standar'],
+                        ['key' => 'agenda', 'variant' => 'poster', 'content' => ['title' => 'Kajian']],
+                        ['key' => 'footer', 'variant' => 'standar'],
+                    ],
+                ]],
+            ],
+        ]);
+
+        $service = app(TemplateSandboxService::class);
+        $sandbox = $service->sandboxFor($template, $admin);
+
+        $sandbox->agendas()->first()->update(['poster' => 'https://example.test/flyer.jpg']);
+
+        $items = collect($service->export($sandbox->fresh(), $template)['pages'][0]['sections'])
+            ->firstWhere('key', 'agenda')['content']['items'];
+
+        $this->assertContains('https://example.test/flyer.jpg', collect($items)->pluck('poster')->all());
+        // date_year is what the `standar` variant needs - both keys ride along together.
+        $this->assertArrayHasKey('date_year', $items[0]);
     }
 
     public function test_sandbox_is_unlimited_even_when_a_restrictive_plan_exists(): void

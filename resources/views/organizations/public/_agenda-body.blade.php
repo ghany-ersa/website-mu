@@ -5,9 +5,14 @@
         {{-- The flyer, when there is one: on a shared kajian link the poster is what people
              recognise, and it usually carries details the fields don't (speaker, rundown).
              Sits above the card rather than inside it so it can run full width on mobile. --}}
+        {{-- No max-w cap and no fixed aspect: agenda posters are usually landscape, and the old
+             max-w-md was sized for a portrait flyer, which left a wide poster shrunk into a
+             narrow column. Letting it fill the article's own max-w-3xl and keeping the image's
+             natural ratio (h-auto, no object-cover) means neither orientation is cropped or
+             letterboxed - the flyer's own text stays readable either way. --}}
         @if ($agenda->poster)
             <img src="{{ $agenda->poster }}" alt="Poster {{ $agenda->title }}"
-                 class="mt-6 w-full max-w-md mx-auto rounded-2xl shadow-soft">
+                 class="mt-6 w-full h-auto rounded-2xl shadow-soft">
         @endif
 
         <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-soft mt-6">

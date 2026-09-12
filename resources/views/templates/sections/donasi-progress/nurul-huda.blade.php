@@ -58,7 +58,7 @@
         @if ($items->isEmpty())
             <p class="mt-8 text-center text-slate-500">Belum ada program donasi.</p>
         @else
-            <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="mt-8 grid sm:grid-cols-2 md:grid-cols-3 gap-6">
                 @foreach ($items as $item)
                     <{{ ($item['url'] ?? null) ? 'a' : 'div' }} @if ($item['url'] ?? null) href="{{ $item['url'] }}" @endif
                         class="reveal bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden border border-slate-100 flex flex-col" style="transition-delay: {{ $loop->index * 80 }}ms">
