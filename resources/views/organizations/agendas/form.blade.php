@@ -21,16 +21,21 @@
             <x-ui.card>
                 <x-form.field name="title" label="Judul" :value="$agenda->title" required />
 
-                {{-- Landscape preview, matching how the `poster` variant of the agenda section
-                     crops these (4:3) - agenda/kajian flyers are more often landscape than
-                     portrait, so the picker should preview them the way they will render. --}}
-                <x-form.image-picker
-                    :organization="$organization"
-                    name="poster"
-                    label="Poster Kegiatan"
-                    :value="$agenda->poster"
-                    category="agenda"
-                    aspect="aspect-[4/3] w-64" />
+                {{-- Only the 'poster' agenda section variant renders this (see
+                     templates/sections/agenda/poster.blade.php) - 'standar' shows a plain
+                     date-badge list and never reads Agenda::$poster, so the upload field would
+                     be dead weight in the form for organizations on that variant.
+                     Landscape preview matches how the poster variant crops these (4:3) -
+                     agenda/kajian flyers are more often landscape than portrait. --}}
+                @if ($showPoster)
+                    <x-form.image-picker
+                        :organization="$organization"
+                        name="poster"
+                        label="Poster Kegiatan"
+                        :value="$agenda->poster"
+                        category="agenda"
+                        aspect="aspect-[4/3] w-64" />
+                @endif
 
                 <x-form.field type="datetime-local" name="starts_at" label="Tanggal &amp; Waktu"
                     :value="$agenda->starts_at?->format('Y-m-d\TH:i')" required />

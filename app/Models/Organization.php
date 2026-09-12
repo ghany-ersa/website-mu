@@ -486,6 +486,18 @@ class Organization extends Model
     }
 
     /**
+     * The variant key an organization is using for a given section, e.g. 'poster' vs 'standar'
+     * for 'agenda' - lets a CMS form (OrganizationAgendaController) show/hide fields that only
+     * one variant's Blade partial renders, instead of every field for every variant regardless
+     * of which one is active. Null default falls back to whatever SectionVariantResolver treats
+     * as default when the section has no explicit variant set, or isn't on any page at all.
+     */
+    public function sectionVariant(string $key): ?string
+    {
+        return $this->pages->flatMap->sections->firstWhere('key', $key)?->variant;
+    }
+
+    /**
      * @return HasMany<Media, $this>
      */
     public function media(): HasMany

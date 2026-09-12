@@ -44,6 +44,7 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.form', [
             'organization' => $organization,
             'agenda' => new Agenda,
+            'showPoster' => $this->usesPosterVariant($organization),
             ...$this->builderViewData($request),
         ]);
     }
@@ -74,6 +75,7 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.form', [
             'organization' => $organization,
             'agenda' => $agenda,
+            'showPoster' => $this->usesPosterVariant($organization),
             ...$this->builderViewData($request),
         ]);
     }
@@ -130,5 +132,16 @@ class OrganizationAgendaController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, Agenda $agenda): void
     {
         abort_unless($agenda->organization_id === $organization->id, 404);
+    }
+
+    /**
+     * Whether the org's active 'agenda' section variant is 'poster' - the only variant whose
+     * Blade partial (templates/sections/agenda/poster.blade.php) renders Agenda::$poster. The
+     * 'standar' variant never reads it, so the upload field is hidden rather than shown for
+     * every variant regardless of whether it does anything.
+     */
+    private function usesPosterVariant(Organization $organization): bool
+    {
+        return $organization->sectionVariant('agenda') === 'poster';
     }
 }
