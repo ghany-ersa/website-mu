@@ -55,6 +55,7 @@ Route::get('/', function () {
     // the full, filterable list). Toggled per-template from admin/templates rather than a
     // hardcoded slug list, so which templates appear can change without a deploy.
     $templates = Template::where('is_active', true)
+        ->where('is_public', true)
         ->where('is_featured', true)
         ->orderBy('name')
         ->get();

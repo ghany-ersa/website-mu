@@ -60,8 +60,7 @@
                                    @change="selected = {{ $template->id }}; selectedSlug = @js($template->slug)">
 
                             <div class="aspect-[4/3] bg-gray-100">
-                                <img src="{{ $template->thumbnailUrl() ?? $defaultImage }}" alt="{{ $template->name }}"
-                                     class="w-full h-full object-cover">
+                                <x-ui.template-thumbnail :template="$template" />
                             </div>
 
                             <div class="p-4">

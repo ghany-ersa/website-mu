@@ -22,6 +22,11 @@ class TemplateController extends Controller
         $templates = Template::query()
             ->with('organizationType')
             ->where('is_active', true)
+            // is_public excludes templates meant only as an organization-creation picker option
+            // (e.g. a "Halaman Kosong" starting point) - see the is_public migration's doc
+            // comment. Unlike is_active, that picker itself does NOT filter on is_public, so a
+            // template can stay pickable there while being absent from this public catalog.
+            ->where('is_public', true)
             ->when($typeId, fn ($query) => $query->where('organization_type_id', $typeId))
             ->orderByDesc('is_exclusive')
             ->orderBy('name')

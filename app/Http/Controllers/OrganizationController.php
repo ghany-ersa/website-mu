@@ -51,6 +51,10 @@ class OrganizationController extends Controller
                 ->with('organizationType')
                 ->where('is_active', true)
                 ->whereNotNull('organization_type_id')
+                // "Halaman Kosong" (see BlankTemplateSeeder::SLUG) leads the grid rather than
+                // sorting alphabetically with everything else - a user who wants to start from
+                // scratch shouldn't have to hunt for it among designed templates.
+                ->orderByRaw('slug != ?', ['halaman-kosong'])
                 ->orderBy('is_exclusive')
                 ->orderBy('name')
                 ->get(),

@@ -55,7 +55,7 @@ class PcmAmbuluEksklusifTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Muhammadiyah Plus',
                 'description' => 'Sambutan ketua, profil pimpinan harian, dan program tiap bidang tampil di halamannya masing-masing - lengkap dengan halaman kabar cabang dan kontak bersama jaringan Ortom/AUM serta peta sekretariat.',
-                'is_active' => true,
+                'is_active' => false,
                 'is_exclusive' => true,
                 // The standard-tier PCM template carries the `is_featured` flag for this
                 // organization type - one featured template per type keeps the flag meaningful

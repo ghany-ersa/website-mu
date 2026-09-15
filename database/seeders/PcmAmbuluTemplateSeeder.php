@@ -64,9 +64,9 @@ class PcmAmbuluTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Muhammadiyah Damai',
                 'description' => 'Perkenalkan pimpinan harian dan koordinator bidang cabang Anda, tunjukkan program unggulan tiap bidang, dan bagikan agenda serta kabar kegiatan - lengkap dengan jaringan Ortom dan Amal Usaha di satu halaman profil cabang.',
-                'is_active' => true,
+                'is_active' => false,
                 'is_exclusive' => false,
-                'is_featured' => true,
+                'is_featured' => false,
                 'structure' => [
                     'sample_org_name' => 'PCM Ambulu',
                     // Muhammadiyah blue primary with green secondary - the persyarikatan's own

@@ -47,7 +47,7 @@ class PcaAmbuluEksklusifTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Aisyiyah Maju',
                 'description' => 'Program lingkungan dan pemberdayaan ekonomi perempuan mendapat halaman tersendiri lengkap dengan agenda dan galeri kegiatan - plus halaman kabar cabang dan kontak bersama struktur pimpinan, amal usaha, serta peta sekretariat.',
-                'is_active' => true,
+                'is_active' => false,
                 'is_exclusive' => true,
                 // The standard-tier PCA template carries `is_featured` for this organization
                 // type - one featured template per type keeps the flag meaningful.

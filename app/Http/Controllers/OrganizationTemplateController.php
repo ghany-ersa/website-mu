@@ -24,6 +24,11 @@ class OrganizationTemplateController extends Controller
         $this->authorize('update', $organization);
 
         $templates = Template::where('is_active', true)
+            // is_public excludes templates meant only as an organization-creation picker option
+            // (e.g. "Halaman Kosong" - see BlankTemplateSeeder). Switching an existing,
+            // already-designed organization onto a blank template would just discard everything
+            // it has for nothing - that option belongs at creation time only, not here.
+            ->where('is_public', true)
             ->where(function ($query) use ($organization) {
                 $query->where('is_exclusive', false);
 

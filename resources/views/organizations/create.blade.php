@@ -21,8 +21,7 @@
 
         <div id="selected-template" class="mb-6 flex items-center gap-3 rounded-xl bg-white border border-gray-200 p-3 shadow-soft">
             <div class="w-20 h-14 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                <img src="{{ $selectedTemplate->thumbnailUrl() ?? 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80' }}"
-                     alt="{{ $selectedTemplate->name }}" class="w-full h-full object-cover">
+                <x-ui.template-thumbnail :template="$selectedTemplate" icon-class="w-5 h-5" />
             </div>
             <div class="min-w-0 flex-1">
                 <p class="text-xs text-gray-400">Template pilihan Anda</p>
