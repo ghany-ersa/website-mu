@@ -92,6 +92,10 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Masjid Umat',
                 'description' => 'Bagikan jadwal kajian dan galeri kegiatan, buka jalur donasi & zakat lewat WhatsApp, kenalkan pengurus, dan tampilkan kontak dengan peta lokasi - satu halaman profil masjid yang siap dikunjungi jamaah.',
+                // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
+                // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
+                // leaving it blank until an admin re-uploads it by hand.
+                'thumbnail_path' => 'templates/thumbnails/b5bdb086-b964-4e4d-b65f-3db8ae4e6ce6.webp',
                 'is_active' => true,
                 'is_exclusive' => false,
                 // The exclusive Masjid Nurul Huda template carries `is_featured` for this type.

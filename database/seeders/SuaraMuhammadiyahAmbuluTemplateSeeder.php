@@ -53,6 +53,10 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Media Berkemajuan',
                 'description' => 'Beranda memperkenalkan profil dan tim redaksi lengkap dengan berita terkini, halaman Berita menampung seluruh arsip pemberitaan, dan halaman Kontak menghubungkan pembaca lewat WhatsApp dan media sosial redaksi.',
+                // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
+                // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
+                // leaving it blank until an admin re-uploads it by hand.
+                'thumbnail_path' => 'templates/thumbnails/0e812ebc-fc38-43a5-b2f1-934d9dcafb2d.webp',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The featured template for the Media/Portal Berita type - one per type, now that each

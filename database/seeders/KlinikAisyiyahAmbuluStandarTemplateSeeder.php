@@ -50,6 +50,10 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Rumah Sehat',
                 'description' => 'Tampilkan katalog layanan dan jadwal praktik dokter, informasi pelayanan pasien, kabar dan edukasi kesehatan, hingga kontak dan peta lokasi - semua dalam satu halaman profil klinik yang mudah ditemukan pasien.',
+                // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
+                // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
+                // leaving it blank until an admin re-uploads it by hand.
+                'thumbnail_path' => 'templates/thumbnails/f0e9de7e-96a6-41c1-a12c-5a23fb755dd8.webp',
                 'is_active' => true,
                 'is_exclusive' => false,
                 // The exclusive Klinik template carries `is_featured` for this organization type.
