@@ -182,7 +182,14 @@ class DefectRegressionTest extends TestCase
      * The fallback half of the chain: with nothing set on the organization, the template's
      * contact block supplies the value.
      */
-    public function test_contact_accessors_fall_back_to_the_template(): void
+    /**
+     * Deliberately the opposite of brand accessors like primaryColor()/fontFamily(): a
+     * template's sample contact info belongs to whatever real organization the template's
+     * content was modeled on, so a different organization that simply hasn't filled in its own
+     * contact yet must render blank, not that other organization's WhatsApp/address. See
+     * Organization::phone()'s doc comment.
+     */
+    public function test_contact_accessors_do_not_fall_back_to_the_template(): void
     {
         $template = Template::factory()->create([
             'structure' => [
@@ -198,10 +205,10 @@ class DefectRegressionTest extends TestCase
 
         $organization = Organization::factory()->create(['template_id' => $template->id]);
 
-        $this->assertSame('0800-TEMPLATE', $organization->phone());
-        $this->assertSame('template@example.test', $organization->email());
-        $this->assertSame('6280000000000', $organization->whatsapp());
-        $this->assertSame('Alamat Template', $organization->address());
+        $this->assertNull($organization->phone());
+        $this->assertNull($organization->email());
+        $this->assertNull($organization->whatsapp());
+        $this->assertNull($organization->address());
     }
 
     // --------------------------------------------------------- helpers

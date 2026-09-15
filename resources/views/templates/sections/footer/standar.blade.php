@@ -26,10 +26,13 @@
     if (blank($orgLogo)) {
         $orgLogo = ($template ?? null)?->structure['brand']['logo'] ?? null;
     }
-    // Template-preview context has no $organization at all, so fall back straight to the
-    // template's own structure['contact'] (see Organization::phone() etc. for the same chain
-    // when $organization is present).
-    $contact = $template->structure['contact'] ?? [];
+    // Only falls back to the template's sample contact info when there's no $organization at
+    // all (true template-preview context - see Organization::phone()'s doc comment for why a
+    // real organization that simply hasn't filled in its own contact yet must NOT show the
+    // template's sample contact instead: that's someone else's WhatsApp/address, not a
+    // placeholder). A real $organization with a blank field renders that field blank/hidden
+    // below, same as any other unset content.
+    $contact = isset($organization) ? [] : ($template->structure['contact'] ?? []);
     $phone = $organization?->phone() ?? $contact['phone'] ?? null;
     $email = $organization?->email() ?? $contact['email'] ?? null;
     $whatsapp = $organization?->whatsapp() ?? $contact['whatsapp'] ?? null;

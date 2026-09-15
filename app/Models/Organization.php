@@ -136,8 +136,15 @@ class Organization extends Model
     }
 
     /**
-     * Effective phone number - same fallback chain as primaryColor(), but with no platform
-     * default: an organization/template with nothing set just has no phone to show.
+     * The organization's own phone number, or null until it sets one - deliberately NOT falling
+     * back to the template's sample contact info (structure['contact']), unlike
+     * primaryColor()/fontFamily()/etc: a template's contact details belong to whatever real
+     * organization the template's sample content was modeled on (e.g. Suara Muhammadiyah Ambulu),
+     * so showing them on an unrelated organization's live site would be showing someone else's
+     * WhatsApp/address as if it were this organization's own - a real name-and-contact mix-up,
+     * not a cosmetic placeholder the way a default brand color is. Template contact info is only
+     * ever shown in template-preview context, where there's no $organization at all (see
+     * templates/sections/footer/standar.blade.php's own `$contact` fallback for that case).
      *
      * Reads the column through getAttributeValue() rather than $this->phone. `phone` is both a
      * column and this method's name, and Eloquent's __get() only falls back to *relationship*
@@ -153,72 +160,65 @@ class Organization extends Model
      */
     public function phone(): ?string
     {
-        return $this->getAttributeValue('phone')
-            ?? $this->template?->structure['contact']['phone'] ?? null;
+        return $this->getAttributeValue('phone');
     }
 
     /**
-     * Effective contact email - see phone() for the fallback chain and for why this reads the
-     * column via getAttributeValue().
+     * The organization's own contact email, or null until it sets one - see phone() for why this
+     * doesn't fall back to the template's sample contact info, and for why it reads the column
+     * via getAttributeValue().
      */
     public function email(): ?string
     {
-        return $this->getAttributeValue('email')
-            ?? $this->template?->structure['contact']['email'] ?? null;
+        return $this->getAttributeValue('email');
     }
 
     /**
-     * Effective WhatsApp number - see phone() for the fallback chain.
+     * The organization's own WhatsApp number, or null until it sets one - see phone().
      */
     public function whatsapp(): ?string
     {
-        return $this->getAttributeValue('whatsapp')
-            ?? $this->template?->structure['contact']['whatsapp'] ?? null;
+        return $this->getAttributeValue('whatsapp');
     }
 
     /**
-     * Effective address - see phone() for the fallback chain.
+     * The organization's own address, or null until it sets one - see phone().
      */
     public function address(): ?string
     {
-        return $this->getAttributeValue('address')
-            ?? $this->template?->structure['contact']['address'] ?? null;
+        return $this->getAttributeValue('address');
     }
 
     /**
-     * Effective Instagram URL - see phone() for the fallback chain.
+     * The organization's own Instagram URL, or null until it sets one - see phone().
      */
     public function instagramUrl(): ?string
     {
-        return $this->instagram_url
-            ?? $this->template?->structure['contact']['instagram_url'] ?? null;
+        return $this->instagram_url;
     }
 
     /**
-     * Effective Facebook URL - see phone() for the fallback chain.
+     * The organization's own Facebook URL, or null until it sets one - see phone().
      */
     public function facebookUrl(): ?string
     {
-        return $this->facebook_url
-            ?? $this->template?->structure['contact']['facebook_url'] ?? null;
+        return $this->facebook_url;
     }
 
     /**
-     * Effective TikTok URL - see phone() for the fallback chain.
+     * The organization's own TikTok URL, or null until it sets one - see phone().
      */
     public function tiktokUrl(): ?string
     {
-        return $this->tiktok_url
-            ?? $this->template?->structure['contact']['tiktok_url'] ?? null;
+        return $this->tiktok_url;
     }
 
     /**
-     * Effective YouTube URL - see phone() for the fallback chain.
+     * The organization's own YouTube URL, or null until it sets one - see phone().
      */
     public function youtubeUrl(): ?string
     {
-        return $this->youtube_url
-            ?? $this->template?->structure['contact']['youtube_url'] ?? null;
+        return $this->youtube_url;
     }
 
     /**
