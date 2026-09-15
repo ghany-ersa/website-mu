@@ -180,8 +180,13 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                                 // what donasi-progress + kalkulator-zakat did on the exclusive
                                 // tier: no per-program tracking or nisab math, but still a real
                                 // path to give.
+                                // `image` fills the left half of donasi-zakat-infak/standar's
+                                // two-column card; without it the section renders as a lone text
+                                // column. Points at the masjid's own S3 photo of the building
+                                // rather than stock, so the ask is visibly about THIS masjid.
                                 ['key' => 'donasi-zakat-infak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Donasi, Zakat & Infak',
+                                    'image' => self::HERO_IMAGE,
                                     'body' => 'Salurkan donasi, zakat, dan infak Anda melalui takmir masjid. Setiap donasi dikelola secara transparan untuk kemakmuran masjid dan kemaslahatan jamaah.',
                                     'wa_number' => self::WHATSAPP,
                                     'wa_message' => 'Assalamu\'alaikum, saya ingin berdonasi untuk Masjid Nurul Huda. Mohon informasi caranya ya.',

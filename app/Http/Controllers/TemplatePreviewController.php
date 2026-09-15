@@ -76,6 +76,22 @@ class TemplatePreviewController extends Controller
     }
 
     /**
+     * Public "detail agenda" for a template preview - see post() above for the same reasoning
+     * (sandbox-sourced, deliberately unauthenticated, mirrors organizations.public.agenda).
+     * Keyed by id rather than slug: Agenda has no slug column, same as tenant.agendas.show.
+     */
+    public function agenda(Template $template, int $agenda): View
+    {
+        $sandbox = $this->sandboxQuery($template)->firstOrFail();
+        $agendaModel = $sandbox->agendas()->published()->findOrFail($agenda);
+
+        return view('organizations.public.agenda', [
+            'organization' => $sandbox,
+            'agenda' => $agendaModel,
+        ]);
+    }
+
+    /**
      * The read-only counterpart to TemplateSandboxService::sandboxFor(), which requires an
      * authenticated admin because it can *create* a sandbox on first use. A public visitor here
      * is never authenticated and never should trigger sandbox creation - by the time a template

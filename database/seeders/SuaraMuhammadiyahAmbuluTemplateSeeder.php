@@ -132,7 +132,7 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                                 ]],
                                 ['key' => 'struktur-pengurus', 'variant' => 'modern', 'content' => [
                                     'title' => 'Tim Redaksi',
-                                    'items' => Samples::timRedaksi(),
+                                    'items' => Samples::timRedaksiWithPhotos(),
                                 ]],
                                 ['key' => 'cta', 'variant' => 'newsletter', 'content' => [
                                     'title' => 'Jangan Lewatkan Kabar Muhammadiyah Ambulu',

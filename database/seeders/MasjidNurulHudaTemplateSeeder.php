@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\OrganizationType;
 use App\Models\Template;
 use App\Models\User;
+use App\Services\Samples\PortraitPhotos;
 use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
@@ -145,17 +146,19 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
     }
 
     /**
-     * The two takmir CmsSampleDataSeeder::nurulHudaOfficerSamples() seeds. Public for the
-     * same reason as agendaItems().
+     * The two takmir CmsSampleDataSeeder::nurulHudaOfficerSamples() seeds, with stand-in
+     * portraits so the cards aren't blank grey squares in a template preview - see
+     * PortraitPhotos for why those are assigned by index rather than matched to the names.
+     * Public for the same reason as agendaItems().
      *
      * @return array<int, array{name: string, role: string, photo: null}>
      */
     public static function pengurusItems(): array
     {
-        return [
-            ['name' => 'Suhartono, S.Pd', 'role' => 'Ketua Takmir', 'photo' => null],
-            ['name' => 'Tyas Hidayatulloh, S.Pd, M.Pd', 'role' => 'Sekretaris', 'photo' => null],
-        ];
+        return PortraitPhotos::applyTo([
+            ['name' => 'Suhartono, S.Pd', 'role' => 'Ketua Takmir'],
+            ['name' => 'Tyas Hidayatulloh, S.Pd, M.Pd', 'role' => 'Sekretaris'],
+        ]);
     }
 
     /**

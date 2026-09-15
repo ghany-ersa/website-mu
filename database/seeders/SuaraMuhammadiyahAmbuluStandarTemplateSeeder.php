@@ -138,7 +138,7 @@ class SuaraMuhammadiyahAmbuluStandarTemplateSeeder extends Seeder
                                 // admin's own reorder) rather than after both.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tim Redaksi',
-                                    'items' => Samples::timRedaksi(),
+                                    'items' => Samples::timRedaksiWithPhotos(),
                                 ]],
                                 // 5. Lane two: everything else. No filter, so on a live site
                                 // this is the general feed the institutional lane doesn't cover.

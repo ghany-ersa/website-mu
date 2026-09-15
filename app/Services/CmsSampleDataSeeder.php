@@ -18,6 +18,7 @@ use App\Models\Program;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
 use App\Services\Samples\PcaAmbuluSamples;
 use App\Services\Samples\PcmAmbuluSamples;
+use App\Services\Samples\PortraitPhotos;
 use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
 
@@ -48,12 +49,21 @@ use Illuminate\Support\Carbon;
 class CmsSampleDataSeeder
 {
     /**
-     * Template slug this seeder has faithful, named sample data for (ported from the
+     * Template slugs this seeder has faithful, named sample data for (ported from the
      * standalone nurul-huda project's MasjidContentSeeder) - seedAgendas()/seedOfficers()
-     * use these in place of their generic "Contoh ..." placeholders only for an organization
-     * on this exact template, so every other template's samples are unaffected.
+     * use these in place of their generic "Contoh ..." placeholders, so every other template's
+     * samples are unaffected.
+     *
+     * A LIST, like the other showcases: matching one slug left the standar tier falling through
+     * to the generic `[Nama Ketua]` officers and "Contoh Agenda" kajian, even though both tiers
+     * describe the same masjid.
+     *
+     * @var array<int, string>
      */
-    private const NURUL_HUDA_TEMPLATE_SLUG = 'masjid-nurul-huda-eksklusif';
+    private const NURUL_HUDA_TEMPLATE_SLUGS = [
+        'masjid-nurul-huda-eksklusif',
+        'masjid-nurul-huda-standar',
+    ];
 
     /**
      * The Klinik Pratama Aisyiyah Ambulu showcase (see KlinikAisyiyahAmbuluTemplateSeeder and
@@ -122,6 +132,21 @@ class CmsSampleDataSeeder
     private const S3 = 'https://s3.nurul-huda.ambulu.or.id';
 
     /**
+     * Kajian flyers, in the same order as nurulHudaKajianSamples(). Per-ORGANIZATION uploads on
+     * the template's sandbox rather than the S3 bucket above, so they 404 if that sandbox's
+     * storage is cleared - the poster grid then degrades to agenda/poster's date-block fallback
+     * rather than breaking.
+     *
+     * @var array<int, string>
+     */
+    private const NURUL_HUDA_KAJIAN_POSTERS = [
+        'https://storage.ambulu.or.id/organizations/9/agenda/ab6e857b-3878-419d-9937-77abe8c447ec.webp',
+        'https://storage.ambulu.or.id/organizations/9/agenda/21746fb4-ba32-49c6-84fd-d89c1a137ad9.webp',
+        'https://storage.ambulu.or.id/organizations/9/agenda/dea3e455-d528-4f90-a261-800238653801.webp',
+        'https://storage.ambulu.or.id/organizations/9/agenda/b8e2af80-450c-4dad-9263-90c7d0e00778.webp',
+    ];
+
+    /**
      * Opening balance carried into the wakaf ledger from April 2025, and the date the program
      * itself opened - both from the nurul-huda project's WakafPembangunanTransactionSeeder.
      */
@@ -150,7 +175,7 @@ class CmsSampleDataSeeder
         $keys = array_unique($sectionKeys);
         $limits = app(PlanLimitService::class);
         $slug = $organization->template?->slug;
-        $isNurulHuda = $slug === self::NURUL_HUDA_TEMPLATE_SLUG;
+        $isNurulHuda = in_array($slug, self::NURUL_HUDA_TEMPLATE_SLUGS, true);
         $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
         $isSuaraMuhammadiyah = in_array($slug, self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS, true);
         $isPcm = in_array($slug, self::PCM_TEMPLATE_SLUGS, true);
@@ -202,6 +227,17 @@ class CmsSampleDataSeeder
                 $isPca => PcaAmbuluSamples::pimpinanCabang(),
                 default => null,
             };
+
+            // Stand-in portraits on a SANDBOX only. struktur-pengurus renders an empty grey
+            // square when photo is null, so without this the template designer (and the
+            // "Gunakan Template" preview built from it) showed a wall of blank boxes - the very
+            // thing the sandbox exists to let an admin look at. A real organization keeps null:
+            // its officer cards should stay empty until it uploads genuine headshots, since a
+            // stock face attached to a named person on a live site would misrepresent them.
+            // See PortraitPhotos for why the faces are assigned by index, never by name.
+            if ($officerSamples !== null && $organization->is_sandbox) {
+                $officerSamples = PortraitPhotos::applyTo($officerSamples);
+            }
 
             self::seedOfficers($organization, $limits, $officerSamples);
         }
@@ -291,6 +327,12 @@ class CmsSampleDataSeeder
             'title' => $sample['title'],
             'slug' => str($sample['title'])->slug().'-'.$organization->id.'-'.$index,
             'category' => $sample['category'],
+            // Every Samples::beritaItems() entry already carries a matching photo, and
+            // daftar-berita's $organization branch reads Post::image - so dropping it here left
+            // the builder (and every real organization) showing image-less cards while the
+            // template PREVIEW, which reads content['items'] instead, showed them fine. The
+            // generic fallback samples above have no image, hence the null coalesce.
+            'image' => $sample['image'] ?? null,
             'body' => '<p>'.$sample['body'].'</p>',
             'status' => PublishStatus::Published->value,
             'published_at' => $now,
@@ -364,6 +406,10 @@ class CmsSampleDataSeeder
         Agenda::insert(array_map(fn ($sample) => [
             'organization_id' => $organization->id,
             'title' => $sample['title'],
+            // agenda/poster.blade.php renders agendas.poster as a flyer grid; without this a
+            // poster-variant section fell back to the date block for every row. Optional: the
+            // generic samples and agenda/standar have no flyer to show.
+            'poster' => $sample['poster'] ?? null,
             'starts_at' => $now->copy()->addDays($sample['days'])->setTime(18, 0),
             'location' => $sample['location'] ?? 'Lokasi kegiatan',
             'description' => $sample['description'] ?? '<p>Deskripsi agenda akan tampil di sini. Edit atau hapus contoh ini kapan saja.</p>',
@@ -608,6 +654,10 @@ class CmsSampleDataSeeder
             'days' => $daysUntilFriday + ($index * 7),
             'location' => 'Ruang Utama Masjid',
             'description' => '<p>'.$sample['materi'].'<br>Diawali salat Maghrib berjamaah</p>',
+            // The flyers the takmir uploaded, same files MasjidNurulHudaTemplateSeeder writes
+            // into the template's own content['items'] - so the builder's poster grid matches
+            // the template preview instead of falling back to a date block for every row.
+            'poster' => self::NURUL_HUDA_KAJIAN_POSTERS[$index] ?? null,
         ], $samples, array_keys($samples));
     }
 

@@ -85,6 +85,22 @@ class SuaraMuhammadiyahAmbuluSamples
     }
 
     /**
+     * timRedaksi() with a stand-in portrait on each entry, for the TEMPLATE preview only.
+     *
+     * Kept separate from timRedaksi() because that list feeds two very different consumers:
+     * CmsSampleDataSeeder inserts it as real Officer rows, where `photo` must stay null so the
+     * redaksi's own uploads are the only headshots a live site ever shows. A template preview has
+     * no organization and no uploads, so it needs something in the square - see PortraitPhotos
+     * for why the faces are assigned by index and never matched to these (real) names.
+     *
+     * @return array<int, array{name: string, role: string, photo: string}>
+     */
+    public static function timRedaksiWithPhotos(): array
+    {
+        return PortraitPhotos::applyTo(self::timRedaksi());
+    }
+
+    /**
      * News/kabar items for the template's `daftar-berita` sections AND CmsSampleDataSeeder's
      * Post records - same stories in both places. Deliberately tagged into exactly two
      * categories, 'Organisasi' and 'Kaderisasi', rather than a wider set: the Berita page
@@ -147,7 +163,7 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'Aisyiyah Ambulu Gelar Pengajian Rutin dan Santunan Yatim Piatu',
                 'category' => 'Organisasi',
                 'date' => '16 Jul 2026',
-                'image' => 'https://images.unsplash.com/photo-1602880655958-8d51a3d1e83c?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Puluhan anak yatim piatu menerima santunan dalam pengajian rutin yang digelar Pimpinan Cabang Aisyiyah Ambulu.',
             ],
             [
@@ -210,14 +226,14 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'Masjid Al-Furqan Binaan Muhammadiyah Ambulu Rampungkan Renovasi Menara',
                 'category' => 'Organisasi',
                 'date' => '15 Mei 2026',
-                'image' => 'https://images.unsplash.com/photo-1542379653-b198e0eeaa46?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Renovasi menara Masjid Al-Furqan rampung setelah dua bulan pengerjaan, didukung donasi warga dan simpatisan Muhammadiyah Ambulu.',
             ],
             [
                 'title' => 'MDMC Ambulu Gelar Simulasi Tanggap Bencana bagi Warga Pesisir',
                 'category' => 'Organisasi',
                 'date' => '08 Mei 2026',
-                'image' => 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Simulasi evakuasi dan pertolongan pertama digelar MDMC Ambulu untuk meningkatkan kesiapsiagaan warga pesisir menghadapi bencana.',
             ],
             [
@@ -266,14 +282,14 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'Nasyiatul Aisyiyah Ambulu Gelar Bakti Sosial di Panti Jompo',
                 'category' => 'Organisasi',
                 'date' => '20 Mar 2026',
-                'image' => 'https://images.unsplash.com/photo-1509099395029-9df6205f8f11?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1544027993-37dbfe43562a?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Kunjungan dan bakti sosial digelar Nasyiatul Aisyiyah Ambulu untuk menghibur dan berbagi kebutuhan pokok bagi lansia panti jompo.',
             ],
             [
                 'title' => 'Tapak Suci Ambulu Raih Medali Emas di Kejuaraan Pencak Silat Daerah',
                 'category' => 'Kaderisasi',
                 'date' => '13 Mar 2026',
-                'image' => 'https://images.unsplash.com/photo-1555597408-26bc6bf03390?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Atlet muda Tapak Suci Putera Muhammadiyah Ambulu berhasil menyabet medali emas dalam kejuaraan pencak silat tingkat daerah.',
             ],
             [
@@ -308,7 +324,7 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'IMM Ambulu Adakan Diskusi Publik Bertema Ekonomi Kerakyatan',
                 'category' => 'Kaderisasi',
                 'date' => '06 Feb 2026',
-                'image' => 'https://images.unsplash.com/photo-1560439514-07d4d84fbe74?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Diskusi publik menghadirkan akademisi dan praktisi membahas penguatan ekonomi kerakyatan di kalangan kader Ikatan Mahasiswa Muhammadiyah.',
             ],
             [
@@ -329,14 +345,14 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'Fortasi Ranting Bekali Siswa Baru dengan Nilai-Nilai Kemuhammadiyahan',
                 'category' => 'Kaderisasi',
                 'date' => '16 Jan 2026',
-                'image' => 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Forum Taaruf Siswa memperkenalkan nilai-nilai kemuhammadiyahan kepada siswa baru di sekolah-sekolah Muhammadiyah se-Ambulu.',
             ],
             [
                 'title' => 'Aisyiyah Ambulu Salurkan Bantuan Alat Belajar untuk PAUD Binaan',
                 'category' => 'Organisasi',
                 'date' => '09 Jan 2026',
-                'image' => 'https://images.unsplash.com/photo-1490373892916-969e2ee94d38?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Bantuan alat peraga dan buku belajar disalurkan untuk mendukung kegiatan belajar mengajar di PAUD binaan Aisyiyah Ambulu.',
             ],
             [
@@ -357,7 +373,7 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'Klinik Pratama Aisyiyah Ambulu Adakan Penyuluhan Gizi Balita',
                 'category' => 'Organisasi',
                 'date' => '19 Des 2025',
-                'image' => 'https://images.unsplash.com/photo-1576765607924-3f7b8c172eae?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1540479859555-17af45c78602?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Penyuluhan gizi balita digelar Klinik Pratama Aisyiyah Ambulu bekerja sama dengan Posyandu setempat guna menekan angka stunting.',
             ],
             [
@@ -378,7 +394,7 @@ class SuaraMuhammadiyahAmbuluSamples
                 'title' => 'IPM dan IMM Ambulu Gelar Baksos Akhir Tahun untuk Warga Terdampak Banjir',
                 'category' => 'Kaderisasi',
                 'date' => '28 Nov 2025',
-                'image' => 'https://images.unsplash.com/photo-1509099395029-9df6205f8f11?auto=format&fit=crop&w=700&q=80',
+                'image' => 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=700&q=80',
                 'body' => 'Bakti sosial akhir tahun digelar kader IPM dan IMM Ambulu untuk membantu warga yang terdampak banjir di beberapa desa binaan.',
             ],
         ];

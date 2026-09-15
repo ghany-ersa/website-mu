@@ -14,10 +14,15 @@
         ? \Illuminate\Support\Str::limit(strip_tags($agenda->description), 160)
         : $agenda->title.' pada '.$agenda->starts_at->translatedFormat('d M Y').(($agenda->location) ? ' di '.$agenda->location : '');
 
-    $agendaUrl = route('tenant.agendas.show', [
-        'organization_slug' => $organization->slug,
-        'agenda' => $agenda->id,
-    ]);
+    // See _agenda-body.blade.php's matching comment for why this isn't unconditionally
+    // tenant.agendas.show - that route only resolves a real, published, non-sandbox
+    // organization's subdomain.
+    $agendaUrl = request()->routeIs('templates.preview*')
+        ? route('templates.preview.agenda', ['template' => $organization->template, 'agenda' => $agenda->id])
+        : route('tenant.agendas.show', [
+            'organization_slug' => $organization->slug,
+            'agenda' => $agenda->id,
+        ]);
 @endphp
 @include('organizations.pages._document', [
     'organization' => $organization,

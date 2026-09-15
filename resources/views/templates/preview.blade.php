@@ -77,22 +77,9 @@
                         Eksklusif
                     </span>
                 @endif
-                <span class="text-gray-400">— pratinjau template</span>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <div class="flex flex-wrap items-center gap-1">
-                    @foreach ($pages as $item)
-                        <a href="{{ route('templates.preview', ['template' => $template->slug, 'page' => $item['slug']]) }}"
-                           class="px-3 py-1 rounded-full transition-colors {{ $item['slug'] === $currentPage['slug'] ? 'bg-primary text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700' }}">
-                            {{ $item['name'] }}
-                        </a>
-                    @endforeach
-                </div>
-                @if ($template->is_exclusive)
-                    <span class="px-3 py-1 rounded-full bg-gray-800 text-gray-300 text-xs" title="Template eksklusif hanya tersedia untuk organisasi dengan paket Professional">
-                        Butuh paket Professional
-                    </span>
-                @else
+                @if (!$template->is_exclusive)
                     <a href="{{ route('templates.use', $template->slug) }}"
                        class="px-3 py-1 rounded-full bg-secondary text-white font-semibold hover:opacity-90 transition-opacity">
                         Gunakan

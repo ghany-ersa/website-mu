@@ -26,9 +26,11 @@
             'date_month' => $agenda->starts_at->translatedFormat('M'),
             'location' => $agenda->location,
             'time' => $agenda->starts_at->format('H:i'),
-            'url' => \Illuminate\Support\Facades\Route::has('tenant.agendas.show')
-                ? route('tenant.agendas.show', ['organization_slug' => $organization->slug, 'agenda' => $agenda->id])
-                : null,
+            'url' => match (true) {
+                request()->routeIs('templates.preview*') => route('templates.preview.agenda', ['template' => $organization->template, 'agenda' => $agenda->id]),
+                \Illuminate\Support\Facades\Route::has('tenant.agendas.show') => route('tenant.agendas.show', ['organization_slug' => $organization->slug, 'agenda' => $agenda->id]),
+                default => null,
+            },
         ])
         : ($content['items'] ?? [
             ['title' => 'Kajian Ahad Pagi', 'poster' => null, 'date_day' => '12', 'date_month' => 'Okt', 'location' => 'Masjid', 'time' => '06:00'],
