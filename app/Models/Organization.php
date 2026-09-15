@@ -138,19 +138,32 @@ class Organization extends Model
     /**
      * Effective phone number - same fallback chain as primaryColor(), but with no platform
      * default: an organization/template with nothing set just has no phone to show.
+     *
+     * Reads the column through getAttributeValue() rather than $this->phone. `phone` is both a
+     * column and this method's name, and Eloquent's __get() only falls back to *relationship*
+     * resolution when the attribute isn't loaded on the instance - at which point it calls
+     * phone(), sees a string instead of a Relation, and throws "must return a relationship
+     * instance". That happens for any Organization whose contact columns weren't selected (a
+     * factory-built instance, a narrowed select()), which is how onboardingChecklist() - it
+     * does filled($this->phone) - could 500 in production. getAttributeValue() asks only the
+     * attribute pipeline, so the method never re-enters itself.
+     *
+     * The four social-URL accessors below need no such care: their columns are snake_case
+     * (instagram_url) while the methods are camelCase (instagramUrl()), so no name collides.
      */
     public function phone(): ?string
     {
-        return $this->phone
+        return $this->getAttributeValue('phone')
             ?? $this->template?->structure['contact']['phone'] ?? null;
     }
 
     /**
-     * Effective contact email - see phone() for the fallback chain.
+     * Effective contact email - see phone() for the fallback chain and for why this reads the
+     * column via getAttributeValue().
      */
     public function email(): ?string
     {
-        return $this->email
+        return $this->getAttributeValue('email')
             ?? $this->template?->structure['contact']['email'] ?? null;
     }
 
@@ -159,7 +172,7 @@ class Organization extends Model
      */
     public function whatsapp(): ?string
     {
-        return $this->whatsapp
+        return $this->getAttributeValue('whatsapp')
             ?? $this->template?->structure['contact']['whatsapp'] ?? null;
     }
 
@@ -168,7 +181,7 @@ class Organization extends Model
      */
     public function address(): ?string
     {
-        return $this->address
+        return $this->getAttributeValue('address')
             ?? $this->template?->structure['contact']['address'] ?? null;
     }
 
@@ -617,7 +630,12 @@ class Organization extends Model
     {
         return [
             'brand' => filled($this->logo),
-            'contact' => filled($this->phone) || filled($this->email) || filled($this->whatsapp),
+            // The accessor methods, not $this->phone: those property reads are what triggered
+            // Eloquent's relationship fallback on an instance whose contact columns weren't
+            // loaded (see phone()'s doc comment). Going through the methods also means a value
+            // inherited from the template counts as "filled in", which matches what the org
+            // actually sees rendered on its site.
+            'contact' => filled($this->phone()) || filled($this->email()) || filled($this->whatsapp()),
             'content' => $this->pages()->whereHas('sections')->exists(),
             'published' => $this->status === OrganizationStatus::Published,
         ];

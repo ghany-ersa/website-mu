@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\Template;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 
 class TemplatePreviewController extends Controller
@@ -100,9 +101,9 @@ class TemplatePreviewController extends Controller
      * already exists. show() tolerates it not existing yet (falls back to JSON-only rendering);
      * post()/donationProgram() 404 instead of inventing an owner for a sandbox that isn't there.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<Organization>
+     * @return Builder<Organization>
      */
-    private function sandboxQuery(Template $template): \Illuminate\Database\Eloquent\Builder
+    private function sandboxQuery(Template $template): Builder
     {
         return Organization::where('is_sandbox', true)->where('template_id', $template->id);
     }

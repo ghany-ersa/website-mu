@@ -42,7 +42,11 @@ use App\Http\Controllers\TemplateUseController;
 use App\Models\Article;
 use App\Models\Plan;
 use App\Models\Template;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', function () {
     // Curated set, not the full catalog: only templates an admin has flagged is_featured show
@@ -275,7 +279,22 @@ if ($tenantDomain = config('tenancy.domain')) {
     // 'tenant' middleware group (bootstrap/app.php), not the default 'web' group: these
     // routes are pure reads with no login/forms, so they skip session/CSRF entirely and
     // run against a SELECT-only DB connection - see UseReadOnlyConnection's docblock.
-    Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware('web')->middleware('tenant')->group(function () {
+    //
+    // The exclusion lists the session/CSRF classes individually rather than passing the group
+    // name 'web'. Router::resolveMiddleware() expands an excluded *group* into its member
+    // classes and then rejects each of those by class from the whole stack - so excluding 'web'
+    // also stripped EncryptCookies and SubstituteBindings out of the 'tenant' group, which
+    // shares both with 'web'. Losing SubstituteBindings is what made every route-model-bound
+    // tenant parameter arrive as a raw string, 404ing the announcement and agenda detail pages
+    // (their controllers compared $model->organization_id on what was actually a string). Naming
+    // the classes keeps the intent - no session, no CSRF - without taking route-model binding
+    // down with it.
+    Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware([
+        AddQueuedCookiesToResponse::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+    ])->middleware('tenant')->group(function () {
         Route::get('/', [OrganizationSiteController::class, 'show'])->name('tenant.home');
         Route::get('/berita-lebih-banyak', [OrganizationSiteController::class, 'loadMoreBerita'])->name('tenant.posts.load-more');
         Route::get('/galeri-lebih-banyak', [OrganizationSiteController::class, 'loadMoreGaleri'])->name('tenant.galleries.load-more');
