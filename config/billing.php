@@ -24,6 +24,8 @@ return [
         // Digits only, in international format without the leading "+" - used to build the
         // wa.me confirmation link the tenant taps after transferring.
         'whatsapp' => env('BILLING_MANUAL_WHATSAPP', '6282164028264'),
+        'qris_image' => env('BILLING_MANUAL_QRIS_IMAGE', 'qris.jpeg'),
+        'qris_merchant_name' => env('BILLING_MANUAL_QRIS_MERCHANT', 'Website-mu.id'),
     ],
 
     'midtrans' => [

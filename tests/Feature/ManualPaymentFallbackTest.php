@@ -151,6 +151,30 @@ class ManualPaymentFallbackTest extends TestCase
             ->assertNotFound();
     }
 
+    /**
+     * The QRIS block is rendered off a file that an admin drops into public/ by hand, so the
+     * page has to stay correct before that file exists - a broken <img> would read as a site bug.
+     */
+    public function test_qris_block_is_omitted_when_the_image_is_missing(): void
+    {
+        config([
+            'billing.manual_transfer.only' => true,
+            'billing.manual_transfer.qris_image' => 'definitely-not-there.png',
+        ]);
+
+        $owner = User::factory()->create();
+        $organization = Organization::factory()->withOwner($owner)->create();
+        $this->pendingRequestFor($organization, $owner);
+
+        $response = $this->actingAs($owner)->get(route('organizations.plan.edit', $organization));
+
+        $response->assertOk();
+        $response->assertDontSee('definitely-not-there.png');
+        $response->assertDontSee('Kode QRIS pembayaran');
+        // The bank details are the fallback for the fallback - they must survive.
+        $response->assertSee(config('billing.manual_transfer.account_number'));
+    }
+
     public function test_admin_cannot_approve_a_request_the_tenant_never_confirmed(): void
     {
         $owner = User::factory()->create();

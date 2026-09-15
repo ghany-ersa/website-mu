@@ -5,7 +5,14 @@
 @section('content')
     <div class="mb-8">
         <h1 class="text-2xl font-extrabold text-primary">Permintaan Pergantian Paket</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ $requests->total() }} permintaan &mdash; disetujui otomatis begitu Midtrans mengonfirmasi pembayaran.</p>
+        <p class="text-sm text-gray-500 mt-1">
+            {{ $requests->total() }} permintaan &mdash;
+            @if (config('billing.manual_transfer.only'))
+                pembayaran manual, setujui setelah memverifikasi QRIS/transfer masuk.
+            @else
+                disetujui otomatis begitu Midtrans mengonfirmasi pembayaran.
+            @endif
+        </p>
     </div>
 
     <x-crud.search-form placeholder="Cari nama organisasi atau pemohon...">
@@ -89,17 +96,17 @@
                                 </form>
                             @elseif ($request->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
                                 <div class="flex flex-col items-end gap-1.5">
-                                    <p class="text-xs text-gray-400">Verifikasi transfer sebelum menyetujui</p>
+                                    <p class="text-xs text-gray-400">Verifikasi pembayaran sebelum menyetujui</p>
                                     <div class="flex items-center gap-1.5">
                                         <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
-                                              x-data @submit.prevent="if (await confirmAction('Tolak permintaan ini? Gunakan jika transfer tidak ditemukan.')) $el.submit()">
+                                              x-data @submit.prevent="if (await confirmAction('Tolak permintaan ini? Gunakan jika pembayaran tidak ditemukan.')) $el.submit()">
                                             @csrf
                                             <button type="submit" class="px-3 py-1.5 rounded-full text-gray-500 text-xs font-semibold hover:bg-gray-100 transition-colors">
                                                 Tolak
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.plan-change-requests.approve-manual', $request) }}" method="POST"
-                                              x-data @submit.prevent="if (await confirmAction('Setujui paket ini? Pastikan transfer sebesar Rp {{ number_format($request->gatewayAmount(), 0, ',', '.') }} sudah masuk.', { danger: false })) $el.submit()">
+                                              x-data @submit.prevent="if (await confirmAction('Setujui paket ini? Pastikan pembayaran sebesar Rp {{ number_format($request->gatewayAmount(), 0, ',', '.') }} sudah masuk.', { danger: false })) $el.submit()">
                                             @csrf
                                             <button type="submit" class="px-3 py-1.5 rounded-full bg-secondary text-white text-xs font-semibold hover:bg-green-700 transition-colors">
                                                 Setujui
