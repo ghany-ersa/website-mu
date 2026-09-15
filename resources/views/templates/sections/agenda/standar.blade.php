@@ -1,7 +1,12 @@
 {{-- Auto-binds to the organization's published agenda items (soonest/most recent first,
      regardless of date) when $organization is in scope (tenant page render); falls back to
      $content['items'] sample data in template-preview context - see daftar-berita.blade.php
-     for the full rationale. --}}
+     for the full rationale.
+
+     Unlike daftar-berita/donasi-progress, cards here never link anywhere: title, date, time and
+     location - everything an agenda detail page (organizations/public/_agenda-body.blade.php)
+     would show beyond a poster - already fits on the card itself. The `poster` variant is the
+     one that needs a detail page (see agenda/poster.blade.php's doc comment). --}}
 @php
     $content = $section['content'] ?? [];
     // A blank/unset `limit` means "show all" rather than falling back to a default cap - null
@@ -16,9 +21,6 @@
             'date_year' => $agenda->starts_at->format('Y'),
             'location' => $agenda->location,
             'time' => $agenda->starts_at->format('H:i'),
-            'url' => \Illuminate\Support\Facades\Route::has('tenant.agendas.show')
-                ? route('tenant.agendas.show', ['organization_slug' => $organization->slug, 'agenda' => $agenda->id])
-                : '#',
         ])
         // array_fill's placeholder-card count only needs a number when there's neither a real
         // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's
@@ -41,8 +43,7 @@
         </div>
         <div class="space-y-4">
             @foreach ($items as $item)
-                <a href="{{ $item['url'] ?? '#' }}"
-                   class="reveal bg-white rounded-brand p-5 flex items-center gap-5 shadow-soft transition-all duration-300 hover:shadow-float hover:-translate-y-0.5"
+                <div class="reveal bg-white rounded-brand p-5 flex items-center gap-5 shadow-soft"
                    style="transition-delay: {{ $loop->index * 80 }}ms">
                     <div class="w-14 h-14 shrink-0 rounded-brand bg-secondary text-white flex flex-col items-center justify-center leading-none">
                         <span class="text-lg font-extrabold">{{ $item['date_day'] ?? (10 + $loop->iteration) }}</span>
@@ -56,7 +57,7 @@
                             @if (! empty($item['time'])) &middot; {{ $item['time'] }} @endif
                         </p>
                     </div>
-                </a>
+                </div>
             @endforeach
         </div>
     </div>

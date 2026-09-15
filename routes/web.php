@@ -75,6 +75,15 @@ Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('
 
 Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
 
+// Registered before the {page?} catch-all below so 'berita'/'donasi' aren't swallowed as a page
+// slug - these are the same "detail berita"/"detail donasi" links every section partial already
+// builds for a real organization, made to work from the template catalog's public preview too
+// (see TemplatePreviewController::post()/donationProgram() for why a sandbox org is the source).
+Route::get('/templates/{template:slug}/preview/berita/{post_slug}', [TemplatePreviewController::class, 'post'])
+    ->name('templates.preview.post');
+Route::get('/templates/{template:slug}/preview/donasi/{program_slug}', [TemplatePreviewController::class, 'donationProgram'])
+    ->name('templates.preview.donation');
+
 Route::get('/templates/{template:slug}/preview/{page?}', [TemplatePreviewController::class, 'show'])
     ->name('templates.preview');
 

@@ -43,7 +43,11 @@
             : ['image' => $item, 'caption' => null];
     })->values();
 
-    $hasMore = isset($organization) && $limit !== null && $photos->count() > $limit;
+    // "Muat Lebih Banyak" fetches from tenant.galleries.load-more, which only resolves a real,
+    // published, non-sandbox organization - so in template-preview context (sandbox org, never
+    // published) the button would only ever 404. See daftar-berita/standar.blade.php's matching
+    // comment for the same reasoning.
+    $hasMore = isset($organization) && ! request()->routeIs('templates.preview*') && $limit !== null && $photos->count() > $limit;
     $photos = $hasMore ? $photos->take($limit)->values() : $photos;
 @endphp
 

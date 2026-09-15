@@ -34,9 +34,16 @@
         : null;
 
     $donationsPage = $organization->pages->firstWhere('slug', 'donasi');
-    $isPreview = request()->routeIs('organizations.preview*');
 
-    if ($isPreview) {
+    if (request()->routeIs('templates.preview*')) {
+        // Template-catalog preview (TemplatePreviewController) - stay inside that flow rather
+        // than bouncing onto organizations.preview (owner-only, 403s for this public route) or
+        // the tenant subdomain (sandbox orgs are never published, so publishedOrganization()
+        // would 404 it anyway - see OrganizationSiteController::publishedOrganization()).
+        $backHref = $donationsPage
+            ? route('templates.preview', ['template' => $organization->template, 'page' => $donationsPage->slug])
+            : route('templates.preview', $organization->template);
+    } elseif (request()->routeIs('organizations.preview*')) {
         // Stay inside the preview flow rather than bouncing the owner onto the tenant
         // subdomain, which isn't routable in local dev.
         $backHref = $donationsPage

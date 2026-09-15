@@ -312,10 +312,17 @@ class Organization extends Model
      * plan_expires_at stays null until a PlanChangeRequest for it is actually approved. This
      * is what plan_expires_at === null really means - "never paid" - as opposed to
      * planIsExpired()'s "was paid, that period lapsed."
+     *
+     * Sandbox organizations (TemplateSandboxService) are exempt: they aren't real tenants and
+     * were never meant to be billed - they exist only so an admin can design a Template through
+     * the normal builder, then get shown to public visitors previewing that template
+     * (TemplatePreviewController). Without this, every sandbox reads as "never paid" and
+     * planViolations()/violatesPlanRules() would surface a payment-nag banner on public
+     * template previews, which makes no sense for content nobody is meant to pay for.
      */
     public function hasPaidForCurrentPlan(): bool
     {
-        return $this->plan_expires_at !== null && $this->plan_expires_at->isFuture();
+        return $this->is_sandbox || ($this->plan_expires_at !== null && $this->plan_expires_at->isFuture());
     }
 
     /**

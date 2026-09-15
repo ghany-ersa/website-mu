@@ -117,6 +117,12 @@
                     'template' => $template,
                     'previewPages' => $pages,
                     'previewCurrentPage' => $currentPage,
+                    // The template's sandbox organization, if one exists yet (see
+                    // TemplatePreviewController::show()) - lets CMS-backed sections
+                    // (daftar-berita, donasi-progress, galeri, ...) render real seeded sample
+                    // rows and working detail links via their existing isset($organization)
+                    // branch, instead of the static content.items JSON fallback.
+                    'organization' => $organization,
                 ])
             </div>
         @endforeach

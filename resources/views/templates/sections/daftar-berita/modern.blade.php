@@ -24,9 +24,11 @@
             'category' => $post->category,
             'date' => $post->published_at?->translatedFormat('d M Y'),
             'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->body), 140),
-            'url' => \Illuminate\Support\Facades\Route::has('tenant.posts.show')
-                ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
-                : '#',
+            'url' => match (true) {
+                request()->routeIs('templates.preview*') => route('templates.preview.post', ['template' => $organization->template, 'post_slug' => $post->slug]),
+                \Illuminate\Support\Facades\Route::has('tenant.posts.show') => route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug]),
+                default => '#',
+            },
         ])
         // array_fill's placeholder-card count only needs a number when there's neither a real
         // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's

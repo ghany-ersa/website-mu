@@ -1,6 +1,21 @@
+@php
+    // See _donation-program-body.blade.php's matching comment for why this isn't just
+    // route('tenant.home', ...) unconditionally - that only resolves a real, published,
+    // non-sandbox organization's subdomain, which 404s (or isn't even registered) for both the
+    // owner-preview and template-catalog-preview contexts this partial also renders in.
+    if (request()->routeIs('templates.preview*')) {
+        $backHref = route('templates.preview', $organization->template);
+    } elseif (request()->routeIs('organizations.preview*')) {
+        $backHref = route('organizations.preview', $organization);
+    } else {
+        $backHref = \Illuminate\Support\Facades\Route::has('tenant.home')
+            ? route('tenant.home', ['organization_slug' => $organization->slug])
+            : '#';
+    }
+@endphp
 <article class="py-16" @if ($post->image) x-data="{ lightboxOpen: false, activeIndex: 0, photos: {{ Js::from([['image' => $post->image, 'caption' => null]]) }} }" @endif>
     <div class="max-w-3xl mx-auto px-6">
-        <a href="{{ route('tenant.home', ['organization_slug' => $organization->slug]) }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
+        <a href="{{ $backHref }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
 
         <div class="flex items-center gap-2 mt-6 mb-2">
             @if ($post->category)

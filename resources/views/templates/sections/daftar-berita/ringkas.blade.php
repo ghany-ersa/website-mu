@@ -41,15 +41,22 @@
             'category' => $post->category,
             'date' => $post->published_at?->translatedFormat('d M Y'),
             'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->body), 140),
-            'url' => \Illuminate\Support\Facades\Route::has('tenant.posts.show')
-                ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
-                : '#',
+            'url' => match (true) {
+                request()->routeIs('templates.preview*') => route('templates.preview.post', ['template' => $organization->template, 'post_slug' => $post->slug]),
+                \Illuminate\Support\Facades\Route::has('tenant.posts.show') => route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug]),
+                default => '#',
+            },
         ])
         // array_fill's placeholder-card count only needs a number when there's neither a real
         // `items` sample list nor a `limit` to size it by - 6 keeps that specific edge case's
         // look unchanged; it never caps a real (or genuinely limitless) `items` list.
         : collect($content['items'] ?? array_fill(0, $limit ?? 6, []))->take($limit);
-    $hasMore = isset($organization) && $limit !== null && $items->count() > $limit;
+    // "Muat Lebih Banyak" fetches from tenant.posts.load-more, which only resolves a real,
+    // published, non-sandbox organization (OrganizationSiteController::publishedOrganization()) -
+    // so in template-preview context (sandbox org, never published) the button would only ever
+    // 404. Preview simply shows its first batch with no button, rather than offering one that
+    // can't work.
+    $hasMore = isset($organization) && ! request()->routeIs('templates.preview*') && $limit !== null && $items->count() > $limit;
     $items = $hasMore ? $items->take($limit) : $items;
 @endphp
 

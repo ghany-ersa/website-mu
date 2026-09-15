@@ -28,14 +28,15 @@
                 'percent' => $program->progressPercent(),
                 'status' => $program->status(),
                 // On the real tenant site this links to the program's own subdomain URL; when
-                // the same section is rendered from the main app domain (owner preview, or
-                // local dev where wildcard subdomains aren't routable) it points at the
-                // equivalent preview route instead, so the card is never a dead end.
-                'url' => request()->routeIs('organizations.preview*', 'organizations.builder*')
-                    ? route('organizations.preview.donation', ['organization' => $organization, 'program' => $program])
-                    : (\Illuminate\Support\Facades\Route::has('tenant.donations.show')
-                        ? route('tenant.donations.show', ['organization_slug' => $organization->slug, 'program_slug' => $program->slug])
-                        : null),
+                // the same section is rendered from the main app domain (owner preview, template
+                // catalog preview, or local dev where wildcard subdomains aren't routable) it
+                // points at the equivalent preview route instead, so the card is never a dead end.
+                'url' => match (true) {
+                    request()->routeIs('templates.preview*') => route('templates.preview.donation', ['template' => $organization->template, 'program_slug' => $program->slug]),
+                    request()->routeIs('organizations.preview*', 'organizations.builder*') => route('organizations.preview.donation', ['organization' => $organization, 'program' => $program]),
+                    \Illuminate\Support\Facades\Route::has('tenant.donations.show') => route('tenant.donations.show', ['organization_slug' => $organization->slug, 'program_slug' => $program->slug]),
+                    default => null,
+                },
             ])
         : ($content['items'] ?? [
             ['name' => 'Wakaf Pembangunan Masjid', 'cover_photo' => null, 'target_amount' => 100_000_000, 'collected_amount' => 68_000_000, 'percent' => 68, 'status' => 'active'],
