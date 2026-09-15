@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/richtext.css',
                 'resources/js/app.js',
+                'resources/js/account.js',
                 'resources/js/admin.js',
                 'resources/js/builder.js',
                 'resources/js/organization.js',

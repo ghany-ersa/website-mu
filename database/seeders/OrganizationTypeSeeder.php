@@ -31,10 +31,10 @@ class OrganizationTypeSeeder extends Seeder
     public function run(): void
     {
         $types = [
-            [OrganizationCategory::Organisasi, [
-                'Muhammadiyah' => 'Muhammadiyah',
-                'Aisyiyah' => 'Aisyiyah',
-            ]],
+            // [OrganizationCategory::Organisasi, [
+            //     'Muhammadiyah' => 'Muhammadiyah',
+            //     'Aisyiyah' => 'Aisyiyah',
+            // ]],
             [OrganizationCategory::Aum, [
                 'Klinik/Rumah Sakit' => 'Klinik/Rumah Sakit',
                 'Media/Portal Berita' => 'Media/Portal Berita',

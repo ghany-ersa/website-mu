@@ -48,6 +48,7 @@ class OrganizationController extends Controller
         return view('organizations.create', [
             'organizationTypes' => OrganizationType::orderBy('name')->get(),
             'selectedTemplate' => $selectedTemplate,
+            'hasSeenCreateTour' => Auth::user()->hasSeenOnboardingTour('create'),
         ]);
     }
 

@@ -6,8 +6,12 @@
     <title>@yield('title', 'Website-mu')</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/account.js'])
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+    <script>
+        window.csrfToken = @json(csrf_token());
+        window.onboardingTourUrl = @json(route('onboarding-tours.store'));
+    </script>
 </head>
 <body class="bg-softBg text-gray-800 min-h-screen lg:flex">
 
@@ -77,6 +81,8 @@
 
         @yield('content')
     </main>
+
+    @stack('scripts')
 
 </body>
 </html>

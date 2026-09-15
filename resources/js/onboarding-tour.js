@@ -3,6 +3,38 @@ import 'driver.js/dist/driver.css';
 import '../css/onboarding-tour.css';
 
 const TOUR_STEPS = {
+    create: [
+        {
+            popover: {
+                title: 'Membuat Organisasi',
+                description: 'Sebelum lanjut, kenali dulu beberapa istilah di form ini supaya organisasi Anda tersiapkan dengan benar sejak awal.',
+            },
+        },
+        {
+            element: '#organization_type_id',
+            popover: {
+                title: 'Jenis Organisasi',
+                description: 'Pilih jenis yang paling sesuai. Ini menentukan template dan bagian konten yang tersedia untuk situs Anda nantinya.',
+                side: 'bottom',
+            },
+        },
+        {
+            element: '#slug',
+            popover: {
+                title: 'Slug (Subdomain)',
+                description: 'Ini adalah alamat website organisasi Anda, misalnya pcm-ambulu.website-mu.id. Pengunjung akan mengetik alamat ini untuk membuka situs Anda - pilih yang singkat dan mudah diingat.',
+                side: 'bottom',
+            },
+        },
+        {
+            element: '#description',
+            popover: {
+                title: 'Deskripsi',
+                description: 'Ringkasan singkat tentang organisasi Anda. Teks ini bisa tampil di halaman situs (mis. bagian "Tentang Kami") dan membantu pengunjung memahami siapa Anda - bukan sekadar catatan internal.',
+                side: 'top',
+            },
+        },
+    ],
     dashboard: [
         {
             popover: {
@@ -15,6 +47,22 @@ const TOUR_STEPS = {
             popover: {
                 title: 'Langkah Awal',
                 description: '4 langkah ini membantu situs Anda siap dipublikasikan: atur brand, isi kontak, susun halaman, lalu publish.',
+                side: 'bottom',
+            },
+        },
+        {
+            element: '#btn-brand-settings',
+            popover: {
+                title: 'Brand Settings',
+                description: 'Atur logo, warna, font, dan gaya sudut situs Anda di sini - juga tempat mengisi kontak (telepon, WhatsApp, email, alamat) dan tautan media sosial yang tampil di situs.',
+                side: 'bottom',
+            },
+        },
+        {
+            element: '#btn-edit-organization',
+            popover: {
+                title: 'Edit Organisasi',
+                description: 'Ubah nama, subdomain (alamat website), dan deskripsi organisasi Anda kapan saja dari sini - termasuk kalau ingin mengganti subdomain yang sudah dipilih saat pertama membuat organisasi.',
                 side: 'bottom',
             },
         },

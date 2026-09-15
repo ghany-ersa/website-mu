@@ -4,7 +4,18 @@
 
 @section('content')
     <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-extrabold text-primary mb-2">Buat Organisasi Baru</h1>
+        <div class="flex items-start justify-between gap-3 mb-2">
+            <h1 class="text-2xl font-extrabold text-primary">Buat Organisasi Baru</h1>
+            <button type="button" id="btn-create-tour" onclick="window.startOnboardingTour('create')"
+                title="Lihat penjelasan form ini"
+                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-primary hover:bg-gray-100 transition shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
         <p class="text-sm text-gray-500 mb-8">Lengkapi detail organisasi Anda di bawah ini.</p>
 
         @if ($selectedTemplate)
@@ -104,4 +115,12 @@
             });
         })();
     </script>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.autoStartOnboardingTour('create', @json($hasSeenCreateTour));
+            });
+        </script>
+    @endpush
 @endsection
