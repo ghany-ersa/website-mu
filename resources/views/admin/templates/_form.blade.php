@@ -45,37 +45,63 @@
                   class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('description', $template->description ?? '') }}</textarea>
     </div>
 
-    <div x-data="{ preview: null, name: null }">
+    {{--
+        Same visual language as <x-form.image-picker> (preview card, "Pilih/Ganti Gambar"
+        button, drag-and-drop) for consistency with the rest of the admin/organization forms,
+        but stays a plain form-submit upload rather than that component's separate AJAX
+        picker+gallery: a Template is platform-level (no owning Organization), and
+        image-picker's gallery is backed by an organization's own media library
+        (organizations.media.index) - there's no equivalent "platform media library" to browse,
+        so a fresh upload each time is the right scope here, not a missing feature.
+    --}}
+    <div x-data="{
+            preview: @js($template?->thumbnailUrl()),
+            hasExisting: @js((bool) $template?->thumbnail_path),
+            removed: false,
+            dragOver: false,
+            fileName: null,
+            onFile(file) {
+                if (! file) return;
+                this.preview = URL.createObjectURL(file);
+                this.fileName = file.name;
+                this.removed = false;
+            },
+         }">
         <label class="block text-sm font-semibold text-gray-700 mb-1" for="thumbnail">Thumbnail</label>
 
         <div class="flex flex-col sm:flex-row sm:items-start gap-4">
-            {{-- Current image, or the newly picked file once one is chosen. --}}
-            <div class="w-full sm:w-40 shrink-0 aspect-[4/3] rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
-                <template x-if="preview">
-                    <img :src="preview" alt="Pratinjau thumbnail" class="w-full h-full object-cover">
-                </template>
-                <div x-show="! preview" class="w-full h-full">
-                    @if ($template?->thumbnailUrl())
-                        <img src="{{ $template->thumbnailUrl() }}" alt="{{ $template->name }}" class="w-full h-full object-cover">
-                    @else
-                        <div class="w-full h-full flex items-center justify-center text-gray-300 text-xs">Belum ada</div>
-                    @endif
-                </div>
+            <div class="w-full sm:w-48 shrink-0 aspect-[4/3] rounded-xl border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center"
+                 x-show="preview && ! removed" x-cloak>
+                <img :src="preview" alt="Pratinjau thumbnail" class="w-full h-full object-cover">
+            </div>
+            <div x-show="! preview || removed"
+                 class="w-full sm:w-48 shrink-0 aspect-[4/3] rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-300 text-xs">
+                Belum ada
             </div>
 
             <div class="flex-1 min-w-0">
-                <input type="file" name="thumbnail" id="thumbnail" accept="image/*"
-                       x-on:change="const f = $event.target.files[0]; name = f?.name ?? null; preview = f ? URL.createObjectURL(f) : null"
-                       class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:text-sm file:font-semibold hover:file:bg-primary/20 file:cursor-pointer">
-                <p class="text-xs text-gray-400 mt-1.5">JPG, PNG, atau WebP. Maksimal 5 MB — otomatis dikecilkan dan dikonversi ke WebP.</p>
+                <label
+                    class="flex flex-col items-center justify-center gap-1.5 border-2 border-dashed rounded-xl py-6 cursor-pointer transition text-center"
+                    :class="dragOver ? 'border-primary/40 bg-primary/5' : 'border-gray-200 hover:border-primary/40 hover:bg-primary/5'"
+                    @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
+                    @drop.prevent="dragOver = false; $refs.thumbnailInput.files = $event.dataTransfer.files; onFile($event.dataTransfer.files[0])">
+                    <span class="text-sm font-semibold text-gray-600" x-text="preview && ! removed ? 'Ganti Gambar' : 'Pilih Gambar'"></span>
+                    <span class="text-xs text-gray-400" x-text="fileName ?? 'JPG, PNG, atau WebP. Maks 5 MB.'"></span>
+                    <input type="file" name="thumbnail" id="thumbnail" x-ref="thumbnailInput" accept="image/*" class="hidden"
+                           @change="onFile($event.target.files[0])">
+                </label>
+                <p class="text-xs text-gray-400 mt-1.5">Otomatis dikecilkan dan dikonversi ke WebP.</p>
 
-                @if ($template?->thumbnail_path)
-                    <label class="inline-flex items-center gap-2 mt-3 text-sm text-gray-600">
-                        <input type="checkbox" name="remove_thumbnail" value="1"
-                               class="rounded border-gray-300 text-primary focus:ring-primary/30">
-                        Hapus thumbnail saat ini
-                    </label>
-                @endif
+                <button type="button" x-show="hasExisting && ! removed" x-cloak
+                        @click="removed = true; preview = null; fileName = null; $refs.thumbnailInput.value = ''"
+                        class="mt-3 text-sm text-gray-400 hover:text-red-500 transition">
+                    Hapus thumbnail saat ini
+                </button>
+                <input type="hidden" name="remove_thumbnail" :value="removed ? '1' : '0'">
+
+                @error('thumbnail')
+                    <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>

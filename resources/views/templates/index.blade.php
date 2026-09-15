@@ -48,21 +48,9 @@
         </div>
 
         @php
-            $templateImages = [
-                'muhammadiyah' => 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&w=800&q=80',
-                'muhammadiyah-eksekutif' => 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?auto=format&fit=crop&w=800&q=80',
-                'aum-pendidikan' => 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
-                'aum-kesehatan-sosial' => 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
-                'nasyiatul-aisyiyah' => 'https://images.unsplash.com/photo-1594708767771-a7502209ff51?auto=format&fit=crop&w=800&q=80',
-                'pemuda-muhammadiyah' => 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&w=800&q=80',
-                'tapak-suci' => 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
-                'hizbul-wathan' => 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
-                'imm' => 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80',
-                'aisyiyah' => 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
-                'aum-sosial' => 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=800&q=80',
-                'masjid-mushola' => 'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80',
-                'ipm' => 'https://images.unsplash.com/photo-1555431189-0fabf2667795?auto=format&fit=crop&w=800&q=80',
-            ];
+            // Stock-photo fallback for a template with no thumbnail uploaded yet
+            // (Admin\TemplateController) - real templates take priority via
+            // $template->thumbnailUrl() below.
             $defaultImage = 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80';
         @endphp
 
@@ -75,18 +63,20 @@
                             Eksklusif
                         </span>
                     @endif
-                    <div class="relative overflow-hidden h-56 bg-gray-100">
-                        <img src="{{ $templateImages[$template->slug] ?? $defaultImage }}" alt="Template {{ $template->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <a href="{{ route('templates.preview', $template->slug) }}" class="relative overflow-hidden h-56 bg-gray-100 block">
+                        <img src="{{ $template->thumbnailUrl() ?? $defaultImage }}" alt="Template {{ $template->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <span class="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">{{ $template->organizationType->name ?? $template->name }}</span>
-                    </div>
+                    </a>
                     <div class="p-6 flex-1 flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $template->name }}</h3>
-                            <p class="text-gray-500 text-sm mb-6">{{ $template->description }}</p>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">
+                                <a href="{{ route('templates.preview', $template->slug) }}" class="hover:text-primary transition">{{ $template->name }}</a>
+                            </h3>
+                            <a href="{{ route('templates.preview', $template->slug) }}" class="block text-gray-500 text-sm mb-6 hover:text-gray-700 transition">{{ $template->description }}</a>
                         </div>
                         <div class="flex items-center justify-between border-t border-gray-100 pt-4 gap-2">
                             @if ($template->is_exclusive)
-                                <a href="{{ route('templates.preview', $template->slug) }}" class="w-full text-center bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition">Lihat Detail Template</a>
+                                <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat Preview</a>
                             @else
                                 <a href="{{ route('templates.preview', $template->slug) }}" target="_blank" class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat Preview</a>
                                 <a href="{{ route('templates.use', $template->slug) }}" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">Gunakan Template</a>
