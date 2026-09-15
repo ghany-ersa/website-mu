@@ -11,10 +11,10 @@ const TOUR_STEPS = {
             },
         },
         {
-            element: '#organization_type_id',
+            element: '#selected-template',
             popover: {
-                title: 'Jenis Organisasi',
-                description: 'Pilih jenis yang paling sesuai. Ini menentukan template dan bagian konten yang tersedia untuk situs Anda nantinya.',
+                title: 'Template Pilihan Anda',
+                description: 'Tampilan awal situs Anda mengikuti template ini, termasuk warna dan bagian-bagian halamannya. Semuanya masih bisa diubah nanti, dan templatenya sendiri bisa diganti kapan saja lewat "Ganti".',
                 side: 'bottom',
             },
         },

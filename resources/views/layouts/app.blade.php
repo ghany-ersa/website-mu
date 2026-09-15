@@ -21,7 +21,7 @@
             <nav class="hidden md:flex items-center gap-5 text-sm font-medium">
                 @auth
                     <a href="{{ route('organizations.index') }}" class="text-gray-600 hover:text-primary transition-colors">Organisasi Saya</a>
-                    <a href="{{ route('organizations.create') }}" class="text-gray-600 hover:text-primary transition-colors">+ Buat Organisasi</a>
+                    <a href="{{ route('organizations.template-picker') }}" class="text-gray-600 hover:text-primary transition-colors">+ Buat Organisasi</a>
                     @if (auth()->user()->is_admin)
                         <a href="{{ route('admin.templates.index') }}" class="text-gray-600 hover:text-primary transition-colors">Admin</a>
                     @endif
@@ -66,7 +66,7 @@
             @auth
                 <span class="px-3 py-2 text-xs uppercase tracking-wide text-gray-400">{{ auth()->user()->name }}</span>
                 <a href="{{ route('organizations.index') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">Organisasi Saya</a>
-                <a href="{{ route('organizations.create') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">+ Buat Organisasi</a>
+                <a href="{{ route('organizations.template-picker') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">+ Buat Organisasi</a>
                 @if (auth()->user()->is_admin)
                     <a href="{{ route('admin.templates.index') }}" class="px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">Admin</a>
                 @endif

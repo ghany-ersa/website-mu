@@ -19,14 +19,14 @@ class OrganizationBrandTest extends TestCase
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
-        Template::factory()->create([
+        $template = Template::factory()->create([
             'organization_type_id' => $type->id,
             'is_active' => true,
             'structure' => ['brand' => ['primary' => '#123456', 'secondary' => '#abcdef']],
         ]);
 
         $this->actingAs($user)->post(route('organizations.store'), [
-            'organization_type_id' => $type->id,
+            'template_id' => $template->id,
             'name' => 'Brand Test Org',
             'slug' => 'brand-test-org-'.uniqid(),
         ])->assertRedirect();
@@ -194,9 +194,10 @@ class OrganizationBrandTest extends TestCase
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
+        $template = Template::factory()->create(['organization_type_id' => $type->id, 'is_active' => true]);
 
         $this->actingAs($user)->post(route('organizations.store'), [
-            'organization_type_id' => $type->id,
+            'template_id' => $template->id,
             'name' => 'White Brand Org',
             'slug' => 'white-brand-org-'.uniqid(),
             'secondary_color' => '#FFFFFF',

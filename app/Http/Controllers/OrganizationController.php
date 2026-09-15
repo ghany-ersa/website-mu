@@ -6,7 +6,6 @@ use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Models\Organization;
-use App\Models\OrganizationType;
 use App\Models\Template;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,27 +25,68 @@ class OrganizationController extends Controller
     }
 
     /**
-     * Show the form for creating a new organization.
+     * Step 1 of creating an organization: pick a template.
      *
-     * Accepts an optional ?template=slug (set by TemplateUseController's "Gunakan
-     * Template" flow) to pre-select the template and its matching organization type.
+     * This replaced an "organization type" dropdown on the create form. That field's only real
+     * job was guessing a template for the user, which meant answering an abstract question to
+     * settle a decision they never saw; the organization's type is now derived from the template
+     * instead (see StoreOrganizationRequest::prepareForValidation()).
      *
-     * Excludes Template::is_exclusive templates: every new organization is created on the
-     * Starter plan (see store()), which never has has_exclusive_templates, so an exclusive
-     * template can never legitimately be picked here - falling through to null instead of
-     * pre-selecting one avoids a dead-end where the form looks fine but submission always
-     * fails validation (see StoreOrganizationRequest::exclusiveTemplateIds()).
+     * Exclusive templates are listed but rendered locked rather than filtered out. Every new
+     * organization starts on Starter (see store()), so none of them is selectable here and the
+     * gating is static - unlike OrganizationTemplateController::edit(), which checks the existing
+     * organization's plan. Showing them locked is deliberate: hiding them made "Gunakan Template"
+     * on an exclusive catalog card land on a form with nothing pre-selected and no explanation.
+     *
+     * Templates with no organization_type_id are excluded outright: organizations.organization_type_id
+     * is NOT NULL, so one of these could never produce a valid organization (see
+     * StoreOrganizationRequest::typelessTemplateIds()).
      */
-    public function create(Request $request): View
+    public function createTemplate(): View
+    {
+        $this->authorize('create', Organization::class);
+
+        return view('organizations.create-template', [
+            'templates' => Template::query()
+                ->with('organizationType')
+                ->where('is_active', true)
+                ->whereNotNull('organization_type_id')
+                ->orderBy('is_exclusive')
+                ->orderBy('name')
+                ->get(),
+        ]);
+    }
+
+    /**
+     * Step 2 of creating an organization: the identity form (name/slug/region/description).
+     *
+     * Requires ?template=slug, set either by step 1 above or by TemplateUseController's "Gunakan
+     * Template" flow (which skips step 1 - a user who already picked a template in the public
+     * catalog shouldn't be asked to pick again). Anything unusable - missing, unknown, inactive,
+     * exclusive, or typeless - sends the user back to step 1 rather than rendering a form whose
+     * submission is guaranteed to fail validation.
+     */
+    public function create(Request $request): View|RedirectResponse
     {
         $this->authorize('create', Organization::class);
 
         $selectedTemplate = $request->filled('template')
-            ? Template::where('slug', $request->query('template'))->where('is_active', true)->where('is_exclusive', false)->first()
+            ? Template::where('slug', $request->query('template'))
+                ->where('is_active', true)
+                ->where('is_exclusive', false)
+                ->whereNotNull('organization_type_id')
+                ->first()
             : null;
 
+        if (! $selectedTemplate) {
+            return redirect()
+                ->route('organizations.template-picker')
+                ->with('error', $request->filled('template')
+                    ? 'Template tersebut tidak tersedia. Silakan pilih template lain.'
+                    : null);
+        }
+
         return view('organizations.create', [
-            'organizationTypes' => OrganizationType::orderBy('name')->get(),
             'selectedTemplate' => $selectedTemplate,
             'hasSeenCreateTour' => Auth::user()->hasSeenOnboardingTour('create'),
         ]);

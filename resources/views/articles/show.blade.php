@@ -37,7 +37,7 @@
 </head>
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 
-    @php $ctaUrl = auth()->check() ? route('organizations.create') : route('login'); @endphp
+    @php $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('login'); @endphp
 
     <!-- Floating Navbar -->
     <div class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4">

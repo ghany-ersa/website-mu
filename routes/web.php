@@ -101,6 +101,17 @@ Route::middleware('auth')->group(function () {
     Route::post('onboarding-tours', [OnboardingTourController::class, 'store'])
         ->name('onboarding-tours.store');
 
+    // Step 1 of organization creation (the template picker); the resource route's `create` below
+    // is step 2 and redirects here unless it carries a usable ?template=slug. Declared first so
+    // 'create/template' isn't captured by the resource's own routes.
+    //
+    // Named 'organizations.template-picker' rather than 'organizations.create.template': the
+    // latter made route('organizations.create', ['template' => $slug]) silently drop the query
+    // string, because the generator resolved the name+parameter pair to this route's path instead
+    // of appending ?template= to step 2's URL - which broke every "Gunakan Template" link.
+    Route::get('organizations/create/template', [OrganizationController::class, 'createTemplate'])
+        ->name('organizations.template-picker');
+
     Route::resource('organizations', OrganizationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
     Route::patch('organizations/{organization}/publish', [OrganizationController::class, 'publish'])
