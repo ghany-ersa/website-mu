@@ -112,8 +112,15 @@ class MasjidNurulHudaTemplateTest extends TestCase
         );
 
         $this->assertSame('Halaman dan Teras Depan', $organization->facilities()->first()->name);
-        // 12, not 13: the live site no longer publishes the Perpustakaan photo.
-        $this->assertSame(12, $organization->facilities()->count());
+        // The source list runs to 12 (not 13 - the live site no longer publishes the Perpustakaan
+        // photo), but cloning seeds only CmsSampleDataSeeder::MAX_SAMPLES_PER_RESOURCE of them as
+        // a starting point. What this pins is that the ones kept are the FIRST of the real list,
+        // in the source project's order - not a generic placeholder and not an arbitrary slice.
+        $this->assertSame(3, $organization->facilities()->count());
+        $this->assertSame(
+            ['Halaman dan Teras Depan', 'Parkiran Utama', 'Taman dan Kolam Masjid'],
+            $organization->facilities()->pluck('name')->all(),
+        );
 
         $flagship = $organization->donationPrograms()->where('name', 'Wakaf Pembangunan Masjid')->firstOrFail();
         $this->assertSame(1_175_600_000, (int) $flagship->target_amount);

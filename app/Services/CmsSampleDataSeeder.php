@@ -37,7 +37,8 @@ use Illuminate\Support\Carbon;
  * template's sections - never touches an organization that already has any of a given
  * table's rows, so it can't clobber real content a user has since replaced or deleted.
  *
- * Every sample count below is capped to the organization's own plan limit (see
+ * Every sample count below is capped to MAX_SAMPLES_PER_RESOURCE and, on top of that, to the
+ * organization's own plan limit (see
  * PlanLimitService::effectiveLimit()) - every organization is created on the Starter plan
  * (see OrganizationController::store()), whose limits are tighter than these samples'
  * original fixed counts (e.g. 3 announcements vs. Starter's limit of 2), so seeding the
@@ -48,6 +49,25 @@ use Illuminate\Support\Carbon;
  */
 class CmsSampleDataSeeder
 {
+    /**
+     * Hard ceiling on how many sample rows any single CMS resource gets when a template is
+     * cloned, applied on top of (never instead of) the plan limit - sampleCount() takes the
+     * smaller of the two.
+     *
+     * The showcase templates carry far longer lists than a starting point needs - Suara
+     * Muhammadiyah's timRedaksi() alone is 16 officers - and a plan generous enough to accept
+     * all of them (Professional allows 20) meant a new organization opened its builder facing a
+     * wall of someone else's content to delete before it could enter its own. Three is enough to
+     * show what a section looks like filled in, in every section's layout, while staying small
+     * enough to clear out. The full lists still exist for the public template previews, which
+     * render from Template::structure and never come through here.
+     *
+     * A resource whose plan limit is TIGHTER than this keeps its limit (Starter allows 2
+     * announcements, 1 donation program), so cloning still can't leave an organization in
+     * violation of its own plan - see Organization::planViolations().
+     */
+    private const MAX_SAMPLES_PER_RESOURCE = 3;
+
     /**
      * Template slugs this seeder has faithful, named sample data for (ported from the
      * standalone nurul-huda project's MasjidContentSeeder) - seedAgendas()/seedOfficers()
@@ -287,16 +307,20 @@ class CmsSampleDataSeeder
     }
 
     /**
-     * How many of a fixed sample list to actually insert: the smaller of the list's own
-     * length and the organization's plan limit for that resource key, or the full list when
-     * the plan has no limit (null = unlimited). Never negative - a limit of 0 (or an
-     * organization already somehow past it) yields 0, i.e. skip entirely.
+     * How many of a fixed sample list to actually insert: the smallest of the list's own length,
+     * MAX_SAMPLES_PER_RESOURCE, and the organization's plan limit for that resource key (null =
+     * unlimited, so only the first two apply). Never negative - a limit of 0 (or an organization
+     * already somehow past it) yields 0, i.e. skip entirely.
      */
     private static function sampleCount(Organization $organization, PlanLimitService $limits, string $key, int $available): int
     {
         $limit = $limits->effectiveLimit($organization, $key);
 
-        return $limit === null ? $available : max(0, min($available, $limit));
+        $ceiling = $limit === null
+            ? self::MAX_SAMPLES_PER_RESOURCE
+            : min($limit, self::MAX_SAMPLES_PER_RESOURCE);
+
+        return max(0, min($available, $ceiling));
     }
 
     /**
@@ -512,8 +536,10 @@ class CmsSampleDataSeeder
 
     /**
      * Not plan-limited: 'jaringan-aum-ortom' isn't a PlanLimitService resource key (it has no
-     * per-plan quota, unlike the CMS resources above), so there's no limit to cap this
-     * against - $customSamples is inserted in full.
+     * per-plan quota, unlike the CMS resources above), so it can't go through sampleCount().
+     * MAX_SAMPLES_PER_RESOURCE is still applied directly - the showcase lists run to five and six
+     * entries, and leaving the one resource without a quota as the only one cloning in full is
+     * the inconsistency the cap exists to remove.
      *
      * @param  array<int, array{name: string, type?: string|null}>|null  $customSamples
      */
@@ -527,6 +553,8 @@ class CmsSampleDataSeeder
             fn (int $index) => ['name' => '[Nama AUM/Ortom '.$index.']', 'type' => null],
             range(1, 3),
         );
+
+        $samples = array_slice($samples, 0, self::MAX_SAMPLES_PER_RESOURCE);
 
         if ($samples === []) {
             return;
