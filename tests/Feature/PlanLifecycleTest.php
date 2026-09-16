@@ -174,6 +174,45 @@ class PlanLifecycleTest extends TestCase
         $this->assertSame(1, DiscountCode::first()->used_count);
     }
 
+    /**
+     * A real browser posts every field as a string, and validation's 'integer' rule only checks
+     * the value - it does not convert it. So the fully-discounted path, which approves the
+     * just-built request without re-reading it from the database, used to reach
+     * Carbon::addMonths("12") and die with a TypeError on PHP 8.4. The sibling test above passes
+     * a PHP int, which is why it never caught this.
+     */
+    public function test_a_voucher_covering_the_full_price_handles_string_form_input(): void
+    {
+        $owner = User::factory()->create();
+        $organization = Organization::factory()->withOwner($owner)->create();
+        $plan = $this->plan('uji-gratis-string', 18_000);
+
+        DiscountCode::create([
+            'code' => 'GRATIS100',
+            'type' => DiscountCodeType::Percent,
+            'value' => 100,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($owner)->post(route('organizations.plan.store', $organization), [
+            'plan_id' => (string) $plan->id,
+            'duration_months' => '12',
+            'discount_code' => 'GRATIS100',
+        ])->assertRedirect(route('organizations.plan.edit', $organization));
+
+        $organization->refresh();
+        $request = $organization->planChangeRequests()->first();
+
+        $this->assertSame(PlanChangeRequestStatus::Approved, $request->status);
+        $this->assertSame(12, $request->duration_months, 'The cast turns form input into an int.');
+        $this->assertNotNull($organization->plan_expires_at);
+        $this->assertSame(
+            12,
+            (int) round(now()->diffInMonths($organization->plan_expires_at)),
+            'A 12-month purchase must buy 12 months.',
+        );
+    }
+
     public function test_a_second_request_is_blocked_while_one_is_pending(): void
     {
         config(['billing.manual_transfer.only' => true]);

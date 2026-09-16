@@ -26,6 +26,16 @@ class PlanChangeRequest extends Model
             'payment_confirmed_at' => 'datetime',
             'limits_snapshot' => 'array',
             'midtrans_paid_at' => 'datetime',
+            // Cast even though the column is an unsignedTinyInteger: a request built straight from
+            // form input holds the raw string "12" until it is re-read from the database, and
+            // PlanChangeRequestService::approve() does Carbon::addMonths($this->duration_months) on
+            // exactly such an unrefreshed instance in the fully-discounted auto-approve path -
+            // which is a TypeError on PHP 8.4. Validation's 'integer' rule checks the value, it
+            // does not convert it. discount_amount is cast for the same reason: it feeds the
+            // arithmetic in totalPrice()/gatewayAmount().
+            'duration_months' => 'integer',
+            'discount_amount' => 'integer',
+            'approve_attempts' => 'integer',
         ];
     }
 
