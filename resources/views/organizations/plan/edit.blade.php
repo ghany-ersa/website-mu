@@ -232,6 +232,19 @@
                 @endif
             </div>
         @else
+            {{--
+                activeUntilLabel() mirrors PlanChangeRequestService::approve()'s $baseline logic
+                exactly: a renewal of the SAME plan extends from the organization's current
+                plan_expires_at if that is still in the future; switching to a DIFFERENT plan
+                (upgrade or downgrade) always starts counting from today instead, even with time
+                left on the current plan - inheriting that remaining time would stack extra
+                months on top of what the new plan is actually being paid for. An earlier version
+                of this only checked planExpiresAt and ignored which plan was selected, so it
+                projected the "extend from current expiry" date even when switching plans - wrong
+                every time that happens. (Kept as a Blade comment, not a `//` comment inside
+                x-data below, since that attribute is one long single-line HTML string - a JS
+                line comment there swallows the rest of the line as text instead of code.)
+            --}}
             <form action="{{ route('organizations.plan.store', $organization) }}" method="POST"
                   x-data='{
                       "selected": {{ $organization->plan_id ?? 'null' }},
@@ -243,6 +256,7 @@
                       "applyingDiscount": false,
                       "discountError": "",
                       "planExpiresAt": {{ $planExpiresAt ? '"'.$planExpiresAt.'"' : 'null' }},
+                      "organizationPlanId": {{ $organization->plan_id ?? 'null' }},
                       "applyDiscountUrl": "{{ route('organizations.plan.apply-discount', $organization) }}",
                       "csrfToken": "{{ csrf_token() }}",
                       price(id) { return this.plans[id]?.prices?.[this.duration] ?? 0; },
@@ -251,7 +265,8 @@
                       formatRupiah(n) { return n === 0 ? "Gratis" : ("Rp " + n.toLocaleString("id-ID")); },
                       finalTotal(id) { return Math.max(0, this.price(id) - (this.appliedDiscount?.amount ?? 0)); },
                       activeUntilLabel() {
-                          const baseline = (this.planExpiresAt && new Date(this.planExpiresAt) > new Date()) ? new Date(this.planExpiresAt) : new Date();
+                          const isSamePlanRenewal = this.selected === this.organizationPlanId;
+                          const baseline = (isSamePlanRenewal && this.planExpiresAt && new Date(this.planExpiresAt) > new Date()) ? new Date(this.planExpiresAt) : new Date();
                           baseline.setMonth(baseline.getMonth() + this.duration);
                           return baseline.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
                       },
@@ -301,6 +316,13 @@
                         @php
                             $isActive = $organization->plan_id === $plan->id;
                             $isFeatured = $plan->id === $plans->last()?->id;
+                            // Mirrors the same window OrganizationPlanController::store() enforces
+                            // server-side - shown here so the owner sees why re-selecting their
+                            // current plan won't go through, instead of finding out only after
+                            // submitting.
+                            $renewalWindowNotReachedYet = $isActive
+                                && $organization->plan_expires_at?->isFuture()
+                                && now()->diffInDays($organization->plan_expires_at, false) > 14;
                         @endphp
                         <label
                             @click="selected = {{ $plan->id }}"
@@ -332,6 +354,14 @@
                                     <span class="text-xs font-bold text-amber-200">✦ Rekomendasi</span>
                                 @endif
                             </div>
+
+                            @if ($renewalWindowNotReachedYet)
+                                <p class="text-xs {{ $isFeatured ? 'text-white/70' : 'text-gray-400' }} mb-4 -mt-2">
+                                    Perpanjangan baru bisa diajukan mulai
+                                    {{ $organization->plan_expires_at->copy()->subDays(14)->translatedFormat('d M Y') }}
+                                    (14 hari sebelum {{ $organization->plan_expires_at->translatedFormat('d M Y') }}).
+                                </p>
+                            @endif
 
                             <p class="text-3xl sm:text-4xl font-extrabold {{ $isFeatured ? 'text-white' : 'text-gray-900' }}">
                                 @if ($plan->price_monthly === 0)

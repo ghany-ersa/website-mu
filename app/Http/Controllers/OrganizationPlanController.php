@@ -65,7 +65,9 @@ class OrganizationPlanController extends Controller
             ])->all(),
             // ISO string for the picker to compute "active until" client-side, matching
             // PlanChangeRequestService::approve()'s baseline logic: extend from this date if
-            // it's still in the future, otherwise count from today.
+            // the selected plan is the same one the organization is already on AND it's still
+            // in the future, otherwise count from today (see edit.blade.php's activeUntilLabel(),
+            // which also needs organization.plan_id to tell a renewal apart from a switch).
             'planExpiresAt' => $organization->plan_expires_at?->toIso8601String(),
         ]);
     }
@@ -92,14 +94,24 @@ class OrganizationPlanController extends Controller
             'discount_code' => ['nullable', 'string', 'max:50'],
         ]);
 
-        // Only block re-requesting the same plan once it's actually paid for - a brand-new
-        // organization already has plan_id set (see OrganizationController::store()) but
-        // hasn't paid yet (plan_expires_at is still null), so its very first payment request
-        // is for the plan it's already "on," and that has to be allowed through.
-        if ((int) $validated['plan_id'] === $organization->plan_id && $organization->hasPaidForCurrentPlan()) {
+        // A renewal (requesting the plan the organization is already on) is only allowed once
+        // there's 14 days or less left on it - paying again while there's still weeks of paid
+        // time remaining has no purpose and would just stack an extra term on top prematurely.
+        // Doesn't apply the first time an organization pays (plan_expires_at is still null - see
+        // hasPaidForCurrentPlan()'s doc comment) or once the current term has already lapsed
+        // (isFuture() is false, so the window is always considered "reached" from that point on).
+        // A switch to a *different* plan is never gated by this - see store()'s Plan::findOrFail
+        // below and PlanChangeRequestService::approve()'s $isSamePlanRenewal, which only extends
+        // the existing expiry for a same-plan renewal in the first place.
+        $isSamePlanRenewal = (int) $validated['plan_id'] === $organization->plan_id;
+        $renewalWindowNotReachedYet = $isSamePlanRenewal
+            && $organization->plan_expires_at?->isFuture()
+            && now()->diffInDays($organization->plan_expires_at, false) > 14;
+
+        if ($renewalWindowNotReachedYet) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('warning', 'Paket tersebut sudah menjadi paket aktif Anda.');
+                ->with('warning', 'Perpanjangan paket hanya bisa diajukan paling cepat 14 hari sebelum masa aktif berakhir ('.$organization->plan_expires_at->translatedFormat('d M Y').').');
         }
 
         $plan = Plan::findOrFail($validated['plan_id']);
