@@ -51,16 +51,16 @@ class CmsSampleDataSeeder
 {
     /**
      * Hard ceiling on how many sample rows any single CMS resource gets when a template is
-     * cloned, applied on top of (never instead of) the plan limit - sampleCount() takes the
-     * smaller of the two.
+     * cloned into a REAL organization, applied on top of (never instead of) the plan limit -
+     * sampleCount() takes the smaller of the two. Skipped entirely for a sandbox organization -
+     * see sampleCount()'s doc comment.
      *
      * The showcase templates carry far longer lists than a starting point needs - Suara
      * Muhammadiyah's timRedaksi() alone is 16 officers - and a plan generous enough to accept
      * all of them (Professional allows 20) meant a new organization opened its builder facing a
      * wall of someone else's content to delete before it could enter its own. Three is enough to
      * show what a section looks like filled in, in every section's layout, while staying small
-     * enough to clear out. The full lists still exist for the public template previews, which
-     * render from Template::structure and never come through here.
+     * enough to clear out.
      *
      * A resource whose plan limit is TIGHTER than this keeps its limit (Starter allows 2
      * announcements, 1 donation program), so cloning still can't leave an organization in
@@ -311,14 +311,27 @@ class CmsSampleDataSeeder
      * MAX_SAMPLES_PER_RESOURCE, and the organization's plan limit for that resource key (null =
      * unlimited, so only the first two apply). Never negative - a limit of 0 (or an organization
      * already somehow past it) yields 0, i.e. skip entirely.
+     *
+     * MAX_SAMPLES_PER_RESOURCE itself is skipped for a sandbox organization (TemplateSandboxService)
+     * - that cap exists to keep a real, brand-new organization's builder from opening to a wall of
+     * someone else's content (see this class's doc comment), which doesn't apply to a sandbox: its
+     * whole purpose is to let an admin see/edit the template's full intended content, and it's
+     * exactly what TemplatePreviewController now renders for public template-catalog browsing too
+     * (see that controller's doc comment) - both need the complete sample list, not the trimmed
+     * onboarding version. UNLIMITED_KEYS already frees the sandbox from its plan limit; this frees
+     * it from the separate MAX_SAMPLES_PER_RESOURCE ceiling that plan limit alone didn't cover.
      */
     private static function sampleCount(Organization $organization, PlanLimitService $limits, string $key, int $available): int
     {
         $limit = $limits->effectiveLimit($organization, $key);
 
-        $ceiling = $limit === null
-            ? self::MAX_SAMPLES_PER_RESOURCE
-            : min($limit, self::MAX_SAMPLES_PER_RESOURCE);
+        if ($organization->is_sandbox) {
+            $ceiling = $limit ?? $available;
+        } else {
+            $ceiling = $limit === null
+                ? self::MAX_SAMPLES_PER_RESOURCE
+                : min($limit, self::MAX_SAMPLES_PER_RESOURCE);
+        }
 
         return max(0, min($available, $ceiling));
     }
