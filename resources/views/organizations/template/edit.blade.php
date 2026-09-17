@@ -25,9 +25,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
             </svg>
             <p>
-                Mengganti template akan <strong>menghapus seluruh halaman dan komponen yang sudah Anda susun</strong>,
-                lalu menggantinya dengan susunan awal dari template baru. Berita, agenda, pengurus, dan konten CMS
-                lain yang sudah tersimpan tidak terhapus, tetapi Anda perlu menyusun ulang tampilan halaman dari awal.
+                Mengganti template akan menyusun ulang halaman mengikuti susunan template baru. <strong>Isi yang sudah
+                Anda tulis pada komponen dengan jenis yang sama tetap dipertahankan</strong> (mis. teks di komponen
+                "Tentang Organisasi" tetap ada bila template baru juga punya komponen itu); tampilannya mengikuti
+                desain template baru. Komponen yang tidak ada pada template baru ikut hilang, dan komponen baru yang
+                belum pernah ada sebelumnya tampil dengan isi bawaan template. Berita, agenda, pengurus, dan konten
+                CMS lain yang sudah tersimpan tidak pernah terhapus.
             </p>
         </div>
 
@@ -47,7 +50,7 @@
 
         <form action="{{ route('organizations.template.update', $organization) }}" method="POST"
               x-data="{ selected: {{ Js::from($organization->template_id) }} }"
-              @submit.prevent="if (await confirmAction('Halaman dan komponen yang sudah disusun akan digantikan dengan susunan awal template baru. Lanjutkan?', { confirmLabel: 'Ya, Ganti Template' })) $el.submit()">
+              @submit.prevent="if (await confirmAction('Halaman akan disusun ulang mengikuti template baru. Isi komponen dengan jenis yang sama tetap dipertahankan. Lanjutkan?', { confirmLabel: 'Ya, Ganti Template' })) $el.submit()">
             @csrf
             @method('PATCH')
             <input type="hidden" name="template_id" x-model="selected">

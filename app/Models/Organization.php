@@ -687,6 +687,37 @@ class Organization extends Model
     }
 
     /**
+     * Switch this organization onto a different template, the same way ensureHomePageExists()
+     * clones a fresh one - discard the current pages and re-clone from the new template's
+     * structure - but keeping each existing section's `content` wherever the new template has a
+     * section of the same `key`. Sections whose key doesn't appear in the new template are
+     * dropped (there's nowhere to put their content); sections the new template introduces that
+     * the organization never had start with that template's own default content, same as any
+     * other newly-cloned section. Variant/layout always comes from the new template, even for a
+     * matched key - switching template is a design change, and a preserved section keeps the new
+     * design's layout for that section rather than an inconsistent mix of old and new looks.
+     *
+     * Used by OrganizationTemplateController::update() only - ensureHomePageExists() itself
+     * stays content-blind (empty $preserveContentByKey default) since it only ever runs once,
+     * against an organization with no pages yet, where there's nothing to preserve.
+     */
+    public function replaceTemplateKeepingContent(Template $newTemplate): void
+    {
+        $preserveContentByKey = $this->pages()->with('sections')->get()
+            ->flatMap->sections
+            ->reduce(function (array $carry, OrganizationSection $section) {
+                $carry[$section->key][] = $section->content;
+
+                return $carry;
+            }, []);
+
+        $this->pages()->delete();
+        $this->update(['template_id' => $newTemplate->id]);
+        $this->refresh();
+        $this->seedPagesFromTemplate($preserveContentByKey);
+    }
+
+    /**
      * Clone every page listed in the template's structure['pages'] into owned pages/sections
      * (previously only structure['pages'][0] was cloned, back when the builder supported just
      * one page - it now supports many, see OrganizationPageController). Also seeds sample CMS
@@ -714,7 +745,16 @@ class Organization extends Model
      * (e.g. a duplicate page slug in the template's own data) would otherwise leave the
      * organization with only some of its pages seeded instead of none.
      */
-    private function seedPagesFromTemplate(): void
+    /**
+     * @param  array<string, array<int, array<string, mixed>>>  $preserveContentByKey  Section
+     *         key => queue of that key's previous `content` arrays, oldest-page-first (see
+     *         OrganizationTemplateController::update(), the only caller that passes this).
+     *         Each cloned section whose key has an entry left in its queue gets that content
+     *         instead of the new template's default, and consumes one entry - so switching from
+     *         a template with two 'daftar-berita' sections to one with two also keeps them
+     *         paired up in the same order, rather than both grabbing the same saved content.
+     */
+    private function seedPagesFromTemplate(array $preserveContentByKey = []): void
     {
         $pagesData = $this->template->structure['pages'] ?? [];
 
@@ -757,7 +797,7 @@ class Organization extends Model
         $survivingByPage = $flatSections->groupBy('page_index');
         $sectionKeys = [];
 
-        DB::transaction(function () use ($pagesData, $survivingByPage, &$sectionKeys) {
+        DB::transaction(function () use ($pagesData, $survivingByPage, &$sectionKeys, &$preserveContentByKey) {
             $usedSlugs = [];
 
             foreach ($pagesData as $pageIndex => $pageData) {
@@ -780,15 +820,24 @@ class Organization extends Model
 
                 foreach (($survivingByPage->get($pageIndex) ?? collect())->values() as $sectionOrder => $section) {
                     $sectionData = $section['data'];
+                    $key = $sectionData['key'];
+
+                    // array_shift rather than a plain lookup: consumes one queued content per
+                    // key per section created, so a key appearing more than once (e.g. two
+                    // 'daftar-berita' sections on different pages) pairs old sections with new
+                    // ones in the same relative order instead of every match reusing entry #0.
+                    $preservedContent = ! empty($preserveContentByKey[$key])
+                        ? array_shift($preserveContentByKey[$key])
+                        : null;
 
                     $page->sections()->create([
-                        'key' => $sectionData['key'],
+                        'key' => $key,
                         'variant' => $sectionData['variant'] ?? null,
-                        'content' => $sectionData['content'] ?? [],
+                        'content' => $preservedContent ?? $sectionData['content'] ?? [],
                         'order' => $sectionOrder,
                     ]);
 
-                    $sectionKeys[] = $sectionData['key'];
+                    $sectionKeys[] = $key;
                 }
 
                 $page->ensureHeader();

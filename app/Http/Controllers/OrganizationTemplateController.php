@@ -9,13 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Lets an organization replace its entire site with another template's starting content
- * (see Organization::seedPagesFromTemplate()) - the builder only supports one page, so
- * switching template means discarding the current page/sections and re-cloning from the
- * new template, not merging. Only the Owner may do this (see OrganizationPolicy::update()
- * is too broad for something this destructive - gated separately below), and templates
- * marked Template::is_exclusive are only selectable when the org's plan grants that
- * entitlement (Organization::canUseExclusiveTemplates()).
+ * Lets an organization replace its entire site with another template's starting content and
+ * layout (see Organization::replaceTemplateKeepingContent()) - the current pages/sections are
+ * discarded and re-cloned from the new template, but each cloned section whose `key` matches one
+ * the organization already had keeps that section's own content instead of the new template's
+ * default, so switching template restyles the site without silently discarding what the owner
+ * already wrote in. Only the Owner may do this (see OrganizationPolicy::update() is too broad for
+ * something this destructive - gated separately below), and templates marked
+ * Template::is_exclusive are only selectable when the org's plan grants that entitlement
+ * (Organization::canUseExclusiveTemplates()).
  */
 class OrganizationTemplateController extends Controller
 {
@@ -72,13 +74,10 @@ class OrganizationTemplateController extends Controller
                 ->with('status', 'Organisasi ini sudah menggunakan template tersebut.');
         }
 
-        $organization->pages()->delete();
-        $organization->update(['template_id' => $template->id]);
-        $organization->refresh();
-        $organization->ensureHomePageExists();
+        $organization->replaceTemplateKeepingContent($template);
 
         return redirect()
             ->route('organizations.show', $organization)
-            ->with('status', 'Template berhasil diganti. Semua halaman sebelumnya telah digantikan dengan template baru.');
+            ->with('status', 'Template berhasil diganti. Section dengan jenis yang sama mempertahankan isi sebelumnya; section lain mengikuti template baru.');
     }
 }
