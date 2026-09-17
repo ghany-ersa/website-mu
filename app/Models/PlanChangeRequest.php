@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'organization_id', 'requested_plan_id', 'duration_months', 'discount_code_id', 'discount_amount',
+    'amount_paid', 'active_from', 'active_until',
     'limits_snapshot', 'payment_confirmed_at', 'requested_by_user_id', 'status', 'reviewed_by_user_id',
     'reviewed_at', 'admin_note', 'midtrans_order_id', 'midtrans_transaction_id', 'midtrans_payment_type',
     'midtrans_status', 'midtrans_paid_at', 'approve_error', 'approve_attempts',
@@ -26,6 +27,9 @@ class PlanChangeRequest extends Model
             'payment_confirmed_at' => 'datetime',
             'limits_snapshot' => 'array',
             'midtrans_paid_at' => 'datetime',
+            'active_from' => 'datetime',
+            'active_until' => 'datetime',
+            'amount_paid' => 'integer',
             // Cast even though the column is an unsignedTinyInteger: a request built straight from
             // form input holds the raw string "12" until it is re-read from the database, and
             // PlanChangeRequestService::approve() does Carbon::addMonths($this->duration_months) on

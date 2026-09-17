@@ -35,6 +35,7 @@
                     <th class="px-5 py-3">Paket Diminta</th>
                     <th class="px-5 py-3">Status</th>
                     <th class="px-5 py-3">Tanggal</th>
+                    <th class="px-5 py-3">Masa Aktif</th>
                     <th class="px-5 py-3 text-right">Aksi</th>
                 </tr>
             </thead>
@@ -53,11 +54,38 @@
                             <p class="text-xs text-gray-400">{{ $request->requestedBy->email }}</p>
                         </td>
                         <td class="px-5 py-4 font-semibold text-gray-800">
-                            {{ $request->requestedPlan->name }} &times; {{ $request->duration_months }} bulan
+                            {{-- Badge color tiers with the plan's price rank, cheapest to priciest
+                                 - key is stable (see PlanSeeder) so this doesn't depend on name
+                                 text matching. Amber for Professional matches the "Eksklusif"
+                                 badge used elsewhere for the same top-tier plan gate (e.g.
+                                 Template::is_exclusive cards). Any other/future plan key falls
+                                 back to the same neutral gray as Starter rather than an unstyled
+                                 badge. --}}
+                            @php
+                                $planBadgeClass = match ($request->requestedPlan->key) {
+                                    'organization' => 'bg-blue-100 text-blue-600',
+                                    'professional' => 'bg-amber-100 text-amber-700',
+                                    default => 'bg-gray-100 text-gray-600',
+                                };
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold mr-1 {{ $planBadgeClass }}">
+                                {{ $request->requestedPlan->name }}
+                            </span>
+                            &times; {{ $request->duration_months }} bulan
                             <p class="text-xs font-normal text-gray-400">
                                 {{ $request->requestedPlan->formattedPrice() }}
                                 &mdash; Total Rp {{ number_format($request->totalPrice(), 0, ',', '.') }}
                             </p>
+                            @if ($request->status === \App\Enums\PlanChangeRequestStatus::Approved)
+                                {{-- amount_paid is frozen at approval (see
+                                     PlanChangeRequestService::approve()) - shown instead of totalPrice()
+                                     above for an approved request, since totalPrice() recomputes live
+                                     against the plan's *current* price and would silently drift from
+                                     what was actually paid if that price changes later. --}}
+                                <p class="text-xs font-normal text-secondary mt-1">
+                                    Dibayar Rp {{ number_format($request->amount_paid ?? 0, 0, ',', '.') }}
+                                </p>
+                            @endif
                         </td>
                         <td class="px-5 py-4">
                             @switch($request->status)
@@ -85,24 +113,50 @@
                         <td class="px-5 py-4 text-gray-500 text-xs">
                             {{ $request->created_at->translatedFormat('d M Y, H:i') }}
                         </td>
+                        <td class="px-5 py-4 text-gray-500 text-xs">
+                            @if ($request->active_until)
+                                {{-- Frozen on the request itself at approval (see
+                                     PlanChangeRequestService::approve()) rather than read off
+                                     organizations.plan_expires_at, which a later renewal/upgrade
+                                     moves forward - this stays this specific request's own end date. --}}
+                                {{ $request->active_until->translatedFormat('d M Y') }}
+                            @else
+                                {{-- Not approved yet, so there's no real active_until - a rough
+                                     estimate (today + duration_months) instead of a blank dash, so
+                                     an admin scanning the queue has a sense of the expected end
+                                     date. Marked "perkiraan" and styled distinctly (italic, lighter)
+                                     because it can be wrong: a same-plan renewal actually extends
+                                     from the organization's current plan_expires_at if that's still
+                                     in the future, not from today (see approve()'s $baseline logic)
+                                     - this estimate doesn't account for that. --}}
+                                <span class="italic text-gray-400" title="Perkiraan jika disetujui hari ini - lihat catatan kode untuk kasus perpanjangan.">
+                                    &asymp; {{ now()->addMonths($request->duration_months)->translatedFormat('d M Y') }}
+                                    <span class="not-italic">(perkiraan)</span>
+                                </span>
+                            @endif
+                        </td>
                         <td class="px-5 py-4 text-right">
-                            @if ($request->status === \App\Enums\PlanChangeRequestStatus::Pending)
-                                <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
-                                      x-data @submit.prevent="if (await confirmAction('Batalkan permintaan yang belum dibayar ini?')) $el.submit()">
-                                    @csrf
-                                    <button type="submit" class="px-3 py-1.5 rounded-full text-gray-500 text-xs font-semibold hover:bg-gray-100 transition-colors">
-                                        Batalkan
-                                    </button>
-                                </form>
-                            @elseif ($request->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
+                            @if ($request->status === \App\Enums\PlanChangeRequestStatus::Pending || $request->status === \App\Enums\PlanChangeRequestStatus::PaymentConfirmed)
                                 <div class="flex flex-col items-end gap-1.5">
-                                    <p class="text-xs text-gray-400">Verifikasi pembayaran sebelum menyetujui</p>
+                                    <p class="text-xs text-gray-400">
+                                        @if ($request->status === \App\Enums\PlanChangeRequestStatus::Pending)
+                                            {{-- A tenant paying via Midtrans reaches Approved automatically once the
+                                                 webhook settles - reaching here means either they haven't paid yet, or
+                                                 (manual transfer) they have but never clicked "Saya Sudah Bayar". An
+                                                 admin who has independently confirmed payment (bank mutation, WhatsApp,
+                                                 etc.) doesn't have to wait on that tenant step - see
+                                                 Admin\PlanChangeRequestController::approveManual()'s doc comment. --}}
+                                            Setujui hanya bila pembayaran sudah dipastikan masuk
+                                        @else
+                                            Verifikasi pembayaran sebelum menyetujui
+                                        @endif
+                                    </p>
                                     <div class="flex items-center gap-1.5">
                                         <form action="{{ route('admin.plan-change-requests.reject', $request) }}" method="POST"
-                                              x-data @submit.prevent="if (await confirmAction('Tolak permintaan ini? Gunakan jika pembayaran tidak ditemukan.')) $el.submit()">
+                                              x-data @submit.prevent="if (await confirmAction('Tolak/batalkan permintaan ini?')) $el.submit()">
                                             @csrf
                                             <button type="submit" class="px-3 py-1.5 rounded-full text-gray-500 text-xs font-semibold hover:bg-gray-100 transition-colors">
-                                                Tolak
+                                                {{ $request->status === \App\Enums\PlanChangeRequestStatus::Pending ? 'Batalkan' : 'Tolak' }}
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.plan-change-requests.approve-manual', $request) }}" method="POST"
@@ -143,7 +197,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-5 py-10 text-center text-gray-400">
+                        <td colspan="8" class="px-5 py-10 text-center text-gray-400">
                             @if (request('q') || request('status'))
                                 Tidak ada permintaan yang cocok dengan pencarian.
                             @else

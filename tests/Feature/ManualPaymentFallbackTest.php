@@ -175,7 +175,16 @@ class ManualPaymentFallbackTest extends TestCase
         $response->assertSee(config('billing.manual_transfer.account_number'));
     }
 
-    public function test_admin_cannot_approve_a_request_the_tenant_never_confirmed(): void
+    /**
+     * An admin may approve a request straight from Pending, without the tenant ever clicking
+     * "Saya Sudah Bayar" first - e.g. the admin independently confirmed the transfer landed (bank
+     * mutation, WhatsApp, etc.) and shouldn't have to wait on that separate, easy-to-skip tenant
+     * step. See Admin\PlanChangeRequestController::approveManual()'s doc comment. What this test
+     * class actually pins down (per its own class doc comment) is that the TENANT's own claim
+     * never self-activates a plan - it's always an admin action that does, whether from Pending
+     * or PaymentConfirmed.
+     */
+    public function test_admin_can_approve_a_request_the_tenant_never_confirmed(): void
     {
         $owner = User::factory()->create();
         $admin = User::factory()->admin()->create();
@@ -184,8 +193,8 @@ class ManualPaymentFallbackTest extends TestCase
 
         $this->actingAs($admin)
             ->post(route('admin.plan-change-requests.approve-manual', $request))
-            ->assertStatus(409);
+            ->assertRedirect(route('admin.plan-change-requests.index'));
 
-        $this->assertSame(PlanChangeRequestStatus::Pending, $request->fresh()->status);
+        $this->assertSame(PlanChangeRequestStatus::Approved, $request->fresh()->status);
     }
 }

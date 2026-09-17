@@ -131,6 +131,7 @@ class OrganizationPlanController extends Controller
         // amountFor() clamps the discount to the plan's own price - see PlanChangeRequestService
         // for how discount_amount reaches here), never from user input.
         if ($planChangeRequest->gatewayAmount() === 0) {
+            $planChangeRequest->update(['amount_paid' => 0]);
             $planChangeRequestService->approve($planChangeRequest, note: 'Disetujui otomatis - dibayar penuh dengan kode diskon.');
 
             return redirect()
@@ -172,6 +173,7 @@ class OrganizationPlanController extends Controller
         // See store() - a pre-existing request whose discount already covers the full amount
         // (e.g. from before this guard existed) should never reach Midtrans either.
         if ($planChangeRequest->gatewayAmount() === 0) {
+            $planChangeRequest->update(['amount_paid' => 0]);
             $planChangeRequestService->approve($planChangeRequest, note: 'Disetujui otomatis - dibayar penuh dengan kode diskon.');
 
             return redirect()

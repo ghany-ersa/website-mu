@@ -38,9 +38,11 @@ class PlanChangeRequestService
             ? $request->organization->plan_expires_at
             : now();
 
+        $activeUntil = $baseline->copy()->addMonths($request->duration_months);
+
         $request->organization->update([
             'plan_id' => $request->requested_plan_id,
-            'plan_expires_at' => $baseline->copy()->addMonths($request->duration_months),
+            'plan_expires_at' => $activeUntil,
         ]);
 
         $request->update([
@@ -48,6 +50,11 @@ class PlanChangeRequestService
             'reviewed_by_user_id' => $admin?->id,
             'reviewed_at' => now(),
             'admin_note' => $note,
+            // The period THIS request activated - kept on the request itself (not just
+            // organizations.plan_expires_at) so it stays this request's own record even after a
+            // later renewal/upgrade moves plan_expires_at forward again.
+            'active_from' => $baseline,
+            'active_until' => $activeUntil,
             // Freezes the plan's limits as they exist right now - if an admin edits the plan's
             // limits later, an org that already paid keeps what it paid for (see
             // PlanLimitService::effectiveLimit()) rather than being silently squeezed or
