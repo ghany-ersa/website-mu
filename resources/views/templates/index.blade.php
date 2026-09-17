@@ -96,7 +96,7 @@
             <p class="text-gray-400 text-xs mb-8">Platform Pembuatan Website & Digitalisasi Persyarikatan Muhammadiyah</p>
             <div class="border-t border-gray-800 pt-6 text-xs text-gray-500 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p>&copy; 2026 website-mu.id. All rights reserved.</p>
-                <p>Mendorong Gerakan Dakwah Digital Berkemajuan.</p>
+                <p>Created by Suara Muhammadiyah Ambulu</p>
             </div>
         </div>
     </footer>
