@@ -738,11 +738,11 @@ class Organization extends Model
     /**
      * Clone every page listed in the template's structure['pages'] into owned pages/sections
      * (previously only structure['pages'][0] was cloned, back when the builder supported just
-     * one page - it now supports many, see OrganizationPageController). Also seeds sample CMS
-     * records (see CmsSampleDataSeeder) for whichever CMS-backed sections (galeri, daftar-berita,
-     * struktur-pengurus, etc.) any cloned page has, so the builder and the org's own draft/public
-     * pages show real, editable content immediately instead of an empty list the user has to
-     * populate from scratch.
+     * one page - it now supports many, see OrganizationPageController). Clones each section's
+     * `content` as the owner's starting copy, but seeds sample CMS records (see
+     * CmsSampleDataSeeder) for CMS-backed sections (galeri, daftar-berita, struktur-pengurus,
+     * etc.) ONLY for a sandbox organization - see the guard at the end of this method for why a
+     * real organization starts with empty CMS tables instead.
      *
      * The cloned sections are capped to the org's plan's 'sections_total' limit (excluding
      * locked keys, same as PlanLimitService::countedSectionsTotal() - locked sections like
@@ -863,6 +863,8 @@ class Organization extends Model
             }
         });
 
-        CmsSampleDataSeeder::seed($this, $sectionKeys);
+        if ($this->is_sandbox) {
+            CmsSampleDataSeeder::seed($this, $sectionKeys);
+        }
     }
 }
