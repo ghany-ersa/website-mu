@@ -133,10 +133,10 @@
 
     <!-- Hero Section -->
     <section class="pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="bg-gradient-to-br from-softBg via-white to-green-50/30 rounded-[3rem] p-8 md:p-16 border border-gray-100 relative overflow-hidden">
+        <div class="md:p-16 relative overflow-hidden">
             <!-- Decorative SVG Circles -->
-            <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+            {{-- <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div> --}}
+            {{-- <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div> --}}
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
                 <div class="lg:col-span-7 text-center lg:text-left">
@@ -181,7 +181,7 @@
 
                 <!-- Hero Graphic Mockup -->
                 <div class="lg:col-span-5 relative">
-                    <div class="bg-white p-4 md:p-6 rounded-[2.5rem] shadow-float border border-gray-100 relative transform rotate-1 hover:rotate-0 transition duration-500">
+                    <div class="bg-white p-4 md:p-6 rounded-3xl shadow-float border border-gray-100 relative transform rotate-1 hover:rotate-0 transition duration-500">
                         <div class="flex items-center gap-2 mb-4 px-2">
                             <span class="w-3 h-3 rounded-full bg-red-400"></span>
                             <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
@@ -228,7 +228,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Featured Article -->
-                <a href="{{ route('articles.show', $featuredArticle) }}" class="group relative rounded-[2.5rem] overflow-hidden bg-gray-900 shadow-soft border border-gray-100 block h-80 lg:h-full min-h-[22rem]">
+                <a href="{{ route('articles.show', $featuredArticle) }}" class="group relative rounded-3xl overflow-hidden bg-gray-900 shadow-soft border border-gray-100 block h-80 lg:h-full min-h-[22rem]">
                     <img src="{{ $featuredArticle->cover_image ?? $articleDefaultImage }}" alt="{{ $featuredArticle->title }}" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-60 group-hover:scale-105 transition-all duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
                     <div class="relative z-10 h-full flex flex-col justify-end p-8">
@@ -244,7 +244,7 @@
                 <div class="flex flex-col divide-y divide-gray-100">
                     @foreach ($secondaryArticles as $article)
                         <a href="{{ route('articles.show', $article) }}" class="group flex items-center gap-5 py-5 first:pt-0 last:pb-0">
-                            <div class="w-28 h-24 md:w-32 md:h-28 rounded-2xl overflow-hidden shrink-0 bg-gray-100">
+                            <div class="w-28 h-24 md:w-32 md:h-28 rounded-xl overflow-hidden shrink-0 bg-gray-100">
                                 <img src="{{ $article->cover_image ?? $articleDefaultImage }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             </div>
                             <div class="min-w-0">
@@ -271,7 +271,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Point 1 -->
-            <div class="bg-softBg p-8 rounded-[2.5rem] border border-gray-100 hover:-translate-y-2 transition-all duration-300">
+            <div class="bg-softBg p-8 rounded-3xl border border-gray-100 hover:-translate-y-2 transition-all duration-300">
                 <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
@@ -280,7 +280,7 @@
             </div>
 
             <!-- Point 2 -->
-            <div class="bg-softBg p-8 rounded-[2.5rem] border border-gray-100 hover:-translate-y-2 transition-all duration-300">
+            <div class="bg-softBg p-8 rounded-3xl border border-gray-100 hover:-translate-y-2 transition-all duration-300">
                 <div class="w-14 h-14 bg-secondary text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                 </div>
@@ -289,7 +289,7 @@
             </div>
 
             <!-- Point 3 -->
-            <div class="bg-softBg p-8 rounded-[2.5rem] border border-gray-100 hover:-translate-y-2 transition-all duration-300">
+            <div class="bg-softBg p-8 rounded-3xl border border-gray-100 hover:-translate-y-2 transition-all duration-300">
                 <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center mb-6 shadow-md">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 </div>
@@ -300,7 +300,7 @@
     </section>
 
     <!-- Template Showcase (Interactive Gallery) -->
-    <section id="pilihan-template" class="scroll-mt-28 py-20 bg-softBg rounded-[3rem] mx-2 md:mx-6 px-4 my-10">
+    <section id="pilihan-template" class="scroll-mt-28 py-20 bg-softBg mx-2 px-4 my-10">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
                 <div>
@@ -310,8 +310,16 @@
                 <p class="text-gray-500 mt-4 md:mt-0 max-w-md text-sm">Setiap template dilengkapi dengan fitur penyesuaian warna khas Muhammadiyah, carousel hero, dan integrasi WhatsApp.</p>
             </div>
 
-            <!-- Grid Templates -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {{--
+                Mobile: a swipe rail, same pattern as the pricing cards. Stacking every template
+                vertically made the catalogue a long scroll where only the first one was ever
+                seen; side-by-side, the peeking next card invites comparison.
+
+                Flex below md, back to the original responsive grid at md and up. The negative
+                margin + matching padding lets the rail bleed to the section edge while the first
+                card still aligns to the gutter.
+            --}}
+            <div class="u-snap-rail u-snap-rail--md flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0">
                 @php
                     // Stock-photo fallback for a template with no thumbnail uploaded yet
                     // (Admin\TemplateController) - real templates take priority via
@@ -319,8 +327,8 @@
                     $defaultImage = 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80';
                 @endphp
 
-                @forelse ($templates as $template)
-                    <div class="relative bg-white rounded-[2.5rem] overflow-hidden shadow-soft border {{ $template->is_exclusive ? 'border-amber-300 ring-2 ring-amber-300/50' : 'border-gray-100' }} group hover:shadow-float transition-all duration-300 flex flex-col">
+                @forelse ($templates->reverse() as $template)
+                    <div class="shrink-0 w-[84vw] md:w-auto md:shrink relative bg-white rounded-3xl overflow-hidden shadow-soft border {{ $template->is_exclusive ? 'border-amber-300 ring-2 ring-amber-300/50' : 'border-gray-100' }} group hover:shadow-float transition-all duration-300 flex flex-col">
                         @if ($template->is_exclusive)
                             <span class="absolute top-4 right-4 z-10 flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-extrabold px-3 py-1.5 rounded-full shadow-md">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.39 5.51 6 .59-4.5 4.02 1.32 5.88L10 14.6l-5.21 2.9 1.32-5.88-4.5-4.02 6-.59L10 1.5z"/></svg>
@@ -372,21 +380,21 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             <!-- Step 1 -->
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-soft border border-gray-100 relative text-center">
+            <div class="bg-white p-8 rounded-3xl shadow-soft border border-gray-100 relative text-center">
                 <div class="w-12 h-12 bg-primary text-white rounded-full font-extrabold text-xl flex items-center justify-center mx-auto mb-6 shadow-md">1</div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Pilih Template</h3>
                 <p class="text-gray-500 text-sm">Pilih desain tampilan yang sesuai dengan jenis pimpinan atau AUM Anda.</p>
             </div>
 
             <!-- Step 2 -->
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-soft border border-gray-100 relative text-center">
+            <div class="bg-white p-8 rounded-3xl shadow-soft border border-gray-100 relative text-center">
                 <div class="w-12 h-12 bg-secondary text-white rounded-full font-extrabold text-xl flex items-center justify-center mx-auto mb-6 shadow-md">2</div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Kirim Data Profil</h3>
                 <p class="text-gray-500 text-sm">Isi data nama pimpinan, foto kegiatan, daftar masjid, atau informasi AUM Anda.</p>
             </div>
 
             <!-- Step 3 -->
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-soft border border-gray-100 relative text-center">
+            <div class="bg-white p-8 rounded-3xl shadow-soft border border-gray-100 relative text-center">
                 <div class="w-12 h-12 bg-primary text-white rounded-full font-extrabold text-xl flex items-center justify-center mx-auto mb-6 shadow-md">3</div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Web Siap Digunakan</h3>
                 <p class="text-gray-500 text-sm">Website Anda langsung tayang dengan domain pilihan dan dapat diakses seluruh dunia.</p>
@@ -395,7 +403,7 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="harga-paket" class="scroll-mt-28 py-20 bg-softBg rounded-[3rem] mx-2 md:mx-6 px-4 my-10">
+    <section id="harga-paket" class="scroll-mt-28 py-20 bg-softBg mx-2 px-4 my-10">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16">
                 <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Investasi Dakwah</span>
@@ -413,10 +421,24 @@
                 $featuredPlanKey = $plans->last()?->key;
             @endphp
 
-            <div class="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
+            {{--
+                Mobile: a snap rail the cards are swiped through, since three full-width cards
+                stacked vertically pushed the comparison off-screen and buried the third plan.
+                The negative margin + matching padding lets the rail bleed to the viewport edge
+                while the first card still lines up with the section's gutter, and the narrower
+                card width leaves the next one peeking - which is what tells you it scrolls.
+
+                sm: and up it reverts to the original centred flex-wrap row - `.u-snap-rail`
+                drops its own overflow at that breakpoint (see app.css), which is what keeps the
+                featured card's badge from being clipped where it sits above the card's top edge.
+            --}}
+            <div class="u-snap-rail flex sm:flex-wrap justify-start sm:justify-center gap-6 sm:gap-8 max-w-5xl mx-auto -mx-4 px-4 sm:mx-auto sm:px-0 pt-5 pb-2 sm:pt-0 sm:pb-0">
                 @foreach ($plans as $plan)
                     @php $featured = $plan->key === $featuredPlanKey; @endphp
-                    <div class="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)] bg-white p-8 md:p-10 rounded-[2.5rem] {{ $featured ? 'shadow-float border-2 border-secondary relative' : 'shadow-soft border border-gray-100' }} flex flex-col justify-between">
+                    {{-- Width is in vw, not %, because a percentage resolves against the rail's
+                         own content box - which is narrower than the screen - and produced cards
+                         noticeably tighter than intended. 84vw leaves the next card peeking. --}}
+                    <div class="shrink-0 w-[84vw] sm:shrink sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)] bg-white p-7 sm:p-8 md:p-10 rounded-3xl {{ $featured ? 'shadow-float border-2 border-secondary relative' : 'shadow-soft border border-gray-100' }} flex flex-col justify-between">
                         @if ($featured)
                             <span class="absolute -top-4 right-8 bg-secondary text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider">Paling Direkomendasikan</span>
                         @endif

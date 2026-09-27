@@ -47,6 +47,60 @@
 }
 
 /*
+ * Horizontal snap rail, used by the pricing cards on mobile.
+ *
+ * Native overflow scrolling rather than a carousel library: touch panning, momentum and
+ * snapping all come from the browser, so there is no JS to load, nothing to initialise, and
+ * it keeps working with scripting disabled. The class is applied only below the breakpoint
+ * where the cards stop fitting side by side; above it the element goes back to being a
+ * normal flex/grid container and this does nothing.
+ *
+ * `scrollbar-width: none` hides the bar without disabling the scroll - the peeking edge of
+ * the next card is what signals swipeability, not a scrollbar.
+ */
+.u-snap-rail {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* Stops a horizontal swipe from chaining into the page's own back-navigation gesture. */
+    overscroll-behavior-x: contain;
+}
+
+.u-snap-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.u-snap-rail > * {
+    scroll-snap-align: center;
+}
+
+/*
+ * Above its breakpoint the rail turns back into an ordinary row or grid. This has to live
+ * here rather than as an `sm:overflow-visible` utility on the element: both would be
+ * single-class selectors of equal specificity, and `.u-snap-rail` wins on source order
+ * inside the same layer. It matters because a scroll container clips its children on BOTH
+ * axes, which would cut off a badge positioned above a card's top edge.
+ *
+ * Two variants because the sections revert at different widths - pricing goes two-up at sm,
+ * the template grid at md. Using one shared breakpoint left whichever section reverted later
+ * unable to scroll while its cards were still full-bleed width.
+ */
+@media (width >= 40rem) {
+    .u-snap-rail:not(.u-snap-rail--md) {
+        overflow: visible;
+        scroll-snap-type: none;
+    }
+}
+
+@media (width >= 48rem) {
+    .u-snap-rail--md {
+        overflow: visible;
+        scroll-snap-type: none;
+    }
+}
+
+/*
  * Tailwind's Preflight resets button cursor to the browser default instead of pointer
  * (unlike <a>, which is pointer natively) - restore it repo-wide rather than adding
  * cursor-pointer to every button individually.

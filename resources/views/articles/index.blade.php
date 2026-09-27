@@ -30,6 +30,8 @@
                 <img src="{{ asset('logo.png') }}" alt="website-mu.id" class="h-11 w-auto">
                 <span class="text-xl font-extrabold text-primary tracking-tight">website-mu<span class="text-secondary">.id</span></span>
             </a>
+            <a href="{{ url('/') }}" class="sm:hidden text-sm font-semibold text-gray-600 hover:text-primary transition">&larr; Kembali</a>
+
             <div class="hidden md:flex items-center gap-3">
                 <a href="{{ route('home') }}" class="text-sm font-semibold text-gray-600 hover:text-primary transition">Beranda</a>
                 <a href="{{ $ctaUrl }}" class="bg-primary hover:bg-secondary text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-soft transition-all hover:shadow-float">
@@ -72,7 +74,7 @@
     <section class="pb-24 px-4 max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse ($articles as $article)
-                <a href="{{ route('articles.show', $article) }}" class="group bg-white rounded-[2rem] overflow-hidden shadow-soft border border-gray-100 hover:shadow-float transition-all duration-300 flex flex-col">
+                <a href="{{ route('articles.show', $article) }}" class="group bg-white rounded-3xl overflow-hidden shadow-soft border border-gray-100 hover:shadow-float transition-all duration-300 flex flex-col">
                     <div class="relative overflow-hidden h-48 bg-gray-100">
                         <img src="{{ $article->cover_image ?? $articleDefaultImage }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
