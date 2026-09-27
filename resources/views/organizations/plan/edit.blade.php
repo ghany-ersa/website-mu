@@ -5,7 +5,11 @@
 @section('content')
     @php
         $usageLabels = [
-            'posts' => 'Berita',
+            // "bulan ini" (not just "Berita") - unlike every other usage row, this one resets
+            // every calendar month (see PlanLimitService::MONTHLY_RESOURCES) rather than
+            // counting a lifetime total, so it needs to say so or a full bar reads as "you've
+            // permanently hit your ceiling" instead of "quota refreshes next month".
+            'posts' => 'Berita bulan ini',
             'agendas' => 'Agenda',
             'announcements' => 'Pengumuman',
             'officers' => 'Data Pengurus',

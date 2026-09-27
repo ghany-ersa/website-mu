@@ -43,7 +43,11 @@ class OrganizationCreateFlowTest extends TestCase
             ->assertDontSee('Jenis Organisasi');
     }
 
-    public function test_identity_form_rejects_an_exclusive_template(): void
+    /**
+     * An exclusive template can be built on from any plan - only publishing is gated
+     * (Organization::planViolations()) - so step 2 must render rather than bounce.
+     */
+    public function test_identity_form_accepts_an_exclusive_template(): void
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
@@ -51,11 +55,13 @@ class OrganizationCreateFlowTest extends TestCase
             'organization_type_id' => $type->id,
             'is_active' => true,
             'is_exclusive' => true,
+            'name' => 'Template Eksklusif',
         ]);
 
         $this->actingAs($user)
             ->get(route('organizations.create', ['template' => $template->slug]))
-            ->assertRedirect(route('organizations.template-picker'));
+            ->assertOk()
+            ->assertSee('Template Eksklusif');
     }
 
     public function test_identity_form_rejects_a_template_without_an_organization_type(): void
@@ -69,8 +75,8 @@ class OrganizationCreateFlowTest extends TestCase
     }
 
     /**
-     * Exclusive templates are shown locked rather than hidden, so the upgrade path stays visible
-     * instead of the template simply being missing from the grid.
+     * Exclusive templates are listed as normal, selectable options - the plan is enforced at
+     * publish time instead, so the picker labels the cost rather than blocking the choice.
      */
     public function test_picker_lists_standard_and_exclusive_templates(): void
     {
@@ -93,7 +99,7 @@ class OrganizationCreateFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Template Standar')
             ->assertSee('Template Eksklusif')
-            ->assertSee('Tersedia setelah upgrade paket');
+            ->assertSee('Perlu paket Eksklusif untuk publikasi', false);
     }
 
     public function test_picker_hides_inactive_and_typeless_templates(): void

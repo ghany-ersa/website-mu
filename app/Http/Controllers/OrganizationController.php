@@ -67,8 +67,9 @@ class OrganizationController extends Controller
      * Requires ?template=slug, set either by step 1 above or by TemplateUseController's "Gunakan
      * Template" flow (which skips step 1 - a user who already picked a template in the public
      * catalog shouldn't be asked to pick again). Anything unusable - missing, unknown, inactive,
-     * exclusive, or typeless - sends the user back to step 1 rather than rendering a form whose
-     * submission is guaranteed to fail validation.
+     * or typeless - sends the user back to step 1 rather than rendering a form whose submission
+     * is guaranteed to fail validation. An is_exclusive template is *not* unusable here: it can
+     * be built on from any plan, and only publishing is gated (Organization::planViolations()).
      */
     public function create(Request $request): View|RedirectResponse
     {
@@ -77,7 +78,6 @@ class OrganizationController extends Controller
         $selectedTemplate = $request->filled('template')
             ? Template::where('slug', $request->query('template'))
                 ->where('is_active', true)
-                ->where('is_exclusive', false)
                 ->whereNotNull('organization_type_id')
                 ->first()
             : null;

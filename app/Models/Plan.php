@@ -96,6 +96,12 @@ class Plan extends Model
      * checkmark for a max_count of 0 - a plain "0 Berita" bullet reads as ambiguous (can I
      * make one or not?), so it needs a visibly different marker, not just different wording.
      *
+     * 'posts' gets its own suffixed label ("Berita/bulan") rather than the shared "{$max}
+     * {$label}" format every other resource uses: it's PlanLimitService's one
+     * MONTHLY_RESOURCES key, a per-calendar-month quota rather than a lifetime cap, and a bare
+     * "4 Berita" on the landing page - the first thing a prospective buyer sees - would read
+     * as a hard ceiling instead of what it actually is.
+     *
      * @return array<int, array{label: string, available: bool}>
      */
     public function pricingFeatures(): array
@@ -113,10 +119,11 @@ class Plan extends Model
 
         foreach ($resourceLabels as $key => $label) {
             $max = $this->limitFor($key);
+            $suffix = $key === 'posts' ? '/bulan' : '';
             $features[] = match (true) {
                 $max === null => ['label' => "{$label} Unlimited", 'available' => true],
                 $max === 0 => ['label' => "{$label} Tidak Tersedia", 'available' => false],
-                default => ['label' => "{$max} {$label}", 'available' => true],
+                default => ['label' => "{$max} {$label}{$suffix}", 'available' => true],
             };
         }
 

@@ -6,8 +6,8 @@ use Illuminate\Database\Migrations\Migration;
 return new class extends Migration
 {
     /**
-     * Sets 'sections_total' on the two non-exclusive plans: starter 5 -> 8, organization 8 -> 15.
-     * Professional (25) is untouched.
+     * Sets 'sections_total' on the two non-exclusive plans: starter 5 -> 8, premium 8 -> 15.
+     * Eksklusif (25) is untouched.
      *
      * The old numbers were set before any standard-tier template existed, and turned out to be
      * the binding constraint on how complete a single-page profile could be - a cabang profile
@@ -29,7 +29,7 @@ return new class extends Migration
     {
         $limits = [
             'starter' => 8,
-            'organization' => 15,
+            'premium' => 15,
         ];
 
         foreach ($limits as $key => $maxCount) {
@@ -49,7 +49,7 @@ return new class extends Migration
     {
         $limits = [
             'starter' => 5,
-            'organization' => 8,
+            'premium' => 8,
         ];
 
         foreach ($limits as $key => $maxCount) {

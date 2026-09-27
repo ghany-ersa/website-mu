@@ -173,7 +173,7 @@
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Target Waktu Terbit</p>
                         </div>
                         <div>
-                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp{{ number_format(($plans->first()->price_monthly ?? 10000) / 1000, 1, ',', '.') }}rb</p>
+                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp{{ number_format(($plans->first()->price_monthly ?? 15000) / 1000, 1, ',', '.') }}rb</p>
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Mulai dari /bulan</p>
                         </div>
                     </div>

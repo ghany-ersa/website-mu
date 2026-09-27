@@ -86,9 +86,11 @@ class OrganizationStoreTest extends TestCase
     }
 
     /**
-     * Every organization is created on Starter, which never has has_exclusive_templates.
+     * An organization may be created on an exclusive template while still on Starter: the
+     * entitlement is enforced when publishing, not when choosing (see
+     * Organization::planViolations()). The org is created and simply can't go live yet.
      */
-    public function test_exclusive_template_is_rejected(): void
+    public function test_exclusive_template_is_accepted_but_blocks_publishing(): void
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
@@ -102,9 +104,15 @@ class OrganizationStoreTest extends TestCase
             'template_id' => $template->id,
             'name' => 'Exclusive Org',
             'slug' => 'exclusive-org-'.uniqid(),
-        ])->assertSessionHasErrors('template_id');
+        ])->assertSessionHasNoErrors();
 
-        $this->assertDatabaseMissing('organizations', ['name' => 'Exclusive Org']);
+        $organization = Organization::where('name', 'Exclusive Org')->firstOrFail();
+
+        $this->assertSame($template->id, $organization->template_id);
+        $this->assertContains(
+            'Template ini memerlukan paket Eksklusif',
+            $organization->planViolations(),
+        );
     }
 
     /**

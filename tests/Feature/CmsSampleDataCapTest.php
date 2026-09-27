@@ -49,7 +49,7 @@ class CmsSampleDataCapTest extends TestCase
      */
     public function test_no_resource_exceeds_the_cap_on_a_generous_plan(): void
     {
-        $organization = $this->makeOrganization('professional');
+        $organization = $this->makeOrganization('eksklusif');
 
         foreach ([
             'facilities' => $organization->facilities()->count(),
@@ -75,11 +75,14 @@ class CmsSampleDataCapTest extends TestCase
         $this->assertLessThanOrEqual(1, $organization->donationPrograms()->count());
         $this->assertLessThanOrEqual(2, $organization->announcements()->count());
 
-        // Only the content-quota violations matter here; an unpaid plan is a separate condition
-        // this organization has by construction (no PlanChangeRequest was ever approved for it).
+        // Only the content-quota violations matter here. An unpaid plan, and an exclusive
+        // template on a Starter plan, are separate conditions this organization has by
+        // construction (no PlanChangeRequest was ever approved for it, and the factory's
+        // template may be exclusive).
         $quotaViolations = array_values(array_filter(
             $organization->planViolations(),
-            fn (string $violation) => ! str_contains($violation, 'Pembayaran'),
+            fn (string $violation) => ! str_contains($violation, 'Pembayaran')
+                && ! str_contains($violation, 'Template ini memerlukan'),
         ));
 
         $this->assertSame([], $quotaViolations);
@@ -91,7 +94,7 @@ class CmsSampleDataCapTest extends TestCase
      */
     public function test_the_kept_samples_are_the_first_of_the_real_list(): void
     {
-        $organization = $this->makeOrganization('professional');
+        $organization = $this->makeOrganization('eksklusif');
 
         $this->assertSame('Halaman dan Teras Depan', $organization->facilities()->first()->name);
         $this->assertSame('Suhartono, S.Pd', $organization->officers()->first()->name);

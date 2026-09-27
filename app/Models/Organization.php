@@ -364,7 +364,7 @@ class Organization extends Model
     /**
      * Human-readable list of ways this organization currently breaks its own plan's rules —
      * derived fresh on every call rather than stored, since content counts and plan_expires_at
-     * change independently of each other. Three kinds of violation:
+     * change independently of each other. Four kinds of violation:
      *
      *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) - happens after a
      *    downgrade, since PlanLimitService::canCreate() only blocks *new* creation and never
@@ -375,6 +375,8 @@ class Organization extends Model
      *    hasPaidForCurrentPlan()) - e.g. a newly created organization, which gets plan_id set
      *    immediately (see OrganizationController::store()) but no plan_expires_at until an
      *    admin approves its first PlanChangeRequest.
+     *  - An is_exclusive template on a plan without that entitlement - the picker lets anyone
+     *    start building on a premium design, so the gate lands here at publish time instead.
      *
      * Used by OrganizationController::publish() to block publishing while any of these hold,
      * and by the public tenant page (_document.blade.php) to show a violation badge on an
@@ -384,16 +386,15 @@ class Organization extends Model
      */
     public function planViolations(): array
     {
-        // key => [relation method, label]
         $resources = [
-            'posts' => ['posts', 'Berita'],
-            'agendas' => ['agendas', 'Agenda'],
-            'announcements' => ['announcements', 'Pengumuman'],
-            'officers' => ['officers', 'Data Pengurus'],
-            'programs' => ['programs', 'Program/Layanan'],
-            'gallery_photos' => ['photos', 'Foto Galeri'],
-            'facilities' => ['facilities', 'Fasilitas'],
-            'donation_programs' => ['donationPrograms', 'Program Donasi'],
+            'posts' => 'Berita',
+            'agendas' => 'Agenda',
+            'announcements' => 'Pengumuman',
+            'officers' => 'Data Pengurus',
+            'programs' => 'Program/Layanan',
+            'gallery_photos' => 'Foto Galeri',
+            'facilities' => 'Fasilitas',
+            'donation_programs' => 'Program Donasi',
         ];
 
         // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
@@ -407,17 +408,23 @@ class Organization extends Model
         // exact same re-querying behavior on its own whenever `plan` isn't loaded, so this is a
         // no-op for every other caller (admin/preview contexts that may have just mutated
         // plan_id in this same request).
+        //
+        // currentCount() (not a direct ->{$relation}()->count()) so a PlanLimitService::
+        // MONTHLY_RESOURCES key (currently 'posts') is counted the same way here as everywhere
+        // else - only this calendar month's records against this month's quota, not the
+        // organization's all-time total, which would otherwise keep flagging a violation
+        // forever once an org ever had a busy month.
         $service = app(PlanLimitService::class);
         $violations = [];
 
-        foreach ($resources as $key => [$relation, $label]) {
+        foreach ($resources as $key => $label) {
             $limit = $service->effectiveLimitForFreshOrganization($this, $key);
 
             if ($limit === null) {
                 continue;
             }
 
-            $over = $this->{$relation}()->count() - $limit;
+            $over = $service->currentCount($this, $key) - $limit;
 
             if ($over > 0) {
                 $violations[] = "{$label} melebihi batas paket ({$over} kelebihan)";
@@ -440,6 +447,16 @@ class Organization extends Model
             $violations[] = 'Pembayaran paket langganan belum dikonfirmasi';
         }
 
+        // An exclusive template on a plan that doesn't grant them. Reachable because the
+        // template picker deliberately lets anyone *build* on a premium design (every new
+        // organization starts on Starter - see OrganizationController::store()); it's
+        // publishing that's gated, not choosing. Not a template the plan simply "hasn't paid
+        // for yet" - canUseExclusiveTemplates() reads the entitlement, so this clears itself
+        // the moment an upgrade is approved, with no template change needed.
+        if ($this->template?->is_exclusive && ! $this->canUseExclusiveTemplates()) {
+            $violations[] = 'Template ini memerlukan paket Eksklusif';
+        }
+
         return $violations;
     }
 
@@ -455,8 +472,9 @@ class Organization extends Model
     /**
      * Whether this organization's plan grants access to templates marked
      * Template::is_exclusive - used to gate the "Ganti Template" picker
-     * (see OrganizationTemplateController) so a Starter/Organization-plan org can't
-     * switch onto a Professional-only design. Also gates picking an exclusive section
+     * (see OrganizationTemplateController) so a Starter/Premium-plan org can't
+     * switch onto a design exclusive to the top plan (key 'eksklusif', see PlanSeeder).
+     * Also gates picking an exclusive section
      * *variant* for a section it already has (OrganizationSectionController::update()) and
      * adding an exclusive-flagged *section* in the first place (::store()) - see
      * config/page-builder.php's own `exclusive` doc comment for how those two gates differ.
@@ -747,12 +765,12 @@ class Organization extends Model
      */
     /**
      * @param  array<string, array<int, array<string, mixed>>>  $preserveContentByKey  Section
-     *         key => queue of that key's previous `content` arrays, oldest-page-first (see
-     *         OrganizationTemplateController::update(), the only caller that passes this).
-     *         Each cloned section whose key has an entry left in its queue gets that content
-     *         instead of the new template's default, and consumes one entry - so switching from
-     *         a template with two 'daftar-berita' sections to one with two also keeps them
-     *         paired up in the same order, rather than both grabbing the same saved content.
+     *                                                                                 key => queue of that key's previous `content` arrays, oldest-page-first (see
+     *                                                                                 OrganizationTemplateController::update(), the only caller that passes this).
+     *                                                                                 Each cloned section whose key has an entry left in its queue gets that content
+     *                                                                                 instead of the new template's default, and consumes one entry - so switching from
+     *                                                                                 a template with two 'daftar-berita' sections to one with two also keeps them
+     *                                                                                 paired up in the same order, rather than both grabbing the same saved content.
      */
     private function seedPagesFromTemplate(array $preserveContentByKey = []): void
     {

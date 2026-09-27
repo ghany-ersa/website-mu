@@ -55,12 +55,13 @@
                         </td>
                         <td class="px-5 py-4 font-semibold text-gray-800">
                             {{-- Badge color tiers with the plan's price rank, cheapest to priciest
-                                 - key is stable (see PlanSeeder) so this doesn't depend on name
-                                 text matching. Amber for Professional matches the "Eksklusif"
-                                 badge used elsewhere for the same top-tier plan gate (e.g.
-                                 Template::is_exclusive cards). Any other/future plan key falls
-                                 back to the same neutral gray as Starter rather than an unstyled
-                                 badge. --}}
+                                 - keyed off the stable `key` column (see PlanSeeder), not the
+                                 user-facing `name` ("Eksklusif" as of this seeding), so a future
+                                 rename doesn't silently break this. Amber for the top tier (key
+                                 'professional') matches the "Eksklusif" badge used elsewhere for
+                                 the same plan gate (e.g. Template::is_exclusive cards). Any
+                                 other/future plan key falls back to the same neutral gray as
+                                 Starter rather than an unstyled badge. --}}
                             @php
                                 $planBadgeClass = match ($request->requestedPlan->key) {
                                     'organization' => 'bg-blue-100 text-blue-600',

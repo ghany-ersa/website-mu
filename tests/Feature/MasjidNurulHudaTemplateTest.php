@@ -42,7 +42,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $this->seed(MasjidNurulHudaTemplateSeeder::class);
 
         $template = Template::where('slug', 'masjid-nurul-huda-eksklusif')->firstOrFail();
-        $professional = Plan::where('key', 'professional')->firstOrFail();
+        $professional = Plan::where('key', 'eksklusif')->firstOrFail();
         $orgType = OrganizationType::where('slug', 'masjidmushola')->firstOrFail();
 
         $organization = Organization::create([

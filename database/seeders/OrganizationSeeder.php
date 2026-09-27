@@ -83,18 +83,18 @@ class OrganizationSeeder extends Seeder
 
     public function run(): void
     {
-        $plans = Plan::whereIn('key', ['starter', 'organization', 'professional'])->get()->keyBy('key');
+        $plans = Plan::whereIn('key', ['starter', 'premium', 'eksklusif'])->get()->keyBy('key');
 
         $organizations = [
-            ['template' => PcmAmbuluTemplateSeeder::SLUG, 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'organization', 'published' => true, 'contact' => 'pcm-ambulu'],
+            ['template' => PcmAmbuluTemplateSeeder::SLUG, 'name' => 'PCM Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'premium', 'published' => true, 'contact' => 'pcm-ambulu'],
             ['template' => PcaAmbuluTemplateSeeder::SLUG, 'name' => 'PCA Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => true, 'contact' => 'pca-ambulu'],
-            ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'klinik'],
-            ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'suara-muhammadiyah'],
-            ['template' => PcmAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCM Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => false, 'contact' => 'pcm-ambulu'],
-            ['template' => PcaAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCA Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => false, 'contact' => 'pca-ambulu'],
+            ['template' => KlinikAisyiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Klinik Pratama Aisyiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'eksklusif', 'published' => true, 'contact' => 'klinik'],
+            ['template' => SuaraMuhammadiyahAmbuluTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu', 'region' => 'Jember, Jawa Timur', 'plan' => 'eksklusif', 'published' => true, 'contact' => 'suara-muhammadiyah'],
+            ['template' => PcmAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCM Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'eksklusif', 'published' => false, 'contact' => 'pcm-ambulu'],
+            ['template' => PcaAmbuluEksklusifTemplateSeeder::SLUG, 'name' => 'PCA Ambulu Eksklusif', 'region' => 'Jember, Jawa Timur', 'plan' => 'eksklusif', 'published' => false, 'contact' => 'pca-ambulu'],
             ['template' => KlinikAisyiyahAmbuluStandarTemplateSeeder::SLUG, 'name' => 'Klinik Aisyiyah Ambulu Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'klinik'],
             ['template' => SuaraMuhammadiyahAmbuluStandarTemplateSeeder::SLUG, 'name' => 'Suara Muhammadiyah Ambulu Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'suara-muhammadiyah'],
-            ['template' => MasjidNurulHudaTemplateSeeder::SLUG, 'name' => 'Masjid Nurul Huda', 'region' => 'Jember, Jawa Timur', 'plan' => 'professional', 'published' => true, 'contact' => 'masjid-nurul-huda'],
+            ['template' => MasjidNurulHudaTemplateSeeder::SLUG, 'name' => 'Masjid Nurul Huda', 'region' => 'Jember, Jawa Timur', 'plan' => 'eksklusif', 'published' => true, 'contact' => 'masjid-nurul-huda'],
             ['template' => MasjidNurulHudaStandarTemplateSeeder::SLUG, 'name' => 'Masjid Nurul Huda Standar', 'region' => 'Jember, Jawa Timur', 'plan' => 'starter', 'published' => false, 'contact' => 'masjid-nurul-huda'],
         ];
 

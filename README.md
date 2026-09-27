@@ -20,11 +20,11 @@ Setiap jenis organisasi punya kebutuhan komunikasi yang berbeda, jadi Website-mu
 
 - **Daftar & buat organisasi** — beberapa pengguna bisa mengelola satu organisasi bersama, dengan peran Owner dan Editor.
 - **Pilih jenis organisasi & template** — 5 jenis organisasi dalam 2 kategori (Organisasi dan Amal Usaha Muhammadiyah), dengan 10 template siap pakai; bisa dipratinjau tanpa login dan diganti kapan saja.
-- **Susun halaman lewat page builder** — tambah, hapus, duplikasi, dan urutkan section (profil, sambutan ketua, struktur pengurus, program unggulan, jadwal kajian, PPDB, donasi, laporan keuangan, dan lainnya) tanpa menyentuh kode. Paket Professional mendukung banyak halaman sekaligus.
+- **Susun halaman lewat page builder** — tambah, hapus, duplikasi, dan urutkan section (profil, sambutan ketua, struktur pengurus, program unggulan, jadwal kajian, PPDB, donasi, laporan keuangan, dan lainnya) tanpa menyentuh kode. Paket Eksklusif mendukung banyak halaman sekaligus.
 - **Kelola konten lewat CMS** — berita, agenda, pengumuman, pengurus, program, galeri foto, fasilitas, laporan keuangan, dan program donasi — semua lewat form sederhana.
 - **Atur identitas brand** — warna, logo, font, dan sudut membulat organisasi, konsisten di seluruh halaman.
 - **Terbitkan ke subdomain publik** — situs organisasi langsung bisa diakses di `{nama-organisasi}.website-mu.id`, lengkap dengan SEO, sitemap otomatis, dan cache halaman.
-- **Pilih paket langganan** sesuai kebutuhan, dengan pembayaran otomatis lewat Midtrans.
+- **Pilih paket langganan** sesuai kebutuhan, dengan pembayaran lewat Midtrans Snap atau transfer manual (QRIS/bank) sebagai cadangan.
 
 ## Dokumen referensi
 

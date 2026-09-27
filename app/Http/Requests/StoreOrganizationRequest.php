@@ -31,10 +31,12 @@ class StoreOrganizationRequest extends FormRequest
     {
         return [
             'organization_type_id' => ['required', 'exists:organization_types,id'],
+            // is_exclusive is deliberately NOT rejected here: an organization may be created on
+            // a premium template while still on Starter, and only publishing is blocked until
+            // the plan is upgraded (see Organization::planViolations()).
             'template_id' => [
                 'required',
                 Rule::exists('templates', 'id')->where('is_active', true),
-                Rule::notIn($this->exclusiveTemplateIds()),
                 Rule::notIn($this->typelessTemplateIds()),
             ],
             'name' => ['required', 'string', 'max:255'],
@@ -66,24 +68,8 @@ class StoreOrganizationRequest extends FormRequest
             'slug.max' => 'Slug maksimal terdiri dari :max karakter.',
             'template_id.required' => 'Pilih template terlebih dahulu.',
             'template_id.exists' => 'Template yang dipilih tidak tersedia.',
-            'template_id.not_in' => in_array((int) $this->input('template_id'), $this->typelessTemplateIds(), true)
-                ? 'Template ini belum bisa dipakai karena belum punya jenis organisasi. Hubungi admin.'
-                : 'Template ini eksklusif untuk paket Professional. Organisasi baru selalu dimulai dari paket Starter - upgrade paket lalu ganti template dari halaman pengaturan organisasi.',
+            'template_id.not_in' => 'Template ini belum bisa dipakai karena belum punya jenis organisasi. Hubungi admin.',
         ];
-    }
-
-    /**
-     * Every organization is created on the Starter plan (see OrganizationController::store()),
-     * so a Template::is_exclusive template can never be legitimately chosen at creation time —
-     * not via the template picker (which renders them locked), and not via a template_id
-     * smuggled in from TemplateUseController's "Gunakan Template" flow either. The only path
-     * onto an exclusive template is switching after upgrading (see OrganizationTemplateController).
-     *
-     * @return array<int, int>
-     */
-    private function exclusiveTemplateIds(): array
-    {
-        return Template::where('is_exclusive', true)->pluck('id')->all();
     }
 
     /**

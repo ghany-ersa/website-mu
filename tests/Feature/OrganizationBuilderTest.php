@@ -440,7 +440,7 @@ class OrganizationBuilderTest extends TestCase
     {
         $user = User::factory()->create();
         $organization = Organization::factory()->create([
-            'plan_id' => Plan::where('key', 'professional')->firstOrFail()->id,
+            'plan_id' => Plan::where('key', 'eksklusif')->firstOrFail()->id,
         ]);
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
         OrganizationPage::factory()->create([

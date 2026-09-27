@@ -64,7 +64,7 @@ class OrganizationTemplateController extends Controller
 
         if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates()) {
             return back()->withErrors([
-                'template_id' => 'Template ini eksklusif untuk paket Professional. Upgrade paket organisasi Anda terlebih dahulu.',
+                'template_id' => 'Template ini hanya tersedia untuk paket Eksklusif. Upgrade paket organisasi Anda terlebih dahulu.',
             ]);
         }
 

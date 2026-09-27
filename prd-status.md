@@ -35,9 +35,9 @@ Skala kode: ~26 model, ~44 controller, ~65 migration, ~26 jenis section, 10 temp
 - Preview template publik tanpa login, alur "pakai template ini", flag `is_featured` (tampil di homepage) dan `is_exclusive` (butuh entitlement paket).
 
 ### 2.3 Page Builder (multi-halaman)
-- **Multi-halaman sudah nyata**, digerbangi limit paket `pages_total` (Starter/Organization = 1, Professional = 10). UI tambah/ubah/hapus halaman ada di builder.
+- **Multi-halaman sudah nyata**, digerbangi limit paket `pages_total` (Starter/Premium = 1, Eksklusif = 10). UI tambah/ubah/hapus halaman ada di builder.
 - Registry section terpusat di `config/page-builder.php`, **~26 jenis section**, config-driven (`fields`, `defaults`, `cms`).
-- Flag per section: `locked` (header/footer), `hidden` (belum siap - saat ini `jadwal-salat`), `exclusive` (butuh paket Professional).
+- Flag per section: `locked` (header/footer), `hidden` (belum siap - saat ini `jadwal-salat`), `exclusive` (butuh paket Eksklusif).
 - **Section variant**: tiap section dirender dari `templates/sections/{key}/{variant}.blade.php` lewat tabel `section_variants` (`SectionVariantResolver`). Variant punya `is_exclusive` sendiri, terpisah dari `exclusive` di registry - keduanya diperlukan untuk 5 section masjid premium.
 - Tambah, hapus, duplikasi, reorder (SortableJS), preview per-section dan preview seluruh halaman.
 
@@ -62,14 +62,15 @@ Model + migration + controller resource lengkap, semua ter-scope ke organisasi: 
 - Halaman error kustom (401/402/403/404/419/429/500/503).
 
 ### 2.7 Paket Langganan & Pembayaran
-- **3 paket**: Starter Rp 10.000, Organization Rp 18.000, Professional Rp 25.000 per bulan.
+- **3 paket** (`key` internal / `name` tampilan): `starter`/Starter Rp 15.000, `premium`/Premium Rp 31.000, `eksklusif`/Eksklusif Rp 35.000 per bulan (`PlanSeeder`). `key` tidak pernah berubah tanpa migrasi data yang menyertainya - dipakai sebagai identifier stabil oleh `PlanLimitService`, seeder lain, dan migrasi.
+- **Harga adalah struktur decoy (asymmetric dominance) yang disengaja**, bukan tiga angka independen: Premium diberi harga dekat ke Eksklusif (Rp29.000 vs Rp34.000/bulan, selisih ~17% tanpa diskon) tanpa entitlement tambahan apa pun (`hide_branding`/`has_exclusive_templates` sama-sama `false`) - perannya membuat Eksklusif terlihat jelas lebih baik, bukan untuk laku sendiri. Diskon durasi (`discount_percent_6`/`discount_percent_12`) **naik bertingkat per plan** - Starter 5%/7%, Premium 7%/10%, Eksklusif 10%/15% - sehingga gap harga efektif Premium→Eksklusif **menyempit** seiring durasi makin panjang: 17,2% (3 bulan) → 13,5% (6 bulan) → 10,7% (12 bulan, eff. Rp26.100 vs Rp28.900/bulan). Diskon proporsional tidak bisa membalik urutan dua harga (lihat `Plan::priceForDuration()`), jadi Eksklusif tidak pernah jadi lebih murah dari Premium - tapi makin lama komitmennya, makin kecil alasan berhenti di Premium.
 - Entitlement: `hide_branding`, `has_exclusive_templates`.
 - Limit per resource: posts, agendas, announcements, officers, programs, gallery_photos, facilities, donation_programs, `sections_total`, `pages_total`.
-- `PlanLimitService` - resolusi 3 tingkat: **override per-tenant → snapshot limit yang sudah dibayar → limit live paket**.
-- **Pembayaran otomatis lewat Midtrans Snap** (`config/billing.php`, `MidtransService`, `MidtransWebhookController` dengan verifikasi signature + re-fetch status). **Tidak ada** alur transfer manual.
-- State machine `PlanChangeRequestStatus`: Pending → PaymentConfirmed → Approved/Rejected, plus `PaymentReceivedNeedsReview` (pembayaran masuk tapi auto-approve gagal, admin bisa retry maksimal `max_approve_attempts`) dan `Expired`.
-- Kode diskon (`DiscountCode`), diskon durasi, auto-approve bila diskon menutup seluruh biaya.
-- `Organization::planViolations()` memblokir publish dan menampilkan badge bila melanggar.
+- `PlanLimitService` - resolusi 3 tingkat: **override per-tenant → snapshot limit yang sudah dibayar → limit live paket**. Organisasi tanpa `plan_id` (data lama) jatuh ke paket `premium` sebagai fallback, bukan fail-closed.
+- **Pembayaran via Midtrans Snap** (`config/billing.php`, `MidtransService`, `MidtransWebhookController` dengan verifikasi signature + re-fetch status) **sebagai jalur utama**, dengan **fallback transfer manual/QRIS** (`config/billing.php`'s `manual_transfer.only` - matikan Midtrans sepenuhnya bila bermasalah, atau biarkan keduanya berdampingan). Jalur manual tetap butuh verifikasi admin eksplisit (`Admin\PlanChangeRequestController::approveManual()`) - klaim tenant sendiri tidak pernah otomatis mengaktifkan paket.
+- State machine `PlanChangeRequestStatus`: Pending → PaymentConfirmed → Approved/Rejected, plus `PaymentReceivedNeedsReview` (pembayaran masuk tapi auto-approve gagal, admin bisa retry maksimal `max_approve_attempts`) dan `Expired`. `PaymentConfirmed` dicapai baik oleh webhook Midtrans maupun oleh tenant yang mengonfirmasi transfer manual - keduanya tetap butuh persetujuan admin untuk sampai ke `Approved` lewat jalur manual.
+- Kode diskon (`DiscountCode`), diskon durasi, auto-approve bila diskon menutup seluruh biaya (`gatewayAmount() === 0` di `OrganizationPlanController`, sebelum pernah menyentuh Midtrans).
+- `Organization::planViolations()` memblokir publish dan menampilkan badge bila melanggar - termasuk memilih template `is_exclusive` saat paket tidak punya `has_exclusive_templates`. Template picker sengaja **tidak** memblokir pemilihan template eksklusif di semua paket; gate-nya baru berlaku saat publikasi, supaya organisasi baru bisa langsung mencoba/merancang dengan template premium sebelum upgrade.
 - Plan override oleh admin (`PlanOverrideLog`) untuk melewati pembayaran.
 
 ### 2.8 Admin Panel

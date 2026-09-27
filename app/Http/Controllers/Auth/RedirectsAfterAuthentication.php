@@ -18,13 +18,13 @@ trait RedirectsAfterAuthentication
     {
         $templateSlug = Session::pull('pending_template_slug');
 
-        // Mirrors the filters OrganizationController::create() applies: an exclusive or typeless
-        // template would only bounce the user straight back to the picker, so don't forward them
-        // into step 2 carrying one.
+        // Mirrors the filters OrganizationController::create() applies: a typeless template would
+        // only bounce the user straight back to the picker, so don't forward them into step 2
+        // carrying one. is_exclusive is allowed through - it's selectable from any plan now, and
+        // dropping it here would silently discard the template a user picked before registering.
         $template = $templateSlug
             ? Template::where('slug', $templateSlug)
                 ->where('is_active', true)
-                ->where('is_exclusive', false)
                 ->whereNotNull('organization_type_id')
                 ->first()
             : null;
