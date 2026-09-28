@@ -63,7 +63,7 @@ class PcmAmbuluTemplateSeeder extends Seeder
             [
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Muhammadiyah Damai',
-                'description' => 'Perkenalkan pimpinan harian dan koordinator bidang cabang Anda, tunjukkan program unggulan tiap bidang, dan bagikan agenda serta kabar kegiatan - lengkap dengan jaringan Ortom dan Amal Usaha di satu halaman profil cabang.',
+                'description' => 'Perkenalkan pimpinan harian dan koordinator bidang cabang Anda, tunjukkan program unggulan tiap bidang, dan bagikan agenda serta kabar kegiatan - satu halaman profil cabang, lengkap dengan kontak dan peta sekretariat.',
                 'is_active' => false,
                 'is_exclusive' => false,
                 'is_featured' => false,

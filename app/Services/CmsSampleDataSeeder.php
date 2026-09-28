@@ -16,6 +16,7 @@ use App\Models\Organization;
 use App\Models\OrganizationNetwork;
 use App\Models\Post;
 use App\Models\Program;
+use App\Models\Testimonial;
 use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
 use App\Services\Samples\PcaAmbuluSamples;
 use App\Services\Samples\PcmAmbuluSamples;
@@ -202,7 +203,9 @@ class CmsSampleDataSeeder
         $isSuaraMuhammadiyah = in_array($slug, self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS, true);
         $isPcm = in_array($slug, self::PCM_TEMPLATE_SLUGS, true);
         $isPca = in_array($slug, self::PCA_TEMPLATE_SLUGS, true);
-        $isSdMadya = $slug === SdMadyaSamples::TEMPLATE_SLUG;
+        // Both school tiers, like every other showcase here: a LIST, so the standar tier doesn't
+        // fall through to the generic placeholders while describing the same school.
+        $isSdMadya = in_array($slug, [SdMadyaSamples::TEMPLATE_SLUG, 'sd-madya-standar'], true);
 
         if (in_array('daftar-berita', $keys, true)) {
             $postSamples = match (true) {
@@ -248,6 +251,7 @@ class CmsSampleDataSeeder
                 $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::timRedaksi(),
                 $isPcm => PcmAmbuluSamples::pimpinanHarian(),
                 $isPca => PcaAmbuluSamples::pimpinanCabang(),
+                $isSdMadya => SdMadyaSamples::timPengajar(),
                 default => null,
             };
 
@@ -258,7 +262,13 @@ class CmsSampleDataSeeder
             // its officer cards should stay empty until it uploads genuine headshots, since a
             // stock face attached to a named person on a live site would misrepresent them.
             // See PortraitPhotos for why the faces are assigned by index, never by name.
-            if ($officerSamples !== null && $organization->is_sandbox) {
+            // ...but NOT for the school roster. The other showcases' officer lists are either
+            // placeholders or public office-holders shown by title; the SD Madya list is the
+            // school's actual staff, transcribed from its own org chart, so pinning a stock
+            // face to "Beni Hendarto, S.Pd.I" would put a stranger's photo next to a real,
+            // identifiable person's name - the exact misrepresentation the comment above
+            // rules out, and it does not stop being one because the page is a sandbox.
+            if ($officerSamples !== null && $organization->is_sandbox && ! $isSdMadya) {
                 $officerSamples = PortraitPhotos::applyTo($officerSamples);
             }
 
@@ -271,6 +281,10 @@ class CmsSampleDataSeeder
                 $isPca => PcaAmbuluSamples::jaringanItems(),
                 default => null,
             });
+        }
+
+        if (in_array('testimoni', $keys, true)) {
+            self::seedTestimonials($organization, $limits, $isSdMadya ? SdMadyaSamples::testimoniItems() : null);
         }
 
         if (in_array('prestasi', $keys, true)) {
@@ -555,6 +569,7 @@ class CmsSampleDataSeeder
             'organization_id' => $organization->id,
             'name' => $sample['name'],
             'role' => $sample['role'],
+            'subject' => $sample['subject'] ?? null,
             'photo' => $sample['photo'] ?? null,
             'order' => $index,
             'created_at' => $now,
@@ -670,6 +685,55 @@ class CmsSampleDataSeeder
         }
 
         Achievement::insert($rows);
+    }
+
+    /**
+     * Sample testimonials for the `testimoni` section. Guards on existing rows like every other
+     * resource here, so it never clobbers quotes an owner has already collected.
+     *
+     * Names stay bracketed placeholders - see SdMadyaSamples::testimoniItems() for why a
+     * fabricated endorsement is not the same kind of placeholder as a fabricated officer.
+     *
+     * @param  array<int, array<string, string>>|null  $customSamples
+     */
+    private static function seedTestimonials(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
+    {
+        if ($organization->testimonials()->exists()) {
+            return;
+        }
+
+        $samples = $customSamples ?? [
+            ['quote' => 'Ganti dengan testimoni asli dari orang yang pernah merasakan layanan Anda.', 'name' => '[Nama]', 'role' => 'Alumni'],
+            ['quote' => 'Minta izin lebih dulu sebelum menampilkan nama dan fotonya di situs.', 'name' => '[Nama]', 'role' => 'Wali Murid'],
+            ['quote' => 'Testimoni yang spesifik lebih meyakinkan daripada pujian umum.', 'name' => '[Nama]', 'role' => 'Alumni'],
+        ];
+
+        $count = self::sampleCount($organization, $limits, 'testimonials', count($samples));
+
+        if ($count === 0) {
+            return;
+        }
+
+        $now = now();
+        $rows = [];
+
+        foreach (array_slice($samples, 0, $count) as $index => $sample) {
+            $rows[] = [
+                'organization_id' => $organization->id,
+                'quote' => $sample['quote'],
+                'name' => $sample['name'],
+                'role' => $sample['role'] ?? null,
+                // Null even on a sandbox: a stock face beside a quote reads as a real person
+                // endorsing the school. See seedOfficers()'s note on PortraitPhotos.
+                'photo' => null,
+                'is_active' => true,
+                'order' => $index,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        Testimonial::insert($rows);
     }
 
     private static function seedPrograms(Organization $organization, PlanLimitService $limits, array $requested): void

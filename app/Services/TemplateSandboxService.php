@@ -41,6 +41,14 @@ class TemplateSandboxService
         'gallery_photos',
         'facilities',
         'donation_programs',
+        // The three school resources. They were added after this list and never appended to it,
+        // so a school sandbox inherited the fallback plan's quota instead of being unlimited -
+        // and since students/testimonials are 0 below Eksklusif, the designer opened with those
+        // sections empty and no way to add a row. A sandbox exists to show the template filled
+        // in, so it must not be quota-bound at all.
+        'students',
+        'achievements',
+        'testimonials',
     ];
 
     /**

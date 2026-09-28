@@ -77,6 +77,10 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 1],
             ['key' => 'students', 'max_count' => 0],
             ['key' => 'achievements', 'max_count' => 3],
+            // 0: the `testimoni` section is exclusive (config/page-builder.php), so a Starter
+            // organization cannot add it at all - a quota above 0 would promise something the
+            // section gate never lets it use.
+            ['key' => 'testimonials', 'max_count' => 0],
             ['key' => 'sections_total', 'max_count' => 8],
             ['key' => 'pages_total', 'max_count' => 1],
         ]);
@@ -103,6 +107,7 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 3],
             ['key' => 'students', 'max_count' => 0],
             ['key' => 'achievements', 'max_count' => 15],
+            ['key' => 'testimonials', 'max_count' => 0],
             ['key' => 'sections_total', 'max_count' => 15],
             ['key' => 'pages_total', 'max_count' => 3],
         ]);
@@ -129,6 +134,7 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 10],
             ['key' => 'students', 'max_count' => 60],
             ['key' => 'achievements', 'max_count' => 40],
+            ['key' => 'testimonials', 'max_count' => 12],
             ['key' => 'sections_total', 'max_count' => 25],
             ['key' => 'pages_total', 'max_count' => 10],
         ]);

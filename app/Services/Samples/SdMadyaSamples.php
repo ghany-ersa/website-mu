@@ -91,6 +91,85 @@ class SdMadyaSamples
     }
 
     /**
+     * The school's actual staff, transcribed from its own organisational chart. Ordered by
+     * seniority rather than by the chart's left-to-right layout, because
+     * CmsSampleDataSeeder::sampleCount() truncates this list to the plan's `officers` limit
+     * (Starter 5, Premium 10, Eksklusif 25) - so the kepala sekolah must lead, not whoever
+     * happened to sit in the chart's top-left box.
+     *
+     * `role` is the titled position and `subject` the teaching assignment, which is the split
+     * the sd-madya variant renders (see add_teacher_fields_to_officers_table). Several
+     * people hold two posts - Beni Hendarto is both kepala sekolah and guru PAI, Fais Hayu
+     * Usmawati both bendahara and guru kelas IVA, Tri Agung both wakil kepala and guru PJOK,
+     * Syahrul Dwi Arifin both operator and guru kelas VB, Amalia Virgi both tata usaha and guru
+     * kelas IIB - so each appears ONCE with their senior role and their class in `subject`,
+     * rather than twice as two different people.
+     *
+     * `photo` stays null: the school's own headshots are not ours to publish, and
+     * struktur-pengurus renders an empty avatar rather than breaking. PortraitPhotos stand-ins
+     * are applied to sandboxes only (see CmsSampleDataSeeder::seed()), never to a real roster
+     * of named people.
+     *
+     * @return array<int, array{name: string, role: string, subject?: string}>
+     */
+    public static function timPengajar(): array
+    {
+        return [
+            ['name' => 'Beni Hendarto, S.Pd.I', 'role' => 'Kepala Sekolah', 'subject' => 'Pendidikan Agama Islam'],
+            ['name' => 'Tri Agung Misbahul Ulum, S.Pd', 'role' => 'Wakil Kepala Sekolah', 'subject' => 'Pendidikan Jasmani & Olahraga'],
+            ['name' => 'Ahmad Huda Ermawan', 'role' => 'Komite Sekolah'],
+            ['name' => 'Abdurachman Habibullah, S.Pd', 'role' => 'Kurikulum Sekolah', 'subject' => 'Bahasa Arab'],
+            ['name' => 'Fais Hayu Usmawati, S.Pd', 'role' => 'Bendahara Sekolah', 'subject' => 'Guru Kelas IVA'],
+            ['name' => 'Syahrul Dwi Arifin, S.Pd', 'role' => 'Operator Sekolah', 'subject' => 'Guru Kelas VB'],
+            ['name' => 'Amalia Virgi Effendy, S.Ak', 'role' => 'Tata Usaha', 'subject' => 'Guru Kelas IIB'],
+            ['name' => "Dwi Jayanti Mu'awanah, S.Pd", 'role' => 'Guru Kelas', 'subject' => 'Kelas 1A'],
+            ['name' => 'Inggit Awanda M, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas 1B'],
+            ['name' => 'Jihan Hanifa, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas IIA'],
+            ['name' => "Wenny Asfia'ul Uyyun, S.Pd", 'role' => 'Guru Kelas', 'subject' => 'Kelas III'],
+            ['name' => 'Yasintha Mahdiatuz Z, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas IV'],
+            ['name' => "Afifatur Rofi'ah, S.Pd", 'role' => 'Guru Kelas', 'subject' => 'Kelas IVB'],
+            ['name' => 'Candrayani Kurnia P P, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas VA'],
+            ['name' => 'Umar Sidiq', 'role' => 'Penjaga Sekolah'],
+        ];
+    }
+
+    /**
+     * Placeholder testimonials for the `testimoni` section.
+     *
+     * Deliberately UNNAMED, unlike timPengajar(): a testimonial is a claim attributed to a real,
+     * identifiable person, and the previous copy invented three - "dr. Hendra Wijaya, Alumni
+     * Tahun 2005" and friends - complete with degrees and graduation years. Seeding a school's
+     * live site with fabricated quotes from fabricated alumni is a different thing from seeding
+     * a placeholder officer roster: it puts words in the mouths of people who do not exist, and
+     * a school that forgets to replace them is publishing testimonials it never collected.
+     *
+     * So the text says what the quote is FOR and the names are bracketed placeholders, which
+     * read as "fill this in" rather than as real endorsements.
+     *
+     * @return array<int, array{quote: string, name: string, role: string}>
+     */
+    public static function testimoniItems(): array
+    {
+        return [
+            [
+                'quote' => 'Ganti dengan testimoni asli dari alumni - misalnya kesan mereka tentang pembiasaan ibadah dan pendampingan guru selama bersekolah di sini.',
+                'name' => '[Nama Alumni]',
+                'role' => 'Alumni',
+            ],
+            [
+                'quote' => 'Ganti dengan testimoni asli dari wali murid - misalnya perubahan yang mereka lihat pada anak sejak masuk sekolah ini.',
+                'name' => '[Nama Wali Murid]',
+                'role' => 'Wali Murid',
+            ],
+            [
+                'quote' => 'Minta izin lebih dulu kepada yang bersangkutan sebelum menampilkan nama dan fotonya di situs sekolah.',
+                'name' => '[Nama Alumni]',
+                'role' => 'Alumni',
+            ],
+        ];
+    }
+
+    /**
      * Activities for the `kegiatan` section - Program rows of type 'kegiatan', which is how the
      * registry maps that section (config/page-builder.php's cms.params.type).
      *

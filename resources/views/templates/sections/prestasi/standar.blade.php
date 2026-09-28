@@ -97,7 +97,9 @@
                     </div>
 
                     <div class="relative max-w-md">
-                        <x-tenant.icon name="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl pointer-events-none" />
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 110-14 7 7 0 010 14z" />
+                        </svg>
                         <input type="search" x-model="q" placeholder="Cari prestasi atau nama siswa…"
                                class="w-full pl-12 pr-4 py-3 rounded-full bg-surface-container-high font-body text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary transition">
                     </div>
@@ -131,7 +133,9 @@
 
                             <div class="flex items-start gap-3">
                                 <div class="w-9 h-9 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
-                                    <x-tenant.icon name="emoji_events" filled class="text-secondary text-xl" />
+                                    <svg class="w-5 h-5 text-secondary" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M18 4V2H6v2H2v3a5 5 0 0 0 4.1 4.92A6 6 0 0 0 11 15.91V18H7v2h10v-2h-4v-2.09a6 6 0 0 0 4.9-3.99A5 5 0 0 0 22 7V4h-4ZM4 7V6h2v3.83A3 3 0 0 1 4 7Zm16 0a3 3 0 0 1-2 2.83V6h2v1Z" />
+                                    </svg>
                                 </div>
                                 <div class="min-w-0">
                                     @if (! empty($item['category']))
@@ -147,7 +151,9 @@
 
                             @if (! empty($item['students']))
                                 <div class="mt-auto pt-4 border-t border-outline-variant/40 flex items-center gap-2 flex-wrap">
-                                    <x-tenant.icon name="person" class="text-sm text-on-surface-variant" />
+                                    <svg class="w-3.5 h-3.5 text-on-surface-variant shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
+                                    </svg>
                                     @foreach ($item['students'] as $student)
                                         @if (! empty($student['url']))
                                             <a href="{{ $student['url'] }}" class="font-headline text-xs font-bold text-primary hover:underline">{{ $student['name'] }}</a>
@@ -165,7 +171,9 @@
             {{-- Only reachable once a filter or query is active, since the grid is non-empty. --}}
             <div x-show="shown === 0" x-cloak class="text-center py-16 flex flex-col items-center gap-3">
                 <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center">
-                    <x-tenant.icon name="search_off" class="text-3xl text-on-surface-variant" />
+                    <svg class="w-8 h-8 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14ZM8.5 8.5l5 5m0-5-5 5" />
+                    </svg>
                 </div>
                 <p class="font-body text-on-surface-variant">Tidak ada prestasi yang cocok.</p>
                 <button type="button" @click="filter = 'Semua'; q = ''"

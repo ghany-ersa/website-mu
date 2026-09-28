@@ -59,7 +59,7 @@ class PcaAmbuluTemplateSeeder extends Seeder
             [
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Aisyiyah Gembira',
-                'description' => 'Tampilkan program lingkungan dan pemberdayaan ekonomi perempuan cabang Anda, agenda kegiatan ibu-ibu, galeri dokumentasi, serta struktur pimpinan dan Amal Usaha - satu halaman profil yang menonjolkan kerja nyata cabang.',
+                'description' => 'Tampilkan program lingkungan dan pemberdayaan ekonomi perempuan cabang Anda, galeri dokumentasi kegiatan, kabar terbaru, serta struktur pimpinan - satu halaman profil yang menonjolkan kerja nyata cabang, lengkap dengan kontak dan peta sekretariat.',
                 'is_active' => false,
                 'is_exclusive' => false,
                 'is_featured' => false,

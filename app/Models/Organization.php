@@ -414,6 +414,7 @@ class Organization extends Model
             'donation_programs' => ['donationPrograms', 'Program Donasi'],
             'students' => ['students', 'Data Siswa'],
             'achievements' => ['achievements', 'Prestasi'],
+            'testimonials' => ['testimonials', 'Testimoni'],
         ];
 
         // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
@@ -619,6 +620,14 @@ class Organization extends Model
     public function achievements(): HasMany
     {
         return $this->hasMany(Achievement::class)->orderByDesc('year')->orderBy('order');
+    }
+
+    /**
+     * @return HasMany<Testimonial, $this>
+     */
+    public function testimonials(): HasMany
+    {
+        return $this->hasMany(Testimonial::class)->orderBy('order');
     }
 
     /**

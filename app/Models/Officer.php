@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * A person with a titled role at the organization. Backs both a branch's board of officers
  * (the `struktur-pengurus` section's `standar` variant) and a school's teaching staff (its
- * `tim-pengajar` variant) - subject/bio/email/phone are only filled in by the latter.
+ * `sd-madya` variant) - subject/bio/email/phone are only filled in by the latter.
  */
 #[Fillable(['organization_id', 'slug', 'name', 'role', 'subject', 'bio', 'photo', 'email', 'phone', 'is_active', 'order'])]
 class Officer extends Model

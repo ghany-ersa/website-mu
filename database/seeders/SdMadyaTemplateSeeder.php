@@ -4,6 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\OrganizationType;
 use App\Models\Template;
+use App\Models\User;
+use App\Services\Samples\SdMadyaSamples;
+use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -45,6 +48,17 @@ class SdMadyaTemplateSeeder extends Seeder
      */
     private const ORGANIZATION_TYPE_SLUG = 'sekolahmadrasah';
 
+    /** PPDB registration form the school already uses; the hero/CTA link straight to it. */
+    public const PPDB_URL = 'https://bit.ly/PPDBSDMADYA';
+
+    /**
+     * Pre-resolved from the school's own https://maps.app.goo.gl/JE1radnw6LNuKMacA share link
+     * via GoogleMapsEmbedResolver, so the seeded value is already the keyless /maps/embed form
+     * the lokasi-peta iframe needs - resolving a short link costs a redirect-following HTTP
+     * request, which a seeder should not depend on at run time.
+     */
+    public const MAP_EMBED = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m2!2m1!1s-8.3530323%2C113.6036492';
+
     /**
      * Stand-in photography from Unsplash, consistent with the other seeded templates. The real
      * school's own photos live in its manajemen-SD-Madya storage and arrive with the data
@@ -66,12 +80,18 @@ class SdMadyaTemplateSeeder extends Seeder
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];
 
-        Template::updateOrCreate(
+        $template = Template::updateOrCreate(
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'SD Muhammadiyah Ambulu (Eksklusif)',
-                'description' => 'Template eksklusif multi-halaman untuk sekolah: beranda dengan profil dan prestasi, wall of fame dengan filter dan pencarian, halaman profil siswa beserta riwayat prestasinya, kegiatan dan ekstrakurikuler, profil tim pengajar, galeri dengan video profil, serta formulir pendaftaran via WhatsApp. Khusus paket dengan entitlement template eksklusif.',
+                // Matches the house style of every other template's description: what the
+                // visitor sees, page by page, in one sentence - not what the template IS. The
+                // previous copy opened with "Template eksklusif multi-halaman untuk sekolah:"
+                // and closed with "Khusus paket dengan entitlement template eksklusif", both of
+                // which the catalog card already says with its amber "Eksklusif" badge, and at
+                // 347 characters it ran half again as long as the next longest.
+                'description' => 'Prestasi siswa dengan filter dan pencarian mendapat halamannya sendiri, lengkap dengan profil tiap siswa dan riwayat lombanya - plus halaman kegiatan dan ekstrakurikuler, profil tim pengajar, galeri dengan video profil, serta pendaftaran lewat WhatsApp.',
                 'is_active' => true,
                 'is_exclusive' => true,
                 'structure' => [
@@ -81,6 +101,28 @@ class SdMadyaTemplateSeeder extends Seeder
                         'secondary' => '#E9C349',
                         'font_pair' => 'sd-madya',
                         'radius' => 'soft',
+                    ],
+                    /*
+                     * SD Muhammadiyah 1 Ambulu's real contact details and social accounts.
+                     * Narahubung: Beni Hendarto, S.Pd.I (Kepala Sekolah).
+                     *
+                     * Stored on the TEMPLATE, which means these are shown in template-preview
+                     * context and inherited by this template's sandbox only - a real organization
+                     * created from this template never picks them up (see Organization::phone()'s
+                     * doc comment on why template contact info must not leak onto an unrelated
+                     * organization's live site).
+                     *
+                     * whatsapp is bare digits with the country code, no '+' or separators, which
+                     * is the shape wa.me links and formulir-kontak's wa_number both expect.
+                     */
+                    'contact' => [
+                        'phone' => '082332583556',
+                        'whatsapp' => '6282332583556',
+                        'address' => 'Ambulu, Kabupaten Jember, Jawa Timur',
+                        'instagram_url' => 'https://instagram.com/sd.madya.ambulu',
+                        'facebook_url' => 'https://www.facebook.com/madya.ambulu.5',
+                        'tiktok_url' => 'https://tiktok.com/@sd.madya.ambulu',
+                        'youtube_url' => 'https://www.youtube.com/@sdmadyaambulu7957',
                     ],
                     'pages' => [
                         [
@@ -101,7 +143,11 @@ class SdMadyaTemplateSeeder extends Seeder
                                     'image' => self::HERO_IMAGE,
                                     'portrait' => self::PORTRAIT_IMAGE,
                                     'highlight_title' => 'Akreditasi A',
-                                    'highlight_subtitle' => 'Unggul & Terpercaya',
+                                    // 'Unggul' is BAN-S/M's actual predicate for an A rating.
+                                    // The previous copy read 'Unggul & Terpercaya' - 'Terpercaya'
+                                    // is not part of that nomenclature and was an unverifiable
+                                    // claim dressed up as an official one.
+                                    'highlight_subtitle' => 'Predikat Unggul (BAN-S/M)',
                                 ]],
                                 ['key' => 'tentang-organisasi', 'variant' => 'sd-madya', 'content' => [
                                     'label' => 'Profil Sekolah',
@@ -119,9 +165,9 @@ class SdMadyaTemplateSeeder extends Seeder
                                     ],
                                 ]],
                                 ['key' => 'prestasi', 'variant' => 'sd-madya', 'content' => [
-                                    'label' => 'Wall of Fame',
-                                    'title' => 'Prestasi Membanggakan',
-                                    'subtitle' => 'Dedikasi siswa dan guru kami dalam meraih keunggulan di berbagai bidang kompetisi.',
+                                    'label' => 'Prestasi',
+                                    'title' => 'Prestasi Terbaru',
+                                    'subtitle' => 'Tiga capaian terbaru siswa. Daftar lengkapnya ada di halaman Prestasi.',
                                     // No 'limit' here, unlike the galeri section below: the
                                     // sd-madya variant is a fixed 3-tile bento (one 2x2 main tile
                                     // plus two stacked beside it) and hard-codes take(3), so a
@@ -129,22 +175,24 @@ class SdMadyaTemplateSeeder extends Seeder
                                     // the way prestasi/standar honors it. The full, filterable list
                                     // lives on the dedicated Prestasi page below.
                                 ]],
-                                ['key' => 'testimoni', 'variant' => 'standar', 'content' => [
+                                // The quotes themselves are CMS records now (see
+                                // SdMadyaSamples::testimoniItems()); `items` here is only the
+                                // fallback the template PREVIEW renders, where there is no
+                                // organization to read them from.
+                                ['key' => 'testimoni', 'variant' => 'sd-madya', 'content' => [
                                     'label' => 'Suara Alumni',
                                     'title' => 'Apa Kata Mereka?',
-                                    'items' => [
-                                        ['quote' => 'SD Muhammadiyah 1 Ambulu memberikan landasan karakter yang sangat kuat bagi saya. Kedisiplinan dan nilai keislaman yang diajarkan terbawa hingga saya menempuh karir sekarang.', 'name' => 'dr. Hendra Wijaya', 'role' => 'Alumni Tahun 2005'],
-                                        ['quote' => 'Saya sangat bersyukur pernah sekolah di sini. Gurunya sangat perhatian dan mampu menemukan bakat seni saya yang saat itu belum terlihat.', 'name' => 'Siti Aminah, M.Ds', 'role' => 'Desainer & Alumni 2010'],
-                                        ['quote' => 'Ekosistem belajarnya sangat kompetitif namun tetap suportif. Saya diajarkan untuk tidak pernah takut gagal dalam berkompetisi.', 'name' => 'Ir. Rizky Pratama', 'role' => 'Alumni Tahun 2008'],
-                                    ],
+                                    'items' => SdMadyaSamples::testimoniItems(),
                                 ]],
                                 ['key' => 'cta', 'variant' => 'sd-madya', 'content' => [
                                     'title' => 'Mulai Perjalanan Prestasi Anak Anda Bersama Kami',
                                     'subtitle' => 'Pendaftaran Peserta Didik Baru telah dibuka. Kuota terbatas.',
+                                    // Straight to the PPDB form the school already runs, rather
+                                    // than scrolling to the contact section and asking twice.
                                     'cta_label' => 'Daftar Online Sekarang',
-                                    'cta_type' => 'scroll',
-                                    'cta_section' => 'formulir-kontak',
-                                    'cta_secondary_label' => 'Panduan PPDB',
+                                    'cta_type' => 'url',
+                                    'cta_url' => self::PPDB_URL,
+                                    'cta_secondary_label' => 'Tanya via WhatsApp',
                                     'cta_secondary_type' => 'scroll',
                                     'cta_secondary_section' => 'formulir-kontak',
                                 ]],
@@ -159,12 +207,18 @@ class SdMadyaTemplateSeeder extends Seeder
                                 ['key' => 'prestasi', 'variant' => 'standar', 'content' => [
                                     'label' => 'Sekolah Juara',
                                     'title' => 'Tradisi Mencetak Generasi Berprestasi',
-                                    'subtitle' => 'Sorotan prestasi akademik dan non-akademik siswa-siswi terbaik kami di tingkat regional maupun nasional.',
+                                    'subtitle' => 'Daftar prestasi siswa, dari tingkat kecamatan hingga nasional. Gunakan filter kategori untuk melihat bidang tertentu.',
+                                    // Facts a school can actually check against its own records
+                                    // (rombel count, accreditation, ekskul list, year founded)
+                                    // rather than unverifiable superlatives. The previous set -
+                                    // "500+ Trofi", "98% Lulusan Terbaik" - were invented numbers
+                                    // no school could confirm, and "Lulusan Terbaik" as a
+                                    // percentage is not a measurable thing at all.
                                     'stats' => [
-                                        ['value' => '500+', 'label' => 'Trofi'],
-                                        ['value' => '98%', 'label' => 'Lulusan Terbaik'],
-                                        ['value' => '12', 'label' => 'Ekskul Unggulan'],
-                                        ['value' => '20+', 'label' => 'Tahun Pengabdian'],
+                                        ['value' => '12', 'label' => 'Rombongan Belajar'],
+                                        ['value' => 'A', 'label' => 'Akreditasi'],
+                                        ['value' => '9', 'label' => 'Ekstrakurikuler'],
+                                        ['value' => '1978', 'label' => 'Berdiri Sejak'],
                                     ],
                                 ]],
                                 $footer,
@@ -177,7 +231,7 @@ class SdMadyaTemplateSeeder extends Seeder
                                 $header,
                                 ['key' => 'kegiatan', 'variant' => 'sd-madya', 'content' => [
                                     'title' => 'Kegiatan Sekolah',
-                                    'subtitle' => 'Membentuk generasi Robbani yang cerdas dan kreatif melalui pembiasaan ibadah dan pengembangan diri.',
+                                    'subtitle' => 'Pembiasaan harian, ekstrakurikuler, dan program pembinaan yang diikuti siswa sepanjang pekan.',
                                 ]],
                                 $footer,
                             ],
@@ -187,10 +241,10 @@ class SdMadyaTemplateSeeder extends Seeder
                             'name' => 'Pengajar',
                             'sections' => [
                                 $header,
-                                ['key' => 'struktur-pengurus', 'variant' => 'tim-pengajar', 'content' => [
+                                ['key' => 'struktur-pengurus', 'variant' => 'sd-madya', 'content' => [
                                     'label' => 'Akademik',
-                                    'title' => 'Tim Pengajar, Pilar Kecemerlangan',
-                                    'subtitle' => 'Kami mendedikasikan diri untuk membimbing tunas bangsa dengan integritas spiritual dan kemajuan intelektual.',
+                                    'title' => 'Tim Pengajar',
+                                    'subtitle' => 'Guru kelas dan guru mata pelajaran yang mendampingi siswa setiap hari.',
                                 ]],
                                 $footer,
                             ],
@@ -201,9 +255,9 @@ class SdMadyaTemplateSeeder extends Seeder
                             'sections' => [
                                 $header,
                                 ['key' => 'galeri', 'variant' => 'sd-madya', 'content' => [
-                                    'label' => 'Dokumentasi Visual',
-                                    'title' => 'Jejak Langkah & Pencapaian Kami',
-                                    'subtitle' => 'Menangkap momen-momen berharga dalam perjalanan mendidik generasi rabbani yang unggul dalam Imtaq dan Iptek.',
+                                    'label' => 'Galeri',
+                                    'title' => 'Galeri Kegiatan',
+                                    'subtitle' => 'Dokumentasi kegiatan belajar, ekstrakurikuler, dan acara sekolah.',
                                     'video_poster' => self::VIDEO_POSTER,
                                     'video_title' => 'Video Profil Sekolah',
                                     'video_subtitle' => 'Mengenal lebih dekat lingkungan belajar kami',
@@ -233,6 +287,7 @@ class SdMadyaTemplateSeeder extends Seeder
                                 ]],
                                 ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lokasi Sekolah',
+                                    'map_embed' => self::MAP_EMBED,
                                 ]],
                                 $footer,
                             ],
@@ -241,5 +296,12 @@ class SdMadyaTemplateSeeder extends Seeder
                 ],
             ]
         );
+
+        // Give the template its sandbox up front, like every other template seeder does - an
+        // admin opening the designer shouldn't be the one to create it, and without this the
+        // exclusive tier was the only SD Madya template with no sandbox to preview.
+        if ($admin = User::where('is_admin', true)->first()) {
+            app(TemplateSandboxService::class)->sandboxFor($template, $admin);
+        }
     }
 }

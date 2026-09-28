@@ -58,6 +58,27 @@ return [
                 'cta_secondary_label', 'cta_secondary_type', 'cta_secondary_section', 'cta_secondary_url', 'cta_secondary_wa_number', 'cta_secondary_wa_message',
                 'image',
             ],
+            /*
+             * Fields only SOME variants of this section have, keyed by variant.
+             *
+             * `fields` above is the set every hero variant shares. The `sd-madya` layout is the
+             * only two-image one: `image` is the faded backdrop behind the headline, `portrait`
+             * the framed photo in the right-hand column, and highlight_title/_subtitle the card
+             * floating over its corner. Listing those in `fields` would put three editors that
+             * do nothing on the other four hero variants (standar, modern, nurul-huda,
+             * headline-berita), which all ignore them.
+             *
+             * They still have to be declared SOMEWHERE, because
+             * OrganizationSectionController::update() rebuilds `content` from the resolved field
+             * list and keeps nothing else - while they were declared nowhere, one save from the
+             * builder silently dropped the second image and the accreditation card.
+             *
+             * Resolved by PageBuilderFields::for($key, $variant); a section with no entry here
+             * behaves exactly as before.
+             */
+            'variant_fields' => [
+                'sd-madya' => ['portrait', 'highlight_title', 'highlight_subtitle'],
+            ],
             'defaults' => [
                 'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
                 'cta_secondary_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
@@ -94,7 +115,6 @@ return [
         ],
         'struktur-pengurus' => [
             'label' => 'Struktur Pengurus',
-            // label/subtitle are read only by the `tim-pengajar` variant's header block.
             'fields' => ['title', 'items', 'label', 'subtitle'],
             'defaults' => ['title' => 'Struktur Pengurus'],
             'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
@@ -121,10 +141,17 @@ return [
         ],
         // Quotes from alumni/parents. Content-only: written once at setup and rarely changed,
         // so they live in the section's own `items` rather than earning a CMS table.
+        // Exclusive, like the five premium mosque sections: the quotes are now CMS-backed
+        // (testimonials table + its own screen), and the layout the section was designed around
+        // is the `sd-madya` one. `items` stays in `fields` as the template-preview fallback -
+        // the section auto-binds to the CMS when $organization is in scope, and falls back to
+        // this list in preview context where there is no organization yet.
         'testimoni' => [
             'label' => 'Testimoni',
-            'fields' => ['title', 'label', 'items'],
+            'fields' => ['title', 'label', 'items', 'limit'],
             'defaults' => ['title' => 'Apa Kata Mereka?'],
+            'exclusive' => true,
+            'cms' => ['route' => 'organizations.testimonials.index', 'label' => 'Testimoni'],
         ],
         'prestasi' => [
             'label' => 'Prestasi',

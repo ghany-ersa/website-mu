@@ -42,7 +42,7 @@ class SectionVariantSeeder extends Seeder
             'struktur-pengurus' => [
                 'standar' => ['view' => 'templates.sections.struktur-pengurus.standar', 'exclusive' => false, 'default' => true],
                 'modern' => ['view' => 'templates.sections.struktur-pengurus.modern', 'exclusive' => true],
-                'tim-pengajar' => ['view' => 'templates.sections.struktur-pengurus.tim-pengajar', 'exclusive' => true],
+                'sd-madya' => ['view' => 'templates.sections.struktur-pengurus.sd-madya', 'exclusive' => true],
             ],
             'program-unggulan' => [
                 'standar' => ['view' => 'templates.sections.program-unggulan.standar', 'exclusive' => false, 'default' => true],
@@ -92,8 +92,13 @@ class SectionVariantSeeder extends Seeder
                 'standar' => ['view' => 'templates.sections.kegiatan.standar', 'exclusive' => false, 'default' => true],
                 'sd-madya' => ['view' => 'templates.sections.kegiatan.sd-madya', 'exclusive' => true],
             ],
+            // The section itself is exclusive (config/page-builder.php), so `standar` here is not
+            // "the variant any plan may use" the way it is elsewhere - both variants are only
+            // reachable by a plan with the entitlement. It stays the default because it is the
+            // plainer of the two layouts.
             'testimoni' => [
                 'standar' => ['view' => 'templates.sections.testimoni.standar', 'exclusive' => false, 'default' => true],
+                'sd-madya' => ['view' => 'templates.sections.testimoni.sd-madya', 'exclusive' => true],
             ],
             'prestasi' => [
                 'standar' => ['view' => 'templates.sections.prestasi.standar', 'exclusive' => false, 'default' => true],

@@ -7,6 +7,7 @@ use App\Models\OrganizationPage;
 use App\Models\OrganizationSection;
 use App\Services\CmsSampleDataSeeder;
 use App\Services\GoogleMapsEmbedResolver;
+use App\Services\PageBuilderFields;
 use App\Services\PlanLimitService;
 use App\Services\SectionVariantResolver;
 use Illuminate\Http\JsonResponse;
@@ -48,7 +49,9 @@ class OrganizationSectionController extends Controller
     private function ensureContentEditable(OrganizationSection $section): void
     {
         $locked = config('page-builder.sections.'.$section->key.'.locked', false);
-        $hasFields = filled(config('page-builder.sections.'.$section->key.'.fields', []));
+        // all(), not for(): this asks whether the section is editable at all, which must not
+        // depend on which variant happens to be active.
+        $hasFields = filled(PageBuilderFields::all($section->key));
 
         abort_if($locked && ! $hasFields, 403, 'Section ini tidak dapat diubah.');
     }
@@ -131,7 +134,16 @@ class OrganizationSectionController extends Controller
         $this->ensureBelongsToOrganization($organization, $section);
         $this->ensureContentEditable($section);
 
-        $fields = config('page-builder.sections.'.$section->key.'.fields', []);
+        // Variant first: the field list depends on it (see PageBuilderFields), and this request
+        // may be the one CHANGING the variant. Resolving fields against the old variant would
+        // drop the new layout's own fields on the very save that switches to it.
+        $availableVariants = SectionVariantResolver::variantsFor($section->key)->pluck('variant_key')->all();
+        $requestedVariant = $request->input('variant');
+        $variantIsAllowed = in_array($requestedVariant, $availableVariants, true)
+            && (! SectionVariantResolver::isExclusive($section->key, $requestedVariant) || $organization->canUseExclusiveTemplates());
+        $variant = $variantIsAllowed ? $requestedVariant : $section->variant;
+
+        $fields = PageBuilderFields::for($section->key, $variant);
 
         $content = [];
         foreach ($fields as $field) {
@@ -152,12 +164,6 @@ class OrganizationSectionController extends Controller
             $default = config("page-builder.sections.{$section->key}.defaults.{$field}", '');
             $content[$field] = str_replace('{org_name}', $organization->name, $default);
         }
-
-        $availableVariants = SectionVariantResolver::variantsFor($section->key)->pluck('variant_key')->all();
-        $requestedVariant = $request->input('variant');
-        $variantIsAllowed = in_array($requestedVariant, $availableVariants, true)
-            && (! SectionVariantResolver::isExclusive($section->key, $requestedVariant) || $organization->canUseExclusiveTemplates());
-        $variant = $variantIsAllowed ? $requestedVariant : $section->variant;
 
         $section->update([
             'content' => $content,

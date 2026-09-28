@@ -197,7 +197,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
             [
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Masjid Peradaban',
-                'description' => 'Fasilitas dan galeri masjid tampil di beranda, donasi & wakaf dengan progress bar per program, laporan keuangan yang transparan, jadwal kajian rutin, aula masjid untuk akad nikah, dan profil takmir - masing-masing punya halaman sendiri.',
+                'description' => 'Fasilitas dan galeri tampil di beranda, sementara donasi dengan progress bar per program, laporan keuangan transparan, kalkulator zakat, jadwal kajian, profil takmir, dan sewa aula akad nikah masing-masing punya halamannya sendiri.',
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.

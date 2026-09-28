@@ -647,7 +647,9 @@
                     @foreach ($currentPage->sections->where('key', '!=', 'footer') as $section)
                         @php
                             $isLocked = config('page-builder.sections.'.$section->key.'.locked', false);
-                            $hasFields = filled($sectionRegistry[$section->key]['fields'] ?? []);
+                            // all(), not for(): this only asks whether the section has anything
+                            // editable at all, and must not depend on which variant is active.
+                            $hasFields = filled(\App\Services\PageBuilderFields::all($section->key));
                         @endphp
                         <li data-section-id="{{ $section->id }}"
                             data-is-visible="{{ $section->is_visible ? '1' : '0' }}"
@@ -973,7 +975,13 @@
                                 </div>
                             @endif
 
-                            @foreach ($sectionRegistry[$section->key]['fields'] ?? [] as $field)
+                            {{-- Per VARIANT, not per section: the hero's sd-madya layout is the
+                                 only one with a second image and a highlight card, and the other
+                                 four hero variants would otherwise show three editors that
+                                 change nothing. Must stay in step with
+                                 OrganizationSectionController::update(), which persists exactly
+                                 this list. --}}
+                            @foreach (\App\Services\PageBuilderFields::for($section->key, $section->variant) as $field)
                                 @continue(in_array($field, ['cta_section', 'cta_url', 'cta_wa_number', 'cta_wa_message', 'cta_secondary_section', 'cta_secondary_url', 'cta_secondary_wa_number', 'cta_secondary_wa_message'], true))
                                 @if (in_array($field, ['cta_type', 'cta_secondary_type'], true))
                                     @php
@@ -1028,7 +1036,18 @@
                                 @endif
                                 <div>
                                     <label
-                                        class="block text-xs font-semibold text-gray-600 mb-1.5">{{ ['org_name' => 'Nama Tampilan', 'infak_note' => 'Catatan Infak'][$field] ?? ucfirst(str_replace('_', ' ', $field)) }}</label>
+                                        class="block text-xs font-semibold text-gray-600 mb-1.5">{{ [
+                                            'org_name' => 'Nama Tampilan',
+                                            'infak_note' => 'Catatan Infak',
+                                            // 'image' keeps its generic label everywhere else -
+                                            // it is the only image in every other section, and
+                                            // calling it "Gambar Latar" there would be wrong.
+                                            // Only the two-image hero needs the two named apart.
+                                            'image' => $section->key === 'hero' && $section->variant === 'sd-madya' ? 'Gambar Latar' : 'Gambar',
+                                            'portrait' => 'Gambar Utama',
+                                            'highlight_title' => 'Judul Kartu Sorotan',
+                                            'highlight_subtitle' => 'Subjudul Kartu Sorotan',
+                                        ][$field] ?? ucfirst(str_replace('_', ' ', $field)) }}</label>
                                     @if (in_array($field, ['body', 'sambutan', 'subheadline', 'wa_message'], true))
                                         @php
                                             $fieldValue = $section->resolvedFieldValue($field, $organization->name);
@@ -1043,7 +1062,11 @@
                                             value="{{ $section->scalarContent($field) }}"
                                             class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                         <p class="mt-1.5 text-xs text-gray-400">Gunakan format nomor internasional tanpa tanda + atau spasi, mis. 6281234567890.</p>
-                                    @elseif (in_array($field, ['image', 'photo'], true))
+                                    {{-- `portrait` is the hero/sd-madya layout's second image (the
+                                         framed one in the right column), so it gets the same media
+                                         picker as `image` rather than falling through to a plain
+                                         URL text box. --}}
+                                    @elseif (in_array($field, ['image', 'photo', 'portrait'], true))
                                         @php
                                             $currentUrl = $section->scalarContent($field);
                                         @endphp

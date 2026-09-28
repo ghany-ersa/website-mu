@@ -2,17 +2,29 @@
      with a short gold rule under it, then three quote cards, each with a big decorative quote
      mark and the speaker's photo, name and role.
 
-     Content-only - there's no CMS model behind this. Testimonials are written once when the
-     site is set up and rarely change, so they live in the section's own `items` rather than
-     earning a table and a CRUD screen of their own. --}}
+     Auto-binds to the organization's testimonials when $organization is in scope (tenant page
+     render); falls back to $content['items'] in template-preview context, which has no
+     organization yet - see daftar-berita/standar.blade.php for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
+    $limit = $content['limit'] ?? null;
 
-    $items = $content['items'] ?? [
+    $items = isset($organization)
+        ? $organization->testimonials()
+            ->active()
+            ->when($limit, fn ($query) => $query->limit((int) $limit))
+            ->get()
+            ->map(fn ($testimonial) => [
+                'quote' => $testimonial->quote,
+                'name' => $testimonial->name,
+                'role' => $testimonial->role,
+                'image' => $testimonial->photo,
+            ])->all()
+        : ($content['items'] ?? [
         ['quote' => 'Sekolah ini memberikan landasan karakter yang sangat kuat bagi saya. Kedisiplinan dan nilai keislaman yang diajarkan terbawa hingga karir saya sekarang.', 'name' => '[Nama Alumni]', 'role' => 'Alumni'],
         ['quote' => 'Gurunya sangat perhatian dan mampu menemukan bakat saya yang saat itu belum terlihat.', 'name' => '[Nama Alumni]', 'role' => 'Alumni'],
         ['quote' => 'Ekosistem belajarnya kompetitif namun tetap suportif. Saya diajarkan untuk tidak pernah takut gagal.', 'name' => '[Nama Alumni]', 'role' => 'Alumni'],
-    ];
+    ]);
 @endphp
 
 <section class="section-y bg-surface-container-low">
@@ -31,6 +43,9 @@
 
         {{-- 2-up at tablet, 3-up only once there is room: three quote cards at 768px squeeze
              the attribution line until names truncate. --}}
+        @if (empty($items))
+            <p class="text-center font-body text-on-surface-variant">Belum ada testimoni.</p>
+        @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             @foreach ($items as $index => $item)
                 <figure class="reveal relative bg-surface-container-lowest rounded-2xl p-5 sm:p-6 shadow-ambient flex flex-col"
@@ -48,7 +63,9 @@
                             @if (! empty($item['image']))
                                 <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? '' }}" loading="lazy" class="w-full h-full object-cover">
                             @else
-                                <x-tenant.icon name="person" class="text-on-surface-variant" />
+                                <svg class="w-5 h-5 text-on-surface-variant" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
+                                </svg>
                             @endif
                         </div>
                         <div class="min-w-0">
@@ -61,5 +78,6 @@
                 </figure>
             @endforeach
         </div>
+        @endif
     </div>
 </section>

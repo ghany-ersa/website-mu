@@ -40,8 +40,14 @@
         </div>
     @endif
 
-    <div class="relative z-10 shell section-y grid md:grid-cols-2 gap-8 md:gap-12 items-center w-full">
-        <div class="space-y-4 sm:space-y-5 md:space-y-6">
+    {{-- 7fr/5fr rather than an even split: the portrait is capped at max-w-sm (384px) below, so
+         an equal right column just pads empty space either side of it while starving the copy.
+         The shell is 1120px (--shell, not 1280 - see _brand-head.blade.php), which leaves
+         1024px of grid; an even split gives the copy only 512px. --}}
+    <div class="relative z-10 shell section-y grid md:grid-cols-[7fr_5fr] gap-8 md:gap-12 items-center w-full">
+        {{-- @container so the headline above can size itself against this column's width
+             (cqi) instead of the viewport's. --}}
+        <div class="@container space-y-4 sm:space-y-5 md:space-y-6">
             {{-- AppBadge's `subtle` variant in the source: a translucent gold chip with a
                  hairline border, not a plain white pill. --}}
             @if (! empty($content['badge']))
@@ -54,7 +60,16 @@
             {{-- Caps out at 6xl rather than the source's 7xl: an organization name is editable
                  here and most are longer than "SD Muhammadiyah 01 Ambulu", so the larger step
                  pushed common names to three lines and unbalanced the two columns. --}}
-            <h1 class="reveal font-headline font-extrabold t-hero text-white" style="transition-delay: 80ms">
+            {{-- Sized against THIS COLUMN (cqi) rather than the viewport, unlike the shared
+                 `t-hero`. "SD Muhammadiyah 1 Ambulu" is 14.6em wide in Inter ExtraBold, so at
+                 t-hero's 52px ceiling it needs ~737px - more than any grid ratio can give it out
+                 of a 1120px shell, which is why widening the column alone never fixed this. The
+                 column is a container (`@container` on the wrapper), so 6.6cqi keeps the name on
+                 one line at every width and only shrinks when the column does.
+
+                 text-balance still matters: the headline is editable, and a name longer than
+                 this one must split into even lines rather than strand a trailing word. --}}
+            <h1 class="reveal font-headline font-extrabold text-white text-balance text-[clamp(1.875rem,6.6cqi,3.25rem)] leading-[1.08] tracking-[-0.02em]" style="transition-delay: 80ms">
                 {{ $content['headline'] ?? 'Headline Utama' }}
             </h1>
 
@@ -88,13 +103,20 @@
              entirely below `md`, which leaves a phone with nothing but a flat colour field.
              Here it becomes a shorter landscape crop above the copy (order-first), and only
              takes the tall 4:5 portrait once there are two columns to balance. --}}
-        <div class="relative order-first md:order-none md:mb-0 mb-2">
+        {{-- max-h caps the portrait instead of letting the 4/5 ratio alone set its height: the
+             image is `w-full`, so on a wide viewport the COLUMN width drives the height (at a
+             1280px shell the column is ~592px, which at 4/5 is 740px against a section that
+             maxes out at 42rem/672px). It overflowed the section, crowded the headline, and
+             pushed the accreditation card past the bottom edge. Capping the height and letting
+             the image center itself keeps the same crop at every width, just never taller than
+             the section it sits in. mx-auto so the narrower box stays centred in its column. --}}
+        <div class="relative order-first md:order-none md:mb-0 mb-2 w-full md:max-w-sm md:mx-auto">
             <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10">
                 @if ($portrait)
                     <img src="{{ $portrait }}" alt="{{ $content['headline'] ?? '' }}"
-                         class="w-full aspect-[16/10] md:aspect-[4/5] object-cover">
+                         class="w-full aspect-[16/10] md:aspect-[4/5] md:max-h-[26rem] lg:max-h-[30rem] object-cover">
                 @else
-                    <div class="w-full aspect-[16/10] md:aspect-[4/5] bg-white/10 flex items-center justify-center text-white/50 text-sm">Gambar</div>
+                    <div class="w-full aspect-[16/10] md:aspect-[4/5] md:max-h-[26rem] lg:max-h-[30rem] bg-white/10 flex items-center justify-center text-white/50 text-sm">Gambar</div>
                 @endif
             </div>
 

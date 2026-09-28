@@ -57,7 +57,7 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
             [
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Klinik Paripurna',
-                'description' => 'Layanan unggulan dan profil klinik tampil di beranda, katalog layanan lengkap dengan galeri fasilitas dan ruangan mendapat halamannya sendiri, ditambah halaman jadwal praktik dokter dan kontak dengan peta lokasi.',
+                'description' => 'Layanan unggulan dan profil klinik tampil di beranda, katalog layanan lengkap dengan galeri fasilitas dan ruangan mendapat halamannya sendiri, ditambah halaman jadwal praktik dokter, kabar dan pengumuman layanan, serta kontak dengan peta lokasi.',
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.

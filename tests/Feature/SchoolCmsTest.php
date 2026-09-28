@@ -322,8 +322,9 @@ class SchoolCmsTest extends TestCase
         // The editor, not the "segera hadir" placeholder.
         $response->assertSee('Tambah statistik (maks 4)');
         $response->assertSee('content[stats]', false);
-        $response->assertSee('500+', false);
-        $response->assertSee('Tahun Pengabdian', false);
+        // The four stats the template seeds - verifiable school facts, not invented totals.
+        $response->assertSee('Rombongan Belajar', false);
+        $response->assertSee('Berdiri Sejak', false);
 
         // Saving: edited rows persist...
         $section = $page->sections()->where('key', 'prestasi')->firstOrFail();
@@ -382,6 +383,57 @@ class SchoolCmsTest extends TestCase
         // The filter rail on prestasi/standar is built from the categories present, so the
         // samples have to span more than one to produce a meaningful filter.
         $this->assertGreaterThan(1, $sandbox->achievements()->distinct()->pluck('category')->filter()->count());
+    }
+
+    /**
+     * The staff roster is the school's real org chart, so it has to survive the trip into
+     * Officer rows intact - including `subject`, which seedOfficers() previously dropped, and
+     * which is what the sd-madya variant renders as the teaching-assignment chip.
+     */
+    public function test_school_staff_roster_seeds_with_roles_and_subjects(): void
+    {
+        $this->seed(OrganizationTypeSeeder::class);
+        $this->seed(SectionVariantSeeder::class);
+        $this->seed(SdMadyaTemplateSeeder::class);
+
+        $template = Template::where('slug', SdMadyaTemplateSeeder::SLUG)->firstOrFail();
+
+        $sandbox = Organization::create([
+            'organization_type_id' => $template->organization_type_id,
+            'template_id' => $template->id,
+            'is_sandbox' => true,
+            'name' => 'Sandbox SD Staf',
+            'slug' => 'sandbox-sd-staf',
+        ]);
+        $sandbox->ensureHomePageExists();
+
+        $head = $sandbox->officers()->orderBy('order')->first();
+
+        // Ordered by seniority, not by the chart's layout, so truncation keeps the head first.
+        $this->assertSame('Beni Hendarto, S.Pd.I', $head->name);
+        $this->assertSame('Kepala Sekolah', $head->role);
+        $this->assertSame('Pendidikan Agama Islam', $head->subject);
+
+        // Teaching assignments must persist, not just titles.
+        $this->assertGreaterThan(0, $sandbox->officers()->whereNotNull('subject')->count());
+
+        // Real named people never get stand-in stock portraits.
+        $this->assertSame(0, $sandbox->officers()->whereNotNull('photo')->count());
+    }
+
+    /** The school's own contact details reach the template's sandbox. */
+    public function test_school_contact_details_are_carried_by_the_template(): void
+    {
+        $this->seed(OrganizationTypeSeeder::class);
+        $this->seed(SectionVariantSeeder::class);
+        $this->seed(SdMadyaTemplateSeeder::class);
+
+        $contact = Template::where('slug', SdMadyaTemplateSeeder::SLUG)->firstOrFail()->structure['contact'];
+
+        // Bare digits with country code - the shape wa.me and formulir-kontak both expect.
+        $this->assertSame('6282332583556', $contact['whatsapp']);
+        $this->assertStringStartsWith('https://', $contact['instagram_url']);
+        $this->assertStringStartsWith('https://', $contact['youtube_url']);
     }
 
     public function test_school_models_are_registered_for_the_organization(): void

@@ -37,6 +37,7 @@ use App\Http\Controllers\OrganizationSectionController;
 use App\Http\Controllers\OrganizationSiteController;
 use App\Http\Controllers\OrganizationStudentController;
 use App\Http\Controllers\OrganizationTemplateController;
+use App\Http\Controllers\OrganizationTestimonialController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TemplatePreviewController;
@@ -184,6 +185,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('organizations.students', OrganizationStudentController::class)
             ->except(['show']);
         Route::resource('organizations.achievements', OrganizationAchievementController::class)
+            ->except(['show']);
+        Route::resource('organizations.testimonials', OrganizationTestimonialController::class)
             ->except(['show']);
 
         Route::post('organizations/{organization}/gallery/reorder', [OrganizationGalleryController::class, 'reorder'])

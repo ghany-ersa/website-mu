@@ -41,6 +41,7 @@ class DatabaseSeeder extends Seeder
             // OrganizationSeeder::class,
             ArticleSeeder::class,
             SdMadyaTemplateSeeder::class,
+            SdMadyaStandarTemplateSeeder::class,
         ]);
     }
 }

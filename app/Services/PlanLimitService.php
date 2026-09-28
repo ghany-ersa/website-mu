@@ -41,6 +41,7 @@ class PlanLimitService
         // any organization that reaches it. Every key in PlanSeeder needs a relation here.
         'students' => 'students',
         'achievements' => 'achievements',
+        'testimonials' => 'testimonials',
     ];
 
     /**
