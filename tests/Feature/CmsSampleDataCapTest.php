@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\OrganizationType;
 use App\Models\Plan;
 use App\Models\Template;
+use App\Services\CmsSampleDataSeeder;
 use Database\Seeders\MasjidNurulHudaTemplateSeeder;
 use Database\Seeders\OrganizationTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,6 +40,18 @@ class CmsSampleDataCapTest extends TestCase
         ]);
 
         $organization->ensureHomePageExists();
+
+        // Cloning a template into a real organization no longer seeds sample CMS rows at all
+        // (see Organization::seedPagesFromTemplate()), so this seeds them explicitly - what this
+        // file covers is the CAP that applies WHEN samples are seeded, which is still live for
+        // the sandbox path and for a section added by hand
+        // (OrganizationSectionController::store()). Seeding against a real, plan-bearing
+        // organization keeps the plan-limit half of the cap under test; a sandbox org bypasses
+        // plan limits entirely and would make those assertions vacuous.
+        CmsSampleDataSeeder::seed(
+            $organization,
+            $organization->pages()->with('sections')->get()->flatMap->sections->pluck('key')->all(),
+        );
 
         return $organization->fresh();
     }

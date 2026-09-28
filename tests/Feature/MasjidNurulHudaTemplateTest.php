@@ -11,6 +11,7 @@ use App\Models\Plan;
 use App\Models\SectionVariant;
 use App\Models\Template;
 use App\Models\User;
+use App\Services\CmsSampleDataSeeder;
 use App\Services\PlanLimitService;
 use App\Services\SectionVariantResolver;
 use Database\Seeders\MasjidNurulHudaTemplateSeeder;
@@ -36,7 +37,16 @@ class MasjidNurulHudaTemplateTest extends TestCase
         return 'http://'.$organization->slug.'.'.config('tenancy.domain').$path;
     }
 
-    private function makeOrganization(): Organization
+    /**
+     * @param  bool  $withSampleContent  Seed the template's sample CMS rows on top of the clone.
+     *                                   Cloning a template into a REAL organization no longer does this - only a sandbox
+     *                                   gets sample content (see Organization::seedPagesFromTemplate()) - so the tests
+     *                                   below that need CMS rows merely as FIXTURES for what they actually check
+     *                                   (agenda posters, donation detail routes) ask for them explicitly here. The org
+     *                                   stays non-sandbox either way, so the plan-limit assertions in this file keep
+     *                                   exercising the real plan gates rather than the sandbox's bypass of them.
+     */
+    private function makeOrganization(bool $withSampleContent = false): Organization
     {
         $this->seed(OrganizationTypeSeeder::class);
         $this->seed(MasjidNurulHudaTemplateSeeder::class);
@@ -55,6 +65,13 @@ class MasjidNurulHudaTemplateTest extends TestCase
         ]);
 
         $organization->ensureHomePageExists();
+
+        if ($withSampleContent) {
+            CmsSampleDataSeeder::seed(
+                $organization,
+                $organization->pages()->with('sections')->get()->flatMap->sections->pluck('key')->all(),
+            );
+        }
 
         return $organization->fresh();
     }
@@ -90,9 +107,32 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $this->assertLessThanOrEqual($limit, $actual);
     }
 
-    public function test_cms_sample_data_is_seeded_for_new_sections(): void
+    /**
+     * Cloning a template into a real organization copies the LAYOUT, not the showcase's content:
+     * sections arrive with their `content` as a starting point, but the CMS tables stay empty.
+     * Seeding them meant a brand-new masjid owned published rows describing a different masjid -
+     * its kajian schedule, its takmir, its donation programs - which would have gone live on the
+     * tenant domain had the owner published before deleting them.
+     */
+    public function test_cloning_into_a_real_organization_seeds_no_cms_content(): void
     {
         $organization = $this->makeOrganization();
+
+        $this->assertSame(0, $organization->facilities()->count());
+        $this->assertSame(0, $organization->officers()->count());
+        $this->assertSame(0, $organization->agendas()->count());
+        $this->assertSame(0, $organization->photos()->count());
+        $this->assertSame(0, $organization->posts()->count());
+        $this->assertSame(0, $organization->donationPrograms()->count());
+        $this->assertSame(0, $organization->financialReports()->count());
+
+        // The layout still cloned in full - this is a content change, not a structural one.
+        $this->assertCount(6, $organization->pages);
+    }
+
+    public function test_cms_sample_data_is_seeded_for_new_sections(): void
+    {
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $this->assertGreaterThan(0, $organization->facilities()->count());
         $this->assertGreaterThan(0, $organization->donationPrograms()->count());
@@ -104,7 +144,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_sample_data_matches_the_nurul_huda_project(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $this->assertSame(
             ['Suhartono, S.Pd', 'Tyas Hidayatulloh, S.Pd, M.Pd'],
@@ -263,7 +303,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
      */
     public function test_poster_variant_shows_uploaded_posters_and_falls_back_without_one(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $withPoster = $organization->agendas()->first();
         $withPoster->update([
@@ -288,7 +328,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
      */
     public function test_agenda_detail_page_carries_poster_and_event_structured_data(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $agenda = $organization->agendas()->first();
         $agenda->update([
@@ -320,7 +360,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
      */
     public function test_event_structured_data_omits_an_empty_location(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $agenda = $organization->agendas()->first();
         $agenda->update(['location' => null, 'status' => PublishStatus::Published]);
@@ -656,7 +696,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_program_detail_page_renders(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->where('name', 'Wakaf Pembangunan Masjid')->firstOrFail();
 
         $response = $this->get($this->tenantUrl($organization, '/donasi/'.$program->slug));
@@ -671,7 +711,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_detail_is_reachable_from_the_main_domain_preview(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->firstOrFail();
 
         $owner = User::factory()->create();
@@ -699,7 +739,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_detail_preview_requires_an_authorized_member(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->firstOrFail();
 
         $stranger = User::factory()->create();
@@ -711,7 +751,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_program_detail_is_scoped_to_its_own_organization(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->firstOrFail();
 
         $other = Organization::create([

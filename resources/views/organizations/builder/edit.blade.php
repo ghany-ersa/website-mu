@@ -246,10 +246,26 @@
                     </svg>
                 </button>
 
+                {{-- The panel stays vertically anchored to the trigger (`absolute top-full`) at
+                     every width - the header is `flex-wrap` and this switcher drops to its own
+                     row on mobile (`basis-full order-3`), so its distance from the top of the
+                     header isn't a constant the panel could hardcode.
+
+                     Horizontally it's the opposite. The trigger sits in a `justify-center`
+                     group, so `right-0` pins the panel's RIGHT edge to the middle of the screen
+                     and a w-72 panel spills its overflow off the LEFT - that's what cut the
+                     start off every page name ("...ngurus", "...oran Keuangan"). On mobile the
+                     panel is therefore detached from the trigger's horizontal position and sized
+                     to the viewport instead: `-translate-x-1/2 left-1/2` centers it on the
+                     trigger's own centre, and `w-[calc(100vw-2rem)]` keeps a 1rem gutter on both
+                     screen edges no matter how narrow the trigger is.
+
+                     sm: and up, w-72 comfortably fits beside the trigger, so it reverts to the
+                     plain right-aligned dropdown. --}}
                 <div x-show="open" x-cloak x-transition.opacity.duration.100ms
                     @click.outside="open = false"
-                    class="absolute right-0 top-full mt-2 w-72 max-w-[85vw] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 text-gray-800 z-50 overflow-hidden">
-                    <ul class="max-h-72 overflow-y-auto py-1.5">
+                    class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-[calc(100vw-2rem)] sm:left-auto sm:translate-x-0 sm:right-0 sm:w-72 bg-white rounded-xl shadow-2xl ring-1 ring-black/5 text-gray-800 z-50 overflow-hidden">
+                    <ul class="max-h-[60vh] sm:max-h-72 overflow-y-auto py-1.5">
                         @foreach ($pages as $p)
                             <li class="group flex items-center gap-1 px-2 py-0.5">
                                 <a href="{{ route('organizations.builder.page', [$organization, $p]) }}"
