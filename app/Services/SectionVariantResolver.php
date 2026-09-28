@@ -66,8 +66,10 @@ class SectionVariantResolver
     /**
      * Whether picking $variant for $key requires Organization::canUseExclusiveTemplates() —
      * read from that variant's own `is_exclusive` column, never inferred from its name. Enforced
-     * in OrganizationSectionController::update() and mirrored in the builder's own dropdown
-     * (organizations/builder/edit.blade.php) so an unauthorized option is never even offered.
+     * in OrganizationSectionController::update(), which is the authority: the builder's dropdown
+     * (organizations/builder/edit.blade.php) lists an unauthorized variant as a disabled option
+     * rather than hiding it, so the plan's value stays visible, and a crafted POST naming one is
+     * rejected there — it falls back to the section's existing variant.
      */
     public static function isExclusive(string $key, string $variant): bool
     {

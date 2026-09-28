@@ -36,6 +36,8 @@ class OrganizationBrandController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'instagram_url' => ['nullable', 'url', 'max:255'],
             'facebook_url' => ['nullable', 'url', 'max:255'],
+            'tiktok_url' => ['nullable', 'url', 'max:255'],
+            'youtube_url' => ['nullable', 'url', 'max:255'],
         ]);
 
         $organization->update($validated);

@@ -27,6 +27,16 @@
 // own editor still shows and lets existing instances be edited/removed, so in-progress work isn't
 // blocked - only end-user-facing surfaces are gated.
 //
+// `exclusive` (bool, default false), when true, marks a section only an organization on a plan
+// with `has_exclusive_templates` may add - Organization::canUseExclusiveTemplates(). The "Tambah
+// Section" picker still lists it, greyed out and badged, so the capability is discoverable rather
+// than invisible; OrganizationSectionController::store() is what actually enforces it. This is a
+// *section*-level gate and is deliberately separate from the variant-level `is_exclusive` column
+// (see below): that one only governs which layout may be picked for a section the organization
+// already has, so on its own it let any plan add these sections and simply render their sole
+// variant. The premium mosque sections (fasilitas-masjid, donasi-progress, laporan-keuangan,
+// kalkulator-zakat, akad-venue) need both flags.
+//
 // `cms`, when present, is the single source of truth for a section whose `items` field is backed
 // by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
 // inline in the builder) - both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
@@ -70,15 +80,7 @@ return [
             'fields' => ['title', 'body', 'image', 'stats', 'label', 'vision_title', 'vision_body', 'values_title', 'values'],
             'defaults' => [
                 'title' => 'Tentang Organisasi',
-                // Same fallback templates/sections/tentang-organisasi.blade.php already shows
-                // when `stats` is empty - seeded here too so a newly-added section starts with
-                // editable rows in the builder's properties panel instead of an empty stats
-                // editor that doesn't match what the canvas is actually rendering.
-                'stats' => [
-                    ['value' => '10+', 'label' => 'Tahun Berdiri'],
-                    ['value' => '100+', 'label' => 'Anggota'],
-                    ['value' => '5+', 'label' => 'Program Aktif'],
-                ],
+                'stats' => [],
             ],
         ],
         'sambutan-ketua' => [
@@ -129,7 +131,7 @@ return [
             'label' => 'Jaringan AUM/Ortom',
             'fields' => ['title', 'items'],
             'defaults' => ['title' => 'Jaringan AUM & Ortom'],
-            'cms' => ['route' => 'organizations.networks.index', 'label' => 'Jaringan AUM/Ortom'],
+            'cms' => ['route' => 'organizations.networks.index', 'label' => 'AUM/Ortom'],
         ],
         'daftar-berita' => [
             'label' => 'Daftar Berita',
@@ -141,9 +143,14 @@ return [
             'defaults' => ['title' => 'Berita Terbaru'],
             'cms' => ['route' => 'organizations.posts.index', 'label' => 'Berita'],
         ],
+        // Absorbed the former 'jadwal-kajian' section, whose view had become byte-for-byte
+        // identical to this one over the same `agendas` table. The section itself stays open to
+        // every plan; only its `poster` variant is exclusive (see SectionVariantSeeder), so a
+        // lower plan still gets its agenda list - it just doesn't get the flyer grid.
+        // `subtitle` is read by the poster variant only.
         'agenda' => [
-            'label' => 'Agenda',
-            'fields' => ['title', 'items', 'limit'],
+            'label' => 'Agenda / Jadwal',
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Agenda Kegiatan'],
             'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda'],
         ],
@@ -155,7 +162,9 @@ return [
         ],
         'galeri' => [
             'label' => 'Galeri',
-            'fields' => ['title', 'items', 'limit'],
+            // `subtitle` renders under the heading; without it here the builder's properties
+            // panel would never offer the field, leaving the copy unreachable rather than empty.
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Galeri'],
             'cms' => ['route' => 'organizations.gallery.index', 'label' => 'Galeri'],
         ],
@@ -167,17 +176,6 @@ return [
             // hidden from new-section picker and public render until that's built. See the
             // `hidden` doc comment above.
             'hidden' => true,
-        ],
-        'jadwal-kajian' => [
-            'label' => 'Jadwal Kajian',
-            // Backed by the same `agendas` table as the 'agenda' section (see
-            // CmsSampleDataSeeder::seed(), which seeds both from one method) - the two differ
-            // only in presentation, so this points at the same CMS. Previously this had no
-            // fields at all, which left it unclickable in the builder sidebar (see edit.blade
-            // .php's $hasFields guard) and silently dropped its title/limit on save.
-            'fields' => ['title', 'items', 'limit'],
-            'defaults' => ['title' => 'Jadwal Kajian'],
-            'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda & Kajian'],
         ],
         'jadwal-praktik' => [
             'label' => 'Jadwal Praktik Dokter',
@@ -217,24 +215,31 @@ return [
         ],
         'fasilitas-masjid' => [
             'label' => 'Fasilitas Masjid',
-            'fields' => ['title', 'items', 'limit'],
+            'exclusive' => true,
+            // `subtitle` is rendered under the heading by the nurul-huda variant; without it
+            // here the builder's properties panel would never offer the field, so the copy
+            // would be unreachable rather than merely empty.
+            'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Fasilitas Masjid'],
             'cms' => ['route' => 'organizations.facilities.index', 'label' => 'Fasilitas'],
         ],
         'donasi-progress' => [
             'label' => 'Donasi & Progress',
+            'exclusive' => true,
             'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Program Donasi Aktif'],
             'cms' => ['route' => 'organizations.donations.index', 'label' => 'Program Donasi'],
         ],
         'laporan-keuangan' => [
             'label' => 'Laporan Keuangan',
+            'exclusive' => true,
             'fields' => ['title'],
             'defaults' => ['title' => 'Laporan Keuangan'],
-            'cms' => ['route' => 'organizations.financial-reports.index', 'label' => 'Laporan Keuangan'],
+            'cms' => ['route' => 'organizations.financial-reports.index', 'label' => 'Laporan'],
         ],
         'kalkulator-zakat' => [
             'label' => 'Kalkulator Zakat',
+            'exclusive' => true,
             'fields' => ['title', 'gold_price_per_gram', 'nisab_grams', 'cta_label', 'wa_number', 'wa_message'],
             'defaults' => [
                 'title' => 'Kalkulator Zakat',
@@ -244,15 +249,21 @@ return [
                 'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar zakat di {org_name}.',
             ],
         ],
-        'sewa-aula' => [
-            'label' => 'Sewa Aula/Venue',
+        // Named 'akad-venue', not 'sewa-aula': many masjid deliberately avoid rental wording for
+        // a place of worship - it reads as monetising religious space - and ask for a voluntary
+        // infak instead. `infak_note` carries that framing and is blank by default, so a masjid
+        // that does charge a fixed fee can simply write that there instead.
+        'akad-venue' => [
+            'label' => 'Akad Nikah',
+            'exclusive' => true,
             'fields' => [
                 'hero_title', 'hero_subtitle', 'availability_badge',
-                'wa_number', 'facilities', 'image',
+                'wa_number', 'facilities', 'infak_note', 'image',
             ],
             'defaults' => [
-                'hero_title' => 'Sewa Aula Serbaguna',
-                'availability_badge' => 'Terbuka untuk Pemesanan',
+                'hero_title' => 'Aula Serbaguna Masjid',
+                'availability_badge' => 'Terbuka untuk Jamaah',
+                'infak_note' => 'Tidak ada tarif sewa, jamaah dipersilakan berinfak semampunya.',
             ],
         ],
         'cta' => [

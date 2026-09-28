@@ -23,35 +23,37 @@
     $ctaSecondaryHref = $resolveCtaHref('cta_secondary');
 @endphp
 
-<section class="relative overflow-hidden bg-primary">
-    <div class="absolute inset-0 bg-[linear-gradient(160deg,transparent_45%,rgba(255,255,255,0.05)_45%,rgba(255,255,255,0.05)_46%,transparent_46%)]"></div>
+<section class="relative overflow-hidden bg-softBg">
+    <div class="absolute -top-20 -right-20 w-64 h-64 md:w-80 md:h-80 rounded-full bg-secondary/[0.07] blur-3xl"></div>
 
-    <div class="relative max-w-6xl mx-auto px-6 py-24 md:py-32 grid md:grid-cols-[1.1fr_0.9fr] gap-16 items-center">
+    <div class="relative max-w-6xl mx-auto px-6 pt-14 pb-16 md:py-28 grid md:grid-cols-[0.95fr_1.05fr] gap-10 md:gap-16 items-center">
         <div>
             @if (! empty($content['badge']))
-                <div class="reveal flex items-center gap-3 mb-6">
-                    <span class="w-10 h-px bg-secondary"></span>
-                    <span class="text-secondary text-xs font-semibold tracking-[0.2em] uppercase">{{ $content['badge'] }}</span>
+                <div class="reveal flex items-center gap-3 mb-5 md:mb-6">
+                    <span class="w-8 md:w-10 h-px bg-secondary"></span>
+                    <span class="text-secondary text-[11px] md:text-xs font-semibold tracking-[0.2em] uppercase">{{ $content['badge'] }}</span>
                 </div>
             @endif
 
-            <h1 class="reveal text-4xl md:text-6xl text-white leading-[1.1] mb-6 tracking-tight" style="transition-delay: 80ms">
+            <h1 class="reveal text-[2rem] leading-[1.12] md:text-5xl lg:text-6xl md:leading-[1.08] text-primary tracking-tight mb-4 md:mb-6" style="transition-delay: 80ms">
                 {{ $content['headline'] ?? 'Headline Utama' }}
             </h1>
 
-            <p class="reveal max-w-xl text-lg text-white/70 leading-relaxed mb-10" style="transition-delay: 160ms">
+            <p class="reveal max-w-md text-base md:text-lg text-gray-600 leading-relaxed mb-8 md:mb-10" style="transition-delay: 160ms">
                 {{ $content['subheadline'] ?? 'Subheadline yang menjelaskan organisasi secara singkat.' }}
             </p>
 
-            <div class="reveal flex flex-wrap items-center gap-5" style="transition-delay: 240ms">
+            {{-- Tombol melebar penuh di mobile (target sentuh sekaligus kesan rapi), kembali
+                 menyesuaikan lebar teks mulai sm. --}}
+            <div class="reveal flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-6" style="transition-delay: 240ms">
                 @if (! empty($content['cta_label']))
                     @if ($ctaHref)
                         <a href="{{ $ctaHref }}" {{ ($content['cta_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
-                            class="px-7 py-3.5 rounded-brand bg-white text-primary text-sm font-semibold tracking-wide transition-all duration-200 hover:bg-secondary hover:text-white">
+                            class="px-7 py-4 sm:py-3.5 rounded-brand bg-primary text-white text-sm font-semibold tracking-wide text-center shadow-soft transition-all duration-200 hover:bg-secondary hover:-translate-y-0.5">
                             {{ $content['cta_label'] }}
                         </a>
                     @else
-                        <button type="button" class="px-7 py-3.5 rounded-brand bg-white text-primary text-sm font-semibold tracking-wide transition-all duration-200 hover:bg-secondary hover:text-white">
+                        <button type="button" class="px-7 py-4 sm:py-3.5 rounded-brand bg-primary text-white text-sm font-semibold tracking-wide text-center shadow-soft transition-all duration-200 hover:bg-secondary hover:-translate-y-0.5">
                             {{ $content['cta_label'] }}
                         </button>
                     @endif
@@ -59,12 +61,12 @@
                 @if (! empty($content['cta_secondary_label']))
                     @if ($ctaSecondaryHref)
                         <a href="{{ $ctaSecondaryHref }}" {{ ($content['cta_secondary_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
-                            class="group inline-flex items-center gap-2 text-sm font-semibold text-white/80 tracking-wide transition-colors hover:text-white">
+                            class="group inline-flex items-center justify-center sm:justify-start gap-2 py-1 text-sm font-semibold text-primary tracking-wide transition-colors hover:text-secondary">
                             {{ $content['cta_secondary_label'] }}
                             <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
                         </a>
                     @else
-                        <button type="button" class="group inline-flex items-center gap-2 text-sm font-semibold text-white/80 tracking-wide transition-colors hover:text-white">
+                        <button type="button" class="group inline-flex items-center justify-center sm:justify-start gap-2 py-1 text-sm font-semibold text-primary tracking-wide transition-colors hover:text-secondary">
                             {{ $content['cta_secondary_label'] }}
                             <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
                         </button>
@@ -74,12 +76,17 @@
         </div>
 
         <div class="reveal relative" style="transition-delay: 120ms">
-            <div class="absolute -inset-3 border border-secondary/40 rounded-brand"></div>
-            <div class="relative rounded-brand overflow-hidden shadow-float">
+            {{-- Bingkai digeser ke dalam di mobile (inset, bukan offset negatif) supaya aksennya
+                 tetap ada tanpa menembus lebar viewport; mulai md baru bergeser keluar. --}}
+            <div class="absolute -top-4 -left-4 right-5 bottom-5 md:-top-4 md:-right-4 md:bottom-8 md:left-8 border border-secondary/30 rounded-brand"></div>
+            {{-- Rasio lebih tinggi di mobile: 16/10 yang pipih membuat foto kehilangan bobot saat
+                 kolom runtuh jadi selebar layar. --}}
+            <div class="relative aspect-[4/3] md:aspect-[16/10] rounded-brand overflow-hidden shadow-soft ring-1 ring-black/5">
                 @if (! empty($content['image']))
-                    <img src="{{ $content['image'] }}" alt="{{ $content['headline'] ?? '' }}" class="w-full aspect-[4/5] object-cover">
+                    <img src="{{ $content['image'] }}" alt="{{ $content['headline'] ?? '' }}" loading="eager"
+                         class="w-full h-full object-cover">
                 @else
-                    <div class="w-full aspect-[4/5] bg-white/10 flex items-center justify-center text-white/40 text-sm">Gambar</div>
+                    <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">Gambar</div>
                 @endif
             </div>
         </div>

@@ -44,28 +44,23 @@ use App\Http\Controllers\TemplateUseController;
 use App\Models\Article;
 use App\Models\Plan;
 use App\Models\Template;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', function () {
-    // Curated set, not the full catalog: one representative per organization-type grouping
-    // so the homepage grid stays a short, skimmable preview instead of all ~13 templates
+    // Curated set, not the full catalog: only templates an admin has flagged is_featured show
+    // here, so the homepage grid stays a short, skimmable preview instead of all ~13 templates
     // (most of which only differ from a sibling by brand color/copy - see templates.index for
-    // the full, filterable list). 'muhammadiyah-eksekutif' stands in for Persyarikatan instead
-    // of the standard 'muhammadiyah' template, since both target the same PDM/PCM/PRM audience
-    // and showing both here would look like duplication rather than distinct choices.
-    $homepageTemplateSlugs = [
-        'muhammadiyah-eksekutif',
-        'pemuda-muhammadiyah',
-        'aum-pendidikan',
-        'aum-kesehatan-sosial',
-        'masjid-mushola',
-    ];
-
+    // the full, filterable list). Toggled per-template from admin/templates rather than a
+    // hardcoded slug list, so which templates appear can change without a deploy.
     $templates = Template::where('is_active', true)
-        ->whereIn('slug', $homepageTemplateSlugs)
-        ->get()
-        ->sortBy(fn ($template) => array_search($template->slug, $homepageTemplateSlugs))
-        ->values();
+        ->where('is_public', true)
+        ->where('is_featured', true)
+        ->orderBy('name')
+        ->get();
 
     $plans = Plan::with('limits')
         ->where('is_active', true)
@@ -87,6 +82,18 @@ Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('
 
 Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
 
+// Registered before the {page?} catch-all below so 'berita'/'donasi'/'agenda' aren't swallowed as
+// a page slug - these are the same "detail berita"/"detail donasi"/"detail agenda" links every
+// section partial already builds for a real organization, made to work from the template
+// catalog's public preview too (see TemplatePreviewController::post()/donationProgram()/agenda()
+// for why a sandbox org is the source).
+Route::get('/templates/{template:slug}/preview/berita/{post_slug}', [TemplatePreviewController::class, 'post'])
+    ->name('templates.preview.post');
+Route::get('/templates/{template:slug}/preview/donasi/{program_slug}', [TemplatePreviewController::class, 'donationProgram'])
+    ->name('templates.preview.donation');
+Route::get('/templates/{template:slug}/preview/agenda/{agenda}', [TemplatePreviewController::class, 'agenda'])
+    ->name('templates.preview.agenda');
+
 Route::get('/templates/{template:slug}/preview/{page?}', [TemplatePreviewController::class, 'show'])
     ->name('templates.preview');
 
@@ -96,6 +103,17 @@ Route::get('/templates/{template:slug}/use', TemplateUseController::class)
 Route::middleware('auth')->group(function () {
     Route::post('onboarding-tours', [OnboardingTourController::class, 'store'])
         ->name('onboarding-tours.store');
+
+    // Step 1 of organization creation (the template picker); the resource route's `create` below
+    // is step 2 and redirects here unless it carries a usable ?template=slug. Declared first so
+    // 'create/template' isn't captured by the resource's own routes.
+    //
+    // Named 'organizations.template-picker' rather than 'organizations.create.template': the
+    // latter made route('organizations.create', ['template' => $slug]) silently drop the query
+    // string, because the generator resolved the name+parameter pair to this route's path instead
+    // of appending ?template= to step 2's URL - which broke every "Gunakan Template" link.
+    Route::get('organizations/create/template', [OrganizationController::class, 'createTemplate'])
+        ->name('organizations.template-picker');
 
     Route::resource('organizations', OrganizationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 
@@ -209,6 +227,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.plan.apply-discount');
         Route::get('organizations/{organization}/plan/{planChangeRequest}/pay', [OrganizationPlanController::class, 'pay'])
             ->name('organizations.plan.pay');
+        Route::post('organizations/{organization}/plan/{planChangeRequest}/confirm-manual-payment', [OrganizationPlanController::class, 'confirmManualPayment'])
+            ->name('organizations.plan.confirm-manual-payment');
     });
 
     // Outside scopeBindings(): that group derives the parent relation from the parameter name
@@ -240,7 +260,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('templates', AdminTemplateController::class)->except(['show']);
+    Route::resource('templates', AdminTemplateController::class)->except(['show', 'destroy']);
     Route::get('templates/{template}/design', [TemplateBuilderController::class, 'edit'])->name('templates.design');
     Route::post('templates/{template}/design', [TemplateBuilderController::class, 'update'])->name('templates.design.update');
     Route::post('templates/{template}/design/resync', [TemplateBuilderController::class, 'resync'])->name('templates.design.resync');
@@ -258,6 +278,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('section-variants/{sectionVariant}/preview', [SectionVariantPreviewController::class, 'show'])->name('section-variants.preview');
 
     Route::get('plan-change-requests', [PlanChangeRequestController::class, 'index'])->name('plan-change-requests.index');
+    Route::post('plan-change-requests/{planChangeRequest}/approve-manual', [PlanChangeRequestController::class, 'approveManual'])->name('plan-change-requests.approve-manual');
     Route::post('plan-change-requests/{planChangeRequest}/reject', [PlanChangeRequestController::class, 'reject'])->name('plan-change-requests.reject');
     Route::post('plan-change-requests/{planChangeRequest}/retry-approve', [PlanChangeRequestController::class, 'retryApprove'])->name('plan-change-requests.retry-approve');
 });
@@ -276,8 +297,25 @@ if ($tenantDomain = config('tenancy.domain')) {
     // 'tenant' middleware group (bootstrap/app.php), not the default 'web' group: these
     // routes are pure reads with no login/forms, so they skip session/CSRF entirely and
     // run against a SELECT-only DB connection - see UseReadOnlyConnection's docblock.
-    Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware('web')->middleware('tenant')->group(function () {
+    //
+    // The exclusion lists the session/CSRF classes individually rather than passing the group
+    // name 'web'. Router::resolveMiddleware() expands an excluded *group* into its member
+    // classes and then rejects each of those by class from the whole stack - so excluding 'web'
+    // also stripped EncryptCookies and SubstituteBindings out of the 'tenant' group, which
+    // shares both with 'web'. Losing SubstituteBindings is what made every route-model-bound
+    // tenant parameter arrive as a raw string, 404ing the announcement and agenda detail pages
+    // (their controllers compared $model->organization_id on what was actually a string). Naming
+    // the classes keeps the intent - no session, no CSRF - without taking route-model binding
+    // down with it.
+    Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware([
+        AddQueuedCookiesToResponse::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+    ])->middleware('tenant')->group(function () {
         Route::get('/', [OrganizationSiteController::class, 'show'])->name('tenant.home');
+        Route::get('/berita-lebih-banyak', [OrganizationSiteController::class, 'loadMoreBerita'])->name('tenant.posts.load-more');
+        Route::get('/galeri-lebih-banyak', [OrganizationSiteController::class, 'loadMoreGaleri'])->name('tenant.galleries.load-more');
         Route::get('/berita/{post_slug}', [OrganizationSiteController::class, 'post'])->name('tenant.posts.show');
         Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
         Route::get('/agenda/{agenda}', [OrganizationSiteController::class, 'agenda'])->name('tenant.agendas.show');

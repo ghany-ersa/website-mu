@@ -4,41 +4,39 @@
 
 @section('content')
     <div class="max-w-3xl mx-auto">
-        <h1 class="text-2xl font-extrabold text-primary mb-2">Buat Organisasi Baru</h1>
+        <p class="text-xs font-bold text-primary uppercase tracking-wide mb-1">Langkah 2 dari 2</p>
+        <div class="flex items-start justify-between gap-3 mb-2">
+            <h1 class="text-2xl font-extrabold text-primary">Buat Organisasi Baru</h1>
+            <button type="button" id="btn-create-tour" onclick="window.startOnboardingTour('create')"
+                title="Lihat penjelasan form ini"
+                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-primary hover:bg-gray-100 transition shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
         <p class="text-sm text-gray-500 mb-8">Lengkapi detail organisasi Anda di bawah ini.</p>
 
-        @if ($selectedTemplate)
-            <div class="mb-6 rounded-lg bg-primary/10 border border-primary/20 text-primary px-4 py-3 text-sm">
-                Anda memilih template <strong>{{ $selectedTemplate->name }}</strong>.
+        <div id="selected-template" class="mb-6 flex items-center gap-3 rounded-xl bg-white border border-gray-200 p-3 shadow-soft">
+            <div class="w-20 h-14 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                <x-ui.template-thumbnail :template="$selectedTemplate" icon-class="w-5 h-5" />
             </div>
-        @endif
+            <div class="min-w-0 flex-1">
+                <p class="text-xs text-gray-400">Template pilihan Anda</p>
+                <p class="font-bold text-gray-800 text-sm truncate">{{ $selectedTemplate->name }}</p>
+            </div>
+            <a href="{{ route('organizations.template-picker') }}"
+               class="shrink-0 text-xs text-primary font-semibold hover:underline">Ganti</a>
+        </div>
 
         <form action="{{ route('organizations.store') }}" method="POST" id="organization-form">
             @csrf
 
-            @if ($selectedTemplate)
-                <input type="hidden" name="template_id" value="{{ $selectedTemplate->id }}">
-            @endif
+            <input type="hidden" name="template_id" value="{{ $selectedTemplate->id }}">
 
             <div class="bg-white rounded-2xl shadow-soft p-6 space-y-5">
-                <div>
-                    <label for="organization_type_id" class="block text-sm font-semibold text-gray-700 mb-1">Jenis Organisasi</label>
-                    <select name="organization_type_id" id="organization_type_id" required
-                            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                        <option value="" disabled @selected(! old('organization_type_id', $selectedTemplate?->organization_type_id))>Pilih jenis organisasi</option>
-                        @foreach ($organizationTypes->groupBy(fn ($type) => $type->category->label()) as $categoryLabel => $types)
-                            <optgroup label="{{ $categoryLabel }}">
-                                @foreach ($types as $type)
-                                    <option value="{{ $type->id }}"
-                                            @selected(old('organization_type_id', $selectedTemplate?->organization_type_id) == $type->id)>
-                                        {{ $type->name }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
-                        @endforeach
-                    </select>
-                </div>
-
                 <div>
                     <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Organisasi</label>
                     <input type="text" name="name" id="name" value="{{ old('name') }}" required
@@ -104,4 +102,12 @@
             });
         })();
     </script>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.autoStartOnboardingTour('create', @json($hasSeenCreateTour));
+            });
+        </script>
+    @endpush
 @endsection

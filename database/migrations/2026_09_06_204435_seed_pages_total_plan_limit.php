@@ -7,17 +7,17 @@ use Illuminate\Database\Migrations\Migration;
 return new class extends Migration
 {
     /**
-     * Adds the 'pages_total' limit to every existing plan (starter/organization -> 1 page,
-     * professional -> 10), gating the page builder's multi-page switcher/creation to the
-     * Professional tier. PlanSeeder is updated in step with this for fresh installs, but
+     * Adds the 'pages_total' limit to every existing plan (starter/premium -> 1 page,
+     * eksklusif -> 10), gating the page builder's multi-page switcher/creation to the
+     * Eksklusif tier. PlanSeeder is updated in step with this for fresh installs, but
      * plan_limits rows already live in every existing database need this migration too.
      */
     public function up(): void
     {
         $limits = [
             'starter' => 1,
-            'organization' => 1,
-            'professional' => 10,
+            'premium' => 1,
+            'eksklusif' => 10,
         ];
 
         foreach ($limits as $key => $maxCount) {

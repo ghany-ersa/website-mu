@@ -65,7 +65,9 @@ class OrganizationPlanController extends Controller
             ])->all(),
             // ISO string for the picker to compute "active until" client-side, matching
             // PlanChangeRequestService::approve()'s baseline logic: extend from this date if
-            // it's still in the future, otherwise count from today.
+            // the selected plan is the same one the organization is already on AND it's still
+            // in the future, otherwise count from today (see edit.blade.php's activeUntilLabel(),
+            // which also needs organization.plan_id to tell a renewal apart from a switch).
             'planExpiresAt' => $organization->plan_expires_at?->toIso8601String(),
         ]);
     }
@@ -92,14 +94,24 @@ class OrganizationPlanController extends Controller
             'discount_code' => ['nullable', 'string', 'max:50'],
         ]);
 
-        // Only block re-requesting the same plan once it's actually paid for - a brand-new
-        // organization already has plan_id set (see OrganizationController::store()) but
-        // hasn't paid yet (plan_expires_at is still null), so its very first payment request
-        // is for the plan it's already "on," and that has to be allowed through.
-        if ((int) $validated['plan_id'] === $organization->plan_id && $organization->hasPaidForCurrentPlan()) {
+        // A renewal (requesting the plan the organization is already on) is only allowed once
+        // there's 14 days or less left on it - paying again while there's still weeks of paid
+        // time remaining has no purpose and would just stack an extra term on top prematurely.
+        // Doesn't apply the first time an organization pays (plan_expires_at is still null - see
+        // hasPaidForCurrentPlan()'s doc comment) or once the current term has already lapsed
+        // (isFuture() is false, so the window is always considered "reached" from that point on).
+        // A switch to a *different* plan is never gated by this - see store()'s Plan::findOrFail
+        // below and PlanChangeRequestService::approve()'s $isSamePlanRenewal, which only extends
+        // the existing expiry for a same-plan renewal in the first place.
+        $isSamePlanRenewal = (int) $validated['plan_id'] === $organization->plan_id;
+        $renewalWindowNotReachedYet = $isSamePlanRenewal
+            && $organization->plan_expires_at?->isFuture()
+            && now()->diffInDays($organization->plan_expires_at, false) > 14;
+
+        if ($renewalWindowNotReachedYet) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('warning', 'Paket tersebut sudah menjadi paket aktif Anda.');
+                ->with('warning', 'Perpanjangan paket hanya bisa diajukan paling cepat 14 hari sebelum masa aktif berakhir ('.$organization->plan_expires_at->translatedFormat('d M Y').').');
         }
 
         $plan = Plan::findOrFail($validated['plan_id']);
@@ -131,11 +143,21 @@ class OrganizationPlanController extends Controller
         // amountFor() clamps the discount to the plan's own price - see PlanChangeRequestService
         // for how discount_amount reaches here), never from user input.
         if ($planChangeRequest->gatewayAmount() === 0) {
+            $planChangeRequest->update(['amount_paid' => 0]);
             $planChangeRequestService->approve($planChangeRequest, note: 'Disetujui otomatis - dibayar penuh dengan kode diskon.');
 
             return redirect()
                 ->route('organizations.plan.edit', $organization)
                 ->with('success', 'Paket berhasil diaktifkan menggunakan kode diskon.');
+        }
+
+        // Midtrans disabled (config('billing.manual_transfer.only')) - leave the request Pending
+        // and send the tenant back to the plan page, which shows the transfer instructions in
+        // place of the Snap button rather than attempting a Snap call that would fail.
+        if (config('billing.manual_transfer.only')) {
+            return redirect()
+                ->route('organizations.plan.edit', $organization)
+                ->with('success', 'Permintaan dibuat. Silakan selesaikan pembayaran melalui transfer manual.');
         }
 
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
@@ -153,12 +175,17 @@ class OrganizationPlanController extends Controller
     {
         $this->authorize('manageBilling', $organization);
 
+        // Midtrans is off - the plan page hides the Snap button in this mode, so reaching here
+        // means a stale link or a hand-typed URL.
+        abort_if(config('billing.manual_transfer.only'), 404);
+
         abort_unless($planChangeRequest->organization_id === $organization->id, 404);
         abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
 
         // See store() - a pre-existing request whose discount already covers the full amount
         // (e.g. from before this guard existed) should never reach Midtrans either.
         if ($planChangeRequest->gatewayAmount() === 0) {
+            $planChangeRequest->update(['amount_paid' => 0]);
             $planChangeRequestService->approve($planChangeRequest, note: 'Disetujui otomatis - dibayar penuh dengan kode diskon.');
 
             return redirect()
@@ -169,6 +196,32 @@ class OrganizationPlanController extends Controller
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
 
         return redirect()->away($redirectUrl);
+    }
+
+    /**
+     * Records that the tenant says they've paid by manual bank transfer (see
+     * config('billing.manual_transfer')) - always available, whether or not Midtrans is the
+     * primary option. Deliberately moves the request only to PaymentConfirmed, never Approved:
+     * this is an unverified tenant claim, so an admin still has to check the transfer actually
+     * landed and approve it from admin/plan-change-requests. PaymentConfirmed already counts as
+     * in-flight for Organization::pendingPlanChangeRequest(), so this can't be used to queue up
+     * extra requests.
+     */
+    public function confirmManualPayment(Organization $organization, PlanChangeRequest $planChangeRequest): RedirectResponse
+    {
+        $this->authorize('manageBilling', $organization);
+
+        abort_unless($planChangeRequest->organization_id === $organization->id, 404);
+        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses.');
+
+        $planChangeRequest->update([
+            'status' => PlanChangeRequestStatus::PaymentConfirmed,
+            'payment_confirmed_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('organizations.plan.edit', $organization)
+            ->with('success', 'Konfirmasi pembayaran terkirim. Paket akan aktif setelah tim kami memverifikasi transfer Anda.');
     }
 
     /**

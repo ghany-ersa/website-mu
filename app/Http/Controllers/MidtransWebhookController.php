@@ -60,7 +60,7 @@ class MidtransWebhookController extends Controller
         ]);
 
         match ($status->transaction_status) {
-            'settlement', 'capture' => $this->handleSettlement($planChangeRequest, $planChangeRequestService),
+            'settlement', 'capture' => $this->handleSettlement($planChangeRequest, $planChangeRequestService, (int) $status->gross_amount),
             'expire', 'cancel' => $planChangeRequest->update(['status' => PlanChangeRequestStatus::Expired]),
             'deny' => $planChangeRequest->update([
                 'status' => PlanChangeRequestStatus::Rejected,
@@ -72,13 +72,17 @@ class MidtransWebhookController extends Controller
         return response()->json(['message' => 'ok']);
     }
 
-    private function handleSettlement(PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): void
+    private function handleSettlement(PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service, int $grossAmount): void
     {
         if ($planChangeRequest->status === PlanChangeRequestStatus::Approved) {
             return;
         }
 
-        $planChangeRequest->update(['midtrans_paid_at' => now()]);
+        // grossAmount was already checked against gatewayAmount() above before this branch was
+        // ever reached - stored here (rather than recomputed later from Plan::price_monthly)
+        // so this request's paid amount stays accurate even if the plan's price changes after
+        // the fact. See the amount_paid migration's doc comment.
+        $planChangeRequest->update(['midtrans_paid_at' => now(), 'amount_paid' => $grossAmount]);
         $planChangeRequest->increment('approve_attempts');
 
         try {

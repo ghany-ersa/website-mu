@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -39,7 +40,7 @@ class AuthenticationTest extends TestCase
 
     public function test_guest_is_redirected_to_login_for_organization_pages(): void
     {
-        $org = \App\Models\Organization::factory()->create();
+        $org = Organization::factory()->create();
 
         $response = $this->get(route('organizations.show', $org));
         $response->assertRedirect(route('login'));

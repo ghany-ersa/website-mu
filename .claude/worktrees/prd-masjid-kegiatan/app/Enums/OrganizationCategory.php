@@ -5,18 +5,18 @@ namespace App\Enums;
 enum OrganizationCategory: string
 {
     case Persyarikatan = 'persyarikatan';
-    case Ortom = 'ortom';
     case AumPendidikan = 'aum_pendidikan';
-    case AumKesehatanSosial = 'aum_kesehatan_sosial';
+    case AumKesehatan = 'aum_kesehatan';
+    case Media = 'media';
     case Masjid = 'masjid';
 
     public function label(): string
     {
         return match ($this) {
             self::Persyarikatan => 'Persyarikatan',
-            self::Ortom => 'Organisasi Otonom',
             self::AumPendidikan => 'AUM Pendidikan',
-            self::AumKesehatanSosial => 'AUM Kesehatan dan Sosial',
+            self::AumKesehatan => 'AUM Kesehatan dan Sosial',
+            self::Media => 'Media',
             self::Masjid => 'Masjid',
         };
     }

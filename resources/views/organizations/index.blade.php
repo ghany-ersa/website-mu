@@ -5,7 +5,7 @@
 @section('content')
     <div class="flex items-center justify-between mb-8">
         <h1 class="text-2xl font-extrabold text-primary">Organisasi Saya</h1>
-        <a href="{{ route('organizations.create') }}" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
+        <a href="{{ route('organizations.template-picker') }}" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
             + Buat Organisasi
         </a>
     </div>

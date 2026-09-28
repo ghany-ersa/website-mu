@@ -177,8 +177,9 @@
     {{-- Top bar --}}
     <header
         class="relative bg-gradient-to-r from-gray-900 via-[#1c2360] to-primary text-white text-sm shrink-0 shadow-lg z-10">
-        <div class="px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-3 min-w-0">
+        <div class="px-4 lg:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            {{-- Left group: leave builder, org identity, page switcher. --}}
+            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                 {{-- Mobile: while the properties panel is open, back means "close this
                      section and return to the preview", not "leave the builder" —
                      otherwise it's easy to accidentally exit while editing. lg+: all
@@ -206,6 +207,8 @@
                 </div>
             </div>
 
+            {{-- Center group: page switcher. --}}
+            <div class="flex items-center justify-center flex-1 min-w-0 order-3 lg:order-none basis-full lg:basis-auto">
             {{-- Page switcher: lets a user with multiple pages (e.g. cloned from a
                  multi-page template) pick which one they're editing. A plain link per
                  page - navigating reloads the builder scoped to that page, and every
@@ -243,10 +246,26 @@
                     </svg>
                 </button>
 
+                {{-- The panel stays vertically anchored to the trigger (`absolute top-full`) at
+                     every width - the header is `flex-wrap` and this switcher drops to its own
+                     row on mobile (`basis-full order-3`), so its distance from the top of the
+                     header isn't a constant the panel could hardcode.
+
+                     Horizontally it's the opposite. The trigger sits in a `justify-center`
+                     group, so `right-0` pins the panel's RIGHT edge to the middle of the screen
+                     and a w-72 panel spills its overflow off the LEFT - that's what cut the
+                     start off every page name ("...ngurus", "...oran Keuangan"). On mobile the
+                     panel is therefore detached from the trigger's horizontal position and sized
+                     to the viewport instead: `-translate-x-1/2 left-1/2` centers it on the
+                     trigger's own centre, and `w-[calc(100vw-2rem)]` keeps a 1rem gutter on both
+                     screen edges no matter how narrow the trigger is.
+
+                     sm: and up, w-72 comfortably fits beside the trigger, so it reverts to the
+                     plain right-aligned dropdown. --}}
                 <div x-show="open" x-cloak x-transition.opacity.duration.100ms
                     @click.outside="open = false"
-                    class="absolute right-0 top-full mt-2 w-72 max-w-[85vw] bg-white rounded-xl shadow-2xl ring-1 ring-black/5 text-gray-800 z-50 overflow-hidden">
-                    <ul class="max-h-72 overflow-y-auto py-1.5">
+                    class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-[calc(100vw-2rem)] sm:left-auto sm:translate-x-0 sm:right-0 sm:w-72 bg-white rounded-xl shadow-2xl ring-1 ring-black/5 text-gray-800 z-50 overflow-hidden">
+                    <ul class="max-h-[60vh] sm:max-h-72 overflow-y-auto py-1.5">
                         @foreach ($pages as $p)
                             <li class="group flex items-center gap-1 px-2 py-0.5">
                                 <a href="{{ route('organizations.builder.page', [$organization, $p]) }}"
@@ -380,44 +399,51 @@
                     </div>
                 </div>
             </div>
+            </div>
 
-            <button type="button" id="btn-builder-tour" @click="window.startOnboardingTour && window.startOnboardingTour('builder')"
-                title="Lihat tutorial builder"
-                class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                    <path fill-rule="evenodd"
-                        d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                        clip-rule="evenodd" />
-                </svg>
-            </button>
+            {{-- Right group: status indicators and actions, kept visually separate
+                 from the identity/navigation group on the left. --}}
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+                @if ($organization->status === \App\Enums\OrganizationStatus::Published)
+                    <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-300 px-2 py-1 rounded-lg bg-white/5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Live
+                    </span>
+                @endif
 
-            @if ($organization->status === \App\Enums\OrganizationStatus::Published)
-                <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-300 pr-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Live
-                </span>
-            @endif
+                {{-- Template design mode: this organization is a sandbox standing in for a Template
+                     (see TemplateSandboxService), so the builder is editing template structure rather
+                     than a real tenant's site. Lives in the header (not a banner below it) because
+                     <body> is a fixed-height overflow-hidden flex column - an extra row there gets
+                     clipped out of view. --}}
+                @if ($organization->is_sandbox && $organization->template)
+                    <span class="hidden md:inline-flex items-center gap-1.5 text-xs text-amber-300 px-2 py-1 rounded-lg bg-white/5"
+                          title="Perubahan di sini disimpan ke template {{ $organization->template->name }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        Mode Template
+                    </span>
+                    <form action="{{ route('admin.templates.design.update', $organization->template) }}" method="POST"
+                          class="shrink-0">
+                        @csrf
+                        <button type="submit"
+                                class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-bold transition whitespace-nowrap">
+                            Simpan ke Template
+                        </button>
+                    </form>
+                @endif
 
-            {{-- Template design mode: this organization is a sandbox standing in for a Template
-                 (see TemplateSandboxService), so the builder is editing template structure rather
-                 than a real tenant's site. Lives in the header (not a banner below it) because
-                 <body> is a fixed-height overflow-hidden flex column - an extra row there gets
-                 clipped out of view. --}}
-            @if ($organization->is_sandbox && $organization->template)
-                <span class="hidden md:inline-flex items-center gap-1.5 text-xs text-amber-300 pr-1"
-                      title="Perubahan di sini disimpan ke template {{ $organization->template->name }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Mode Template
-                </span>
-                <form action="{{ route('admin.templates.design.update', $organization->template) }}" method="POST"
-                      class="shrink-0">
-                    @csrf
-                    <button type="submit"
-                            class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-bold transition whitespace-nowrap">
-                        Simpan ke Template
-                    </button>
-                </form>
-            @endif
+                <span class="w-px h-5 bg-white/10 mx-0.5 hidden sm:block"></span>
+
+                <button type="button" id="btn-builder-tour" @click="window.startOnboardingTour && window.startOnboardingTour('builder')"
+                    title="Lihat tutorial builder"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -481,12 +507,24 @@
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
                         previewKey: null,
-                        options: @js(collect($sectionRegistry)->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))->map(fn ($meta, $key) => ['label' => $meta['label']])),
+                        {{-- Plan-gated sections stay in the list but are marked `locked` so they
+                             render greyed out with a badge rather than vanishing - an owner on a
+                             lower plan can still see (and preview) what upgrading would unlock.
+                             OrganizationSectionController::store() is the real enforcement. --}}
+                        options: @js(collect($sectionRegistry)
+                            ->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))
+                            ->map(fn ($meta, $key) => [
+                                'label' => $meta['label'],
+                                'locked' => ! empty($meta['exclusive']) && ! $organization->canUseExclusiveTemplates(),
+                            ])),
                         openPicker() {
                             this.previewKey = Object.keys(this.options)[0] ?? null;
                             this.open = true;
                         },
                         choose(key) {
+                            if (! key || this.options[key]?.locked) {
+                                return;
+                            }
                             this.previewKey = key;
                             this.open = false;
                             this.$refs.addForm.requestSubmit();
@@ -557,18 +595,39 @@
                             <ul class="flex-1 overflow-y-auto px-2.5 pb-2">
                                 <template x-for="(meta, key) in options" :key="key">
                                     <li>
+                                        {{-- Still selectable so the preview pane works: browsing a
+                                             locked section is how an owner decides to upgrade. Only
+                                             the confirm button is disabled. --}}
                                         <button type="button" @click="previewKey = key" :data-tip="meta.label"
-                                            class="w-full text-left px-3 py-2.5 rounded-lg text-sm truncate transition"
-                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50'"
-                                            x-text="meta.label"></button>
+                                            class="w-full flex items-center gap-2 text-left px-3 py-2.5 rounded-lg text-sm transition"
+                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : (meta.locked ? 'text-gray-400 hover:bg-gray-50' : 'text-gray-600 hover:bg-gray-50')">
+                                            <span class="truncate" x-text="meta.label"></span>
+                                            <template x-if="meta.locked">
+                                                <span class="ml-auto shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
+                                                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    Profesional
+                                                </span>
+                                            </template>
+                                        </button>
                                     </li>
                                 </template>
                             </ul>
 
                             <div class="p-4 border-t border-gray-100 shrink-0">
-                                <button type="button" @click="choose(previewKey)" :disabled="!previewKey"
-                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60">
-                                    Pilih komponen ini
+                                <template x-if="previewKey && options[previewKey]?.locked">
+                                    <p class="mb-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                        Komponen ini tersedia di paket Profesional.
+                                        <a href="{{ route('organizations.plan.edit', $organization) }}"
+                                            class="font-semibold underline underline-offset-2 hover:text-amber-900">Upgrade paket</a>
+                                        untuk memakainya.
+                                    </p>
+                                </template>
+                                <button type="button" @click="choose(previewKey)"
+                                    :disabled="!previewKey || options[previewKey]?.locked"
+                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-sm"
+                                    x-text="previewKey && options[previewKey]?.locked ? 'Perlu paket Profesional' : 'Pilih komponen ini'">
                                 </button>
                             </div>
                         </div>
@@ -848,17 +907,21 @@
                                         $variantOptions[$variantKey] = $variantMeta;
                                     }
 
-                                    // Hide any variant the organization's plan doesn't grant access to - each
-                                    // variant's own explicit `exclusive` flag decides this (never inferred from
-                                    // its name), mirrored in OrganizationSectionController::update()'s
-                                    // acceptance check via SectionVariantResolver::isExclusive().
-                                    if (! $organization->canUseExclusiveTemplates()) {
-                                        $variantOptions = array_filter(
-                                            $variantOptions,
-                                            fn ($meta) => ! ($meta['exclusive'] ?? false)
-                                        );
-                                    }
+                                    // Variants the organization's plan doesn't grant are shown but disabled,
+                                    // rather than filtered out - same treatment as the "Tambah Section"
+                                    // picker, so an owner on a lower plan can see what upgrading unlocks
+                                    // instead of a premium layout silently not existing. Each variant's own
+                                    // explicit `exclusive` flag decides this (never inferred from its name);
+                                    // OrganizationSectionController::update() is the real enforcement, via
+                                    // SectionVariantResolver::isExclusive() - a disabled <option> is only a
+                                    // UI affordance and a crafted POST must still be rejected there.
+                                    $canUseExclusive = $organization->canUseExclusiveTemplates();
 
+                                    // The section's own variant can still be missing from the options after
+                                    // the dedup-by-view pass above collapsed it into an alias sharing its
+                                    // view (plan gating no longer removes anything). Re-point the selection
+                                    // at the surviving key so the dropdown doesn't fall back to showing the
+                                    // first option as if that were the current layout.
                                     $currentVariant = $section->variant ?? $variantRows->firstWhere('is_default', true)?->variant_key;
                                     $currentVariantView = $variants[$currentVariant]['view'] ?? null;
                                     if (! array_key_exists($currentVariant, $variantOptions)) {
@@ -869,14 +932,28 @@
                                             }
                                         }
                                     }
+
                                 @endphp
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tampilan</label>
                                     <select name="variant" @change="saveSection($event.target.form, $data)"
                                         class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
-                                        @foreach (array_keys($variantOptions) as $variantKey)
-                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)>
-                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}
+                                        @foreach ($variantOptions as $variantKey => $variantMeta)
+                                            {{-- Never disable the variant the section is already on: a
+                                                 `selected disabled` option submits no value at all, which
+                                                 would both blank out `variant` on save and trap the user on
+                                                 a layout they can't switch away from. This happens for real
+                                                 whenever a Professional organization downgrades - its
+                                                 sections keep the exclusive variant they were built with. --}}
+                                            @php $variantLocked = ! $canUseExclusive
+                                                && ($variantMeta['exclusive'] ?? false)
+                                                && $variantKey !== $currentVariant; @endphp
+                                            {{-- A padlock plus the plan name, the same cue the "Tambah
+                                                 Section" picker uses - an <option> can't carry markup, so
+                                                 the emoji stands in for that list's badge. --}}
+                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)
+                                                @disabled($variantLocked)>
+                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}{{ $variantLocked ? ' 🔒 (Profesional)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -938,7 +1015,7 @@
                                 @endif
                                 <div>
                                     <label
-                                        class="block text-xs font-semibold text-gray-600 mb-1.5">{{ $field === 'org_name' ? 'Nama Tampilan' : ucfirst(str_replace('_', ' ', $field)) }}</label>
+                                        class="block text-xs font-semibold text-gray-600 mb-1.5">{{ ['org_name' => 'Nama Tampilan', 'infak_note' => 'Catatan Infak'][$field] ?? ucfirst(str_replace('_', ' ', $field)) }}</label>
                                     @if (in_array($field, ['body', 'sambutan', 'subheadline', 'wa_message'], true))
                                         @php
                                             $fieldValue = $section->resolvedFieldValue($field, $organization->name);
@@ -976,17 +1053,9 @@
                                             </div>
                                         </div>
                                     @elseif ($field === 'items' && config("page-builder.sections.{$section->key}.cms"))
-                                        @php
-                                            $cmsConfig = config("page-builder.sections.{$section->key}.cms");
-                                            $cmsUrl = route($cmsConfig['route'], ['organization' => $organization, ...$cmsConfig['params'] ?? []]);
-                                            $cmsLabel = $cmsConfig['label'];
-                                            $cmsSeparator = str_contains($cmsUrl, '?') ? '&' : '?';
-                                        @endphp
-                                        <a href="{{ $cmsUrl }}{{ $cmsSeparator }}from=builder&amp;section={{ $section->id }}"
-                                            class="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-3 text-xs text-primary font-medium flex items-center justify-between gap-2 hover:bg-primary/10 transition">
-                                            Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
-                                            <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
-                                        </a>
+                                        {{-- Nothing: `items` on a CMS-backed section has no inline
+                                             editor, and the "Kelola ..." link that used to live here
+                                             now renders once after this loop (see below). --}}
                                     @elseif ($field === 'map_embed')
                                     <input type="url" name="content[{{ $field }}]" placeholder="Tempel link Google Maps, mis. https://maps.app.goo.gl/..."
                                         value="{{ $section->scalarContent($field) }}"
@@ -1019,6 +1088,36 @@
                                             + Tambah dokter
                                         </button>
                                     </div>
+                                @elseif ($field === 'facilities' && $section->key === 'akad-venue')
+                                        {{-- A list editor, not the generic text input this field used
+                                             to fall through to: that input wrote a bare string into
+                                             content[facilities], and the section renders it with
+                                             foreach(), so saving the panel once was enough to 500 the
+                                             page. Stored as a flat list of strings, matching what
+                                             akad-venue/nurul-huda.blade.php reads. --}}
+                                        <div x-data="{ items: @js(array_values(array_filter((array) ($section->content['facilities'] ?? []), 'is_string'))) }" class="space-y-2">
+                                            <template x-for="(item, index) in items" :key="index">
+                                                <div class="flex items-center gap-2">
+                                                    <input type="text" placeholder="Fasilitas, mis. Sound system" x-model="items[index]"
+                                                        :name="`content[facilities][${index}]`"
+                                                        class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                                    <button type="button" @click="items.splice(index, 1)"
+                                                        class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            {{-- An empty list must still submit the key, otherwise
+                                                 removing every row leaves content[facilities] absent
+                                                 and the section silently falls back to its defaults. --}}
+                                            <template x-if="items.length === 0">
+                                                <input type="hidden" name="content[facilities]" value="">
+                                            </template>
+                                            <button type="button" @click="items.push('')"
+                                                class="w-full rounded-xl border border-dashed border-gray-200 px-3.5 py-2.5 text-xs font-semibold text-gray-500 hover:border-primary/40 hover:text-primary transition">
+                                                + Tambah fasilitas
+                                            </button>
+                                        </div>
                                 @elseif ($field === 'stats' && $section->key === 'tentang-organisasi')
                                         <div x-data="{ items: @js($section->content['stats'] ?? []) }" class="space-y-2">
                                             <template x-for="(item, index) in items" :key="index">
@@ -1081,6 +1180,29 @@
                                     @endif
                                 </div>
                             @endforeach
+
+                            {{-- The "Kelola X ->" link, for every section whose content lives in a
+                                 CMS rather than in `content[]`. Keyed off the registry's `cms` entry
+                                 alone: it used to be rendered from inside the field loop, on the
+                                 `items` branch, so a CMS-backed section that exposes no `items`
+                                 field never got one. laporan-keuangan (fields: ['title']) was
+                                 exactly that case - its CMS existed and was reachable from the
+                                 sidebar, but not from the section being edited. --}}
+                            @php
+                                $cmsConfig = config("page-builder.sections.{$section->key}.cms");
+                            @endphp
+                            @if ($cmsConfig)
+                                @php
+                                    $cmsUrl = route($cmsConfig['route'], ['organization' => $organization, ...$cmsConfig['params'] ?? []]);
+                                    $cmsLabel = $cmsConfig['label'];
+                                    $cmsSeparator = str_contains($cmsUrl, '?') ? '&' : '?';
+                                @endphp
+                                <a href="{{ $cmsUrl }}{{ $cmsSeparator }}from=builder&amp;section={{ $section->id }}"
+                                    class="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-3 text-xs text-primary font-medium flex items-center justify-between gap-2 hover:bg-primary/10 transition">
+                                    Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
+                                    <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
+                                </a>
+                            @endif
 
                             <label
                                 class="flex items-center gap-2.5 text-sm text-gray-600 bg-gray-50 rounded-xl px-3.5 py-3 cursor-pointer hover:bg-gray-100 transition">

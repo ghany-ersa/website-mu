@@ -32,7 +32,7 @@ class MediaController extends Controller
      * subfolder under organizations/{id}/. Requests without a recognized
      * category fall back to 'lainnya' rather than an arbitrary path segment.
      */
-    private const CATEGORIES = ['berita', 'pengurus', 'galeri', 'brand', 'builder'];
+    private const CATEGORIES = ['berita', 'pengurus', 'galeri', 'brand', 'builder', 'agenda', 'fasilitas', 'donasi'];
 
     /**
      * List an organization's media library as JSON, for the builder's image picker.

@@ -9,13 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Lets an organization replace its entire site with another template's starting content
- * (see Organization::seedPagesFromTemplate()) - the builder only supports one page, so
- * switching template means discarding the current page/sections and re-cloning from the
- * new template, not merging. Only the Owner may do this (see OrganizationPolicy::update()
- * is too broad for something this destructive - gated separately below), and templates
- * marked Template::is_exclusive are only selectable when the org's plan grants that
- * entitlement (Organization::canUseExclusiveTemplates()).
+ * Lets an organization replace its entire site with another template's starting content and
+ * layout (see Organization::replaceTemplateKeepingContent()) - the current pages/sections are
+ * discarded and re-cloned from the new template, but each cloned section whose `key` matches one
+ * the organization already had keeps that section's own content instead of the new template's
+ * default, so switching template restyles the site without silently discarding what the owner
+ * already wrote in. Only the Owner may do this (see OrganizationPolicy::update() is too broad for
+ * something this destructive - gated separately below), and templates marked
+ * Template::is_exclusive are only selectable when the org's plan grants that entitlement
+ * (Organization::canUseExclusiveTemplates()).
  */
 class OrganizationTemplateController extends Controller
 {
@@ -24,6 +26,11 @@ class OrganizationTemplateController extends Controller
         $this->authorize('update', $organization);
 
         $templates = Template::where('is_active', true)
+            // is_public excludes templates meant only as an organization-creation picker option
+            // (e.g. "Halaman Kosong" - see BlankTemplateSeeder). Switching an existing,
+            // already-designed organization onto a blank template would just discard everything
+            // it has for nothing - that option belongs at creation time only, not here.
+            ->where('is_public', true)
             ->where(function ($query) use ($organization) {
                 $query->where('is_exclusive', false);
 
@@ -57,7 +64,7 @@ class OrganizationTemplateController extends Controller
 
         if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates()) {
             return back()->withErrors([
-                'template_id' => 'Template ini eksklusif untuk paket Professional. Upgrade paket organisasi Anda terlebih dahulu.',
+                'template_id' => 'Template ini hanya tersedia untuk paket Eksklusif. Upgrade paket organisasi Anda terlebih dahulu.',
             ]);
         }
 
@@ -67,13 +74,10 @@ class OrganizationTemplateController extends Controller
                 ->with('status', 'Organisasi ini sudah menggunakan template tersebut.');
         }
 
-        $organization->pages()->delete();
-        $organization->update(['template_id' => $template->id]);
-        $organization->refresh();
-        $organization->ensureHomePageExists();
+        $organization->replaceTemplateKeepingContent($template);
 
         return redirect()
             ->route('organizations.show', $organization)
-            ->with('status', 'Template berhasil diganti. Semua halaman sebelumnya telah digantikan dengan template baru.');
+            ->with('status', 'Template berhasil diganti. Section dengan jenis yang sama mempertahankan isi sebelumnya; section lain mengikuti template baru.');
     }
 }

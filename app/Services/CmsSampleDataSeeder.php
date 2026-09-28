@@ -15,6 +15,11 @@ use App\Models\Organization;
 use App\Models\OrganizationNetwork;
 use App\Models\Post;
 use App\Models\Program;
+use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
+use App\Services\Samples\PcaAmbuluSamples;
+use App\Services\Samples\PcmAmbuluSamples;
+use App\Services\Samples\PortraitPhotos;
+use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
 
 /**
@@ -32,7 +37,8 @@ use Illuminate\Support\Carbon;
  * template's sections - never touches an organization that already has any of a given
  * table's rows, so it can't clobber real content a user has since replaced or deleted.
  *
- * Every sample count below is capped to the organization's own plan limit (see
+ * Every sample count below is capped to MAX_SAMPLES_PER_RESOURCE and, on top of that, to the
+ * organization's own plan limit (see
  * PlanLimitService::effectiveLimit()) - every organization is created on the Starter plan
  * (see OrganizationController::store()), whose limits are tighter than these samples'
  * original fixed counts (e.g. 3 announcements vs. Starter's limit of 2), so seeding the
@@ -44,12 +50,98 @@ use Illuminate\Support\Carbon;
 class CmsSampleDataSeeder
 {
     /**
-     * Template slug this seeder has faithful, named sample data for (ported from the
-     * standalone nurul-huda project's MasjidContentSeeder) - seedAgendas()/seedOfficers()
-     * use these in place of their generic "Contoh ..." placeholders only for an organization
-     * on this exact template, so every other template's samples are unaffected.
+     * Hard ceiling on how many sample rows any single CMS resource gets when a template is
+     * cloned into a REAL organization, applied on top of (never instead of) the plan limit -
+     * sampleCount() takes the smaller of the two. Skipped entirely for a sandbox organization -
+     * see sampleCount()'s doc comment.
+     *
+     * The showcase templates carry far longer lists than a starting point needs - Suara
+     * Muhammadiyah's timRedaksi() alone is 16 officers - and a plan generous enough to accept
+     * all of them (Professional allows 20) meant a new organization opened its builder facing a
+     * wall of someone else's content to delete before it could enter its own. Three is enough to
+     * show what a section looks like filled in, in every section's layout, while staying small
+     * enough to clear out.
+     *
+     * A resource whose plan limit is TIGHTER than this keeps its limit (Starter allows 2
+     * announcements, 1 donation program), so cloning still can't leave an organization in
+     * violation of its own plan - see Organization::planViolations().
      */
-    private const NURUL_HUDA_TEMPLATE_SLUG = 'masjid-nurul-huda-eksklusif';
+    private const MAX_SAMPLES_PER_RESOURCE = 3;
+
+    /**
+     * Template slugs this seeder has faithful, named sample data for (ported from the
+     * standalone nurul-huda project's MasjidContentSeeder) - seedAgendas()/seedOfficers()
+     * use these in place of their generic "Contoh ..." placeholders, so every other template's
+     * samples are unaffected.
+     *
+     * A LIST, like the other showcases: matching one slug left the standar tier falling through
+     * to the generic `[Nama Ketua]` officers and "Contoh Agenda" kajian, even though both tiers
+     * describe the same masjid.
+     *
+     * @var array<int, string>
+     */
+    private const NURUL_HUDA_TEMPLATE_SLUGS = [
+        'masjid-nurul-huda-eksklusif',
+        'masjid-nurul-huda-standar',
+    ];
+
+    /**
+     * The Klinik Pratama Aisyiyah Ambulu showcase (see KlinikAisyiyahAmbuluTemplateSeeder and
+     * App\Services\Samples\KlinikAisyiyahAmbuluSamples, the actual source of its content).
+     * Organizations on either of these templates get the clinic's real services/announcements/
+     * gallery instead of the generic "Contoh Berita Kegiatan" / "Layanan Administrasi"
+     * placeholders - exactly what this showcase organization exists to avoid.
+     *
+     * @var array<int, string>
+     */
+    private const KLINIK_TEMPLATE_SLUGS = [
+        KlinikAisyiyahAmbuluSamples::TEMPLATE_SLUG,
+        'klinik-aisyiyah-ambulu-standar',
+    ];
+
+    /**
+     * The Suara Muhammadiyah Ambulu news-portal showcase (see
+     * SuaraMuhammadiyahAmbuluTemplateSeeder and App\Services\Samples\
+     * SuaraMuhammadiyahAmbuluSamples). Organizations on either template get the outlet's real
+     * news stories and 16-member editorial team instead of generic placeholders.
+     *
+     * @var array<int, string>
+     */
+    private const SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS = [
+        SuaraMuhammadiyahAmbuluSamples::TEMPLATE_SLUG,
+        'suara-muhammadiyah-ambulu-standar',
+    ];
+
+    /**
+     * The PCM Ambulu cabang-profile showcase (see PcmAmbuluTemplateSeeder,
+     * PcmAmbuluEksklusifTemplateSeeder, and App\Services\Samples\PcmAmbuluSamples).
+     *
+     * Every showcase here is a LIST of slugs because each organization now has both a standard
+     * and an exclusive template built from the same Samples class. Matching on a single slug -
+     * which is what these were before - silently sent the second tier down the `default => null`
+     * branch, so an organization on it got generic "Contoh Berita" placeholders instead of the
+     * real content the tier it paid for was supposed to showcase.
+     *
+     * @var array<int, string>
+     */
+    private const PCM_TEMPLATE_SLUGS = [
+        PcmAmbuluSamples::TEMPLATE_SLUG,
+        'pcm-ambulu-eksklusif',
+    ];
+
+    /**
+     * The PCA Ambulu cabang-Aisyiyah showcase (see PcaAmbuluTemplateSeeder,
+     * PcaAmbuluEksklusifTemplateSeeder, and App\Services\Samples\PcaAmbuluSamples). The
+     * standard-tier one targets the STARTER plan specifically, so its sample lists are the ones
+     * most often truncated here and are ordered with that in mind (see PcaAmbuluSamples'
+     * per-method notes on which entries survive which quota).
+     *
+     * @var array<int, string>
+     */
+    private const PCA_TEMPLATE_SLUGS = [
+        PcaAmbuluSamples::TEMPLATE_SLUG,
+        'pca-ambulu-eksklusif',
+    ];
 
     /**
      * Sample imagery for this template is hotlinked from the live Masjid Nurul Huda Ambulu
@@ -58,6 +150,21 @@ class CmsSampleDataSeeder
      * empty photo, so if the source ever moves a file the card degrades rather than breaking.
      */
     private const S3 = 'https://s3.nurul-huda.ambulu.or.id';
+
+    /**
+     * Kajian flyers, in the same order as nurulHudaKajianSamples(). Per-ORGANIZATION uploads on
+     * the template's sandbox rather than the S3 bucket above, so they 404 if that sandbox's
+     * storage is cleared - the poster grid then degrades to agenda/poster's date-block fallback
+     * rather than breaking.
+     *
+     * @var array<int, string>
+     */
+    private const NURUL_HUDA_KAJIAN_POSTERS = [
+        'https://storage.ambulu.or.id/organizations/9/agenda/ab6e857b-3878-419d-9937-77abe8c447ec.webp',
+        'https://storage.ambulu.or.id/organizations/9/agenda/21746fb4-ba32-49c6-84fd-d89c1a137ad9.webp',
+        'https://storage.ambulu.or.id/organizations/9/agenda/dea3e455-d528-4f90-a261-800238653801.webp',
+        'https://storage.ambulu.or.id/organizations/9/agenda/b8e2af80-450c-4dad-9263-90c7d0e00778.webp',
+    ];
 
     /**
      * Opening balance carried into the wakaf ledger from April 2025, and the date the program
@@ -87,39 +194,104 @@ class CmsSampleDataSeeder
     {
         $keys = array_unique($sectionKeys);
         $limits = app(PlanLimitService::class);
-        $isNurulHuda = $organization->template?->slug === self::NURUL_HUDA_TEMPLATE_SLUG;
+        $slug = $organization->template?->slug;
+        $isNurulHuda = in_array($slug, self::NURUL_HUDA_TEMPLATE_SLUGS, true);
+        $isKlinik = in_array($slug, self::KLINIK_TEMPLATE_SLUGS, true);
+        $isSuaraMuhammadiyah = in_array($slug, self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS, true);
+        $isPcm = in_array($slug, self::PCM_TEMPLATE_SLUGS, true);
+        $isPca = in_array($slug, self::PCA_TEMPLATE_SLUGS, true);
 
         if (in_array('daftar-berita', $keys, true)) {
-            self::seedPosts($organization, $limits);
+            $postSamples = match (true) {
+                $isKlinik => KlinikAisyiyahAmbuluSamples::beritaItems(),
+                $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::beritaItems(),
+                $isPcm => PcmAmbuluSamples::beritaItems(),
+                $isPca => PcaAmbuluSamples::beritaItems(),
+                default => null,
+            };
+
+            self::seedPosts($organization, $limits, $postSamples);
         }
 
         if (in_array('pengumuman', $keys, true)) {
-            self::seedAnnouncements($organization, $limits);
+            self::seedAnnouncements($organization, $limits, $isKlinik ? KlinikAisyiyahAmbuluSamples::pengumumanItems() : null);
         }
 
-        if (in_array('agenda', $keys, true) || in_array('jadwal-kajian', $keys, true)) {
-            self::seedAgendas($organization, $limits, $isNurulHuda ? self::nurulHudaKajianSamples() : null);
+        if (in_array('agenda', $keys, true)) {
+            $agendaSamples = match (true) {
+                $isNurulHuda => self::nurulHudaKajianSamples(),
+                $isPcm => PcmAmbuluSamples::agendaItems(),
+                $isPca => PcaAmbuluSamples::agendaItems(),
+                default => null,
+            };
+
+            self::seedAgendas($organization, $limits, $agendaSamples);
         }
 
         if (in_array('galeri', $keys, true)) {
-            self::seedGalleryPhotos($organization, $limits, $isNurulHuda ? self::nurulHudaGallerySamples() : null);
+            $gallerySamples = match (true) {
+                $isNurulHuda => self::nurulHudaGallerySamples(),
+                $isKlinik => self::toGalleryPhotoSamples(KlinikAisyiyahAmbuluSamples::ruanganPhotos()),
+                $isPca => self::toGalleryPhotoSamples(PcaAmbuluSamples::kegiatanPhotos()),
+                default => null,
+            };
+
+            self::seedGalleryPhotos($organization, $limits, $gallerySamples);
         }
 
         if (in_array('struktur-pengurus', $keys, true)) {
-            self::seedOfficers($organization, $limits, $isNurulHuda ? self::nurulHudaOfficerSamples() : null);
+            $officerSamples = match (true) {
+                $isNurulHuda => self::nurulHudaOfficerSamples(),
+                $isSuaraMuhammadiyah => SuaraMuhammadiyahAmbuluSamples::timRedaksi(),
+                $isPcm => PcmAmbuluSamples::pimpinanHarian(),
+                $isPca => PcaAmbuluSamples::pimpinanCabang(),
+                default => null,
+            };
+
+            // Stand-in portraits on a SANDBOX only. struktur-pengurus renders an empty grey
+            // square when photo is null, so without this the template designer (and the
+            // "Gunakan Template" preview built from it) showed a wall of blank boxes - the very
+            // thing the sandbox exists to let an admin look at. A real organization keeps null:
+            // its officer cards should stay empty until it uploads genuine headshots, since a
+            // stock face attached to a named person on a live site would misrepresent them.
+            // See PortraitPhotos for why the faces are assigned by index, never by name.
+            if ($officerSamples !== null && $organization->is_sandbox) {
+                $officerSamples = PortraitPhotos::applyTo($officerSamples);
+            }
+
+            self::seedOfficers($organization, $limits, $officerSamples);
         }
 
         if (in_array('jaringan-aum-ortom', $keys, true)) {
-            self::seedNetworks($organization);
+            self::seedNetworks($organization, match (true) {
+                $isPcm => PcmAmbuluSamples::jaringanItems(),
+                $isPca => PcaAmbuluSamples::jaringanItems(),
+                default => null,
+            });
         }
 
+        // Both section keys are handled in ONE call: 'program' and 'layanan' share a single
+        // 'programs' plan quota, and seedPrograms() guards on that combined count, so seeding
+        // them as two independent calls meant whichever ran second was skipped outright - a
+        // page with both sections (e.g. the exclusive clinic template) rendered its 'layanan'
+        // section empty on the live site. Passing both types lets the one call split the
+        // available quota between them instead.
+        $requestedPrograms = [];
+
         if (in_array('program-unggulan', $keys, true)) {
-            self::seedPrograms($organization, 'program', $limits);
+            $requestedPrograms['program'] = match (true) {
+                $isKlinik => KlinikAisyiyahAmbuluSamples::programItems(),
+                $isPcm => PcmAmbuluSamples::programItems(),
+                $isPca => PcaAmbuluSamples::programItems(),
+                default => null,
+            };
         }
 
         if (in_array('layanan', $keys, true)) {
-            self::seedPrograms($organization, 'layanan', $limits);
+            $requestedPrograms['layanan'] = $isKlinik ? KlinikAisyiyahAmbuluSamples::layananItems() : null;
         }
+
+        self::seedPrograms($organization, $limits, $requestedPrograms);
 
         if (in_array('fasilitas-masjid', $keys, true)) {
             self::seedFacilities($organization, $limits);
@@ -135,25 +307,45 @@ class CmsSampleDataSeeder
     }
 
     /**
-     * How many of a fixed sample list to actually insert: the smaller of the list's own
-     * length and the organization's plan limit for that resource key, or the full list when
-     * the plan has no limit (null = unlimited). Never negative - a limit of 0 (or an
-     * organization already somehow past it) yields 0, i.e. skip entirely.
+     * How many of a fixed sample list to actually insert: the smallest of the list's own length,
+     * MAX_SAMPLES_PER_RESOURCE, and the organization's plan limit for that resource key (null =
+     * unlimited, so only the first two apply). Never negative - a limit of 0 (or an organization
+     * already somehow past it) yields 0, i.e. skip entirely.
+     *
+     * MAX_SAMPLES_PER_RESOURCE itself is skipped for a sandbox organization (TemplateSandboxService)
+     * - that cap exists to keep a real, brand-new organization's builder from opening to a wall of
+     * someone else's content (see this class's doc comment), which doesn't apply to a sandbox: its
+     * whole purpose is to let an admin see/edit the template's full intended content, and it's
+     * exactly what TemplatePreviewController now renders for public template-catalog browsing too
+     * (see that controller's doc comment) - both need the complete sample list, not the trimmed
+     * onboarding version. UNLIMITED_KEYS already frees the sandbox from its plan limit; this frees
+     * it from the separate MAX_SAMPLES_PER_RESOURCE ceiling that plan limit alone didn't cover.
      */
     private static function sampleCount(Organization $organization, PlanLimitService $limits, string $key, int $available): int
     {
         $limit = $limits->effectiveLimit($organization, $key);
 
-        return $limit === null ? $available : max(0, min($available, $limit));
+        if ($organization->is_sandbox) {
+            $ceiling = $limit ?? $available;
+        } else {
+            $ceiling = $limit === null
+                ? self::MAX_SAMPLES_PER_RESOURCE
+                : min($limit, self::MAX_SAMPLES_PER_RESOURCE);
+        }
+
+        return max(0, min($available, $ceiling));
     }
 
-    private static function seedPosts(Organization $organization, PlanLimitService $limits): void
+    /**
+     * @param  array<int, array{title: string, category: string, body: string}>|null  $customSamples
+     */
+    private static function seedPosts(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
     {
         if ($organization->posts()->exists()) {
             return;
         }
 
-        $samples = [
+        $samples = $customSamples ?? [
             ['title' => 'Contoh Berita Kegiatan', 'category' => 'Kegiatan', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
             ['title' => 'Contoh Berita Pengumuman Program', 'category' => 'Program', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
             ['title' => 'Contoh Berita Sosial Kemasyarakatan', 'category' => 'Sosial', 'body' => 'Ringkasan singkat berita akan tampil di sini. Edit atau hapus contoh ini kapan saja.'],
@@ -172,6 +364,12 @@ class CmsSampleDataSeeder
             'title' => $sample['title'],
             'slug' => str($sample['title'])->slug().'-'.$organization->id.'-'.$index,
             'category' => $sample['category'],
+            // Every Samples::beritaItems() entry already carries a matching photo, and
+            // daftar-berita's $organization branch reads Post::image - so dropping it here left
+            // the builder (and every real organization) showing image-less cards while the
+            // template PREVIEW, which reads content['items'] instead, showed them fine. The
+            // generic fallback samples above have no image, hence the null coalesce.
+            'image' => $sample['image'] ?? null,
             'body' => '<p>'.$sample['body'].'</p>',
             'status' => PublishStatus::Published->value,
             'published_at' => $now,
@@ -180,13 +378,16 @@ class CmsSampleDataSeeder
         ], $samples, array_keys($samples)));
     }
 
-    private static function seedAnnouncements(Organization $organization, PlanLimitService $limits): void
+    /**
+     * @param  array<int, array{title: string, priority: string, body?: string, ongoing?: bool}>|null  $customSamples
+     */
+    private static function seedAnnouncements(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
     {
         if ($organization->announcements()->exists()) {
             return;
         }
 
-        $samples = [
+        $samples = $customSamples ?? [
             ['title' => 'Contoh Pengumuman Penting', 'priority' => 'Tinggi'],
             ['title' => 'Contoh Pengumuman Kegiatan', 'priority' => 'Sedang'],
             ['title' => 'Contoh Pengumuman Umum', 'priority' => 'Rendah'],
@@ -203,9 +404,13 @@ class CmsSampleDataSeeder
         Announcement::insert(array_map(fn ($sample) => [
             'organization_id' => $organization->id,
             'title' => $sample['title'],
-            'body' => '<p>Isi pengumuman akan tampil di sini. Edit atau hapus contoh ini kapan saja.</p>',
+            'body' => '<p>'.($sample['body'] ?? 'Isi pengumuman akan tampil di sini. Edit atau hapus contoh ini kapan saja.').'</p>',
             'priority' => $sample['priority'],
-            'valid_until' => $now->copy()->addMonth(),
+            // 'ongoing' => true (e.g. standing clinic operating-hours notices) leaves this
+            // unset - pengumuman/standar.blade.php only shows "Berlaku hingga ..." when
+            // valid_until is present, so an announcement that never expires doesn't render a
+            // misleading date.
+            'valid_until' => ($sample['ongoing'] ?? false) ? null : $now->copy()->addMonth(),
             'status' => PublishStatus::Published->value,
             'created_at' => $now,
             'updated_at' => $now,
@@ -238,6 +443,10 @@ class CmsSampleDataSeeder
         Agenda::insert(array_map(fn ($sample) => [
             'organization_id' => $organization->id,
             'title' => $sample['title'],
+            // agenda/poster.blade.php renders agendas.poster as a flyer grid; without this a
+            // poster-variant section fell back to the date block for every row. Optional: the
+            // generic samples and agenda/standar have no flyer to show.
+            'poster' => $sample['poster'] ?? null,
             'starts_at' => $now->copy()->addDays($sample['days'])->setTime(18, 0),
             'location' => $sample['location'] ?? 'Lokasi kegiatan',
             'description' => $sample['description'] ?? '<p>Deskripsi agenda akan tampil di sini. Edit atau hapus contoh ini kapan saja.</p>',
@@ -255,6 +464,10 @@ class CmsSampleDataSeeder
     private const PLACEHOLDER_PHOTO_URL = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect width="400" height="400" fill="%23e5e7eb"/%3E%3C/svg%3E';
 
     /**
+     * `photo` is either a path relative to this class's S3 constant (the nurul-huda samples,
+     * which all live in that one bucket) or an absolute http(s) URL, so a template whose
+     * imagery isn't hosted there can supply its own.
+     *
      * @param  array<int, array{caption: string, photo: string}>|null  $customSamples
      */
     private static function seedGalleryPhotos(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
@@ -273,14 +486,32 @@ class CmsSampleDataSeeder
 
         GalleryPhoto::insert(array_map(fn ($index) => [
             'organization_id' => $organization->id,
-            'url' => $customSamples
-                ? self::S3.$customSamples[$index]['photo']
-                : self::PLACEHOLDER_PHOTO_URL,
+            'url' => match (true) {
+                ! $customSamples => self::PLACEHOLDER_PHOTO_URL,
+                str_starts_with($customSamples[$index]['photo'], 'http') => $customSamples[$index]['photo'],
+                default => self::S3.$customSamples[$index]['photo'],
+            },
             'caption' => $customSamples[$index]['caption'] ?? 'Foto kegiatan '.($index + 1),
             'order' => $index,
             'created_at' => $now,
             'updated_at' => $now,
         ], range(0, $count - 1)));
+    }
+
+    /**
+     * Adapts a template's `galeri` section content shape ({image, caption} - see
+     * templates/sections/galeri/standar.blade.php) to seedGalleryPhotos()'s custom-sample
+     * shape ({photo, caption}), so a sample list defined once (e.g.
+     * KlinikAisyiyahAmbuluSamples::ruanganPhotos()) can feed both the template's own preview
+     * content and the organization's real GalleryPhoto records without being duplicated in
+     * two different key shapes.
+     *
+     * @param  array<int, array{image: string, caption: string}>  $items
+     * @return array<int, array{photo: string, caption: string}>
+     */
+    private static function toGalleryPhotoSamples(array $items): array
+    {
+        return array_map(fn (array $item) => ['photo' => $item['image'], 'caption' => $item['caption']], $items);
     }
 
     /**
@@ -318,56 +549,25 @@ class CmsSampleDataSeeder
 
     /**
      * Not plan-limited: 'jaringan-aum-ortom' isn't a PlanLimitService resource key (it has no
-     * per-plan quota, unlike the CMS resources above), so there's no limit to cap this
-     * against.
+     * per-plan quota, unlike the CMS resources above), so it can't go through sampleCount().
+     * MAX_SAMPLES_PER_RESOURCE is still applied directly - the showcase lists run to five and six
+     * entries, and leaving the one resource without a quota as the only one cloning in full is
+     * the inconsistency the cap exists to remove.
+     *
+     * @param  array<int, array{name: string, type?: string|null}>|null  $customSamples
      */
-    private static function seedNetworks(Organization $organization): void
+    private static function seedNetworks(Organization $organization, ?array $customSamples = null): void
     {
         if ($organization->networks()->exists()) {
             return;
         }
 
-        $now = now();
+        $samples = $customSamples ?? array_map(
+            fn (int $index) => ['name' => '[Nama AUM/Ortom '.$index.']', 'type' => null],
+            range(1, 3),
+        );
 
-        OrganizationNetwork::insert(array_map(fn ($index) => [
-            'organization_id' => $organization->id,
-            'name' => '[Nama AUM/Ortom '.$index.']',
-            'type' => null,
-            'order' => $index,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ], range(1, 3)));
-    }
-
-    private static function seedPrograms(Organization $organization, string $type, PlanLimitService $limits): void
-    {
-        // Guards on the combined 'programs' resource (both types together), not
-        // ofType($type) alone: 'program' and 'layanan' share one plan_limits quota (see the
-        // comment below), so seeding 'layanan' samples on top of already-seeded 'program'
-        // samples - e.g. after switching to a template with a different section via
-        // OrganizationTemplateController, which drops pages/sections but never deletes CMS
-        // records - would push the organization over its own plan's limit even though this
-        // method never lets a single call insert more samples than that limit allows.
-        if ($organization->programs()->exists()) {
-            return;
-        }
-
-        $samples = $type === 'layanan'
-            ? [
-                ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
-                ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
-                ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
-            ]
-            : [
-                ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
-                ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
-                ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
-            ];
-
-        // 'programs' is the plan_limits/PlanLimitService key for both types (program and
-        // layanan aren't tracked separately there) - see PlanLimitService::RESOURCE_RELATIONS
-        // and Organization::programs(), which counts both together.
-        $samples = array_slice($samples, 0, self::sampleCount($organization, $limits, 'programs', count($samples)));
+        $samples = array_slice($samples, 0, self::MAX_SAMPLES_PER_RESOURCE);
 
         if ($samples === []) {
             return;
@@ -375,16 +575,99 @@ class CmsSampleDataSeeder
 
         $now = now();
 
-        Program::insert(array_map(fn ($sample, $index) => [
+        OrganizationNetwork::insert(array_map(fn ($sample, $index) => [
             'organization_id' => $organization->id,
-            'type' => $type,
-            'title' => $sample['title'],
-            'description' => $sample['description'],
-            'icon' => $sample['icon'],
+            'name' => $sample['name'],
+            'type' => $sample['type'] ?? null,
             'order' => $index,
             'created_at' => $now,
             'updated_at' => $now,
         ], $samples, array_keys($samples)));
+    }
+
+    /**
+     * Seeds sample programs for every requested type in one pass.
+     *
+     * `$requested` maps each wanted Program type ('program' and/or 'layanan') to its custom
+     * sample list, or null to use that type's generic placeholders. Both types are handled
+     * together because they share ONE plan quota: 'programs' is the PlanLimitService key for
+     * both (see RESOURCE_RELATIONS and Organization::programs(), which counts them together),
+     * so the budget has to be divided between them rather than each type claiming it in full.
+     *
+     * The quota is split evenly, with any remainder going to the earlier type, and any share a
+     * type doesn't use (its sample list being shorter than its share) returned to the pool for
+     * the other - so a 5-program budget across 3 'program' + 6 'layanan' samples seeds all 3
+     * programs and 2 services, rather than 3 and none.
+     *
+     * @param  array<string, array<int, array{title: string, description: string, icon: string}>|null>  $requested
+     */
+    private static function seedPrograms(Organization $organization, PlanLimitService $limits, array $requested): void
+    {
+        // Guards on the combined resource, not ofType() per type: an organization that already
+        // has programs from a previous template (switching templates via
+        // OrganizationTemplateController drops pages/sections but never deletes CMS records)
+        // would otherwise be pushed past its own plan's limit by a second round of samples.
+        if ($requested === [] || $organization->programs()->exists()) {
+            return;
+        }
+
+        $defaults = [
+            'program' => [
+                ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
+                ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
+                ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
+            ],
+            'layanan' => [
+                ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
+                ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
+                ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
+            ],
+        ];
+
+        $pools = [];
+
+        foreach ($requested as $type => $customSamples) {
+            $pools[$type] = $customSamples ?? $defaults[$type] ?? [];
+        }
+
+        $budget = self::sampleCount(
+            $organization,
+            $limits,
+            'programs',
+            array_sum(array_map('count', $pools)),
+        );
+
+        $rows = [];
+        $now = now();
+        $remaining = count($pools);
+
+        foreach ($pools as $type => $samples) {
+            // Ceil so the remainder of an uneven split goes to the earlier type rather than
+            // being lost; whatever this type leaves unused stays in $budget for the next one.
+            $share = min(count($samples), (int) ceil($budget / max(1, $remaining)));
+            $budget -= $share;
+            $remaining--;
+
+            // array_slice reindexes from 0, so `order` restarts per type - each type is
+            // queried and rendered on its own (Program::ofType()), so their orderings are
+            // independent sequences rather than one shared run.
+            foreach (array_values(array_slice($samples, 0, $share)) as $index => $sample) {
+                $rows[] = [
+                    'organization_id' => $organization->id,
+                    'type' => $type,
+                    'title' => $sample['title'],
+                    'description' => $sample['description'],
+                    'icon' => $sample['icon'],
+                    'order' => $index,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+
+        if ($rows !== []) {
+            Program::insert($rows);
+        }
     }
 
     /**
@@ -412,6 +695,10 @@ class CmsSampleDataSeeder
             'days' => $daysUntilFriday + ($index * 7),
             'location' => 'Ruang Utama Masjid',
             'description' => '<p>'.$sample['materi'].'<br>Diawali salat Maghrib berjamaah</p>',
+            // The flyers the takmir uploaded, same files MasjidNurulHudaTemplateSeeder writes
+            // into the template's own content['items'] - so the builder's poster grid matches
+            // the template preview instead of falling back to a date block for every row.
+            'poster' => self::NURUL_HUDA_KAJIAN_POSTERS[$index] ?? null,
         ], $samples, array_keys($samples));
     }
 

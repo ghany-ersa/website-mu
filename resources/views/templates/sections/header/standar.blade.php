@@ -7,6 +7,9 @@
             ?? $organization->name ?? null
             ?? '[Nama Organisasi]');
     $orgLogo = $organization->logo ?? null;
+    if (blank($orgLogo)) {
+        $orgLogo = ($template ?? null)?->structure['brand']['logo'] ?? null;
+    }
 
     // Two nav modes, picked by how many pages the organization actually has:
     //
@@ -26,7 +29,23 @@
     $pages = $organization->pages ?? collect();
     $homeHref = $pageSections->isNotEmpty() ? '#top' : null;
 
-    if ($pages->count() > 1) {
+    $previewPages = collect($previewPages ?? []);
+
+    if ($previewPages->count() > 1) {
+        $currentSlug = ($previewCurrentPage ?? [])['slug'] ?? null;
+        $navItems = $previewPages
+            ->map(fn ($previewPage) => [
+                'label' => $previewPage['name'] ?? null,
+                'href' => route('templates.preview', [
+                    'template' => $template->slug,
+                    'page' => $previewPage['slug'] ?? null,
+                ]),
+                'active' => ($previewPage['slug'] ?? null) === $currentSlug,
+            ])
+            ->filter(fn ($item) => filled($item['label']))
+            ->values()
+            ->all();
+    } elseif ($pages->count() > 1) {
         $navItems = $pages
             ->map(fn ($navPage) => [
                 'label' => $navPage->name,
@@ -49,9 +68,17 @@
         ?? \App\Services\WhatsAppNumber::href($organization->whatsapp ?? null);
 
     // On a multi-page site the wordmark goes to the home page, not to this page's own top.
-    $brandHref = $pages->count() > 1
-        ? (\App\Services\TenantPageUrl::for($organization, $pages->firstWhere('is_home', true)) ?? $homeHref ?? '#top')
-        : ($homeHref ?? '#top');
+    if ($previewPages->count() > 1) {
+        $previewHome = $previewPages->firstWhere('is_home', true) ?? $previewPages->first();
+        $brandHref = route('templates.preview', [
+            'template' => $template->slug,
+            'page' => $previewHome['slug'] ?? null,
+        ]);
+    } elseif ($pages->count() > 1) {
+        $brandHref = \App\Services\TenantPageUrl::for($organization, $pages->firstWhere('is_home', true)) ?? $homeHref ?? '#top';
+    } else {
+        $brandHref = $homeHref ?? '#top';
+    }
 @endphp
 
 <header id="top" class="sticky top-0 z-40 bg-primary backdrop-blur" x-data="{ open: false }">

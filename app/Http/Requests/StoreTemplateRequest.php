@@ -30,6 +30,7 @@ class StoreTemplateRequest extends FormRequest
             'structure' => ['required', 'json'],
             'is_active' => ['nullable', 'boolean'],
             'is_exclusive' => ['nullable', 'boolean'],
+            'is_featured' => ['nullable', 'boolean'],
         ];
     }
 }

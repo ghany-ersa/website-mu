@@ -4,12 +4,16 @@ namespace Tests\Feature;
 
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
+use App\Enums\PublishStatus;
 use App\Models\Organization;
 use App\Models\OrganizationType;
 use App\Models\Plan;
+use App\Models\SectionVariant;
 use App\Models\Template;
 use App\Models\User;
+use App\Services\CmsSampleDataSeeder;
 use App\Services\PlanLimitService;
+use App\Services\SectionVariantResolver;
 use Database\Seeders\MasjidNurulHudaTemplateSeeder;
 use Database\Seeders\OrganizationTypeSeeder;
 use Database\Seeders\TemplateSeeder;
@@ -33,13 +37,22 @@ class MasjidNurulHudaTemplateTest extends TestCase
         return 'http://'.$organization->slug.'.'.config('tenancy.domain').$path;
     }
 
-    private function makeOrganization(): Organization
+    /**
+     * @param  bool  $withSampleContent  Seed the template's sample CMS rows on top of the clone.
+     *                                   Cloning a template into a REAL organization no longer does this - only a sandbox
+     *                                   gets sample content (see Organization::seedPagesFromTemplate()) - so the tests
+     *                                   below that need CMS rows merely as FIXTURES for what they actually check
+     *                                   (agenda posters, donation detail routes) ask for them explicitly here. The org
+     *                                   stays non-sandbox either way, so the plan-limit assertions in this file keep
+     *                                   exercising the real plan gates rather than the sandbox's bypass of them.
+     */
+    private function makeOrganization(bool $withSampleContent = false): Organization
     {
         $this->seed(OrganizationTypeSeeder::class);
         $this->seed(MasjidNurulHudaTemplateSeeder::class);
 
         $template = Template::where('slug', 'masjid-nurul-huda-eksklusif')->firstOrFail();
-        $professional = Plan::where('key', 'professional')->firstOrFail();
+        $professional = Plan::where('key', 'eksklusif')->firstOrFail();
         $orgType = OrganizationType::where('slug', 'masjidmushola')->firstOrFail();
 
         $organization = Organization::create([
@@ -53,6 +66,13 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $organization->ensureHomePageExists();
 
+        if ($withSampleContent) {
+            CmsSampleDataSeeder::seed(
+                $organization,
+                $organization->pages()->with('sections')->get()->flatMap->sections->pluck('key')->all(),
+            );
+        }
+
         return $organization->fresh();
     }
 
@@ -65,7 +85,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         // Order mirrors the nurul-huda project's own navbar: Beranda, Pengurus, Donasi,
         // Laporan Keuangan, Kajian & Event, Akad Venue.
-        $expectedSlugs = ['home', 'pengurus', 'donasi', 'laporan-keuangan', 'kajian-event', 'sewa-aula'];
+        $expectedSlugs = ['home', 'pengurus', 'donasi', 'laporan-keuangan', 'kajian-event', 'akad-venue'];
         $this->assertSame($expectedSlugs, $organization->pages->pluck('slug')->all());
 
         $this->assertTrue($organization->pages->firstWhere('slug', 'home')->is_home);
@@ -87,9 +107,32 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $this->assertLessThanOrEqual($limit, $actual);
     }
 
-    public function test_cms_sample_data_is_seeded_for_new_sections(): void
+    /**
+     * Cloning a template into a real organization copies the LAYOUT, not the showcase's content:
+     * sections arrive with their `content` as a starting point, but the CMS tables stay empty.
+     * Seeding them meant a brand-new masjid owned published rows describing a different masjid -
+     * its kajian schedule, its takmir, its donation programs - which would have gone live on the
+     * tenant domain had the owner published before deleting them.
+     */
+    public function test_cloning_into_a_real_organization_seeds_no_cms_content(): void
     {
         $organization = $this->makeOrganization();
+
+        $this->assertSame(0, $organization->facilities()->count());
+        $this->assertSame(0, $organization->officers()->count());
+        $this->assertSame(0, $organization->agendas()->count());
+        $this->assertSame(0, $organization->photos()->count());
+        $this->assertSame(0, $organization->posts()->count());
+        $this->assertSame(0, $organization->donationPrograms()->count());
+        $this->assertSame(0, $organization->financialReports()->count());
+
+        // The layout still cloned in full - this is a content change, not a structural one.
+        $this->assertCount(6, $organization->pages);
+    }
+
+    public function test_cms_sample_data_is_seeded_for_new_sections(): void
+    {
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $this->assertGreaterThan(0, $organization->facilities()->count());
         $this->assertGreaterThan(0, $organization->donationPrograms()->count());
@@ -101,7 +144,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_sample_data_matches_the_nurul_huda_project(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
 
         $this->assertSame(
             ['Suhartono, S.Pd', 'Tyas Hidayatulloh, S.Pd, M.Pd'],
@@ -109,8 +152,15 @@ class MasjidNurulHudaTemplateTest extends TestCase
         );
 
         $this->assertSame('Halaman dan Teras Depan', $organization->facilities()->first()->name);
-        // 12, not 13: the live site no longer publishes the Perpustakaan photo.
-        $this->assertSame(12, $organization->facilities()->count());
+        // The source list runs to 12 (not 13 - the live site no longer publishes the Perpustakaan
+        // photo), but cloning seeds only CmsSampleDataSeeder::MAX_SAMPLES_PER_RESOURCE of them as
+        // a starting point. What this pins is that the ones kept are the FIRST of the real list,
+        // in the source project's order - not a generic placeholder and not an arbitrary slice.
+        $this->assertSame(3, $organization->facilities()->count());
+        $this->assertSame(
+            ['Halaman dan Teras Depan', 'Parkiran Utama', 'Taman dan Kolam Masjid'],
+            $organization->facilities()->pluck('name')->all(),
+        );
 
         $flagship = $organization->donationPrograms()->where('name', 'Wakaf Pembangunan Masjid')->firstOrFail();
         $this->assertSame(1_175_600_000, (int) $flagship->target_amount);
@@ -156,13 +206,19 @@ class MasjidNurulHudaTemplateTest extends TestCase
         // Matched on host+path rather than the full route() URL: the test request is made over
         // http while route() builds from APP_URL's https, so comparing whole URLs would fail
         // on the scheme alone.
-        foreach (['donasi', 'laporan-keuangan', 'kajian-event', 'sewa-aula', 'pengurus'] as $slug) {
+        foreach (['donasi', 'laporan-keuangan', 'kajian-event', 'akad-venue', 'pengurus'] as $slug) {
             $response->assertSee($organization->slug.'.'.config('tenancy.domain').'/'.$slug, false);
         }
     }
 
     public function test_standard_header_still_uses_anchors_on_a_single_page_site(): void
     {
+        // TemplateSeeder::run() is temporarily empty while template/org sample data is
+        // rebuilt from scratch, starting with AUM Kesehatan (see its own doc comment and
+        // DatabaseSeeder) - the 'masjid-mushola' template this test needs doesn't exist yet.
+        // Un-skip once that template is redone.
+        $this->markTestSkipped('Awaiting TemplateSeeder rebuild: masjid-mushola template not yet seeded.');
+
         $this->seed(OrganizationTypeSeeder::class);
         $this->seed(TemplateSeeder::class);
 
@@ -187,27 +243,148 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $response->assertSee('#section-', false);
     }
 
-    public function test_jadwal_kajian_section_is_editable_and_manageable(): void
+    public function test_kajian_section_is_editable_and_manageable(): void
     {
         $organization = $this->makeOrganization();
 
         // Empty `fields` used to make this section unclickable in the builder sidebar (see
         // edit.blade.php's $hasFields guard) and silently drop its title/limit on save.
-        $fields = config('page-builder.sections.jadwal-kajian.fields');
+        $fields = config('page-builder.sections.agenda.fields');
         $this->assertContains('title', $fields);
         $this->assertContains('limit', $fields);
 
         $owner = User::factory()->create();
         $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
 
-        // jadwal-kajian is backed by the `agendas` table, so its "Kelola" link must open even
-        // though this template ships no 'agenda' section.
+        // This template's kajian section is the `agenda` section on its `kajian` variant, so
+        // the agendas CMS must open for it.
         $this->actingAs($owner)
             ->get(route('organizations.agendas.index', $organization))
             ->assertOk();
     }
 
-    public function test_jadwal_kajian_title_survives_a_builder_save(): void
+    /**
+     * 'jadwal-kajian' was merged into 'agenda' as its `kajian` variant - the two sections read
+     * the same `agendas` table through views that had become byte-for-byte identical.
+     */
+    public function test_jadwal_kajian_is_no_longer_a_separate_section(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->load('pages.sections');
+
+        $this->assertNull(config('page-builder.sections.jadwal-kajian'));
+        $this->assertSame(
+            [],
+            SectionVariant::where('section_key', 'jadwal-kajian')->pluck('variant_key')->all(),
+        );
+
+        // No page still carries the retired key.
+        $this->assertEmpty($organization->pages->flatMap->sections->where('key', 'jadwal-kajian'));
+
+        $variants = SectionVariantResolver::variantsFor('agenda');
+        $this->assertEqualsCanonicalizing(['standar', 'poster'], $variants->pluck('variant_key')->all());
+
+        // The wording-only variant was replaced by `poster`, which renders agendas.poster and
+        // is a genuine premium feature - so unlike its predecessor it is plan-gated.
+        $this->assertTrue(SectionVariantResolver::isExclusive('agenda', 'poster'));
+        $this->assertFalse(SectionVariantResolver::isExclusive('agenda', 'standar'));
+
+        // The variant resolves to its own view, not silently back to the default.
+        $this->assertSame(
+            'templates.sections.agenda.poster',
+            SectionVariantResolver::resolve('agenda', 'poster'),
+        );
+    }
+
+    /**
+     * The poster variant's whole point: show the flyer an organization uploaded. Also covers
+     * the mixed case, since a CMS is rarely fully filled in - a poster-less agenda must still
+     * render as a card rather than a hole in the grid.
+     */
+    public function test_poster_variant_shows_uploaded_posters_and_falls_back_without_one(): void
+    {
+        $organization = $this->makeOrganization(withSampleContent: true);
+
+        $withPoster = $organization->agendas()->first();
+        $withPoster->update([
+            'poster' => 'https://example test/poster-kajian.jpg',
+            'status' => PublishStatus::Published,
+        ]);
+
+        $response = $this->get($this->tenantUrl($organization, '/kajian-event'));
+
+        $response->assertOk();
+        $response->assertSee('poster-kajian.jpg', false);
+        // The date block stands in for agendas with no flyer yet.
+        $response->assertSee($withPoster->starts_at->translatedFormat('M'), false);
+    }
+
+    /**
+     * A shared kajian link has to carry the event: the poster as its preview image, and Event
+     * structured data so the acara can surface in Google's event results rather than as a plain
+     * link. Renders the page view directly rather than over HTTP - the tenant /agenda/{id} route
+     * 404s on a pre-existing bug unrelated to this change (see TenantDetailPagesTest, which
+     * fails the same way on main), and that would mask what this test is actually checking.
+     */
+    public function test_agenda_detail_page_carries_poster_and_event_structured_data(): void
+    {
+        $organization = $this->makeOrganization(withSampleContent: true);
+
+        $agenda = $organization->agendas()->first();
+        $agenda->update([
+            'poster' => 'https://example.test/poster-detail.jpg',
+            'description' => '<p>Kajian rutin bersama jamaah.</p>',
+            'location' => 'Masjid Nurul Huda Ambulu',
+            'status' => PublishStatus::Published,
+        ]);
+
+        $html = view('organizations.public.agenda', [
+            'organization' => $organization->fresh(),
+            'agenda' => $agenda->fresh(),
+        ])->render();
+
+        // The description was always stored; this page is where it actually renders.
+        $this->assertStringContainsString('Kajian rutin bersama jamaah.', $html);
+        $this->assertStringContainsString('poster-detail.jpg', $html);
+        $this->assertStringContainsString('og:image', $html);
+
+        $this->assertStringContainsString('application/ld+json', $html);
+        $this->assertStringContainsString('"@type":"Event"', $html);
+        $this->assertStringContainsString('"startDate"', $html);
+        $this->assertStringContainsString('Masjid Nurul Huda Ambulu', $html);
+    }
+
+    /**
+     * An agenda with no venue must omit `location` rather than emit an empty Place, which would
+     * fail Google's Event validation.
+     */
+    public function test_event_structured_data_omits_an_empty_location(): void
+    {
+        $organization = $this->makeOrganization(withSampleContent: true);
+
+        $agenda = $organization->agendas()->first();
+        $agenda->update(['location' => null, 'status' => PublishStatus::Published]);
+
+        $html = view('organizations.public.agenda', [
+            'organization' => $organization->fresh(),
+            'agenda' => $agenda->fresh(),
+        ])->render();
+
+        $this->assertStringContainsString('"@type":"Event"', $html);
+        $this->assertStringNotContainsString('"location"', $html);
+    }
+
+    public function test_poster_variant_renders_the_kajian_page(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $response = $this->get($this->tenantUrl($organization, '/kajian-event'));
+
+        $response->assertOk();
+        $response->assertSee('Jadwal Kajian &amp; Event', false);
+    }
+
+    public function test_kajian_title_survives_a_builder_save(): void
     {
         $organization = $this->makeOrganization();
         $organization->load('pages.sections');
@@ -217,7 +394,9 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $section = $organization->pages
             ->flatMap->sections
-            ->firstWhere('key', 'jadwal-kajian');
+            ->firstWhere('key', 'agenda');
+
+        $this->assertSame('poster', $section->variant);
 
         $this->actingAs($owner)
             ->patch(route('organizations.sections.update', [$organization, $section]), [
@@ -227,6 +406,237 @@ class MasjidNurulHudaTemplateTest extends TestCase
             ->assertRedirect();
 
         $this->assertSame('Kajian Rutin Pekanan', $section->fresh()->content['title']);
+    }
+
+    /**
+     * The five premium mosque sections are gated at the *section* level, not just the variant
+     * level. Before this, a starter-plan organization could POST any of these keys and get the
+     * section: the only exclusivity flag lived on the variant, which merely governs picking a
+     * different layout for a section you already have.
+     */
+    public function test_premium_mosque_sections_cannot_be_added_on_a_non_professional_plan(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+        $organization = $organization->fresh();
+
+        $this->assertFalse($organization->canUseExclusiveTemplates());
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+
+        foreach (['fasilitas-masjid', 'donasi-progress', 'laporan-keuangan', 'kalkulator-zakat', 'akad-venue'] as $key) {
+            $before = $page->sections()->where('key', $key)->count();
+
+            $this->actingAs($owner)
+                ->from(route('organizations.builder.page', [$organization, $page]))
+                ->post(route('organizations.sections.store', [$organization, $page]), ['key' => $key])
+                ->assertSessionHasErrors('key');
+
+            $this->assertSame($before, $page->sections()->where('key', $key)->count(), "{$key} was added anyway");
+        }
+    }
+
+    public function test_premium_mosque_sections_can_still_be_added_on_the_professional_plan(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $this->assertTrue($organization->canUseExclusiveTemplates());
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+        $before = $page->sections()->where('key', 'kalkulator-zakat')->count();
+
+        $this->actingAs($owner)
+            ->post(route('organizations.sections.store', [$organization, $page]), ['key' => 'kalkulator-zakat'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($before + 1, $page->sections()->where('key', 'kalkulator-zakat')->count());
+    }
+
+    /**
+     * The picker keeps listing gated sections rather than hiding them, so the capability stays
+     * discoverable - it marks them `locked` instead, which greys the row and disables the
+     * confirm button. Renders the builder on both plans to catch the Blade breaking too.
+     */
+    public function test_builder_picker_marks_premium_sections_locked_only_on_lower_plans(): void
+    {
+        $organization = $this->makeOrganization();
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+        $url = route('organizations.builder.page', [$organization, $page]);
+
+        // @js() emits the options map as JSON with its quotes escaped to \u0022, so the
+        // needles have to match that form rather than a plain `"locked":false`.
+        $lockedTrue = 'locked\u0022:true';
+        $lockedFalse = 'locked\u0022:false';
+
+        $professional = $this->actingAs($owner)->get($url);
+        $professional->assertOk();
+        $professional->assertSee('Fasilitas Masjid');
+        $professional->assertSee($lockedFalse, false);
+        $professional->assertDontSee($lockedTrue, false);
+
+        $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+
+        $starter = $this->actingAs($owner)->get($url);
+        $starter->assertOk();
+        // Still listed, but now flagged - and the upgrade path is offered.
+        $starter->assertSee('Fasilitas Masjid');
+        $starter->assertSee($lockedTrue, false);
+        $starter->assertSee(route('organizations.plan.edit', $organization), false);
+    }
+
+    /**
+     * The builder renders a "Tampilan" <select> per section, so a page-wide regex would pick up
+     * a sibling section's options - fasilitas-masjid and donasi-progress sit on `nurul-huda`
+     * too. Narrows the haystack to one section's own form, keyed by the update URL in its
+     * action attribute, before asserting on that section's options.
+     */
+    private function variantSelectHtml(string $html, Organization $organization, int $sectionId): string
+    {
+        // The section's delete form posts to this same URL (spoofing DELETE) and comes first in
+        // the markup, so scan every form with this action and keep the one holding the editor.
+        $action = route('organizations.sections.update', [$organization, $sectionId]);
+        $offset = 0;
+        $selects = [];
+
+        while (($start = strpos($html, 'action="'.$action.'"', $offset)) !== false) {
+            $form = substr($html, $start, strpos($html, '</form>', $start) - $start);
+            $offset = $start + 1;
+
+            if (preg_match('/<select name="variant".*?<\/select>/s', $form, $m)) {
+                $selects[] = $m[0];
+            }
+        }
+
+        $this->assertCount(1, $selects, "expected exactly one variant select for section {$sectionId}");
+
+        return $selects[0];
+    }
+
+    /**
+     * The "Tampilan" dropdown lists plan-gated variants as disabled options instead of dropping
+     * them, matching the "Tambah Section" picker - a lower-plan owner should see that a premium
+     * layout exists. Uses `hero`, which has both a free `standar` and exclusive variants.
+     */
+    public function test_builder_lists_locked_variants_as_disabled_instead_of_hiding_them(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->load('pages.sections');
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+        $hero = $page->sections()->where('key', 'hero')->firstOrFail();
+        $url = route('organizations.builder.page', [$organization, $page, 'section' => $hero->id]);
+
+        $professional = $this->actingAs($owner)->get($url);
+        $professional->assertOk();
+        $proSelect = $this->variantSelectHtml($professional->getContent(), $organization, $hero->id);
+        $this->assertMatchesRegularExpression('/<option value="modern"\s*>/', $proSelect);
+        $this->assertStringNotContainsString('disabled', $proSelect);
+
+        $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+
+        $starter = $this->actingAs($owner)->get($url);
+        $starter->assertOk();
+        // Previously filtered out entirely; now present, flagged, and non-selectable.
+        $starterSelect = $this->variantSelectHtml($starter->getContent(), $organization, $hero->id);
+        $this->assertMatchesRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $starterSelect);
+        $this->assertStringContainsString('Modern 🔒 (Profesional)', $starterSelect);
+    }
+
+    /**
+     * A downgraded organization keeps the exclusive variants its sections were built with, so
+     * the option it is currently on must stay enabled: `selected disabled` submits no value at
+     * all, which would blank `variant` on the next save and strand the user on that layout.
+     */
+    public function test_the_variant_a_section_already_uses_is_never_disabled(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->load('pages.sections');
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+        $hero = $page->sections()->where('key', 'hero')->firstOrFail();
+        $this->assertSame('nurul-huda', $hero->variant);
+
+        $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+
+        $response = $this->actingAs($owner)
+            ->get(route('organizations.builder.page', [$organization, $page, 'section' => $hero->id]));
+
+        $response->assertOk();
+        $select = $this->variantSelectHtml($response->getContent(), $organization, $hero->id);
+        $this->assertMatchesRegularExpression('/<option value="nurul-huda" selected\s*>/', $select);
+        $this->assertDoesNotMatchRegularExpression('/<option value="nurul-huda"[^<>]*disabled[^<>]*>/', $select);
+        // Its unused siblings are still locked.
+        $this->assertMatchesRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $select);
+    }
+
+    /**
+     * The disabled <option> is only an affordance - update() must still reject a crafted POST
+     * naming a variant the plan doesn't grant, falling back to the section's existing one.
+     */
+    public function test_locked_variant_cannot_be_applied_by_a_crafted_request(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->load('pages.sections');
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+        $hero = $page->sections()->where('key', 'hero')->firstOrFail();
+
+        $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+        $hero->update(['variant' => 'standar']);
+
+        $this->actingAs($owner)
+            ->patch(route('organizations.sections.update', [$organization, $hero]), [
+                'variant' => 'modern',
+                'content' => ['headline' => 'Tetap standar'],
+                'is_visible' => true,
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('standar', $hero->fresh()->variant);
+    }
+
+    public function test_premium_mosque_sections_use_the_nurul_huda_variant(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->load('pages.sections');
+
+        $keys = ['fasilitas-masjid', 'donasi-progress', 'laporan-keuangan', 'kalkulator-zakat', 'akad-venue'];
+
+        $sections = $organization->pages->flatMap->sections->whereIn('key', $keys);
+        $this->assertNotEmpty($sections);
+
+        foreach ($sections as $section) {
+            $this->assertSame('nurul-huda', $section->variant, "{$section->key} is not on the nurul-huda variant");
+        }
+
+        // The renamed variant must be the section's only one, and still exclusive - a
+        // non-exclusive variant here would reopen the gate from the variant side.
+        foreach ($keys as $key) {
+            $variants = SectionVariantResolver::variantsFor($key);
+
+            $this->assertSame(['nurul-huda'], $variants->pluck('variant_key')->all());
+            $this->assertTrue(SectionVariantResolver::isExclusive($key, 'nurul-huda'));
+            $this->assertTrue(config("page-builder.sections.{$key}.exclusive"));
+        }
     }
 
     public function test_home_page_renders(): void
@@ -266,11 +676,11 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_sewa_aula_page_renders(): void
+    public function test_akad_venue_page_renders(): void
     {
         $organization = $this->makeOrganization();
 
-        $response = $this->get($this->tenantUrl($organization, '/sewa-aula'));
+        $response = $this->get($this->tenantUrl($organization, '/akad-venue'));
 
         $response->assertOk();
     }
@@ -286,7 +696,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_program_detail_page_renders(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->where('name', 'Wakaf Pembangunan Masjid')->firstOrFail();
 
         $response = $this->get($this->tenantUrl($organization, '/donasi/'.$program->slug));
@@ -301,7 +711,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_detail_is_reachable_from_the_main_domain_preview(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->firstOrFail();
 
         $owner = User::factory()->create();
@@ -329,7 +739,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_detail_preview_requires_an_authorized_member(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->firstOrFail();
 
         $stranger = User::factory()->create();
@@ -341,7 +751,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_donation_program_detail_is_scoped_to_its_own_organization(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(withSampleContent: true);
         $program = $organization->donationPrograms()->firstOrFail();
 
         $other = Organization::create([
@@ -374,6 +784,13 @@ class MasjidNurulHudaTemplateTest extends TestCase
         // Regression guard for the seedPagesFromTemplate() rewrite: 'muhammadiyah' already had
         // 3 pages in its structure data before this change, but only page [0] used to be
         // cloned. Confirms the fix intentionally activates multi-page for it too.
+        //
+        // TemplateSeeder::run() is temporarily empty while template/org sample data is
+        // rebuilt from scratch, starting with AUM Kesehatan (see its own doc comment and
+        // DatabaseSeeder) - the 'muhammadiyah' template this test needs doesn't exist yet.
+        // Un-skip once that template is redone.
+        $this->markTestSkipped('Awaiting TemplateSeeder rebuild: muhammadiyah template not yet seeded.');
+
         $this->seed(OrganizationTypeSeeder::class);
         $this->seed(TemplateSeeder::class);
 

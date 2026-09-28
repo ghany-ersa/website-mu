@@ -20,7 +20,7 @@ class OrganizationAgendaController extends Controller
 
     public function index(Request $request, Organization $organization): View
     {
-        abort_unless($organization->hasSection('agenda', 'jadwal-kajian'), 404);
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('viewAny', [Agenda::class, $organization]);
 
         return view('organizations.agendas.index', [
@@ -32,7 +32,7 @@ class OrganizationAgendaController extends Controller
 
     public function create(Request $request, Organization $organization): View|RedirectResponse
     {
-        abort_unless($organization->hasSection('agenda', 'jadwal-kajian'), 404);
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
 
         if (! $this->planLimitService->canCreate($organization, 'agendas')) {
@@ -44,13 +44,14 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.form', [
             'organization' => $organization,
             'agenda' => new Agenda,
+            'showPoster' => $this->usesPosterVariant($organization),
             ...$this->builderViewData($request),
         ]);
     }
 
     public function store(Request $request, Organization $organization): RedirectResponse
     {
-        abort_unless($organization->hasSection('agenda', 'jadwal-kajian'), 404);
+        abort_unless($organization->hasSection('agenda'), 404);
         $this->authorize('create', [Agenda::class, $organization]);
 
         if (! $this->planLimitService->canCreate($organization, 'agendas')) {
@@ -74,6 +75,7 @@ class OrganizationAgendaController extends Controller
         return view('organizations.agendas.form', [
             'organization' => $organization,
             'agenda' => $agenda,
+            'showPoster' => $this->usesPosterVariant($organization),
             ...$this->builderViewData($request),
         ]);
     }
@@ -109,6 +111,9 @@ class OrganizationAgendaController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            // A media-library URL, same contract as masjid_facilities.photo - the picker writes
+            // the chosen file's URL into this field rather than uploading through this request.
+            'poster' => ['nullable', 'string'],
             'starts_at' => ['required', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:255'],
@@ -127,5 +132,16 @@ class OrganizationAgendaController extends Controller
     private function ensureBelongsToOrganization(Organization $organization, Agenda $agenda): void
     {
         abort_unless($agenda->organization_id === $organization->id, 404);
+    }
+
+    /**
+     * Whether the org's active 'agenda' section variant is 'poster' - the only variant whose
+     * Blade partial (templates/sections/agenda/poster.blade.php) renders Agenda::$poster. The
+     * 'standar' variant never reads it, so the upload field is hidden rather than shown for
+     * every variant regardless of whether it does anything.
+     */
+    private function usesPosterVariant(Organization $organization): bool
+    {
+        return $organization->sectionVariant('agenda') === 'poster';
     }
 }

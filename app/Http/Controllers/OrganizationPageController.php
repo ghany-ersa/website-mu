@@ -22,7 +22,7 @@ class OrganizationPageController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'pages_total')) {
             return redirect()
                 ->route('organizations.builder.edit', $organization)
-                ->with('warning', 'Batas jumlah halaman paket Anda sudah tercapai. Upgrade ke paket Professional untuk menambah halaman.');
+                ->with('warning', 'Batas jumlah halaman paket Anda sudah tercapai. Upgrade ke paket Eksklusif untuk menambah halaman.');
         }
 
         $validated = $request->validate([

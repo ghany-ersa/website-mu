@@ -45,7 +45,7 @@
                 'pattern' => 'organizations.agendas.*',
                 'label' => config('page-builder.sections.agenda.cms.label'),
                 'icon' => 'M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z',
-                'section' => ['agenda', 'jadwal-kajian'],
+                'section' => ['agenda'],
             ],
             [
                 'route' => config('page-builder.sections.pengumuman.cms.route'),
@@ -120,9 +120,8 @@
 
         $orgMenu = array_filter(
             $orgMenu,
-            // 'section' may list more than one key: two sections can be backed by the same CMS
-            // (jadwal-kajian and agenda both read the `agendas` table), and the menu should show
-            // if the organization has either of them.
+            // 'section' may list more than one key: one CMS can be backed by several sections,
+            // and the menu should show if the organization has any of them.
             fn ($item) => ! isset($item['section'])
                 || collect((array) $item['section'])->intersect($activeSectionKeys)->isNotEmpty()
         );

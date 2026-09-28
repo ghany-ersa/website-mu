@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class OrganizationBuilderTest extends TestCase
@@ -106,6 +107,39 @@ class OrganizationBuilderTest extends TestCase
             ->delete(route('organizations.sections.destroy', [$organization, $section]))
             ->assertRedirect();
         $this->assertSame(1, $page->sections()->count());
+    }
+
+    /**
+     * Regression test: 'items' has no form control in edit.blade.php for a CMS-backed section
+     * (daftar-berita, struktur-pengurus, etc. - it only renders a "Kelola ... ->" link, never
+     * an <input name="content[items]">), so update() used to write null for it on every save,
+     * silently wiping the section's fallback sample content (which the public tenant page
+     * doesn't need - it queries live CMS records - but a TEMPLATE preview with no organization
+     * yet falls back to exactly that content['items'] array). Saving any OTHER field (here,
+     * 'title') must leave 'items' untouched.
+     */
+    public function test_updating_a_section_does_not_wipe_fields_the_edit_form_has_no_input_for(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $section = $page->sections()->create([
+            'key' => 'daftar-berita',
+            'content' => ['title' => 'Berita Terbaru', 'items' => [['title' => 'Contoh Berita']]],
+            'order' => 0,
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('organizations.sections.update', [$organization, $section]), [
+                'content' => ['title' => 'Kabar Terkini'],
+                'is_visible' => '1',
+            ])
+            ->assertRedirect();
+
+        $fresh = $section->fresh();
+        $this->assertSame('Kabar Terkini', $fresh->content['title']);
+        $this->assertSame([['title' => 'Contoh Berita']], $fresh->content['items']);
     }
 
     public function test_updating_a_section_via_ajax_returns_rendered_canvas_instead_of_redirecting(): void
@@ -406,7 +440,7 @@ class OrganizationBuilderTest extends TestCase
     {
         $user = User::factory()->create();
         $organization = Organization::factory()->create([
-            'plan_id' => Plan::where('key', 'professional')->firstOrFail()->id,
+            'plan_id' => Plan::where('key', 'eksklusif')->firstOrFail()->id,
         ]);
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
         OrganizationPage::factory()->create([
@@ -458,5 +492,114 @@ class OrganizationBuilderTest extends TestCase
 
         $orderedKeys = $page->sections()->get()->pluck('key')->all();
         $this->assertSame(['hero', 'footer'], $orderedKeys);
+    }
+
+    /**
+     * Every variant of a section must read the same registry `fields`, because the builder shows
+     * one properties panel per section regardless of variant: a field one variant renders and
+     * another ignores means an organization types copy in, switches variant, and watches it
+     * vanish with no indication it is still stored.
+     *
+     * Text-level check on the Blade sources rather than a render, so it covers variants no
+     * fixture happens to exercise. A variant may reach a field through a computed key rather
+     * than a literal one - hero/headline-berita resolves both CTAs through a $prefix.'_type'
+     * helper - so a field whose name is only a suffix of that computed form counts as read when
+     * the source builds it that way.
+     */
+    public function test_every_variant_of_a_section_reads_the_same_registry_fields(): void
+    {
+        $inconsistent = [];
+
+        foreach (config('page-builder.sections') as $key => $meta) {
+            $dir = resource_path('views/templates/sections/'.$key);
+
+            if (! is_dir($dir)) {
+                continue;
+            }
+
+            $views = array_values(array_filter(
+                scandir($dir),
+                fn ($file) => str_ends_with($file, '.blade.php') && ! str_starts_with($file, '_')
+            ));
+
+            if (count($views) < 2) {
+                continue;
+            }
+
+            foreach ($meta['fields'] ?? [] as $field) {
+                $renders = [];
+
+                foreach ($views as $view) {
+                    $source = file_get_contents($dir.'/'.$view);
+
+                    $renders[$view] = str_contains($source, "['".$field."']")
+                        || str_contains($source, "'".$field."'")
+                        // e.g. $content[$prefix.'_type'] covers cta_type and cta_secondary_type.
+                        || (bool) preg_match('/\$\w+\s*\.\s*\x27_'.preg_quote(
+                            Str::afterLast($field, '_'),
+                            '/'
+                        ).'\x27/', $source);
+                }
+
+                // Only a field some variants read and others don't is a problem; one no variant
+                // reads is a separate (harmless) case, and one every variant reads is correct.
+                if (count(array_unique($renders)) > 1) {
+                    $missing = array_keys(array_filter($renders, fn ($read) => ! $read));
+                    $inconsistent[] = $key.'.'.$field.' missing from: '.implode(', ', $missing);
+                }
+            }
+        }
+
+        $this->assertSame([], $inconsistent, "Some variants ignore fields their siblings render:\n".implode("\n", $inconsistent));
+    }
+
+    /**
+     * Every CMS-backed section must offer its "Kelola X ->" link from the section being edited,
+     * exactly once.
+     *
+     * The link used to be rendered from inside the properties-panel field loop, on the `items`
+     * branch, so it only appeared for sections that expose an `items` field. laporan-keuangan
+     * declares `fields => ['title']` and was therefore the one CMS-backed section with no way to
+     * reach its CMS from the builder, even though the CMS itself existed. Driving the assertion
+     * off the registry's `cms` entry means a future section that omits `items` fails here rather
+     * than silently shipping without the link.
+     */
+    public function test_every_cms_backed_section_links_to_its_cms_exactly_once(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+
+        $cmsKeys = collect(config('page-builder.sections'))
+            ->filter(fn ($meta) => isset($meta['cms']))
+            ->keys();
+
+        $this->assertNotEmpty($cmsKeys, 'no CMS-backed sections in the registry');
+
+        $order = 0;
+        foreach ($cmsKeys as $key) {
+            $page->sections()->create(['key' => $key, 'content' => [], 'order' => $order++]);
+        }
+
+        $html = $this->actingAs($user)
+            ->get(route('organizations.builder.page', [$organization, $page]))
+            ->getContent();
+
+        foreach ($page->sections()->get() as $section) {
+            $cms = config("page-builder.sections.{$section->key}.cms");
+            $url = route($cms['route'], ['organization' => $organization, ...$cms['params'] ?? []]);
+            $separator = str_contains($url, '?') ? '&' : '?';
+            // Blade escapes the href, so a route that already carries a query string (e.g.
+            // programs?type=program) appears with &amp; separators - compare against the
+            // escaped form rather than route()'s raw output.
+            $needle = e($url.$separator.'from=builder').'&amp;section='.$section->id;
+
+            $this->assertSame(
+                1,
+                substr_count($html, $needle),
+                "section {$section->key} should link to its CMS exactly once"
+            );
+        }
     }
 }

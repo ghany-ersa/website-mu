@@ -19,14 +19,14 @@ class OrganizationBrandTest extends TestCase
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
-        Template::factory()->create([
+        $template = Template::factory()->create([
             'organization_type_id' => $type->id,
             'is_active' => true,
             'structure' => ['brand' => ['primary' => '#123456', 'secondary' => '#abcdef']],
         ]);
 
         $this->actingAs($user)->post(route('organizations.store'), [
-            'organization_type_id' => $type->id,
+            'template_id' => $template->id,
             'name' => 'Brand Test Org',
             'slug' => 'brand-test-org-'.uniqid(),
         ])->assertRedirect();
@@ -62,6 +62,8 @@ class OrganizationBrandTest extends TestCase
                 'address' => 'Jl. Contoh No. 1, Ambulu, Jember',
                 'instagram_url' => 'https://instagram.com/example',
                 'facebook_url' => 'https://facebook.com/example',
+                'tiktok_url' => 'https://tiktok.com/@example',
+                'youtube_url' => 'https://youtube.com/@example',
             ])
             ->assertRedirect();
 
@@ -75,6 +77,8 @@ class OrganizationBrandTest extends TestCase
         $this->assertSame('Jl. Contoh No. 1, Ambulu, Jember', $organization->address);
         $this->assertSame('https://instagram.com/example', $organization->instagram_url);
         $this->assertSame('https://facebook.com/example', $organization->facebook_url);
+        $this->assertSame('https://tiktok.com/@example', $organization->tiktok_url);
+        $this->assertSame('https://youtube.com/@example', $organization->youtube_url);
     }
 
     public function test_invalid_email_is_rejected(): void
@@ -100,8 +104,10 @@ class OrganizationBrandTest extends TestCase
             ->patch(route('organizations.brand.update', $organization), [
                 'instagram_url' => 'not-a-url',
                 'facebook_url' => 'also-not-a-url',
+                'tiktok_url' => 'not-a-url-either',
+                'youtube_url' => 'still-not-a-url',
             ])
-            ->assertSessionHasErrors(['instagram_url', 'facebook_url']);
+            ->assertSessionHasErrors(['instagram_url', 'facebook_url', 'tiktok_url', 'youtube_url']);
     }
 
     public function test_non_member_cannot_view_or_update_brand_settings(): void
@@ -188,9 +194,10 @@ class OrganizationBrandTest extends TestCase
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
+        $template = Template::factory()->create(['organization_type_id' => $type->id, 'is_active' => true]);
 
         $this->actingAs($user)->post(route('organizations.store'), [
-            'organization_type_id' => $type->id,
+            'template_id' => $template->id,
             'name' => 'White Brand Org',
             'slug' => 'white-brand-org-'.uniqid(),
             'secondary_color' => '#FFFFFF',

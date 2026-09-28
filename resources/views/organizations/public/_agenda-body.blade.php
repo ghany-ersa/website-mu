@@ -1,6 +1,34 @@
+@php
+    // See _donation-program-body.blade.php's matching comment for why this isn't just
+    // route('tenant.home', ...) unconditionally - that only resolves a real, published,
+    // non-sandbox organization's subdomain, which 404s (or isn't even registered) for both the
+    // owner-preview and template-catalog-preview contexts this partial also renders in.
+    if (request()->routeIs('templates.preview*')) {
+        $backHref = route('templates.preview', $organization->template);
+    } elseif (request()->routeIs('organizations.preview*')) {
+        $backHref = route('organizations.preview', $organization);
+    } else {
+        $backHref = \Illuminate\Support\Facades\Route::has('tenant.home')
+            ? route('tenant.home', ['organization_slug' => $organization->slug])
+            : '#';
+    }
+@endphp
 <article class="py-16 bg-softBg">
     <div class="max-w-3xl mx-auto px-6">
-        <a href="{{ route('tenant.home', ['organization_slug' => $organization->slug]) }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
+        <a href="{{ $backHref }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
+
+        {{-- The flyer, when there is one: on a shared kajian link the poster is what people
+             recognise, and it usually carries details the fields don't (speaker, rundown).
+             Sits above the card rather than inside it so it can run full width on mobile. --}}
+        {{-- No max-w cap and no fixed aspect: agenda posters are usually landscape, and the old
+             max-w-md was sized for a portrait flyer, which left a wide poster shrunk into a
+             narrow column. Letting it fill the article's own max-w-3xl and keeping the image's
+             natural ratio (h-auto, no object-cover) means neither orientation is cropped or
+             letterboxed - the flyer's own text stays readable either way. --}}
+        @if ($agenda->poster)
+            <img src="{{ $agenda->poster }}" alt="Poster {{ $agenda->title }}"
+                 class="mt-6 w-full h-auto rounded-2xl shadow-soft">
+        @endif
 
         <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-soft mt-6">
             <div class="w-16 h-16 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center leading-none">

@@ -10,7 +10,10 @@
 --}}
 @php
     $content = $section['content'] ?? [];
-    $limit = $content['limit'] ?? 3;
+    // A blank/unset `limit` means "show all" rather than falling back to a default cap - null
+    // is the right value for that on both branches below: Builder::take(null) omits the SQL
+    // LIMIT clause entirely, and Collection::take(null) returns every item.
+    $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
     $categoryFilter = $content['category_filter'] ?? null;
     $items = isset($organization)
         ? $organization->posts()->published()
@@ -21,11 +24,16 @@
             'category' => $post->category,
             'date' => $post->published_at?->translatedFormat('d M Y'),
             'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->body), 140),
-            'url' => \Illuminate\Support\Facades\Route::has('tenant.posts.show')
-                ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
-                : '#',
+            'url' => match (true) {
+                request()->routeIs('templates.preview*') => route('templates.preview.post', ['template' => $organization->template, 'post_slug' => $post->slug]),
+                \Illuminate\Support\Facades\Route::has('tenant.posts.show') => route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug]),
+                default => '#',
+            },
         ])
-        : collect($content['items'] ?? array_fill(0, $limit, []));
+        // array_fill's placeholder-card count only needs a number when there's neither a real
+        // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's
+        // look unchanged; it never caps a real (or genuinely limitless) `items` list.
+        : collect($content['items'] ?? array_fill(0, $limit ?? 3, []))->take($limit);
 @endphp
 
 <section class="py-24">

@@ -13,8 +13,8 @@ use App\Models\Plan;
  * plan's standard rules.
  *
  * An organization without a plan_id (legacy data predating this feature) is treated as
- * the 'organization' plan rather than failing closed - see the mandatory backfill note
- * in PlanSeeder.
+ * the 'premium' plan (the middle tier, named "Organization" until it was renamed - see
+ * PlanSeeder) rather than failing closed - see the mandatory backfill note there.
  */
 class PlanLimitService
 {
@@ -37,7 +37,18 @@ class PlanLimitService
     ];
 
     /**
-     * Per-request memo of the 'organization' fallback plan used by
+     * Resource keys whose limit resets every calendar month instead of counting the
+     * organization's all-time total - currently just 'posts' ("N berita baru per bulan"), a
+     * deliberate product choice distinct from every other CMS resource, which stays a
+     * lifetime cap. Adding a key here only changes how currentCount() counts records for it;
+     * effectiveLimit()'s override/snapshot/plan resolution is unaffected.
+     *
+     * @var array<int, string>
+     */
+    private const MONTHLY_RESOURCES = ['posts'];
+
+    /**
+     * Per-request memo of the 'premium' fallback plan used by
      * effectiveLimitForFreshOrganization() when an organization has no plan_id - this plan is
      * the same row for every organization, so re-querying it once per resource key per
      * organization (up to 9 times for one page render) is pure waste. false means "looked up,
@@ -185,7 +196,7 @@ class PlanLimitService
     private function memoizedFallbackPlan(): ?Plan
     {
         if (self::$fallbackPlanMemo === null) {
-            self::$fallbackPlanMemo = Plan::where('key', 'organization')->first() ?? false;
+            self::$fallbackPlanMemo = Plan::where('key', 'premium')->first() ?? false;
         }
 
         return self::$fallbackPlanMemo ?: null;
@@ -194,7 +205,10 @@ class PlanLimitService
     /**
      * Actual count of records the organization has for this resource key - unclamped, so
      * unlike remaining() (which floors at 0) this can be compared against effectiveLimit()
-     * to tell "at the limit" apart from "over the limit by N".
+     * to tell "at the limit" apart from "over the limit by N". For a MONTHLY_RESOURCES key,
+     * this counts only records created in the current calendar month (server timezone) -
+     * everything created in an earlier month exists and stays visible on the site, it just
+     * doesn't count against this month's quota.
      */
     public function currentCount(Organization $organization, string $key): int
     {
@@ -205,7 +219,13 @@ class PlanLimitService
         $relation = self::RESOURCE_RELATIONS[$key]
             ?? throw new \InvalidArgumentException("Unknown plan limit key: {$key}");
 
-        return $organization->{$relation}()->count();
+        $query = $organization->{$relation}();
+
+        if (in_array($key, self::MONTHLY_RESOURCES, true)) {
+            $query->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+        }
+
+        return $query->count();
     }
 
     /**
@@ -214,13 +234,13 @@ class PlanLimitService
      * receives a just-saved instance would otherwise see the plan that was current before this
      * exact update.
      *
-     * Returns null (rather than throwing) when even the 'organization' fallback plan doesn't
+     * Returns null (rather than throwing) when even the 'premium' fallback plan doesn't
      * exist - e.g. PlanSeeder hasn't run yet. Callers treat a null plan as "no limit
      * enforced", which fails open rather than 404ing every CMS/builder request in an
      * environment where plans simply haven't been seeded.
      */
     private function effectivePlan(Organization $organization): ?Plan
     {
-        return $organization->plan()->first() ?? Plan::where('key', 'organization')->first();
+        return $organization->plan()->first() ?? Plan::where('key', 'premium')->first();
     }
 }

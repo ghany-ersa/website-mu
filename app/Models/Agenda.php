@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'organization_id',
     'title',
+    'poster',
     'starts_at',
     'location',
     'contact_person',

@@ -116,9 +116,12 @@
 </script>
 
 {{-- Litepicker: dependency-free date range picker (no jQuery/moment.js), bundled via
-     Vite/npm and exposed as window.Litepicker (see resources/js/app.js). --}}
+     Vite/npm and exposed as window.Litepicker (see resources/js/admin.js). Deferred to
+     DOMContentLoaded because admin.js is loaded as a `type="module"` script (implicitly
+     deferred by the browser) from the layout's <head>, while this inline classic script sits
+     in the body and would otherwise run first — leaving window.Litepicker still undefined. --}}
 <script>
-    (function () {
+    document.addEventListener('DOMContentLoaded', function () {
         const rangeInput = document.getElementById('valid_range');
         const fromInput = document.getElementById('valid_from');
         const untilInput = document.getElementById('valid_until');
@@ -156,5 +159,5 @@
         document.getElementById('valid_range_clear').addEventListener('click', () => {
             picker.clearSelection();
         });
-    })();
+    });
 </script>

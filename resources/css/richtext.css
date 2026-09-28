@@ -36,6 +36,20 @@
     margin: 0 0 0.75em;
 }
 
+/* Tailwind's preflight resets `ul`/`ol` to `list-style: none`; restore markers here
+   since this stylesheet is the only styling layer applied inside the editor content. */
+.richtext-editor .ProseMirror ul {
+    list-style: disc;
+}
+
+.richtext-editor .ProseMirror ol {
+    list-style: decimal;
+}
+
+.richtext-editor .ProseMirror li {
+    margin: 0.25em 0;
+}
+
 .richtext-editor .ProseMirror blockquote {
     border-left: 3px solid #d1d5db;
     padding-left: 0.75em;

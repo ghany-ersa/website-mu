@@ -27,11 +27,20 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             OrganizationTypeSeeder::class,
             SectionVariantSeeder::class,
-            TemplateSeeder::class,
+            PcmAmbuluTemplateSeeder::class,
+            PcmAmbuluEksklusifTemplateSeeder::class,
+            PcaAmbuluTemplateSeeder::class,
+            PcaAmbuluEksklusifTemplateSeeder::class,
+            KlinikAisyiyahAmbuluTemplateSeeder::class,
+            KlinikAisyiyahAmbuluStandarTemplateSeeder::class,
+            SuaraMuhammadiyahAmbuluTemplateSeeder::class,
+            SuaraMuhammadiyahAmbuluStandarTemplateSeeder::class,
             MasjidNurulHudaTemplateSeeder::class,
-            SdMadyaTemplateSeeder::class,
-            OrganizationSeeder::class,
+            MasjidNurulHudaStandarTemplateSeeder::class,
+            BlankTemplateSeeder::class,
+            // OrganizationSeeder::class,
             ArticleSeeder::class,
+            SdMadyaTemplateSeeder::class,
         ]);
     }
 }

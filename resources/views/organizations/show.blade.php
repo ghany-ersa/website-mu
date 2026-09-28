@@ -66,7 +66,7 @@
 
         {{-- Settings row: consistently sized, icon + label pills so each is scannable at a glance. --}}
         <div class="flex gap-2 mt-3 overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
-            <a href="{{ route('organizations.brand.edit', $organization) }}"
+            <a href="{{ route('organizations.brand.edit', $organization) }}" id="btn-brand-settings"
                 class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
                 <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -74,7 +74,7 @@
                 </svg>
                 Brand Settings
             </a>
-            <a href="{{ route('organizations.edit.edit', $organization) }}"
+            <a href="{{ route('organizations.edit.edit', $organization) }}" id="btn-edit-organization"
                 class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
                 <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"

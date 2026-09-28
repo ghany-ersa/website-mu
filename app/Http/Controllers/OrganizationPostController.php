@@ -40,7 +40,7 @@ class OrganizationPostController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'posts')) {
             return redirect()
                 ->route('organizations.posts.index', $organization)
-                ->with('warning', 'Batas jumlah berita paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas berita bulan ini sudah tercapai. Kuota akan tersedia lagi awal bulan depan, atau upgrade paket untuk kuota bulanan yang lebih besar.');
         }
 
         return view('organizations.posts.form', [
@@ -58,7 +58,7 @@ class OrganizationPostController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'posts')) {
             return redirect()
                 ->route('organizations.posts.index', $organization)
-                ->with('warning', 'Batas jumlah berita paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas berita bulan ini sudah tercapai. Kuota akan tersedia lagi awal bulan depan, atau upgrade paket untuk kuota bulanan yang lebih besar.');
         }
 
         $validated = $this->validated($request);

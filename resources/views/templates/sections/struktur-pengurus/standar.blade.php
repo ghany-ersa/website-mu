@@ -29,7 +29,7 @@
         <h2 class="reveal text-3xl font-extrabold text-primary mb-10 text-center">
             {{ $content['title'] ?? 'Struktur Pengurus' }}
         </h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
             @foreach ($items as $item)
                 <div class="reveal group text-center" style="transition-delay: {{ $loop->index * 100 }}ms">
                     <button type="button"

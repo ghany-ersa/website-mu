@@ -74,4 +74,53 @@ class OrganizationMediaTest extends TestCase
 
         $this->assertModelMissing($mediaOfB);
     }
+
+    /**
+     * Every `category="..."` an x-form.image-picker passes must be accepted by
+     * MediaController's whitelist. That list validates with `in:`, so an unlisted category does
+     * not quietly fall back to 'lainnya' - it fails validation and rejects the whole upload with
+     * a 422, which the picker used to swallow silently. 'agenda', 'fasilitas' and 'donasi' were
+     * each unable to upload a single photo until they were added.
+     *
+     * Scans the views rather than hardcoding the names, so a picker added later with a new
+     * category fails here instead of in production.
+     */
+    public function test_every_image_picker_category_is_accepted_by_the_media_controller(): void
+    {
+        Storage::fake(config('media.disk'));
+
+        $categories = [];
+
+        $views = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(resource_path('views'), \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($views as $file) {
+            if (! $file->isFile() || ! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            if (preg_match_all('/category="([^"]+)"/', file_get_contents($file->getPathname()), $m)) {
+                $categories = array_merge($categories, $m[1]);
+            }
+        }
+
+        $categories = array_values(array_unique($categories));
+        $this->assertNotEmpty($categories, 'no image-picker categories found - has the component changed?');
+
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        foreach ($categories as $category) {
+            $this->actingAs($user)
+                ->postJson(route('organizations.media.store', $organization), [
+                    'files' => [UploadedFile::fake()->image('foto.jpg', 400, 300)],
+                    'category' => $category,
+                ])
+                ->assertOk();
+        }
+
+        $this->assertSame(count($categories), $organization->media()->count());
+    }
 }

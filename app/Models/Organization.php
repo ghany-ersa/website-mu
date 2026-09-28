@@ -41,6 +41,8 @@ use Illuminate\Support\Facades\DB;
     'address',
     'instagram_url',
     'facebook_url',
+    'tiktok_url',
+    'youtube_url',
 ])]
 class Organization extends Model
 {
@@ -151,6 +153,92 @@ class Organization extends Model
     }
 
     /**
+     * The organization's own phone number, or null until it sets one - deliberately NOT falling
+     * back to the template's sample contact info (structure['contact']), unlike
+     * primaryColor()/fontFamily()/etc: a template's contact details belong to whatever real
+     * organization the template's sample content was modeled on (e.g. Suara Muhammadiyah Ambulu),
+     * so showing them on an unrelated organization's live site would be showing someone else's
+     * WhatsApp/address as if it were this organization's own - a real name-and-contact mix-up,
+     * not a cosmetic placeholder the way a default brand color is. Template contact info is only
+     * ever shown in template-preview context, where there's no $organization at all (see
+     * templates/sections/footer/standar.blade.php's own `$contact` fallback for that case).
+     *
+     * Reads the column through getAttributeValue() rather than $this->phone. `phone` is both a
+     * column and this method's name, and Eloquent's __get() only falls back to *relationship*
+     * resolution when the attribute isn't loaded on the instance - at which point it calls
+     * phone(), sees a string instead of a Relation, and throws "must return a relationship
+     * instance". That happens for any Organization whose contact columns weren't selected (a
+     * factory-built instance, a narrowed select()), which is how onboardingChecklist() - it
+     * does filled($this->phone) - could 500 in production. getAttributeValue() asks only the
+     * attribute pipeline, so the method never re-enters itself.
+     *
+     * The four social-URL accessors below need no such care: their columns are snake_case
+     * (instagram_url) while the methods are camelCase (instagramUrl()), so no name collides.
+     */
+    public function phone(): ?string
+    {
+        return $this->getAttributeValue('phone');
+    }
+
+    /**
+     * The organization's own contact email, or null until it sets one - see phone() for why this
+     * doesn't fall back to the template's sample contact info, and for why it reads the column
+     * via getAttributeValue().
+     */
+    public function email(): ?string
+    {
+        return $this->getAttributeValue('email');
+    }
+
+    /**
+     * The organization's own WhatsApp number, or null until it sets one - see phone().
+     */
+    public function whatsapp(): ?string
+    {
+        return $this->getAttributeValue('whatsapp');
+    }
+
+    /**
+     * The organization's own address, or null until it sets one - see phone().
+     */
+    public function address(): ?string
+    {
+        return $this->getAttributeValue('address');
+    }
+
+    /**
+     * The organization's own Instagram URL, or null until it sets one - see phone().
+     */
+    public function instagramUrl(): ?string
+    {
+        return $this->instagram_url;
+    }
+
+    /**
+     * The organization's own Facebook URL, or null until it sets one - see phone().
+     */
+    public function facebookUrl(): ?string
+    {
+        return $this->facebook_url;
+    }
+
+    /**
+     * The organization's own TikTok URL, or null until it sets one - see phone().
+     */
+    public function tiktokUrl(): ?string
+    {
+        return $this->tiktok_url;
+    }
+
+    /**
+     * The organization's own YouTube URL, or null until it sets one - see phone().
+     */
+    public function youtubeUrl(): ?string
+    {
+        return $this->youtube_url;
+    }
+
+    /**
      * @return BelongsTo<OrganizationType, $this>
      */
     public function organizationType(): BelongsTo
@@ -254,10 +342,17 @@ class Organization extends Model
      * plan_expires_at stays null until a PlanChangeRequest for it is actually approved. This
      * is what plan_expires_at === null really means - "never paid" - as opposed to
      * planIsExpired()'s "was paid, that period lapsed."
+     *
+     * Sandbox organizations (TemplateSandboxService) are exempt: they aren't real tenants and
+     * were never meant to be billed - they exist only so an admin can design a Template through
+     * the normal builder, then get shown to public visitors previewing that template
+     * (TemplatePreviewController). Without this, every sandbox reads as "never paid" and
+     * planViolations()/violatesPlanRules() would surface a payment-nag banner on public
+     * template previews, which makes no sense for content nobody is meant to pay for.
      */
     public function hasPaidForCurrentPlan(): bool
     {
-        return $this->plan_expires_at !== null && $this->plan_expires_at->isFuture();
+        return $this->is_sandbox || ($this->plan_expires_at !== null && $this->plan_expires_at->isFuture());
     }
 
     /**
@@ -286,7 +381,7 @@ class Organization extends Model
     /**
      * Human-readable list of ways this organization currently breaks its own plan's rules —
      * derived fresh on every call rather than stored, since content counts and plan_expires_at
-     * change independently of each other. Three kinds of violation:
+     * change independently of each other. Four kinds of violation:
      *
      *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) - happens after a
      *    downgrade, since PlanLimitService::canCreate() only blocks *new* creation and never
@@ -297,6 +392,8 @@ class Organization extends Model
      *    hasPaidForCurrentPlan()) - e.g. a newly created organization, which gets plan_id set
      *    immediately (see OrganizationController::store()) but no plan_expires_at until an
      *    admin approves its first PlanChangeRequest.
+     *  - An is_exclusive template on a plan without that entitlement - the picker lets anyone
+     *    start building on a premium design, so the gate lands here at publish time instead.
      *
      * Used by OrganizationController::publish() to block publishing while any of these hold,
      * and by the public tenant page (_document.blade.php) to show a violation badge on an
@@ -306,7 +403,6 @@ class Organization extends Model
      */
     public function planViolations(): array
     {
-        // key => [relation method, label]
         $resources = [
             'posts' => ['posts', 'Berita'],
             'agendas' => ['agendas', 'Agenda'],
@@ -331,17 +427,23 @@ class Organization extends Model
         // exact same re-querying behavior on its own whenever `plan` isn't loaded, so this is a
         // no-op for every other caller (admin/preview contexts that may have just mutated
         // plan_id in this same request).
+        //
+        // currentCount() (not a direct ->{$relation}()->count()) so a PlanLimitService::
+        // MONTHLY_RESOURCES key (currently 'posts') is counted the same way here as everywhere
+        // else - only this calendar month's records against this month's quota, not the
+        // organization's all-time total, which would otherwise keep flagging a violation
+        // forever once an org ever had a busy month.
         $service = app(PlanLimitService::class);
         $violations = [];
 
-        foreach ($resources as $key => [$relation, $label]) {
+        foreach ($resources as $key => $label) {
             $limit = $service->effectiveLimitForFreshOrganization($this, $key);
 
             if ($limit === null) {
                 continue;
             }
 
-            $over = $this->{$relation}()->count() - $limit;
+            $over = $service->currentCount($this, $key) - $limit;
 
             if ($over > 0) {
                 $violations[] = "{$label} melebihi batas paket ({$over} kelebihan)";
@@ -364,6 +466,16 @@ class Organization extends Model
             $violations[] = 'Pembayaran paket langganan belum dikonfirmasi';
         }
 
+        // An exclusive template on a plan that doesn't grant them. Reachable because the
+        // template picker deliberately lets anyone *build* on a premium design (every new
+        // organization starts on Starter - see OrganizationController::store()); it's
+        // publishing that's gated, not choosing. Not a template the plan simply "hasn't paid
+        // for yet" - canUseExclusiveTemplates() reads the entitlement, so this clears itself
+        // the moment an upgrade is approved, with no template change needed.
+        if ($this->template?->is_exclusive && ! $this->canUseExclusiveTemplates()) {
+            $violations[] = 'Template ini memerlukan paket Eksklusif';
+        }
+
         return $violations;
     }
 
@@ -379,8 +491,20 @@ class Organization extends Model
     /**
      * Whether this organization's plan grants access to templates marked
      * Template::is_exclusive - used to gate the "Ganti Template" picker
-     * (see OrganizationTemplateController) so a Starter/Organization-plan org can't
-     * switch onto a Professional-only design.
+     * (see OrganizationTemplateController) so a Starter/Premium-plan org can't
+     * switch onto a design exclusive to the top plan (key 'eksklusif', see PlanSeeder).
+     * Also gates picking an exclusive section
+     * *variant* for a section it already has (OrganizationSectionController::update()) and
+     * adding an exclusive-flagged *section* in the first place (::store()) - see
+     * config/page-builder.php's own `exclusive` doc comment for how those two gates differ.
+     *
+     * A sandbox organization (TemplateSandboxService - the throwaway org behind the admin's
+     * "Edit Visual" template designer) always qualifies, regardless of plan_id: it has none
+     * (TemplateSandboxService::sandboxFor() never sets one), so without this an admin
+     * designing ANY template - not just an already-exclusive one - couldn't pick an exclusive
+     * hero/daftar-berita/etc. variant while building it, even though the template being
+     * designed may itself end up is_exclusive. The plan system exists to gate paying tenants,
+     * not the platform's own template design tool.
      *
      * Reloads the plan relation (plan()->first(), not the cached $this->plan) for the same
      * reason PlanLimitService::effectivePlan() does: belongsTo's cache isn't invalidated by
@@ -389,6 +513,10 @@ class Organization extends Model
      */
     public function canUseExclusiveTemplates(): bool
     {
+        if ($this->is_sandbox) {
+            return true;
+        }
+
         return (bool) $this->plan()->first()?->has_exclusive_templates;
     }
 
@@ -406,13 +534,24 @@ class Organization extends Model
      * and the underlying CRUD routes (organizations.gallery.*, organizations.posts.*, etc.) for
      * content types the organization's template never gave it a section to display.
      *
-     * Takes several keys because one CMS can back more than one section: 'jadwal-kajian' and
-     * 'agenda' both read the `agendas` table, so a template that only ships the former must
-     * still open organizations.agendas.*.
+     * Takes several keys because one CMS can back more than one section - e.g. a content type
+     * displayed by two different sections must open its CRUD routes for either of them.
      */
     public function hasSection(string ...$keys): bool
     {
         return $this->pages->flatMap->sections->pluck('key')->intersect($keys)->isNotEmpty();
+    }
+
+    /**
+     * The variant key an organization is using for a given section, e.g. 'poster' vs 'standar'
+     * for 'agenda' - lets a CMS form (OrganizationAgendaController) show/hide fields that only
+     * one variant's Blade partial renders, instead of every field for every variant regardless
+     * of which one is active. Null default falls back to whatever SectionVariantResolver treats
+     * as default when the section has no explicit variant set, or isn't on any page at all.
+     */
+    public function sectionVariant(string $key): ?string
+    {
+        return $this->pages->flatMap->sections->firstWhere('key', $key)?->variant;
     }
 
     /**
@@ -547,7 +686,12 @@ class Organization extends Model
     {
         return [
             'brand' => filled($this->logo),
-            'contact' => filled($this->phone) || filled($this->email) || filled($this->whatsapp),
+            // The accessor methods, not $this->phone: those property reads are what triggered
+            // Eloquent's relationship fallback on an instance whose contact columns weren't
+            // loaded (see phone()'s doc comment). Going through the methods also means a value
+            // inherited from the template counts as "filled in", which matches what the org
+            // actually sees rendered on its site.
+            'contact' => filled($this->phone()) || filled($this->email()) || filled($this->whatsapp()),
             'content' => $this->pages()->whereHas('sections')->exists(),
             'published' => $this->status === OrganizationStatus::Published,
         ];
@@ -599,13 +743,44 @@ class Organization extends Model
     }
 
     /**
+     * Switch this organization onto a different template, the same way ensureHomePageExists()
+     * clones a fresh one - discard the current pages and re-clone from the new template's
+     * structure - but keeping each existing section's `content` wherever the new template has a
+     * section of the same `key`. Sections whose key doesn't appear in the new template are
+     * dropped (there's nowhere to put their content); sections the new template introduces that
+     * the organization never had start with that template's own default content, same as any
+     * other newly-cloned section. Variant/layout always comes from the new template, even for a
+     * matched key - switching template is a design change, and a preserved section keeps the new
+     * design's layout for that section rather than an inconsistent mix of old and new looks.
+     *
+     * Used by OrganizationTemplateController::update() only - ensureHomePageExists() itself
+     * stays content-blind (empty $preserveContentByKey default) since it only ever runs once,
+     * against an organization with no pages yet, where there's nothing to preserve.
+     */
+    public function replaceTemplateKeepingContent(Template $newTemplate): void
+    {
+        $preserveContentByKey = $this->pages()->with('sections')->get()
+            ->flatMap->sections
+            ->reduce(function (array $carry, OrganizationSection $section) {
+                $carry[$section->key][] = $section->content;
+
+                return $carry;
+            }, []);
+
+        $this->pages()->delete();
+        $this->update(['template_id' => $newTemplate->id]);
+        $this->refresh();
+        $this->seedPagesFromTemplate($preserveContentByKey);
+    }
+
+    /**
      * Clone every page listed in the template's structure['pages'] into owned pages/sections
      * (previously only structure['pages'][0] was cloned, back when the builder supported just
-     * one page - it now supports many, see OrganizationPageController). Also seeds sample CMS
-     * records (see CmsSampleDataSeeder) for whichever CMS-backed sections (galeri, daftar-berita,
-     * struktur-pengurus, etc.) any cloned page has, so the builder and the org's own draft/public
-     * pages show real, editable content immediately instead of an empty list the user has to
-     * populate from scratch.
+     * one page - it now supports many, see OrganizationPageController). Clones each section's
+     * `content` as the owner's starting copy, but seeds sample CMS records (see
+     * CmsSampleDataSeeder) for CMS-backed sections (galeri, daftar-berita, struktur-pengurus,
+     * etc.) ONLY for a sandbox organization - see the guard at the end of this method for why a
+     * real organization starts with empty CMS tables instead.
      *
      * The cloned sections are capped to the org's plan's 'sections_total' limit (excluding
      * locked keys, same as PlanLimitService::countedSectionsTotal() - locked sections like
@@ -626,7 +801,16 @@ class Organization extends Model
      * (e.g. a duplicate page slug in the template's own data) would otherwise leave the
      * organization with only some of its pages seeded instead of none.
      */
-    private function seedPagesFromTemplate(): void
+    /**
+     * @param  array<string, array<int, array<string, mixed>>>  $preserveContentByKey  Section
+     *                                                                                 key => queue of that key's previous `content` arrays, oldest-page-first (see
+     *                                                                                 OrganizationTemplateController::update(), the only caller that passes this).
+     *                                                                                 Each cloned section whose key has an entry left in its queue gets that content
+     *                                                                                 instead of the new template's default, and consumes one entry - so switching from
+     *                                                                                 a template with two 'daftar-berita' sections to one with two also keeps them
+     *                                                                                 paired up in the same order, rather than both grabbing the same saved content.
+     */
+    private function seedPagesFromTemplate(array $preserveContentByKey = []): void
     {
         $pagesData = $this->template->structure['pages'] ?? [];
 
@@ -669,7 +853,7 @@ class Organization extends Model
         $survivingByPage = $flatSections->groupBy('page_index');
         $sectionKeys = [];
 
-        DB::transaction(function () use ($pagesData, $survivingByPage, &$sectionKeys) {
+        DB::transaction(function () use ($pagesData, $survivingByPage, &$sectionKeys, &$preserveContentByKey) {
             $usedSlugs = [];
 
             foreach ($pagesData as $pageIndex => $pageData) {
@@ -692,15 +876,24 @@ class Organization extends Model
 
                 foreach (($survivingByPage->get($pageIndex) ?? collect())->values() as $sectionOrder => $section) {
                     $sectionData = $section['data'];
+                    $key = $sectionData['key'];
+
+                    // array_shift rather than a plain lookup: consumes one queued content per
+                    // key per section created, so a key appearing more than once (e.g. two
+                    // 'daftar-berita' sections on different pages) pairs old sections with new
+                    // ones in the same relative order instead of every match reusing entry #0.
+                    $preservedContent = ! empty($preserveContentByKey[$key])
+                        ? array_shift($preserveContentByKey[$key])
+                        : null;
 
                     $page->sections()->create([
-                        'key' => $sectionData['key'],
+                        'key' => $key,
                         'variant' => $sectionData['variant'] ?? null,
-                        'content' => $sectionData['content'] ?? [],
+                        'content' => $preservedContent ?? $sectionData['content'] ?? [],
                         'order' => $sectionOrder,
                     ]);
 
-                    $sectionKeys[] = $sectionData['key'];
+                    $sectionKeys[] = $key;
                 }
 
                 $page->ensureHeader();
@@ -708,6 +901,8 @@ class Organization extends Model
             }
         });
 
-        CmsSampleDataSeeder::seed($this, $sectionKeys);
+        if ($this->is_sandbox) {
+            CmsSampleDataSeeder::seed($this, $sectionKeys);
+        }
     }
 }

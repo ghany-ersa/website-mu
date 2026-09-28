@@ -13,7 +13,7 @@ class OnboardingTourController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'tour' => ['required', 'string', 'in:dashboard,builder'],
+            'tour' => ['required', 'string', 'in:create,dashboard,builder'],
         ]);
 
         $request->user()->markOnboardingTourSeen($validated['tour']);

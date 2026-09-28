@@ -1,0 +1,181 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\OrganizationType;
+use App\Models\Template;
+use App\Models\User;
+use App\Services\Samples\PcmAmbuluSamples as Samples;
+use App\Services\TemplateSandboxService;
+use Illuminate\Database\Seeder;
+
+/**
+ * Seeds the "Cabang Muhammadiyah" template - the first NON-exclusive template
+ * in the app, modeled on Pimpinan Cabang Muhammadiyah Ambulu. Every other seeded template
+ * (Klinik Aisyiyah, Suara Muhammadiyah, Masjid Nurul Huda) is is_exclusive and therefore
+ * Professional-only; this one is what a cabang on the Starter or Organization plan actually
+ * gets, which is the entire reason its shape differs from theirs:
+ *
+ *   - SINGLE page. Starter and Organization both cap `pages_total` at 1 (see PlanSeeder), and
+ *     the builder's page switcher is Professional-only - a multi-page structure here would
+ *     seed pages the owner cannot see or edit.
+ *   - EIGHT unlocked sections, matching Starter's `sections_total` exactly (Organization
+ *     allows 15, so this template leaves it headroom to add more). header/footer are `locked`
+ *     (config/page-builder.php) and don't count toward that limit. sambutan-ketua and
+ *     jaringan-aum-ortom - real content, not filler - were the two sections cut to fit: a
+ *     sambutan is a voice the structure-as-story argument doesn't strictly need, and the
+ *     jaringan list is the one section here that isn't primarily about THIS cabang.
+ *   - `standar` variants ONLY, and no `exclusive` section keys. SectionVariantSeeder marks
+ *     modern/ringkas/newsletter/poster is_exclusive, and the five premium mosque sections are
+ *     gated at the section level too - picking any of them would make this template unusable
+ *     by the very plans it exists for.
+ *
+ * Content is PCM Ambulu's real profile: the nine-person pimpinan harian, the secretariat on
+ * Jl. dr. Soetomo No. 15 Krajan, and Beni Hendarto as narahubung - all pulled from
+ * App\Services\Samples\PcmAmbuluSamples (see that class's doc comment for why the content lives
+ * there and not here).
+ *
+ * The editorial idea, since a standard-plan profile has no exclusive layouts to lean on: make
+ * the STRUCTURE the story. Six of the nine pimpinan are koordinator bidang, so the program
+ * section names one flagship program per koorbid, the agenda shows those programs actually
+ * running on dates, and the berita list reports them as they happen - a visitor scrolling the
+ * single page reads "here is who leads us -> here is what each of them runs -> here is it
+ * happening -> here is proof it happened", which is a far more progressive profile than the
+ * usual sambutan-and-sejarah page, using only components every plan already has.
+ */
+class PcmAmbuluTemplateSeeder extends Seeder
+{
+    public const SLUG = Samples::TEMPLATE_SLUG;
+
+    public function run(): void
+    {
+        // Organization types are named for the MOVEMENT, not the tier ('Muhammadiyah', not
+        // 'Pimpinan Cabang Muhammadiyah') - see OrganizationTypeSeeder. The same type therefore
+        // serves PDM/PCM/PRM alike, which is why this template's copy says "Cabang/Ranting"
+        // rather than assuming a cabang.
+        $organizationType = OrganizationType::where('slug', 'muhammadiyah')->first();
+
+        $header = ['key' => 'header', 'variant' => 'standar'];
+        $footer = ['key' => 'footer', 'variant' => 'standar'];
+
+        $template = Template::updateOrCreate(
+            ['slug' => self::SLUG],
+            [
+                'organization_type_id' => $organizationType?->id,
+                'name' => 'Muhammadiyah Damai',
+                'description' => 'Perkenalkan pimpinan harian dan koordinator bidang cabang Anda, tunjukkan program unggulan tiap bidang, dan bagikan agenda serta kabar kegiatan - lengkap dengan jaringan Ortom dan Amal Usaha di satu halaman profil cabang.',
+                'is_active' => false,
+                'is_exclusive' => false,
+                'is_featured' => false,
+                'structure' => [
+                    'sample_org_name' => 'PCM Ambulu',
+                    // Muhammadiyah blue primary with green secondary - the persyarikatan's own
+                    // pairing, unmodified. `Plus Jakarta Sans` + `rounded` are the platform
+                    // defaults rather than the exclusive templates' serif/sharp identity:
+                    // this is the standard tier and should look like it, so the exclusive
+                    // templates keep a visibly distinct look to sell.
+                    'brand' => [
+                        'primary' => '#2C368B',
+                        'secondary' => '#079C4E',
+                        'font' => 'Plus Jakarta Sans',
+                        'radius' => 'rounded',
+                    ],
+                    'pages' => [
+                        [
+                            'slug' => 'home',
+                            'name' => 'Beranda',
+                            'sections' => [
+                                $header,
+                                // 1. Identity. Both CTAs are scroll targets rather than one
+                                // WhatsApp link: a cabang profile's job is to get a visitor
+                                // reading, and the WhatsApp ask lands later, at formulir-kontak,
+                                // once there's a reason to make it.
+                                ['key' => 'hero', 'variant' => 'standar', 'content' => [
+                                    'badge' => 'Pimpinan Cabang Muhammadiyah Ambulu',
+                                    'headline' => 'Berkemajuan, Berdaya, Bermanfaat untuk Ambulu',
+                                    'subheadline' => 'Pimpinan Cabang Muhammadiyah Ambulu bergerak di enam bidang - pengkaderan, tabligh, wakaf, pendidikan, kesehatan, dan ekonomi - bersama Ortom dan Amal Usaha untuk warga Ambulu, Jember.',
+                                    'cta_label' => 'Lihat Program Cabang',
+                                    'cta_type' => 'scroll',
+                                    'cta_section' => 'program-unggulan',
+                                    'cta_secondary_label' => 'Kenali Pimpinan Kami',
+                                    'cta_secondary_type' => 'scroll',
+                                    'cta_secondary_section' => 'struktur-pengurus',
+                                    'image' => Samples::HERO_IMAGE,
+                                ]],
+                                // 2. Who we are. `stats` are structural facts the cabang can
+                                // state without bookkeeping (six bidang, nine pimpinan, and its
+                                // Ortom+AUM count) rather than the registry's default "10+
+                                // Tahun Berdiri / 100+ Anggota" guesses, which a cabang would
+                                // have to either verify or quietly leave wrong.
+                                ['key' => 'tentang-organisasi', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Tentang PCM Ambulu',
+                                    'body' => 'Pimpinan Cabang Muhammadiyah Ambulu adalah penyelenggara gerakan Muhammadiyah di tingkat cabang Kecamatan Ambulu, Kabupaten Jember. Bersama ranting, Ortom, dan Amal Usaha di lingkungannya, cabang menggerakkan dakwah, pengkaderan, pendidikan, kesehatan, wakaf, dan pemberdayaan ekonomi warga - dijalankan oleh pimpinan harian dengan enam koordinator bidang yang masing-masing memegang program nyata.',
+                                    'image' => Samples::ABOUT_IMAGE,
+                                    'stats' => [
+                                        ['value' => '6', 'label' => 'Bidang Garapan'],
+                                        ['value' => '9', 'label' => 'Pimpinan Harian'],
+                                        ['value' => '6', 'label' => 'Ortom & Amal Usaha'],
+                                    ],
+                                ]],
+                                // 3. The nine pimpinan. Placed before the programs on purpose:
+                                // each koorbid's name here is what makes the program below it
+                                // read as someone's responsibility rather than a wish list.
+                                ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Pimpinan Harian PCM Ambulu',
+                                    'items' => Samples::pimpinanHarian(),
+                                ]],
+                                // 5. One flagship program per koorbid - see
+                                // Samples::programItems() for the mapping.
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Program Unggulan per Bidang',
+                                    'items' => Samples::programItems(),
+                                ]],
+                                // 6. Those programs on a calendar.
+                                ['key' => 'agenda', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Agenda Kegiatan Cabang',
+                                    'subtitle' => 'Kegiatan rutin dan terjadwal yang terbuka untuk warga persyarikatan maupun masyarakat umum.',
+                                    'limit' => 4,
+                                    'items' => Samples::agendaPreviewItems(),
+                                ]],
+                                // 7. Those programs having happened. `limit` 4 matches the
+                                // sample count so the standar grid fills two even rows; a
+                                // cabang that publishes more posts gets a "Muat Lebih Banyak"
+                                // button rather than an ever-growing page.
+                                ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Kabar Cabang',
+                                    'limit' => 3,
+                                    'items' => Samples::beritaItems(),
+                                ]],
+                                // 8. The ask, at the bottom where it belongs. Named narahubung
+                                // in the subtitle rather than a bare number - a warga texting
+                                // an organization wants to know who picks up. No separate `cta`
+                                // section above it: formulir-kontak already carries the same
+                                // WhatsApp action, and a standard-tier page earns attention by
+                                // being substantive, not by asking twice.
+                                ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Hubungi Sekretariat PCM Ambulu',
+                                    'subtitle' => 'Untuk undangan, kerja sama program, atau informasi kegiatan, hubungi narahubung cabang '.Samples::NARAHUBUNG.'.',
+                                    'wa_number' => Samples::WHATSAPP,
+                                    'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar kegiatan Pimpinan Cabang Muhammadiyah Ambulu.',
+                                ]],
+                                // 10. Where to actually find them. Pairs with the section above
+                                // rather than repeating the address inside its subtitle - a
+                                // visitor who wants to visit wants a map, not a line of text.
+                                ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
+                                    'title' => 'Sekretariat PCM Ambulu',
+                                    'address' => Samples::ADDRESS,
+                                    'map_embed' => Samples::MAP_EMBED,
+                                ]],
+                                $footer,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        if ($admin = User::where('is_admin', true)->first()) {
+            app(TemplateSandboxService::class)->sandboxFor($template, $admin);
+        }
+    }
+}

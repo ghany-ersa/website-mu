@@ -22,8 +22,12 @@ class TemplateFactory extends Factory
 
         return [
             'organization_type_id' => OrganizationType::factory(),
-            'name' => str($name)->title(),
-            'slug' => str($name)->slug(),
+            // ->toString() matters: str() returns a Stringable, and a freshly factory-made model
+            // hands that object straight back from $template->slug (no round-trip through the
+            // database to cast it). Laravel's URL generator silently drops a non-model object
+            // parameter, so route(..., ['template' => $template->slug]) lost its query string.
+            'name' => str($name)->title()->toString(),
+            'slug' => str($name)->slug()->toString(),
             'description' => fake()->sentence(),
             'thumbnail_path' => null,
             'structure' => [

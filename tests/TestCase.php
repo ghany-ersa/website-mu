@@ -47,7 +47,7 @@ abstract class TestCase extends BaseTestCase
                 $this->seed(SectionVariantSeeder::class);
             }
 
-            // PlanLimitService memoizes the 'organization' fallback plan in a static property
+            // PlanLimitService memoizes the 'premium' fallback plan in a static property
             // across calls within one process (see its own doc comment) - reset it per test so
             // a RefreshDatabase rollback between tests can't leave a prior test's Plan instance
             // (or its since-changed limits) silently in effect for this one, the same
