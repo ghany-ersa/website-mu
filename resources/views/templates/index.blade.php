@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Template - website-mu.id</title>
+    <title>Katalog Contoh - website-mu.id</title>
     <meta name="description"
-        content="Jelajahi semua template website organisasi Muhammadiyah: Muhammadiyah, Aisyiyah, Klinik/Rumah Sakit, dan Media/Portal Berita.">
+        content="Jelajahi semua contoh website organisasi Muhammadiyah: Muhammadiyah, Aisyiyah, Klinik/Rumah Sakit, dan Media/Portal Berita.">
     <link rel="canonical" href="{{ route('templates.index') }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
@@ -51,7 +51,7 @@
             <span
                 class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Katalog
                 Template</span>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Semua Template Website Organisasi</h1>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Semua Contoh Website Organisasi</h1>
             {{-- Names the organization types that actually have a seeded template today (see
                  OrganizationTypeSeeder) - the earlier copy listed AUM Pendidikan and Masjid,
                  which a visitor would then look for in vain. --}}
@@ -112,18 +112,16 @@
                                 class="block text-gray-500 text-sm mb-6 hover:text-gray-700 transition">{{ $template->description }}</a>
                         </div>
                         <div class="flex items-center justify-between border-t border-gray-100 pt-4 gap-2">
-                            @if ($template->is_exclusive)
-                                <a href="{{ route('templates.preview', $template->slug) }}" target="_blank"
-                                    class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat
-                                    Preview</a>
-                            @else
-                                <a href="{{ route('templates.preview', $template->slug) }}" target="_blank"
-                                    class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat
-                                    Preview</a>
-                                <a href="{{ route('templates.use', $template->slug) }}"
-                                    class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">Gunakan
-                                    Template</a>
-                            @endif
+                            {{-- is_exclusive is no longer gated here: an is_exclusive template can be
+                                 built on from any plan (OrganizationController::create()'s doc comment)
+                                 - only publishing is gated by Organization::planViolations(). Both
+                                 tiers get the same two actions. --}}
+                            <a href="{{ route('templates.preview', $template->slug) }}" target="_blank"
+                                class="text-primary hover:text-secondary px-3 py-2 rounded-xl text-xs font-bold transition">Lihat
+                                Preview</a>
+                            <a href="{{ route('templates.use', $template->slug) }}"
+                                class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">Gunakan
+                                Template</a>
                         </div>
                     </div>
                 </div>

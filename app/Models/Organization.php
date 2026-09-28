@@ -436,7 +436,7 @@ class Organization extends Model
         $service = app(PlanLimitService::class);
         $violations = [];
 
-        foreach ($resources as $key => $label) {
+        foreach ($resources as $key => [, $label]) {
             $limit = $service->effectiveLimitForFreshOrganization($this, $key);
 
             if ($limit === null) {
