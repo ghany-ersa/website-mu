@@ -539,9 +539,9 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $hero = $page->sections()->where('key', 'hero')->firstOrFail();
         $url = route('organizations.builder.page', [$organization, $page, 'section' => $hero->id]);
 
-        $professional = $this->actingAs($owner)->get($url);
-        $professional->assertOk();
-        $proSelect = $this->variantSelectHtml($professional->getContent(), $organization, $hero->id);
+        $eksklusif = $this->actingAs($owner)->get($url);
+        $eksklusif->assertOk();
+        $proSelect = $this->variantSelectHtml($eksklusif->getContent(), $organization, $hero->id);
         $this->assertMatchesRegularExpression('/<option value="modern"\s*>/', $proSelect);
         $this->assertStringNotContainsString('disabled', $proSelect);
 
@@ -552,7 +552,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
         // Previously filtered out entirely; now present, flagged, and non-selectable.
         $starterSelect = $this->variantSelectHtml($starter->getContent(), $organization, $hero->id);
         $this->assertMatchesRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $starterSelect);
-        $this->assertStringContainsString('Modern 🔒 (Profesional)', $starterSelect);
+        $this->assertStringContainsString('Modern 🔒 (Eksklusif)', $starterSelect);
     }
 
     /**

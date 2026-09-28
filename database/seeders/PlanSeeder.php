@@ -77,30 +77,6 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 1],
             ['key' => 'students', 'max_count' => 0],
             ['key' => 'achievements', 'max_count' => 3],
-            ['key' => 'sections_total', 'max_count' => 5],
-            ['key' => 'pages_total', 'max_count' => 1],
-        ]);
-
-        $organization = Plan::create([
-            'key' => 'organization',
-            'name' => 'Organization',
-            'description' => 'Untuk organisasi dengan aktivitas publikasi rutin.',
-            'price_monthly' => 18000,
-            'hide_branding' => false,
-            'has_exclusive_templates' => false,
-        ]);
-
-        $organization->limits()->createMany([
-            ['key' => 'posts', 'max_count' => 5],
-            ['key' => 'agendas', 'max_count' => 4],
-            ['key' => 'announcements', 'max_count' => 3],
-            ['key' => 'officers', 'max_count' => 7],
-            ['key' => 'programs', 'max_count' => 5],
-            ['key' => 'gallery_photos', 'max_count' => 8],
-            ['key' => 'facilities', 'max_count' => 6],
-            ['key' => 'donation_programs', 'max_count' => 3],
-            ['key' => 'students', 'max_count' => 0],
-            ['key' => 'achievements', 'max_count' => 8],
             ['key' => 'sections_total', 'max_count' => 8],
             ['key' => 'pages_total', 'max_count' => 1],
         ]);
@@ -125,8 +101,10 @@ class PlanSeeder extends Seeder
             ['key' => 'gallery_photos', 'max_count' => 10],
             ['key' => 'facilities', 'max_count' => 10],
             ['key' => 'donation_programs', 'max_count' => 3],
+            ['key' => 'students', 'max_count' => 0],
+            ['key' => 'achievements', 'max_count' => 15],
             ['key' => 'sections_total', 'max_count' => 15],
-            ['key' => 'pages_total', 'max_count' => 1],
+            ['key' => 'pages_total', 'max_count' => 3],
         ]);
 
         $eksklusif = Plan::create([

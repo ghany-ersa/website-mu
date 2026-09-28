@@ -34,6 +34,13 @@ class PlanLimitService
         'facilities' => 'facilities',
         'donation_programs' => 'donationPrograms',
         'pages_total' => 'pages',
+        // The two school resources, added with the SD Madya template. Both are seeded in
+        // PlanSeeder and both are iterated by Organization::planViolations(), and a key present
+        // there but absent HERE is not a silent no-op: currentCount() throws
+        // InvalidArgumentException, so violatesPlanRules() - and with it publishing - 500s for
+        // any organization that reaches it. Every key in PlanSeeder needs a relation here.
+        'students' => 'students',
+        'achievements' => 'achievements',
     ];
 
     /**

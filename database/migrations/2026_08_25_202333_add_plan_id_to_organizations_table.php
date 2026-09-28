@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('organizations', function (Blueprint $table) {
             // Nullable because existing organizations predate this column - PlanLimitService
-            // treats a null plan as equivalent to the 'organization' plan (see backfill note
+            // treats a null plan as equivalent to the 'premium' plan (see backfill note
             // in PlanSeeder) rather than failing closed.
             $table->foreignId('plan_id')->nullable()->after('template_id')->constrained()->nullOnDelete();
         });

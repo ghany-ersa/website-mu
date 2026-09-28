@@ -13,13 +13,13 @@ use Illuminate\Database\Seeder;
  * Seeds the "Cabang Muhammadiyah" template - the first NON-exclusive template
  * in the app, modeled on Pimpinan Cabang Muhammadiyah Ambulu. Every other seeded template
  * (Klinik Aisyiyah, Suara Muhammadiyah, Masjid Nurul Huda) is is_exclusive and therefore
- * Professional-only; this one is what a cabang on the Starter or Organization plan actually
+ * Eksklusif-only; this one is what a cabang on the Starter or Premium plan actually
  * gets, which is the entire reason its shape differs from theirs:
  *
- *   - SINGLE page. Starter and Organization both cap `pages_total` at 1 (see PlanSeeder), and
- *     the builder's page switcher is Professional-only - a multi-page structure here would
+ *   - SINGLE page. Starter and Premium both cap `pages_total` at 1 (see PlanSeeder), and
+ *     the builder's page switcher is Eksklusif-only - a multi-page structure here would
  *     seed pages the owner cannot see or edit.
- *   - EIGHT unlocked sections, matching Starter's `sections_total` exactly (Organization
+ *   - EIGHT unlocked sections, matching Starter's `sections_total` exactly (Premium
  *     allows 15, so this template leaves it headroom to add more). header/footer are `locked`
  *     (config/page-builder.php) and don't count toward that limit. sambutan-ketua and
  *     jaringan-aum-ortom - real content, not filler - were the two sections cut to fit: a

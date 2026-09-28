@@ -132,8 +132,8 @@ class SuaraMuhammadiyahAmbuluStandarTemplateSeeder extends Seeder
                                     'items' => Samples::institutionalItems(),
                                 ]],
                                 // 4. The masthead - all 16 of them. On Starter the `officers`
-                                // quota of 3 trims the live CMS records hard (Organization
-                                // allows 7, Professional 20), but the template preview always
+                                // quota of 5 trims the live CMS records hard (Premium
+                                // allows 10, Eksklusif 25), but the template preview always
                                 // shows the full redaksi. Sits between the two news lanes (the
                                 // admin's own reorder) rather than after both.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [

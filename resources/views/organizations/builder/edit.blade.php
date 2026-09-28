@@ -353,7 +353,7 @@
                             Halaman Baru
                         </button>
                     @else
-                        {{-- Multi-page is Professional-only (pages_total plan limit) - starter/organization
+                        {{-- Multi-page is Eksklusif-only (pages_total plan limit) - starter/premium
                              plans see an upgrade CTA here instead of a working create button. --}}
                         <a href="{{ route('organizations.plan.edit', $organization) }}"
                             class="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-amber-600 border-t border-gray-100 hover:bg-amber-50 transition">
@@ -607,7 +607,7 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
                                                         <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
                                                     </svg>
-                                                    Profesional
+                                                    Eksklusif
                                                 </span>
                                             </template>
                                         </button>
@@ -618,7 +618,7 @@
                             <div class="p-4 border-t border-gray-100 shrink-0">
                                 <template x-if="previewKey && options[previewKey]?.locked">
                                     <p class="mb-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                        Komponen ini tersedia di paket Profesional.
+                                        Komponen ini tersedia di paket Eksklusif.
                                         <a href="{{ route('organizations.plan.edit', $organization) }}"
                                             class="font-semibold underline underline-offset-2 hover:text-amber-900">Upgrade paket</a>
                                         untuk memakainya.
@@ -627,7 +627,7 @@
                                 <button type="button" @click="choose(previewKey)"
                                     :disabled="!previewKey || options[previewKey]?.locked"
                                     class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-sm"
-                                    x-text="previewKey && options[previewKey]?.locked ? 'Perlu paket Profesional' : 'Pilih komponen ini'">
+                                    x-text="previewKey && options[previewKey]?.locked ? 'Perlu paket Eksklusif' : 'Pilih komponen ini'">
                                 </button>
                             </div>
                         </div>
@@ -782,14 +782,27 @@
                  lg+: flexible middle column, always visible. --}}
             <main :class="activePanel === 'canvas' ? 'flex' : 'hidden'"
                 class="lg:flex flex-col w-full lg:flex-1 overflow-hidden bg-[radial-gradient(circle_at_top,_#e9ecf7_0%,_#eef0f7_45%,_#f1f3f9_100%)]">
-                <div class="max-w-4xl w-full mx-auto pt-0 lg:pt-8 px-0 lg:px-4 flex-1 min-h-0 flex flex-col">
+                {{-- Width tracks how much room there actually is, instead of a fixed max-w-4xl
+                     (896px) that left wide screens with large empty gutters on either side of
+                     the preview. With the properties panel open the canvas column is already
+                     narrow, so the cap does nothing and the preview simply fills it; once that
+                     panel is closed or collapsed the cap lifts to 7xl so the reclaimed width
+                     goes to the preview rather than to the background. Still capped rather than
+                     fully fluid: past ~1280px a site preview stops reading like a site and
+                     starts reading like a stretched desktop screenshot, and the seeded templates
+                     are designed against a max-w-7xl shell themselves. --}}
+                <div :class="propertiesPanelNeverOpened || propertiesPanelCollapsed ? 'lg:max-w-7xl' : 'lg:max-w-4xl'"
+                    class="w-full mx-auto pt-0 lg:pt-8 px-0 lg:px-4 flex-1 min-h-0 flex flex-col transition-[max-width] duration-300 ease-out">
                     <div class="hidden lg:flex items-center gap-1.5 mb-3 px-1 shrink-0">
                         <span class="w-2.5 h-2.5 rounded-full bg-red-300"></span>
                         <span class="w-2.5 h-2.5 rounded-full bg-amber-300"></span>
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-300"></span>
                         <span class="ml-2 text-[11px] text-gray-400 font-medium">Pratinjau Langsung</span>
                     </div>
-                    <div class="bg-white shadow-panel lg:rounded-2xl overflow-hidden flex-1 min-h-0 lg:mb-8 ring-1 ring-black/5">
+                    {{-- mb-6 rather than mb-8: pairs with the pt-8 above minus the height of the
+                         "Pratinjau Langsung" chrome row, so the preview sits optically centred in
+                         its column instead of riding high with a wider gap underneath. --}}
+                    <div class="bg-white shadow-panel lg:rounded-2xl overflow-hidden flex-1 min-h-0 lg:mb-6 ring-1 ring-black/5">
                         <iframe id="canvas-frame" title="Pratinjau {{ $organization->name }}"
                             src="{{ route('organizations.builder.canvas', [$organization, $currentPage]) }}"
                             class="w-full h-full border-0"></iframe>
@@ -943,7 +956,7 @@
                                                  `selected disabled` option submits no value at all, which
                                                  would both blank out `variant` on save and trap the user on
                                                  a layout they can't switch away from. This happens for real
-                                                 whenever a Professional organization downgrades - its
+                                                 whenever an Eksklusif organization downgrades - its
                                                  sections keep the exclusive variant they were built with. --}}
                                             @php $variantLocked = ! $canUseExclusive
                                                 && ($variantMeta['exclusive'] ?? false)
@@ -953,7 +966,7 @@
                                                  the emoji stands in for that list's badge. --}}
                                             <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)
                                                 @disabled($variantLocked)>
-                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}{{ $variantLocked ? ' 🔒 (Profesional)' : '' }}
+                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}{{ $variantLocked ? ' 🔒 (Eksklusif)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -1118,8 +1131,19 @@
                                                 + Tambah fasilitas
                                             </button>
                                         </div>
-                                @elseif ($field === 'stats' && $section->key === 'tentang-organisasi')
-                                        <div x-data="{ items: @js($section->content['stats'] ?? []) }" class="space-y-2">
+                                @elseif ($field === 'stats')
+                                        {{-- Any section whose registry entry declares a `stats`
+                                             field, capped by its own `stats_max` (see
+                                             config/page-builder.php) so the editor can't add more
+                                             entries than the section's grid has columns. Was
+                                             previously limited to tentang-organisasi, which left
+                                             prestasi's stats strip falling through to the
+                                             "Kelola daftar ini dari CMS (segera hadir)" placeholder
+                                             even though the SD Madya template seeds four of them. --}}
+                                        @php
+                                            $statsMax = config('page-builder.sections.'.$section->key.'.stats_max', 3);
+                                        @endphp
+                                        <div x-data="{ items: @js(array_values($section->content['stats'] ?? [])), max: {{ $statsMax }} }" class="space-y-2">
                                             <template x-for="(item, index) in items" :key="index">
                                                 <div class="flex items-center gap-2">
                                                     <input type="text" placeholder="Angka" x-model="item.value"
@@ -1134,10 +1158,19 @@
                                                     </button>
                                                 </div>
                                             </template>
-                                            <button type="button" :disabled="items.length >= 3"
+                                            {{-- Without this the field vanishes from the POST once
+                                                 the last row is removed, and the controller keeps
+                                                 the previous value (it falls back to
+                                                 $section->content[$field] for absent keys), so the
+                                                 strip could never be cleared. Same guard as the
+                                                 `facilities` list above. --}}
+                                            <template x-if="items.length === 0">
+                                                <input type="hidden" name="content[stats]" value="">
+                                            </template>
+                                            <button type="button" :disabled="items.length >= max"
                                                 @click="items.push({ value: '', label: '' })"
                                                 class="w-full rounded-xl border border-dashed border-gray-200 px-3.5 py-2.5 text-xs font-semibold text-gray-500 hover:border-primary/40 hover:text-primary transition disabled:opacity-40 disabled:hover:border-gray-200 disabled:hover:text-gray-500">
-                                                + Tambah statistik (maks 3)
+                                                + Tambah statistik (maks {{ $statsMax }})
                                             </button>
                                         </div>
                                     @elseif ($field === 'times' && $section->key === 'jadwal-salat')
@@ -1156,7 +1189,7 @@
                                                 </div>
                                             @endforeach
                                         </div>
-                                    @elseif (in_array($field, ['items', 'stats', 'times'], true))
+                                    @elseif (in_array($field, ['items', 'times'], true))
                                         <div
                                             class="w-full rounded-xl border border-dashed border-gray-200 bg-gray-50 px-3.5 py-3 text-xs text-gray-400 flex items-center gap-2">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"

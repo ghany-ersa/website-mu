@@ -10,6 +10,11 @@ use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\Program;
 use App\Models\Student;
+use App\Models\Template;
+use App\Models\User;
+use Database\Seeders\OrganizationTypeSeeder;
+use Database\Seeders\SdMadyaTemplateSeeder;
+use Database\Seeders\SectionVariantSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -219,14 +224,164 @@ class SchoolCmsTest extends TestCase
 
         // Every plan carries both keys after the seeding migration, so a school on a lower tier
         // is blocked from pupil profiles rather than hitting a missing-limit fallback.
-        foreach (['starter' => 0, 'organization' => 0, 'professional' => 60] as $planKey => $expected) {
+        // Keys are the seeded plan keys (PlanSeeder), not the user-facing names: 'professional'
+        // was renamed to 'eksklusif' and this assertion was left behind pointing at a plan that
+        // no longer exists. 'premium' is included because it is the fallback plan an
+        // organization with no plan_id resolves to (PlanLimitService::memoizedFallbackPlan()).
+        // Only these three exist - pupil profiles stay Eksklusif-only, so the two lower tiers
+        // must both cap students at 0.
+        foreach (['starter' => 0, 'premium' => 0, 'eksklusif' => 60] as $planKey => $expected) {
             $plan = Plan::where('key', $planKey)->first();
             $this->assertNotNull($plan, "Plan {$planKey} missing");
             $this->assertSame($expected, $plan->limits->firstWhere('key', 'students')?->max_count);
             $this->assertNotNull($plan->limits->firstWhere('key', 'achievements'));
         }
 
+        $this->assertNull(Plan::where('key', 'organization')->first(), 'the retired "organization" tier must not be seeded');
+
         $this->assertIsArray($organization->planViolations());
+    }
+
+    /**
+     * Regression: the sections_total cap drops sections backward from the LAST page, so on a
+     * tight plan it used to strip every non-home page of the SD Madya template down to nothing
+     * while still creating those pages - the owner got a nav full of pages holding only a header
+     * and a footer. Whole pages must be skipped instead, and the home page must always survive.
+     */
+    public function test_pages_emptied_by_the_sections_cap_are_skipped_entirely(): void
+    {
+        $this->seed(OrganizationTypeSeeder::class);
+        $this->seed(SectionVariantSeeder::class);
+        $this->seed(SdMadyaTemplateSeeder::class);
+
+        $template = Template::where('slug', SdMadyaTemplateSeeder::SLUG)->firstOrFail();
+        $starter = Plan::where('key', 'starter')->firstOrFail();
+
+        $organization = Organization::create([
+            'organization_type_id' => $template->organization_type_id,
+            'template_id' => $template->id,
+            'plan_id' => $starter->id,
+            'name' => 'SD Uji Coba',
+            'slug' => 'sd-uji-coba',
+            'status' => OrganizationStatus::Draft,
+        ]);
+
+        $organization->ensureHomePageExists();
+        $organization->load('pages.sections');
+
+        $lockedKeys = collect(config('page-builder.sections'))
+            ->filter(fn (array $section) => $section['locked'] ?? false)
+            ->keys();
+
+        $this->assertTrue($organization->pages->firstWhere('is_home', true) !== null, 'home page must survive');
+
+        foreach ($organization->pages as $page) {
+            $unlocked = $page->sections->reject(fn ($section) => $lockedKeys->contains($section->key));
+
+            $this->assertGreaterThan(
+                0,
+                $unlocked->count(),
+                "Page [{$page->slug}] was created with only locked sections - it should have been skipped."
+            );
+        }
+    }
+
+    /**
+     * The `stats` strip on prestasi is owner-editable from the builder. It previously fell
+     * through to the "Kelola daftar ini dari CMS (segera hadir)" placeholder, because the editor
+     * branch was hardcoded to tentang-organisasi - so the four stats the SD Madya template seeds
+     * could be rendered but never changed. The cap comes from each section's own `stats_max`
+     * (4 here, 3 for tentang-organisasi), matching its grid width.
+     */
+    public function test_prestasi_stats_editor_renders_with_its_own_cap(): void
+    {
+        $this->seed(OrganizationTypeSeeder::class);
+        $this->seed(SectionVariantSeeder::class);
+        $this->seed(SdMadyaTemplateSeeder::class);
+
+        $template = Template::where('slug', SdMadyaTemplateSeeder::SLUG)->firstOrFail();
+        $user = User::factory()->create();
+
+        $organization = Organization::create([
+            'user_id' => $user->id,
+            'organization_type_id' => $template->organization_type_id,
+            'template_id' => $template->id,
+            'plan_id' => Plan::where('key', 'eksklusif')->first()->id,
+            'name' => 'SD Stats',
+            'slug' => 'sd-stats',
+        ]);
+        $organization->members()->attach($user->id, ['role' => 'owner']);
+        $organization->ensureHomePageExists();
+
+        $page = $organization->fresh()->pages()->where('slug', 'prestasi')->firstOrFail();
+
+        $response = $this->actingAs($user)
+            ->get(route('organizations.builder.page', [$organization, $page]));
+
+        $response->assertOk();
+        // The editor, not the "segera hadir" placeholder.
+        $response->assertSee('Tambah statistik (maks 4)');
+        $response->assertSee('content[stats]', false);
+        $response->assertSee('500+', false);
+        $response->assertSee('Tahun Pengabdian', false);
+
+        // Saving: edited rows persist...
+        $section = $page->sections()->where('key', 'prestasi')->firstOrFail();
+
+        $this->actingAs($user)->patch(
+            route('organizations.sections.update', [$organization, $section]),
+            ['content' => ['stats' => [
+                ['value' => '600+', 'label' => 'Trofi Baru'],
+                ['value' => '99%', 'label' => 'Kelulusan'],
+            ]]]
+        )->assertRedirect();
+
+        $this->assertSame(
+            [['value' => '600+', 'label' => 'Trofi Baru'], ['value' => '99%', 'label' => 'Kelulusan']],
+            $section->fresh()->content['stats']
+        );
+
+        // ...and clearing every row actually empties the strip rather than silently
+        // keeping the previous value (the hidden input carries the empty case).
+        $this->actingAs($user)->patch(
+            route('organizations.sections.update', [$organization, $section]),
+            ['content' => ['stats' => '']]
+        )->assertRedirect();
+
+        $this->assertEmpty(array_filter((array) $section->fresh()->content['stats']));
+    }
+
+    /**
+     * `prestasi` and `kegiatan` were the only CMS-backed sections with no branch in
+     * CmsSampleDataSeeder, so they seeded nothing. Both auto-bind to their CMS table whenever
+     * $organization is in scope - always, on a real page and in the builder canvas - so their
+     * $content['items'] fallbacks never applied and the two most school-specific sections
+     * rendered "Belum ada prestasi." in the very editor meant to show the design filled in.
+     */
+    public function test_school_sections_seed_sample_content_for_a_sandbox(): void
+    {
+        $this->seed(OrganizationTypeSeeder::class);
+        $this->seed(SectionVariantSeeder::class);
+        $this->seed(SdMadyaTemplateSeeder::class);
+
+        $template = Template::where('slug', SdMadyaTemplateSeeder::SLUG)->firstOrFail();
+
+        $sandbox = Organization::create([
+            'organization_type_id' => $template->organization_type_id,
+            'template_id' => $template->id,
+            'is_sandbox' => true,
+            'name' => 'Sandbox SD',
+            'slug' => 'sandbox-sd-cms',
+        ]);
+
+        $sandbox->ensureHomePageExists();
+
+        $this->assertGreaterThan(0, $sandbox->achievements()->count(), 'prestasi must not render its empty state');
+        $this->assertGreaterThan(0, $sandbox->programs()->where('type', 'kegiatan')->count(), 'kegiatan must not render its empty state');
+
+        // The filter rail on prestasi/standar is built from the categories present, so the
+        // samples have to span more than one to produce a meaningful filter.
+        $this->assertGreaterThan(1, $sandbox->achievements()->distinct()->pluck('category')->filter()->count());
     }
 
     public function test_school_models_are_registered_for_the_organization(): void

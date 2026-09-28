@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\PublishStatus;
+use App\Models\Achievement;
 use App\Models\Agenda;
 use App\Models\Announcement;
 use App\Models\DonationProgram;
@@ -19,6 +20,7 @@ use App\Services\Samples\KlinikAisyiyahAmbuluSamples;
 use App\Services\Samples\PcaAmbuluSamples;
 use App\Services\Samples\PcmAmbuluSamples;
 use App\Services\Samples\PortraitPhotos;
+use App\Services\Samples\SdMadyaSamples;
 use App\Services\Samples\SuaraMuhammadiyahAmbuluSamples;
 use Illuminate\Support\Carbon;
 
@@ -57,7 +59,7 @@ class CmsSampleDataSeeder
      *
      * The showcase templates carry far longer lists than a starting point needs - Suara
      * Muhammadiyah's timRedaksi() alone is 16 officers - and a plan generous enough to accept
-     * all of them (Professional allows 20) meant a new organization opened its builder facing a
+     * all of them (Eksklusif allows 25) meant a new organization opened its builder facing a
      * wall of someone else's content to delete before it could enter its own. Three is enough to
      * show what a section looks like filled in, in every section's layout, while staying small
      * enough to clear out.
@@ -200,6 +202,7 @@ class CmsSampleDataSeeder
         $isSuaraMuhammadiyah = in_array($slug, self::SUARA_MUHAMMADIYAH_TEMPLATE_SLUGS, true);
         $isPcm = in_array($slug, self::PCM_TEMPLATE_SLUGS, true);
         $isPca = in_array($slug, self::PCA_TEMPLATE_SLUGS, true);
+        $isSdMadya = $slug === SdMadyaSamples::TEMPLATE_SLUG;
 
         if (in_array('daftar-berita', $keys, true)) {
             $postSamples = match (true) {
@@ -270,6 +273,10 @@ class CmsSampleDataSeeder
             });
         }
 
+        if (in_array('prestasi', $keys, true)) {
+            self::seedAchievements($organization, $limits, $isSdMadya ? SdMadyaSamples::prestasiItems() : null);
+        }
+
         // Both section keys are handled in ONE call: 'program' and 'layanan' share a single
         // 'programs' plan quota, and seedPrograms() guards on that combined count, so seeding
         // them as two independent calls meant whichever ran second was skipped outright - a
@@ -289,6 +296,14 @@ class CmsSampleDataSeeder
 
         if (in_array('layanan', $keys, true)) {
             $requestedPrograms['layanan'] = $isKlinik ? KlinikAisyiyahAmbuluSamples::layananItems() : null;
+        }
+
+        // 'kegiatan' is a third Program type (see config/page-builder.php, where the section maps
+        // to programs.index with params.type=kegiatan). It goes through the same single
+        // seedPrograms() call as the other two so they keep sharing one 'programs' quota - seeding
+        // it separately would hit that method's `programs()->exists()` guard and be skipped.
+        if (in_array('kegiatan', $keys, true)) {
+            $requestedPrograms['kegiatan'] = $isSdMadya ? SdMadyaSamples::kegiatanItems() : null;
         }
 
         self::seedPrograms($organization, $limits, $requestedPrograms);
@@ -601,6 +616,62 @@ class CmsSampleDataSeeder
      *
      * @param  array<string, array<int, array{title: string, description: string, icon: string}>|null>  $requested
      */
+    /**
+     * Sample achievements for the `prestasi` section. Guards on the organization already having
+     * any achievements, same as every other resource here, so it never clobbers real records.
+     *
+     * Falls back to a generic three when the template has no named samples - a school on some
+     * other template still gets a populated wall of fame rather than "Belum ada prestasi.",
+     * which is the whole point of seeding: the section auto-binds to this table whenever
+     * $organization is in scope, so its `$content['items']` fallback never applies on a real
+     * page or in the builder canvas.
+     *
+     * @param  array<int, array<string, string>>|null  $customSamples
+     */
+    private static function seedAchievements(Organization $organization, PlanLimitService $limits, ?array $customSamples = null): void
+    {
+        if ($organization->achievements()->exists()) {
+            return;
+        }
+
+        $samples = $customSamples ?? [
+            ['title' => 'Juara 1 Lomba Tingkat Kecamatan', 'category' => 'Akademik', 'level' => 'Tingkat Kecamatan', 'rank' => 'Juara 1', 'year' => '2026', 'description' => 'Contoh prestasi - ganti dengan capaian nyata organisasi Anda.'],
+            ['title' => 'Juara 2 Kompetisi Olahraga', 'category' => 'Olahraga', 'level' => 'Tingkat Kecamatan', 'rank' => 'Juara 2', 'year' => '2025', 'description' => 'Contoh prestasi - ganti dengan capaian nyata organisasi Anda.'],
+            ['title' => 'Juara 3 Festival Seni', 'category' => 'Seni', 'level' => 'Tingkat Kabupaten', 'rank' => 'Juara 3', 'year' => '2025', 'description' => 'Contoh prestasi - ganti dengan capaian nyata organisasi Anda.'],
+        ];
+
+        $count = self::sampleCount($organization, $limits, 'achievements', count($samples));
+
+        if ($count === 0) {
+            return;
+        }
+
+        $now = now();
+        $rows = [];
+
+        foreach (array_slice($samples, 0, $count) as $index => $sample) {
+            $rows[] = [
+                'organization_id' => $organization->id,
+                'title' => $sample['title'],
+                'category' => $sample['category'] ?? null,
+                'level' => $sample['level'] ?? null,
+                'rank' => $sample['rank'] ?? null,
+                'year' => $sample['year'] ?? null,
+                'description' => $sample['description'] ?? null,
+                // Left null deliberately: the cards guard on an empty image and drop the photo
+                // band entirely, which looks intentional - unlike a stock photo standing in for
+                // a competition that never happened.
+                'image' => null,
+                'is_active' => true,
+                'order' => $index,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        Achievement::insert($rows);
+    }
+
     private static function seedPrograms(Organization $organization, PlanLimitService $limits, array $requested): void
     {
         // Guards on the combined resource, not ofType() per type: an organization that already
@@ -621,6 +692,11 @@ class CmsSampleDataSeeder
                 ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
                 ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
                 ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
+            ],
+            'kegiatan' => [
+                ['title' => 'Kegiatan Rutin 1', 'description' => 'Deskripsi singkat kegiatan rutin pertama.', 'icon' => '📅'],
+                ['title' => 'Kegiatan Rutin 2', 'description' => 'Deskripsi singkat kegiatan rutin kedua.', 'icon' => '🤝'],
+                ['title' => 'Kegiatan Rutin 3', 'description' => 'Deskripsi singkat kegiatan rutin ketiga.', 'icon' => '✨'],
             ],
         ];
 
@@ -658,6 +734,9 @@ class CmsSampleDataSeeder
                     'title' => $sample['title'],
                     'description' => $sample['description'],
                     'icon' => $sample['icon'],
+                    // Nullable on programs; only the school samples set it, and the bento layout
+                    // renders it as the card's eyebrow when present.
+                    'category' => $sample['category'] ?? null,
                     'order' => $index,
                     'created_at' => $now,
                     'updated_at' => $now,

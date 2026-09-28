@@ -29,8 +29,8 @@ use Illuminate\Database\Seeder;
  * Samples::institutionalItems()/kaderisasiItems() for why the split is by category_filter, not
  * a slice); Kontak surfaces WhatsApp and Instagram for tips or press inquiries.
  *
- * Section total across all 3 pages is 9 unlocked sections, comfortably under the Professional
- * plan's sections_total limit (25) - this template is is_exclusive, so only Professional-plan
+ * Section total across all 3 pages is 9 unlocked sections, comfortably under the Eksklusif
+ * plan's sections_total limit (25) - this template is is_exclusive, so only Eksklusif-plan
  * organizations can pick it (see Organization::canUseExclusiveTemplates()).
  */
 class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder

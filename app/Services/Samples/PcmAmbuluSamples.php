@@ -58,12 +58,12 @@ class PcmAmbuluSamples
      * {name, role} shape is what struktur-pengurus/standar.blade.php renders (one card per
      * person) and what CmsSampleDataSeeder::seedOfficers() inserts as Officer rows.
      *
-     * NOTE on plan limits: the Starter plan allows only 3 officers and Organization 7, so a
-     * cabang on those plans gets this list TRUNCATED to the first 3/7 entries by
+     * NOTE on plan limits: the Starter plan allows only 5 officers and Premium 10, so a
+     * cabang on those plans gets this list TRUNCATED to the first 5/10 entries by
      * CmsSampleDataSeeder::sampleCount() - which is exactly why ketua and sekretaris lead the
      * list and the bendahara, though conventionally named alongside them, sits ninth here as
      * the cabang itself ordered it. A cabang that wants its full harian visible needs the
-     * Professional plan (20 officers); the template's own preview always shows all nine.
+     * Eksklusif plan (25 officers); the template's own preview always shows all nine.
      *
      * @return array<int, array{name: string, role: string}>
      */

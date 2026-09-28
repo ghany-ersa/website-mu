@@ -35,8 +35,8 @@ use Illuminate\Database\Seeder;
  *     (12 facilities, 5 donation programs, 6 months of books, 4 kajian, 2 takmir, 8 gallery
  *     captions) come from CmsSampleDataSeeder, which keys off this template's slug.
  *
- * Section total across all 6 pages is 15 unlocked sections, under the Professional plan's
- * sections_total limit (25) - this template is is_exclusive, so only Professional-plan
+ * Section total across all 6 pages is 15 unlocked sections, under the Eksklusif plan's
+ * sections_total limit (25) - this template is is_exclusive, so only Eksklusif-plan
  * organizations can pick it in the first place (see Organization::canUseExclusiveTemplates()).
  */
 class MasjidNurulHudaTemplateSeeder extends Seeder

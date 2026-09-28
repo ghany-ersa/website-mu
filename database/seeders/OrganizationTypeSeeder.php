@@ -39,6 +39,13 @@ class OrganizationTypeSeeder extends Seeder
                 'Klinik/Rumah Sakit' => 'Klinik/Rumah Sakit',
                 'Media/Portal Berita' => 'Media/Portal Berita',
                 'Masjid/Mushola' => 'Masjid/Mushola',
+                // Slug 'sekolahmadrasah' - the '/' drops out rather than becoming a dash, same as
+                // 'Klinik/Rumah Sakit' => 'klinikrumah-sakit'. SdMadyaTemplateSeeder looks this up
+                // by that slug; keep the two in step (see this class's rename warning above).
+                // One type covers SD/SMP/SMA and their madrasah equivalents: the tier is part of
+                // the school's own NAME ("SD Muhammadiyah 1 Ambulu"), so splitting it out here
+                // would ask a signup to classify itself twice.
+                'Sekolah/Madrasah' => 'Sekolah/Madrasah',
             ]],
         ];
 

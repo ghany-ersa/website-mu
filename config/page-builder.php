@@ -78,6 +78,11 @@ return [
             // label/vision_*/values_*: extra copy slots the `sd-madya` variant lays out
             // (eyebrow label, a vision card and a values card); ignored by `standar`.
             'fields' => ['title', 'body', 'image', 'stats', 'label', 'vision_title', 'vision_body', 'values_title', 'values'],
+            // How many `stats` entries the builder's editor lets an owner add. Matches this
+            // section's stats grid, which is `grid-cols-3` in sd-madya.blade.php - a fourth entry
+            // would wrap onto a row of its own and look like a mistake. The builder reads this
+            // key rather than hardcoding a number per section (see builder/edit.blade.php).
+            'stats_max' => 3,
             'defaults' => [
                 'title' => 'Tentang Organisasi',
                 'stats' => [],
@@ -124,6 +129,17 @@ return [
         'prestasi' => [
             'label' => 'Prestasi',
             'fields' => ['title', 'subtitle', 'label', 'items', 'limit', 'stats'],
+            // Four, not three like tentang-organisasi: this section's strip is
+            // `md:grid-cols-4` (standar.blade.php), and the SD Madya template seeds exactly four
+            // ("500+ Trofi", "98% Lulusan Terbaik", "12 Ekskul Unggulan", "20+ Tahun
+            // Pengabdian"). Capping at 3 here would make the seeded content unreachable to edit.
+            //
+            // Only the `standar` variant renders it - the `sd-madya` one is the homepage teaser
+            // (a fixed 3-tile bento with no stats strip), so the field simply has no effect
+            // there rather than being hidden per variant: the registry's `fields` are per
+            // SECTION, not per variant, and a variant that ignores a field is normal here (see
+            // tentang-organisasi's label/vision_* which `standar` ignores).
+            'stats_max' => 4,
             'defaults' => ['title' => 'Prestasi'],
             'cms' => ['route' => 'organizations.achievements.index', 'label' => 'Prestasi'],
         ],

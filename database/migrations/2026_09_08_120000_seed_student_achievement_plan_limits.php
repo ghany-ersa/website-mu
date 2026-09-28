@@ -9,10 +9,10 @@ use Illuminate\Database\Migrations\Migration;
  * same numbers for fresh installs, but plan_limits rows already live in an existing database
  * need this migration too - same pattern as the pages_total migration.
  *
- * Pupil profiles are a Professional-only feature: the wall of fame works on any plan (with a
+ * Pupil profiles are an Eksklusif-only feature: the wall of fame works on any plan (with a
  * small allowance), but the per-pupil pages it links to are part of the exclusive school
  * template, so the lower tiers get 0 and PlanLimitService::canCreate() blocks the CRUD there.
- * Professional's 60/40 comfortably covers the reference school's real data (10 pupils, 8
+ * Eksklusif's 60/40 comfortably covers the reference school's real data (10 pupils, 8
  * achievements) with room to grow.
  */
 return new class extends Migration
@@ -21,8 +21,8 @@ return new class extends Migration
     {
         $limits = [
             'starter' => ['students' => 0, 'achievements' => 3],
-            'organization' => ['students' => 0, 'achievements' => 8],
-            'professional' => ['students' => 60, 'achievements' => 40],
+            'premium' => ['students' => 0, 'achievements' => 15],
+            'eksklusif' => ['students' => 60, 'achievements' => 40],
         ];
 
         foreach ($limits as $planKey => $keys) {

@@ -27,8 +27,8 @@ use Illuminate\Database\Seeder;
  * Jadwal Dokter, Kontak), using the `modern` exclusive section variants, a full service
  * catalogue, a clinic profile, a room/facility gallery, and a dedicated contact page.
  *
- * Section total across all 4 pages is 14 unlocked sections, under the Professional plan's
- * sections_total limit (25) - this template is is_exclusive, so only Professional-plan
+ * Section total across all 4 pages is 14 unlocked sections, under the Eksklusif plan's
+ * sections_total limit (25) - this template is is_exclusive, so only Eksklusif-plan
  * organizations can pick it (see Organization::canUseExclusiveTemplates()).
  *
  * Deliberately does NOT use the five premium *mosque* sections (fasilitas-masjid,

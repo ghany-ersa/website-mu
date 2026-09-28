@@ -160,7 +160,7 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                                 // the exclusive tier's agenda/poster (a flyer grid).
                                 // `items` carries a `poster` key the `standar` variant ignores -
                                 // it is the superset shape TemplateSandboxService::export()
-                                // writes so the same list still works if a Professional-plan
+                                // writes so the same list still works if an Eksklusif-plan
                                 // masjid later switches this section to the `poster` variant.
                                 ['key' => 'agenda', 'variant' => 'standar', 'content' => [
                                     'title' => 'Jadwal Kajian & Event',

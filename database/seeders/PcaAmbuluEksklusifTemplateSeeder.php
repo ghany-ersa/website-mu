@@ -10,14 +10,14 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Cabang Aisyiyah Plus" template - the Professional-tier counterpart to
+ * Seeds the "Cabang Aisyiyah Plus" template - the Eksklusif-tier counterpart to
  * PcaAmbuluTemplateSeeder, built from the SAME PcaAmbuluSamples content so both tiers describe
  * one identical cabang and differ only in what the plan buys (see
  * PcmAmbuluEksklusifTemplateSeeder's doc comment for the full reasoning behind that pairing).
  *
- * What Professional adds over the standard PCA template: four pages instead of one, the
+ * What Eksklusif adds over the standard PCA template: four pages instead of one, the
  * exclusive `modern`/`ringkas`/`newsletter` variants, and 15 unlocked sections against
- * Professional's sections_total of 25.
+ * Eksklusif's sections_total of 25.
  *
  * The page split follows this cabang's own argument rather than PCM's. Aisyiyah Ambulu argues
  * from WORK, so its second page is "Program & Kegiatan" - the environmental and economic

@@ -10,23 +10,23 @@ use App\Services\TemplateSandboxService;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the "Cabang Muhammadiyah Plus" template - the Professional-tier
+ * Seeds the "Cabang Muhammadiyah Plus" template - the Eksklusif-tier
  * counterpart to PcmAmbuluTemplateSeeder, built from the SAME PcmAmbuluSamples content so the
  * two tiers describe one identical cabang and differ only in what the plan buys.
  *
  * That framing is the point. A cabang comparing the two should see the same PCM Ambulu twice,
  * not two different organizations, so the upgrade decision is about presentation and capacity
- * rather than about content it would have to rewrite. What Professional actually adds here:
+ * rather than about content it would have to rewrite. What Eksklusif actually adds here:
  *
- *   - FOUR pages instead of one (`pages_total` is 10 on Professional, 1 below it), so the
+ *   - FOUR pages instead of one (`pages_total` is 10 on Eksklusif, 1 below it), so the
  *     material that had to be compressed into a single scroll gets room: profil, program,
  *     kabar, and kontak each become their own page.
  *   - EXCLUSIVE variants - hero/modern, tentang-organisasi/modern, struktur-pengurus/modern,
  *     program-unggulan/modern, daftar-berita/modern + ringkas, cta/modern + newsletter. These
  *     are gated by SectionVariantSeeder's is_exclusive flag, so they are literally unavailable
  *     to the standard template.
- *   - 16 unlocked sections, comfortably inside Professional's sections_total (25) and far past
- *     what Starter/Organization allow (10/15).
+ *   - 16 unlocked sections, comfortably inside Eksklusif's sections_total (25) and far past
+ *     what Starter/Premium allow (8/15).
  *
  * Deliberately NOT used: the five premium mosque sections (fasilitas-masjid, donasi-progress,
  * laporan-keuangan, kalkulator-zakat, akad-venue). They are gated to mosque use cases and none

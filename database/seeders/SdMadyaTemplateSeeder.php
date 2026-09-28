@@ -23,13 +23,28 @@ use Illuminate\Database\Seeder;
  *     what gives the design its editorial feel. See config/branding.php.
  *   - Copy is lifted from that project's own Vue components.
  *
- * 22 sections across 6 pages, of which 10 count toward the Professional plan's sections_total
+ * 22 sections across 6 pages, of which 10 count toward the Eksklusif plan's sections_total
  * (25) - header and footer are `locked` and excluded, see PlanLimitService::countedSectionsTotal().
- * 6 pages against a pages_total of 10. It's is_exclusive, so only Professional organizations can
- * pick it, which also matches the students limit, since pupil profiles are Professional-only.
+ * 6 pages against a pages_total of 10. It's is_exclusive, so only Eksklusif organizations can
+ * pick it, which also matches the students limit, since pupil profiles are Eksklusif-only.
  */
 class SdMadyaTemplateSeeder extends Seeder
 {
+    public const SLUG = 'sd-madya-eksklusif';
+
+    /**
+     * The organization type this template is for, as OrganizationTypeSeeder slugs it
+     * ('Sekolah/Madrasah' => 'sekolahmadrasah' - the '/' drops out, it does not become a dash).
+     * Named here rather than inlined because the lookup below is null-safe, so a slug that
+     * doesn't match seeds the template with organization_type_id = NULL and fails SILENTLY -
+     * and a typeless template is not merely untyped, it is UNREACHABLE: both
+     * OrganizationController::createTemplate() and ::create() filter on
+     * whereNotNull('organization_type_id'), and StoreOrganizationRequest::typelessTemplateIds()
+     * rejects it, because organizations.organization_type_id is NOT NULL. Rename on either side
+     * and this template silently vanishes from the picker.
+     */
+    private const ORGANIZATION_TYPE_SLUG = 'sekolahmadrasah';
+
     /**
      * Stand-in photography from Unsplash, consistent with the other seeded templates. The real
      * school's own photos live in its manajemen-SD-Madya storage and arrive with the data
@@ -46,13 +61,13 @@ class SdMadyaTemplateSeeder extends Seeder
 
     public function run(): void
     {
-        $organizationType = OrganizationType::where('slug', 'aum-pendidikan')->first();
+        $organizationType = OrganizationType::where('slug', self::ORGANIZATION_TYPE_SLUG)->first();
 
         $header = ['key' => 'header', 'variant' => 'standar'];
         $footer = ['key' => 'footer', 'variant' => 'standar'];
 
         Template::updateOrCreate(
-            ['slug' => 'sd-madya-eksklusif'],
+            ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'SD Muhammadiyah Ambulu (Eksklusif)',
@@ -107,7 +122,12 @@ class SdMadyaTemplateSeeder extends Seeder
                                     'label' => 'Wall of Fame',
                                     'title' => 'Prestasi Membanggakan',
                                     'subtitle' => 'Dedikasi siswa dan guru kami dalam meraih keunggulan di berbagai bidang kompetisi.',
-                                    'limit' => 6,
+                                    // No 'limit' here, unlike the galeri section below: the
+                                    // sd-madya variant is a fixed 3-tile bento (one 2x2 main tile
+                                    // plus two stacked beside it) and hard-codes take(3), so a
+                                    // limit set here would be silently ignored rather than honored
+                                    // the way prestasi/standar honors it. The full, filterable list
+                                    // lives on the dedicated Prestasi page below.
                                 ]],
                                 ['key' => 'testimoni', 'variant' => 'standar', 'content' => [
                                     'label' => 'Suara Alumni',

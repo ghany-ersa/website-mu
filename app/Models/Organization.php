@@ -797,6 +797,16 @@ class Organization extends Model
      * section, so the template's opening pages/sections (home's hero, etc. - the first
      * impression) survive the cut before later pages do.
      *
+     * A page whose every unlocked section was dropped is then SKIPPED ENTIRELY rather than
+     * created empty. Dropping sections backward used to take out whole pages' worth of content
+     * while still creating the pages, because ensureHeader()/ensureFooter() run after the cut -
+     * so a 6-page template on Starter produced one real page plus five that held nothing but a
+     * header and a footer. That reads as a broken clone rather than a smaller site: the nav
+     * links to pages that are visibly empty. The home page is never skipped this way (it is
+     * pageIndex 0, and the backward walk reaches it last), so an organization always keeps a
+     * landing page. Note this is also why a page cloned here can be missing even though the
+     * template lists it - 'pages_total' is a separate limit and is NOT enforced in this method.
+     *
      * Wrapped in a transaction: with multiple pages now created per call, a mid-loop failure
      * (e.g. a duplicate page slug in the template's own data) would otherwise leave the
      * organization with only some of its pages seeded instead of none.
@@ -853,7 +863,7 @@ class Organization extends Model
         $survivingByPage = $flatSections->groupBy('page_index');
         $sectionKeys = [];
 
-        DB::transaction(function () use ($pagesData, $survivingByPage, &$sectionKeys, &$preserveContentByKey) {
+        DB::transaction(function () use ($pagesData, $survivingByPage, $lockedKeys, &$sectionKeys, &$preserveContentByKey) {
             $usedSlugs = [];
 
             foreach ($pagesData as $pageIndex => $pageData) {
@@ -862,6 +872,24 @@ class Organization extends Model
                 if (in_array($slug, $usedSlugs, true)) {
                     // Template data itself has a duplicate page slug - skip rather than let
                     // the unique(['organization_id','slug']) constraint abort the whole seed.
+                    continue;
+                }
+
+                // Every unlocked section on this page was dropped by the sections_total cap
+                // above, so creating it would produce a page holding nothing but the header and
+                // footer that ensureHeader()/ensureFooter() add below - a nav entry leading to a
+                // visibly empty page. Skip it instead and let the plan's page count shrink with
+                // its section count. Never applies to the home page: the cap drops sections
+                // backward from the last page, so pageIndex 0 is the last to lose anything, and
+                // an organization must keep a landing page regardless.
+                // Counts UNLOCKED survivors only: the cap never drops header/footer, so a page
+                // stripped of all its real content still carries those two and would look
+                // non-empty here.
+                $pageIsEmpty = ($survivingByPage->get($pageIndex) ?? collect())
+                    ->reject(fn (array $section) => $lockedKeys->contains($section['data']['key']))
+                    ->isEmpty();
+
+                if ($pageIsEmpty && $pageIndex !== 0) {
                     continue;
                 }
 

@@ -15,8 +15,8 @@ use Illuminate\Database\Seeder;
  * both tiers describe one identical clinic and differ only in what the plan buys.
  *
  * Going down a tier is a harder edit than going up, and this template is where that shows. The
- * exclusive version spends 14 sections across four pages; every plan below Professional allows
- * ONE page (`pages_total`) and at most 8 unlocked sections on Starter (Organization 15), and none
+ * exclusive version spends 14 sections across four pages; every plan below Eksklusif allows
+ * ONE page (`pages_total`) and at most 8 unlocked sections on Starter (Premium 15), and none
  * of the `modern` variants. So the four pages collapse into one scroll, and the question becomes
  * which of the clinic's material a prospective patient cannot do without:
  *
