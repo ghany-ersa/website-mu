@@ -60,11 +60,6 @@ class SectionVariantSeeder extends Seeder
                 'modern' => ['view' => 'templates.sections.daftar-berita.modern', 'exclusive' => true],
                 'ringkas' => ['view' => 'templates.sections.daftar-berita.ringkas', 'exclusive' => true],
             ],
-            // This section absorbed the former 'jadwal-kajian', whose view had become
-            // byte-for-byte identical to agenda/standar. Its replacement is 'poster', which
-            // earns its keep: a grid of the flyers masjid already design per kajian, reading
-            // agendas.poster. That is a real premium feature, hence exclusive - unlike the
-            // wording-only variant it replaces.
             'agenda' => [
                 'standar' => ['view' => 'templates.sections.agenda.standar', 'exclusive' => false, 'default' => true],
                 'poster' => ['view' => 'templates.sections.agenda.poster', 'exclusive' => true],
@@ -92,10 +87,6 @@ class SectionVariantSeeder extends Seeder
                 'standar' => ['view' => 'templates.sections.kegiatan.standar', 'exclusive' => false, 'default' => true],
                 'sd-madya' => ['view' => 'templates.sections.kegiatan.sd-madya', 'exclusive' => true],
             ],
-            // The section itself is exclusive (config/page-builder.php), so `standar` here is not
-            // "the variant any plan may use" the way it is elsewhere - both variants are only
-            // reachable by a plan with the entitlement. It stays the default because it is the
-            // plainer of the two layouts.
             'testimoni' => [
                 'standar' => ['view' => 'templates.sections.testimoni.standar', 'exclusive' => false, 'default' => true],
                 'sd-madya' => ['view' => 'templates.sections.testimoni.sd-madya', 'exclusive' => true],
@@ -111,12 +102,6 @@ class SectionVariantSeeder extends Seeder
             'lokasi-peta' => [
                 'standar' => ['view' => 'templates.sections.lokasi-peta.standar', 'exclusive' => false, 'default' => true],
             ],
-            // These five arrived with the Masjid Nurul Huda exclusive template and have never had
-            // a non-exclusive variant, so their sole variant is named for its provenance rather
-            // than called 'standar' - `standar` elsewhere in this registry means "the variant
-            // any plan may use", which was never true of these. The section itself is gated too
-            // (config/page-builder.php's `exclusive` flag); the variant flag alone only stopped
-            // an exclusive variant being *picked*, not the section being added.
             'fasilitas-masjid' => [
                 'nurul-huda' => ['view' => 'templates.sections.fasilitas-masjid.nurul-huda', 'exclusive' => true, 'default' => true],
             ],

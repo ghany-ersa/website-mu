@@ -77,10 +77,11 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 1],
             ['key' => 'students', 'max_count' => 0],
             ['key' => 'achievements', 'max_count' => 3],
-            // 0: the `testimoni` section is exclusive (config/page-builder.php), so a Starter
-            // organization cannot add it at all - a quota above 0 would promise something the
-            // section gate never lets it use.
-            ['key' => 'testimonials', 'max_count' => 0],
+            // The `testimoni` section is open to every plan (only its sd-madya layout is gated),
+            // so this has to be a real quota: at 0 a Starter organization could add the section
+            // but never put a quote in it, which is the worst of both - a visible empty state it
+            // has no way to fill. 3 matches the section's own three-card row.
+            ['key' => 'testimonials', 'max_count' => 3],
             ['key' => 'sections_total', 'max_count' => 8],
             ['key' => 'pages_total', 'max_count' => 1],
         ]);
@@ -107,7 +108,7 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 3],
             ['key' => 'students', 'max_count' => 0],
             ['key' => 'achievements', 'max_count' => 15],
-            ['key' => 'testimonials', 'max_count' => 0],
+            ['key' => 'testimonials', 'max_count' => 6],
             ['key' => 'sections_total', 'max_count' => 15],
             ['key' => 'pages_total', 'max_count' => 3],
         ]);

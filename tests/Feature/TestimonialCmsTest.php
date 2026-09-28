@@ -48,11 +48,25 @@ class TestimonialCmsTest extends TestCase
         return $organization->fresh();
     }
 
-    public function test_the_section_is_exclusive_and_cms_backed(): void
+    /**
+     * Gated at the VARIANT level, not the section level - the same split as hero/prestasi/cta.
+     * Marking the section itself `exclusive` closed it for every plan and made its own
+     * non-exclusive `standar` variant unreachable, which is not what a default variant is for.
+     */
+    public function test_the_section_is_open_but_its_editorial_variant_is_gated(): void
     {
         $this->seed(SectionVariantSeeder::class);
 
-        $this->assertTrue((bool) config('page-builder.sections.testimoni.exclusive'));
+        $this->assertEmpty(
+            config('page-builder.sections.testimoni.exclusive'),
+            'gating the section closes it for every plan, including its standar variant'
+        );
+
+        $standar = SectionVariant::where('section_key', 'testimoni')->where('variant_key', 'standar')->first();
+        $this->assertNotNull($standar);
+        $this->assertFalse((bool) $standar->is_exclusive, 'standar must be usable by any plan');
+        $this->assertTrue((bool) $standar->is_default);
+
         $this->assertSame(
             'organizations.testimonials.index',
             config('page-builder.sections.testimoni.cms.route')
@@ -99,16 +113,56 @@ class TestimonialCmsTest extends TestCase
         $this->assertStringNotContainsString('Kutipan tersembunyi', $html);
     }
 
-    public function test_a_lower_plan_cannot_add_quotes(): void
+    /**
+     * A lower plan gets a real, smaller quota rather than none: at 0 it could add the section
+     * but never fill it, leaving an empty state it has no way to resolve.
+     */
+    public function test_a_lower_plan_can_still_collect_quotes_within_its_quota(): void
     {
         $limits = app(PlanLimitService::class);
 
         $starter = $this->school('starter');
-        $this->assertSame(0, $limits->effectiveLimit($starter, 'testimonials'));
-        $this->assertFalse($limits->canCreate($starter, 'testimonials'));
+        $this->assertSame(3, $limits->effectiveLimit($starter, 'testimonials'));
+        $this->assertTrue($limits->canCreate($starter, 'testimonials'));
 
-        // And publishing is blocked, which is where the exclusive template is enforced.
-        $this->assertContains('Template ini memerlukan paket Eksklusif', $starter->planViolations());
+        // Quotas rise with the tier rather than being all-or-nothing.
+        $this->assertSame(6, $limits->effectiveLimit($this->school('premium'), 'testimonials'));
+        $this->assertSame(12, $limits->effectiveLimit($this->school('eksklusif'), 'testimonials'));
+    }
+
+    /**
+     * Regression: the scroll-reveal observer fades an element in when it intersects the
+     * VIEWPORT. A carousel card past the first screen sits outside the rail's horizontal scroll
+     * and never intersects, so a per-card `reveal` left every card but the first at opacity 0 -
+     * the carousel looked empty on first paint until you scrolled it sideways. The rail itself
+     * is always in view, so the reveal belongs there.
+     */
+    public function test_carousel_cards_are_not_individually_scroll_revealed(): void
+    {
+        foreach (['standar', 'sd-madya'] as $variant) {
+            $blade = file_get_contents(
+                resource_path("views/templates/sections/testimoni/{$variant}.blade.php")
+            );
+
+            $this->assertMatchesRegularExpression(
+                '/<div class="reveal flex[^"]*snap-x/s',
+                $blade,
+                "[{$variant}] the rail itself must carry the reveal"
+            );
+
+            // Plain CSS scroll-snap: no Alpine, no arrow buttons, nothing to break with JS off.
+            $this->assertDoesNotMatchRegularExpression(
+                '/x-(data|ref|init)=/',
+                $blade,
+                "[{$variant}] the slide rail needs no JS"
+            );
+
+            $this->assertDoesNotMatchRegularExpression(
+                '/<figure class="[^"]*\breveal\b/',
+                $blade,
+                "[{$variant}] a card inside the rail must not be revealed individually"
+            );
+        }
     }
 
     public function test_owner_can_manage_quotes_through_the_cms_screen(): void

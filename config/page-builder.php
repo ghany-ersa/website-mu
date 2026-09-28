@@ -141,16 +141,19 @@ return [
         ],
         // Quotes from alumni/parents. Content-only: written once at setup and rarely changed,
         // so they live in the section's own `items` rather than earning a CMS table.
-        // Exclusive, like the five premium mosque sections: the quotes are now CMS-backed
-        // (testimonials table + its own screen), and the layout the section was designed around
-        // is the `sd-madya` one. `items` stays in `fields` as the template-preview fallback -
-        // the section auto-binds to the CMS when $organization is in scope, and falls back to
-        // this list in preview context where there is no organization yet.
+        // Open to every plan, gated at the VARIANT level only - the same split as hero, prestasi
+        // and cta: any organization may collect testimonials and show them with the `standar`
+        // layout, while the editorial `sd-madya` one needs the exclusive entitlement. The
+        // section itself carries no `exclusive` flag, because gating it there would close the
+        // section outright and make its non-exclusive variant unreachable.
+        //
+        // `items` stays in `fields` as the template-preview fallback - the section auto-binds to
+        // the CMS when $organization is in scope, and falls back to this list in preview
+        // context, where there is no organization yet.
         'testimoni' => [
             'label' => 'Testimoni',
             'fields' => ['title', 'label', 'items', 'limit'],
             'defaults' => ['title' => 'Apa Kata Mereka?'],
-            'exclusive' => true,
             'cms' => ['route' => 'organizations.testimonials.index', 'label' => 'Testimoni'],
         ],
         'prestasi' => [

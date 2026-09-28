@@ -1,6 +1,17 @@
-{{-- Port of the "Alumni Testimonials" block on comprof-SD-Madya's index.vue: a centred header
-     with a short gold rule under it, then three quote cards, each with a big decorative quote
-     mark and the speaker's photo, name and role.
+{{-- The plain cut of the testimonials, and the one any plan may use - the editorial treatment
+     (navy field, snap rail, oversized quote marks, photo chips) is the `sd-madya` variant's job.
+
+     Plain cards on a horizontal carousel: a hairline border and a rounded corner on the section's
+     own background, with no shadow, no decorative quote glyph and no avatar placeholder. The card
+     gives each quote a clear edge without competing with it. An organization on a lower plan is
+     the one least likely to have headshots, so the photo renders only when there is one - a row of
+     empty grey circles reads as content that failed to load rather than as a design.
+
+     The quotes sit on a horizontal slide rail - plain CSS scroll-snap, no JS at all: it scrolls
+     with a swipe, a trackpad or the keyboard, and each card snaps into place. Same mechanism the
+     prestasi filter rail and the sd-madya galeri already use. Testimonials are the one section
+     that grows without bound as an organization collects more, so a rail keeps a page of 12
+     quotes from becoming six screens of scrolling.
 
      Auto-binds to the organization's testimonials when $organization is in scope (tenant page
      render); falls back to $content['items'] in template-preview context, which has no
@@ -27,57 +38,56 @@
     ]);
 @endphp
 
-<section class="section-y bg-surface-container-low">
+<section class="section-y bg-surface">
     <div class="shell">
-        <div class="text-center mb-8 sm:mb-10 space-y-2.5">
+        <div class="mb-6 sm:mb-8 space-y-1.5">
             @if (! empty($content['label']))
-                <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-xs">
+                <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-[11px]">
                     {{ $content['label'] }}
                 </span>
             @endif
             <h2 class="reveal font-headline font-bold t-h2 text-primary">
                 {{ $content['title'] ?? 'Apa Kata Mereka?' }}
             </h2>
-            <div class="w-14 h-0.5 bg-secondary mx-auto"></div>
         </div>
 
-        {{-- 2-up at tablet, 3-up only once there is room: three quote cards at 768px squeeze
-             the attribution line until names truncate. --}}
         @if (empty($items))
-            <p class="text-center font-body text-on-surface-variant">Belum ada testimoni.</p>
+            <p class="font-body text-on-surface-variant">Belum ada testimoni.</p>
         @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            @foreach ($items as $index => $item)
-                <figure class="reveal relative bg-surface-container-lowest rounded-2xl p-5 sm:p-6 shadow-ambient flex flex-col"
-                        style="transition-delay: {{ min($index * 80, 240) }}ms">
-                    {{-- Oversized quote mark, low contrast: decoration, so it's hidden from
-                         assistive tech rather than read out as punctuation. --}}
-                    <span aria-hidden="true" class="absolute top-4 right-5 font-headline text-4xl leading-none text-secondary/25 select-none">&rdquo;</span>
+            {{-- The negative margin lets a card sit flush to the screen edge on a phone while the
+                 padding keeps the first one aligned with the heading above it. --}}
+            {{-- `reveal` sits on the RAIL, not on each card: the scroll-reveal observer fades an
+                 element in when it intersects the viewport, and cards past the first screen sit
+                 outside the rail's horizontal scroll, so they never intersect and would stay at
+                 opacity 0 - the carousel looked empty until you scrolled it. The rail itself is
+                 always in view, so one observer target covers every card. Same reason the galeri
+                 and prestasi rails put it on their container. --}}
+            <div class="reveal flex gap-5 overflow-x-auto snap-x snap-mandatory hide-scrollbar -mx-5 px-5 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 pb-1">
+                @foreach ($items as $index => $item)
+                    {{-- flex-col + mt-auto on the caption: cards in a row share the tallest card's
+                         height, so without it a short quote leaves its attribution floating in
+                         the middle of the card instead of sitting at its foot. --}}
+                    <figure class="snap-start shrink-0 w-[85%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-5 sm:p-6 flex flex-col"
+                            >
+                        <blockquote class="font-body text-on-surface text-[15px] leading-relaxed mb-4">
+                            &ldquo;{{ $item['quote'] ?? '' }}&rdquo;
+                        </blockquote>
 
-                    <blockquote class="font-body italic text-on-surface-variant text-sm leading-relaxed relative z-10 mb-5">
-                        "{{ $item['quote'] ?? '' }}"
-                    </blockquote>
-
-                    <figcaption class="flex items-center gap-3 mt-auto">
-                        <div class="w-9 h-9 rounded-full overflow-hidden bg-surface-container-high shrink-0 flex items-center justify-center">
+                        <figcaption class="flex items-center gap-3 mt-auto pt-4 border-t border-outline-variant/40">
                             @if (! empty($item['image']))
-                                <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? '' }}" loading="lazy" class="w-full h-full object-cover">
-                            @else
-                                <svg class="w-5 h-5 text-on-surface-variant" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
-                                </svg>
+                                <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? '' }}" loading="lazy"
+                                     class="w-9 h-9 rounded-lg object-cover shrink-0">
                             @endif
-                        </div>
-                        <div class="min-w-0">
-                            <p class="font-headline font-bold text-[13px] text-primary">{{ $item['name'] ?? '' }}</p>
-                            @if (! empty($item['role']))
-                                <p class="font-body text-xs text-on-surface-variant">{{ $item['role'] }}</p>
-                            @endif
-                        </div>
-                    </figcaption>
-                </figure>
-            @endforeach
-        </div>
+                            <div class="min-w-0">
+                                <p class="font-headline font-bold text-sm text-primary">{{ $item['name'] ?? '' }}</p>
+                                @if (! empty($item['role']))
+                                    <p class="font-body text-xs text-on-surface-variant">{{ $item['role'] }}</p>
+                                @endif
+                            </div>
+                        </figcaption>
+                    </figure>
+                @endforeach
+            </div>
         @endif
     </div>
 </section>

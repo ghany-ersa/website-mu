@@ -1,8 +1,9 @@
 {{-- The editorial cut of the alumni testimonials, matching the rest of the sd-madya family:
-     a navy field, a gold eyebrow, and the quotes as a horizontal snap rail on a phone that
-     becomes a three-column grid once there is room - the same rail treatment the pricing cards
-     use, so a phone scrolls sideways through full-width quotes instead of stacking three tall
-     cards the reader has to scroll past.
+     a navy field, a gold eyebrow, and the quotes on a horizontal slide rail at every width - the
+     same plain CSS scroll-snap the prestasi filter and the sd-madya galeri use, driven by a
+     swipe, a trackpad or the keyboard, with no JS at all. Testimonials grow without bound as an
+     organization collects more, so a rail keeps twelve quotes from becoming six screens of
+     scrolling.
 
      Where `standar` sets each quote on a light card, this one inverts: translucent white cards on
      the primary colour, with the speaker's photo larger and the quote given room to breathe.
@@ -33,7 +34,7 @@
 
 <section class="section-y bg-primary">
     <div class="shell">
-        <div class="text-center mb-8 sm:mb-10 space-y-2.5">
+        <div class="text-center mb-6 sm:mb-8 space-y-2.5">
             @if (! empty($content['label']))
                 <span class="reveal block font-headline text-secondary font-bold tracking-[0.2em] uppercase text-[11px]">
                     {{ $content['label'] }}
@@ -48,14 +49,16 @@
         @if (empty($items))
             <p class="text-center font-body text-white/70">Belum ada testimoni.</p>
         @else
-            {{-- Snap rail below `sm`, grid above. The negative margin lets the rail bleed into
-                 the shell's gutter so a card can sit flush to the screen edge while the padding
-                 keeps the first one aligned with the heading above it. --}}
-            <div class="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar -mx-5 px-5 pb-2
-                        sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-5 sm:overflow-visible sm:mx-0 sm:px-0 sm:pb-0">
+            {{-- The negative margin lets the rail bleed into the shell's gutter so a card can sit
+                 flush to the screen edge while the padding keeps the first one aligned with the
+                 heading above it. --}}
+            {{-- `reveal` on the RAIL, not per card - see testimoni/standar.blade.php: a card
+                 outside the horizontal scroll never intersects the viewport, so a per-card
+                 reveal left the carousel blank until it was scrolled. --}}
+            <div class="reveal flex gap-5 overflow-x-auto snap-x snap-mandatory hide-scrollbar -mx-5 px-5 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 pb-1">
                 @foreach ($items as $index => $item)
-                    <figure class="reveal relative snap-start shrink-0 w-[85%] sm:w-auto bg-white/10 rounded-2xl p-5 sm:p-6 flex flex-col border border-white/10"
-                            style="transition-delay: {{ min($index * 80, 240) }}ms">
+                    <figure class="relative snap-start shrink-0 w-[85%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)] bg-white/10 rounded-2xl p-5 sm:p-6 flex flex-col border border-white/10"
+                            >
                         <span aria-hidden="true" class="absolute top-4 right-5 font-headline text-5xl leading-none text-secondary/30 select-none">&rdquo;</span>
 
                         <blockquote class="font-body italic text-white/85 text-sm leading-relaxed relative z-10 mb-5">

@@ -9,10 +9,9 @@ use Illuminate\Database\Migrations\Migration;
  * fresh installs, but plan_limits rows already live in a database need this too - same pattern as
  * the students/achievements migration.
  *
- * 0 below Eksklusif because the `testimoni` section is itself exclusive (config/page-builder.php),
- * so a lower-plan organization can never add it: a quota above 0 would be a promise the section
- * gate never lets it use, and PlanLimitService::canCreate() would allow a record the page has
- * nowhere to render.
+ * A real quota on every tier, because the section is NOT plan-gated - only its editorial
+ * `sd-madya` layout is (see config/page-builder.php). At 0 a lower-plan organization could add
+ * the section but never put a quote in it: a visible empty state with no way to fill it.
  *
  * Null-safe on the plan lookup, like the migration it mirrors: a database missing one of these
  * keys skips it rather than erroring.
@@ -22,8 +21,8 @@ return new class extends Migration
     public function up(): void
     {
         $limits = [
-            'starter' => 0,
-            'premium' => 0,
+            'starter' => 3,
+            'premium' => 6,
             'eksklusif' => 12,
         ];
 
