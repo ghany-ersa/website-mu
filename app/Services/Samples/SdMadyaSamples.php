@@ -117,19 +117,8 @@ class SdMadyaSamples
         return [
             ['name' => 'Beni Hendarto, S.Pd.I', 'role' => 'Kepala Sekolah', 'subject' => 'Pendidikan Agama Islam'],
             ['name' => 'Tri Agung Misbahul Ulum, S.Pd', 'role' => 'Wakil Kepala Sekolah', 'subject' => 'Pendidikan Jasmani & Olahraga'],
-            ['name' => 'Ahmad Huda Ermawan', 'role' => 'Komite Sekolah'],
             ['name' => 'Abdurachman Habibullah, S.Pd', 'role' => 'Kurikulum Sekolah', 'subject' => 'Bahasa Arab'],
             ['name' => 'Fais Hayu Usmawati, S.Pd', 'role' => 'Bendahara Sekolah', 'subject' => 'Guru Kelas IVA'],
-            ['name' => 'Syahrul Dwi Arifin, S.Pd', 'role' => 'Operator Sekolah', 'subject' => 'Guru Kelas VB'],
-            ['name' => 'Amalia Virgi Effendy, S.Ak', 'role' => 'Tata Usaha', 'subject' => 'Guru Kelas IIB'],
-            ['name' => "Dwi Jayanti Mu'awanah, S.Pd", 'role' => 'Guru Kelas', 'subject' => 'Kelas 1A'],
-            ['name' => 'Inggit Awanda M, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas 1B'],
-            ['name' => 'Jihan Hanifa, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas IIA'],
-            ['name' => "Wenny Asfia'ul Uyyun, S.Pd", 'role' => 'Guru Kelas', 'subject' => 'Kelas III'],
-            ['name' => 'Yasintha Mahdiatuz Z, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas IV'],
-            ['name' => "Afifatur Rofi'ah, S.Pd", 'role' => 'Guru Kelas', 'subject' => 'Kelas IVB'],
-            ['name' => 'Candrayani Kurnia P P, S.Pd', 'role' => 'Guru Kelas', 'subject' => 'Kelas VA'],
-            ['name' => 'Umar Sidiq', 'role' => 'Penjaga Sekolah'],
         ];
     }
 

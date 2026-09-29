@@ -69,11 +69,12 @@ class OrganizationTemplateController extends Controller
 
         $status = 'Template berhasil diganti. Section dengan jenis yang sama mempertahankan isi sebelumnya; section lain mengikuti template baru.';
 
-        // Same "build now, pay to publish" split as everywhere else this entitlement is
-        // checked (Organization::planViolations()) - flag it here too, right when it becomes
-        // true, rather than leaving the owner to discover it only from a failed publish attempt.
+        // Publish is gated on the widgets/variants actually used (Organization::planViolations()),
+        // not on the template label itself - an is_exclusive template built entirely from
+        // non-exclusive widgets publishes fine on any plan. This is just a heads-up that the
+        // template is *labelled* exclusive, since some of its widgets/variants may require one.
         if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates()) {
-            $status .= ' Template ini bersifat eksklusif - situs bisa terus dirancang dengannya, tapi publikasi memerlukan paket Eksklusif.';
+            $status .= ' Template ini berlabel eksklusif - sebagian widget/tampilannya mungkin memerlukan paket Eksklusif saat dipublikasikan.';
         }
 
         return redirect()

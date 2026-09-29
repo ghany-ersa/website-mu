@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Models\Organization;
+use App\Models\OrganizationPage;
 use App\Models\OrganizationType;
 use App\Models\Plan;
 use App\Models\Template;
@@ -13,10 +14,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * When an org can't publish because its template/section variants are exclusive but its plan
+ * When an org can't publish because a widget/section variant it uses is exclusive but its plan
  * isn't, the reason has to be legible without reading source - the raw
- * Organization::planViolations() strings ("Template ini memerlukan paket Eksklusif") don't say
- * *why* on their own, so the plan page adds a plain-language explanation alongside them (see
+ * Organization::planViolations() strings ("1 widget memerlukan paket Eksklusif") don't say *why*
+ * on their own, so the plan page adds a plain-language explanation alongside them (see
  * organizations/plan/edit.blade.php's "why blocked" panel) and the dashboard badge names the
  * specific reason instead of a generic "batas paket dilanggar".
  */
@@ -43,6 +44,11 @@ class PublishBlockedExplanationTest extends TestCase
             'status' => OrganizationStatus::Draft,
         ]);
 
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home', 'is_home' => true]);
+        // 'kalkulator-zakat' carries config/page-builder.php's `exclusive` flag - this is what
+        // actually blocks publishing, not the template's own is_exclusive label.
+        $page->sections()->create(['key' => 'kalkulator-zakat', 'content' => [], 'order' => 0]);
+
         $owner = User::factory()->create();
         $organization->members()->attach($owner, ['role' => OrganizationRole::Owner->value]);
 
@@ -61,7 +67,7 @@ class PublishBlockedExplanationTest extends TestCase
 
         $planPage->assertOk();
         $planPage->assertSee('Situs belum bisa dipublikasikan');
-        $planPage->assertSee('Template ini memerlukan paket Eksklusif');
+        $planPage->assertSee('1 widget memerlukan paket Eksklusif');
         // The plain-language explanation, not just the raw violation string.
         $planPage->assertSee('bersifat eksklusif');
         $planPage->assertSee('paket Eksklusif');
@@ -114,7 +120,7 @@ class PublishBlockedExplanationTest extends TestCase
 
         $planPage->assertOk();
         $planPage->assertSee('Situs belum bisa dipublikasikan');
-        $planPage->assertSee('Template ini memerlukan paket Eksklusif');
+        $planPage->assertSee('1 widget memerlukan paket Eksklusif');
     }
 
     /**

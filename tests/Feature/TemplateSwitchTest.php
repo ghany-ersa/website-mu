@@ -112,9 +112,11 @@ class TemplateSwitchTest extends TestCase
 
     /**
      * Switching onto an exclusive template while on a lower plan is allowed - build now, pay to
-     * publish (Organization::planViolations() is the real gate, not this endpoint). The redirect
-     * flags the publish consequence so the owner isn't left to discover it only from a failed
-     * publish attempt later.
+     * publish (Organization::planViolations() is the real gate, not this endpoint). The template's
+     * own is_exclusive flag is a label, not a publish blocker by itself (that check is
+     * deliberately disabled - see Organization::planViolations()); only the widgets/variants
+     * actually placed on the org's pages can block publishing. The redirect still surfaces the
+     * label as a heads-up.
      */
     public function test_an_exclusive_template_can_be_applied_on_a_lower_plan(): void
     {
@@ -127,10 +129,11 @@ class TemplateSwitchTest extends TestCase
         $this->actingAs($owner)
             ->patch(route('organizations.template.update', $organization), ['template_id' => $exclusive->id])
             ->assertRedirect(route('organizations.show', $organization))
-            ->assertSessionHas('status', fn (string $status) => str_contains($status, 'bersifat eksklusif'));
+            ->assertSessionHas('status', fn (string $status) => str_contains($status, 'berlabel eksklusif'));
 
         $this->assertSame($exclusive->id, $organization->fresh()->template_id);
-        $this->assertContains(
+        // The template label alone isn't a violation - no exclusive widget/variant was placed.
+        $this->assertNotContains(
             'Template ini memerlukan paket Eksklusif',
             $organization->fresh()->planViolations(),
         );

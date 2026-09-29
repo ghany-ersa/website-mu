@@ -86,11 +86,12 @@ class OrganizationStoreTest extends TestCase
     }
 
     /**
-     * An organization may be created on an exclusive template while still on Starter: the
-     * entitlement is enforced when publishing, not when choosing (see
-     * Organization::planViolations()). The org is created and simply can't go live yet.
+     * An organization may be created on an exclusive template while still on Starter, and the
+     * template's own is_exclusive label is not itself a publish blocker (that check is
+     * deliberately disabled - see Organization::planViolations()); only exclusive widgets/variants
+     * actually placed on its pages block publishing.
      */
-    public function test_exclusive_template_is_accepted_but_blocks_publishing(): void
+    public function test_exclusive_template_is_accepted_and_does_not_block_publishing_by_itself(): void
     {
         $user = User::factory()->create();
         $type = OrganizationType::factory()->create();
@@ -109,8 +110,45 @@ class OrganizationStoreTest extends TestCase
         $organization = Organization::where('name', 'Exclusive Org')->firstOrFail();
 
         $this->assertSame($template->id, $organization->template_id);
-        $this->assertContains(
+        $this->assertNotContains(
             'Template ini memerlukan paket Eksklusif',
+            $organization->planViolations(),
+        );
+    }
+
+    /**
+     * When an exclusive template's own structure carries an exclusive widget (config/page-builder.php's
+     * `exclusive` flag), that widget is what blocks publishing on a lower plan - not the template
+     * label.
+     */
+    public function test_a_template_whose_structure_includes_an_exclusive_widget_blocks_publishing(): void
+    {
+        $user = User::factory()->create();
+        $type = OrganizationType::factory()->create();
+        $template = Template::factory()->create([
+            'organization_type_id' => $type->id,
+            'is_active' => true,
+            'is_exclusive' => true,
+            'structure' => [
+                'pages' => [
+                    ['slug' => 'home', 'name' => 'Home', 'sections' => [
+                        ['key' => 'hero', 'content' => []],
+                        ['key' => 'kalkulator-zakat', 'content' => []],
+                    ]],
+                ],
+            ],
+        ]);
+
+        $this->actingAs($user)->post(route('organizations.store'), [
+            'template_id' => $template->id,
+            'name' => 'Exclusive Widget Org',
+            'slug' => 'exclusive-widget-org-'.uniqid(),
+        ])->assertSessionHasNoErrors();
+
+        $organization = Organization::where('name', 'Exclusive Widget Org')->firstOrFail();
+
+        $this->assertContains(
+            '1 widget memerlukan paket Eksklusif',
             $organization->planViolations(),
         );
     }
