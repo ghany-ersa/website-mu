@@ -32,7 +32,14 @@ class TemplateSwitchTest extends TestCase
         ]);
     }
 
-    public function test_the_picker_lists_standard_templates_and_locks_exclusive_ones_on_a_lower_plan(): void
+    /**
+     * An is_exclusive template is selectable from any plan - the same "build now, pay to
+     * publish" split as picking one at organization-creation time
+     * (OrganizationCreateFlowTest) and the page builder's exclusive sections/variants
+     * (ExclusiveTemplatePublishGateTest). It's badged in the view, not withheld from `templates`
+     * or routed through a separate locked list.
+     */
+    public function test_the_picker_lists_both_standard_and_exclusive_templates_on_a_lower_plan(): void
     {
         $owner = User::factory()->create();
         $organization = Organization::factory()->withOwner($owner)->create();
@@ -42,24 +49,22 @@ class TemplateSwitchTest extends TestCase
 
         $response = $this->actingAs($owner)->get(route('organizations.template.edit', $organization))->assertOk();
 
-        // Both appear on the page, but the exclusive one arrives via lockedTemplates (rendered
-        // as an upgrade prompt) rather than as a selectable option.
         $response->assertViewHas('templates', fn ($templates) => $templates->contains('id', $standard->id)
-            && ! $templates->contains('id', $exclusive->id));
-        $response->assertViewHas('lockedTemplates', fn ($locked) => $locked->contains('id', $exclusive->id));
+            && $templates->contains('id', $exclusive->id));
+        $response->assertSee('Template Eksklusif');
+        $response->assertSee('Eksklusif');
     }
 
-    public function test_an_exclusive_plan_makes_exclusive_templates_selectable(): void
+    public function test_an_exclusive_plan_stops_badging_exclusive_templates_as_needing_an_upgrade(): void
     {
         $owner = User::factory()->create();
         $organization = Organization::factory()->withOwner($owner)->create(['plan_id' => $this->professionalPlan()->id]);
-        $exclusive = Template::factory()->create(['is_exclusive' => true, 'is_active' => true]);
+        Template::factory()->create(['is_exclusive' => true, 'is_active' => true]);
 
         $this->actingAs($owner)
             ->get(route('organizations.template.edit', $organization))
             ->assertOk()
-            ->assertViewHas('templates', fn ($templates) => $templates->contains('id', $exclusive->id))
-            ->assertViewHas('lockedTemplates', fn ($locked) => $locked->isEmpty());
+            ->assertDontSee('perlu paket Eksklusif saat dipublikasikan', false);
     }
 
     public function test_switching_template_replaces_the_existing_pages(): void
@@ -105,22 +110,30 @@ class TemplateSwitchTest extends TestCase
         $this->assertSame('Harus Bertahan', $section->fresh()->content['headline']);
     }
 
-    public function test_an_exclusive_template_cannot_be_applied_on_a_lower_plan(): void
+    /**
+     * Switching onto an exclusive template while on a lower plan is allowed - build now, pay to
+     * publish (Organization::planViolations() is the real gate, not this endpoint). The redirect
+     * flags the publish consequence so the owner isn't left to discover it only from a failed
+     * publish attempt later.
+     */
+    public function test_an_exclusive_template_can_be_applied_on_a_lower_plan(): void
     {
         $owner = User::factory()->create();
         $organization = Organization::factory()->withOwner($owner)->create();
-        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home', 'is_home' => true]);
+        OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home', 'is_home' => true]);
 
         $exclusive = Template::factory()->create(['is_exclusive' => true, 'is_active' => true]);
 
         $this->actingAs($owner)
-            ->from(route('organizations.template.edit', $organization))
             ->patch(route('organizations.template.update', $organization), ['template_id' => $exclusive->id])
-            ->assertSessionHasErrors('template_id');
+            ->assertRedirect(route('organizations.show', $organization))
+            ->assertSessionHas('status', fn (string $status) => str_contains($status, 'bersifat eksklusif'));
 
-        $this->assertNotSame($exclusive->id, $organization->fresh()->template_id);
-        // The rejection must happen before any destructive work.
-        $this->assertModelExists($page);
+        $this->assertSame($exclusive->id, $organization->fresh()->template_id);
+        $this->assertContains(
+            'Template ini memerlukan paket Eksklusif',
+            $organization->fresh()->planViolations(),
+        );
     }
 
     public function test_an_unknown_template_id_is_rejected(): void

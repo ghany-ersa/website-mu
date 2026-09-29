@@ -16,7 +16,14 @@
             </div>
 
             @php
-                $blockedFromPublishing = $organization->status !== \App\Enums\OrganizationStatus::Published && $organization->violatesPlanRules();
+                $planViolations = $organization->planViolations();
+                $blockedFromPublishing = $organization->status !== \App\Enums\OrganizationStatus::Published && filled($planViolations);
+                // Specific badge copy when an exclusive template/variant is the only thing in
+                // the way - the most common cause and the one hardest to guess from "batas
+                // paket dilanggar" alone, since nothing here has technically gone *over* a
+                // limit.
+                $onlyExclusiveEntitlement = $blockedFromPublishing
+                    && collect($planViolations)->every(fn (string $v) => str_contains($v, 'memerlukan paket Eksklusif'));
             @endphp
             <div class="shrink-0 flex flex-col items-end gap-1.5">
                 <div class="flex items-center gap-1.5">
@@ -48,21 +55,34 @@
                 </div>
                 @if ($blockedFromPublishing)
                     <a href="{{ route('organizations.plan.edit', $organization) }}" class="text-xs font-semibold text-amber-600 hover:underline whitespace-nowrap">
-                        ⚠ Batasi paket dilanggar
+                        ⚠ {{ $onlyExclusiveEntitlement ? 'Perlu paket Eksklusif untuk publikasi' : 'Batas paket dilanggar' }}
                     </a>
                 @endif
             </div>
         </div>
 
-        {{-- Primary action: full-width, unmissable, distinct from the settings row below. --}}
-        <a href="{{ route('organizations.builder.edit', $organization) }}" id="btn-open-builder"
-            class="flex items-center justify-center gap-2 w-full px-4 py-3.5 sm:py-3 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:opacity-80 transition-opacity shadow-sm">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
-            </svg>
-            Buka Builder
-        </a>
+        {{-- Primary action: full-width, unmissable, distinct from the settings row below.
+             Locked while Published (OrganizationPolicy::manageBuilder()) - restructuring the
+             site live isn't allowed, so this becomes an explainer instead of a dead link,
+             pointing at the same publish toggle above to unpublish first. --}}
+        @php $builderLocked = $organization->status === \App\Enums\OrganizationStatus::Published; @endphp
+        @if ($builderLocked)
+            <div id="btn-open-builder" class="flex items-center gap-2.5 w-full px-4 py-3.5 sm:py-3 rounded-xl bg-gray-100 text-gray-500 text-sm">
+                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+                <span>Builder terkunci selama situs Published. Jadikan Draft dulu untuk mengubah struktur.</span>
+            </div>
+        @else
+            <a href="{{ route('organizations.builder.edit', $organization) }}" id="btn-open-builder"
+                class="flex items-center justify-center gap-2 w-full px-4 py-3.5 sm:py-3 rounded-xl bg-primary text-white text-sm font-bold hover:opacity-90 active:opacity-80 transition-opacity shadow-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+                </svg>
+                Buka Builder
+            </a>
+        @endif
 
         {{-- Settings row: consistently sized, icon + label pills so each is scannable at a glance. --}}
         <div class="flex gap-2 mt-3 overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
@@ -150,19 +170,37 @@
                         <p class="text-xs text-gray-400">Telepon, WhatsApp, atau email untuk dihubungi pengunjung</p>
                     </div>
                 </a>
-                <a href="{{ route('organizations.builder.edit', $organization) }}"
-                    class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['content'] ? 'bg-secondary/5' : 'bg-gray-50 hover:bg-gray-100' }} transition">
-                    <span
-                        class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold {{ $checklist['content'] ? 'bg-secondary text-white' : 'bg-white border border-gray-300 text-gray-400' }}">
-                        {{ $checklist['content'] ? '✓' : '3' }}
-                    </span>
-                    <div class="min-w-0">
-                        <p
-                            class="text-sm font-semibold {{ $checklist['content'] ? 'text-gray-500 line-through' : 'text-gray-800' }}">
-                            Susun Halaman</p>
-                        <p class="text-xs text-gray-400">Kelola konten dan section situs Anda di builder</p>
+                {{-- Builder is locked while Published (OrganizationPolicy::manageBuilder()); this
+                     item is realistically already done by then anyway (every template seeds
+                     sections from creation), but avoid linking into a 403 regardless. --}}
+                @if ($builderLocked)
+                    <div class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['content'] ? 'bg-secondary/5' : 'bg-gray-50' }}">
+                        <span
+                            class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold {{ $checklist['content'] ? 'bg-secondary text-white' : 'bg-white border border-gray-300 text-gray-400' }}">
+                            {{ $checklist['content'] ? '✓' : '3' }}
+                        </span>
+                        <div class="min-w-0">
+                            <p
+                                class="text-sm font-semibold {{ $checklist['content'] ? 'text-gray-500 line-through' : 'text-gray-800' }}">
+                                Susun Halaman</p>
+                            <p class="text-xs text-gray-400">Jadikan Draft dulu untuk membuka builder</p>
+                        </div>
                     </div>
-                </a>
+                @else
+                    <a href="{{ route('organizations.builder.edit', $organization) }}"
+                        class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['content'] ? 'bg-secondary/5' : 'bg-gray-50 hover:bg-gray-100' }} transition">
+                        <span
+                            class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold {{ $checklist['content'] ? 'bg-secondary text-white' : 'bg-white border border-gray-300 text-gray-400' }}">
+                            {{ $checklist['content'] ? '✓' : '3' }}
+                        </span>
+                        <div class="min-w-0">
+                            <p
+                                class="text-sm font-semibold {{ $checklist['content'] ? 'text-gray-500 line-through' : 'text-gray-800' }}">
+                                Susun Halaman</p>
+                            <p class="text-xs text-gray-400">Kelola konten dan section situs Anda di builder</p>
+                        </div>
+                    </a>
+                @endif
                 <div
                     class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['published'] ? 'bg-secondary/5' : 'bg-gray-50' }}">
                     <span

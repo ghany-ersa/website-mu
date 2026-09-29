@@ -71,18 +71,15 @@ class OrganizationSectionController extends Controller
      */
     public function store(Request $request, Organization $organization, OrganizationPage $page): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
-        // `exclusive` sections are plan-gated (config/page-builder.php). The picker greys them
-        // out for organizations that can't use them, but the check has to live here too: the
-        // add form posts a plain `key`, so without this a starter-plan organization could add
-        // a premium section by crafting the request - the variant-level is_exclusive flag
-        // wouldn't have stopped it, since it only governs picking a *different* layout.
+        // `exclusive` sections (config/page-builder.php) are addable from any plan - same
+        // "build now, pay to publish" split as an is_exclusive template
+        // (Organization::planViolations()); the entitlement is enforced when publishing, not
+        // when adding.
         $addableKeys = array_keys(array_filter(
             config('page-builder.sections'),
-            fn (array $meta) => empty($meta['locked'])
-                && empty($meta['hidden'])
-                && (empty($meta['exclusive']) || $organization->canUseExclusiveTemplates())
+            fn (array $meta) => empty($meta['locked']) && empty($meta['hidden'])
         ));
 
         $validated = $request->validate([
@@ -130,17 +127,18 @@ class OrganizationSectionController extends Controller
      */
     public function update(Request $request, Organization $organization, OrganizationSection $section): RedirectResponse|JsonResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
         $this->ensureContentEditable($section);
 
         // Variant first: the field list depends on it (see PageBuilderFields), and this request
         // may be the one CHANGING the variant. Resolving fields against the old variant would
-        // drop the new layout's own fields on the very save that switches to it.
+        // drop the new layout's own fields on the very save that switches to it. An
+        // `is_exclusive` variant is pickable from any plan - same "build now, pay to publish"
+        // split as an exclusive section (Organization::planViolations()).
         $availableVariants = SectionVariantResolver::variantsFor($section->key)->pluck('variant_key')->all();
         $requestedVariant = $request->input('variant');
-        $variantIsAllowed = in_array($requestedVariant, $availableVariants, true)
-            && (! SectionVariantResolver::isExclusive($section->key, $requestedVariant) || $organization->canUseExclusiveTemplates());
+        $variantIsAllowed = in_array($requestedVariant, $availableVariants, true);
         $variant = $variantIsAllowed ? $requestedVariant : $section->variant;
 
         $fields = PageBuilderFields::for($section->key, $variant);
@@ -193,7 +191,7 @@ class OrganizationSectionController extends Controller
      */
     public function destroy(Organization $organization, OrganizationSection $section): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
         $this->ensureNotLocked($section);
 
@@ -210,7 +208,7 @@ class OrganizationSectionController extends Controller
      */
     public function duplicate(Organization $organization, OrganizationSection $section): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
         $this->ensureBelongsToOrganization($organization, $section);
         $this->ensureNotLocked($section);
 
@@ -242,7 +240,7 @@ class OrganizationSectionController extends Controller
      */
     public function reorder(Request $request, Organization $organization, OrganizationPage $page): JsonResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         $validated = $request->validate([
             'section_ids' => ['required', 'array'],

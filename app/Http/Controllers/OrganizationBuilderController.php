@@ -18,7 +18,7 @@ class OrganizationBuilderController extends Controller
      */
     public function edit(Organization $organization, ?OrganizationPage $page = null): View
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         $organization->ensureHomePageExists();
         $organization->load('pages.sections');
@@ -44,7 +44,7 @@ class OrganizationBuilderController extends Controller
      */
     public function canvas(Organization $organization, OrganizationPage $page): View
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         $page->load('sections');
 
@@ -62,7 +62,7 @@ class OrganizationBuilderController extends Controller
      */
     public function sectionPreview(Organization $organization, OrganizationPage $page, string $key): View
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         abort_unless(array_key_exists($key, config('page-builder.sections')), 404);
 

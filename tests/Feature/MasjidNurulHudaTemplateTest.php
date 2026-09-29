@@ -46,7 +46,12 @@ class MasjidNurulHudaTemplateTest extends TestCase
      *                                   stays non-sandbox either way, so the plan-limit assertions in this file keep
      *                                   exercising the real plan gates rather than the sandbox's bypass of them.
      */
-    private function makeOrganization(bool $withSampleContent = false): Organization
+    /**
+     * Published by default - most of this file exercises the public tenant pages
+     * (tenantUrl()), which need a live site. Pass Draft explicitly for anything that opens the
+     * builder: OrganizationPolicy::manageBuilder() 403s on a Published organization.
+     */
+    private function makeOrganization(bool $withSampleContent = false, OrganizationStatus $status = OrganizationStatus::Published): Organization
     {
         $this->seed(OrganizationTypeSeeder::class);
         $this->seed(MasjidNurulHudaTemplateSeeder::class);
@@ -61,7 +66,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
             'plan_id' => $professional->id,
             'name' => 'Masjid Uji Coba',
             'slug' => 'masjid-uji-coba',
-            'status' => OrganizationStatus::Published,
+            'status' => $status,
         ]);
 
         $organization->ensureHomePageExists();
@@ -386,7 +391,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     public function test_kajian_title_survives_a_builder_save(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
         $organization->load('pages.sections');
 
         $owner = User::factory()->create();
@@ -414,10 +419,19 @@ class MasjidNurulHudaTemplateTest extends TestCase
      * section: the only exclusivity flag lived on the variant, which merely governs picking a
      * different layout for a section you already have.
      */
-    public function test_premium_mosque_sections_cannot_be_added_on_a_non_professional_plan(): void
+    /**
+     * Exclusive sections are addable from any plan - build now, pay to publish
+     * (Organization::planViolations() is the real gate, see
+     * test_adding_a_premium_mosque_section_on_a_lower_plan_blocks_publishing_but_not_adding()).
+     */
+    public function test_premium_mosque_sections_can_be_added_on_a_non_professional_plan(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
         $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+        // This organization's Eksklusif template already seeds 15 sections, over Starter's
+        // sections_total of 8 - override it so the loop below tests the exclusive-section gate
+        // specifically, not the unrelated sections_total cap it would otherwise also hit.
+        $organization->limitOverrides()->create(['key' => 'sections_total', 'max_count' => 100]);
         $organization = $organization->fresh();
 
         $this->assertFalse($organization->canUseExclusiveTemplates());
@@ -433,15 +447,42 @@ class MasjidNurulHudaTemplateTest extends TestCase
             $this->actingAs($owner)
                 ->from(route('organizations.builder.page', [$organization, $page]))
                 ->post(route('organizations.sections.store', [$organization, $page]), ['key' => $key])
-                ->assertSessionHasErrors('key');
+                ->assertSessionHasNoErrors();
 
-            $this->assertSame($before, $page->sections()->where('key', $key)->count(), "{$key} was added anyway");
+            $this->assertSame($before + 1, $page->fresh()->sections()->where('key', $key)->count(), "{$key} was not added");
         }
+    }
+
+    /**
+     * The whole point of gating at publish time instead of at add time: the section is usable
+     * immediately, but Organization::planViolations() blocks going live until the plan covers it.
+     */
+    public function test_adding_a_premium_mosque_section_on_a_lower_plan_blocks_publishing_but_not_adding(): void
+    {
+        $organization = $this->makeOrganization();
+        $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
+        $organization = $organization->fresh();
+
+        $owner = User::factory()->create();
+        $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
+
+        $page = $organization->pages()->where('is_home', true)->firstOrFail();
+
+        $this->actingAs($owner)
+            ->post(route('organizations.sections.store', [$organization, $page]), ['key' => 'kalkulator-zakat'])
+            ->assertSessionHasNoErrors();
+
+        $violations = $organization->fresh()->planViolations();
+
+        $this->assertNotEmpty(array_filter(
+            $violations,
+            fn (string $v) => str_contains($v, 'komponen eksklusif'),
+        ));
     }
 
     public function test_premium_mosque_sections_can_still_be_added_on_the_professional_plan(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
 
         $this->assertTrue($organization->canUseExclusiveTemplates());
 
@@ -460,12 +501,14 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     /**
      * The picker keeps listing gated sections rather than hiding them, so the capability stays
-     * discoverable - it marks them `locked` instead, which greys the row and disables the
-     * confirm button. Renders the builder on both plans to catch the Blade breaking too.
+     * discoverable - it badges them `exclusive` instead, purely informational (the section is
+     * still addable from any plan, see
+     * test_premium_mosque_sections_can_be_added_on_a_non_professional_plan()). Renders the
+     * builder on both plans to catch the Blade breaking too.
      */
-    public function test_builder_picker_marks_premium_sections_locked_only_on_lower_plans(): void
+    public function test_builder_picker_marks_premium_sections_exclusive_only_on_lower_plans(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
 
         $owner = User::factory()->create();
         $organization->members()->attach($owner->id, ['role' => OrganizationRole::Owner->value]);
@@ -474,15 +517,15 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $url = route('organizations.builder.page', [$organization, $page]);
 
         // @js() emits the options map as JSON with its quotes escaped to \u0022, so the
-        // needles have to match that form rather than a plain `"locked":false`.
-        $lockedTrue = 'locked\u0022:true';
-        $lockedFalse = 'locked\u0022:false';
+        // needles have to match that form rather than a plain `"exclusive":false`.
+        $exclusiveTrue = 'exclusive\u0022:true';
+        $exclusiveFalse = 'exclusive\u0022:false';
 
-        $professional = $this->actingAs($owner)->get($url);
-        $professional->assertOk();
-        $professional->assertSee('Fasilitas Masjid');
-        $professional->assertSee($lockedFalse, false);
-        $professional->assertDontSee($lockedTrue, false);
+        $eksklusif = $this->actingAs($owner)->get($url);
+        $eksklusif->assertOk();
+        $eksklusif->assertSee('Fasilitas Masjid');
+        $eksklusif->assertSee($exclusiveFalse, false);
+        $eksklusif->assertDontSee($exclusiveTrue, false);
 
         $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
 
@@ -490,7 +533,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $starter->assertOk();
         // Still listed, but now flagged - and the upgrade path is offered.
         $starter->assertSee('Fasilitas Masjid');
-        $starter->assertSee($lockedTrue, false);
+        $starter->assertSee($exclusiveTrue, false);
         $starter->assertSee(route('organizations.plan.edit', $organization), false);
     }
 
@@ -523,13 +566,14 @@ class MasjidNurulHudaTemplateTest extends TestCase
     }
 
     /**
-     * The "Tampilan" dropdown lists plan-gated variants as disabled options instead of dropping
-     * them, matching the "Tambah Section" picker - a lower-plan owner should see that a premium
-     * layout exists. Uses `hero`, which has both a free `standar` and exclusive variants.
+     * The "Tampilan" dropdown badges plan-gated variants instead of hiding or disabling them -
+     * a lower-plan owner should see that a premium layout exists, and can still pick it (build
+     * now, pay to publish - Organization::planViolations() is the real gate). Uses `hero`, which
+     * has both a free `standar` and exclusive variants.
      */
-    public function test_builder_lists_locked_variants_as_disabled_instead_of_hiding_them(): void
+    public function test_builder_lists_exclusive_variants_as_selectable_with_a_badge(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
         $organization->load('pages.sections');
 
         $owner = User::factory()->create();
@@ -549,20 +593,19 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $starter = $this->actingAs($owner)->get($url);
         $starter->assertOk();
-        // Previously filtered out entirely; now present, flagged, and non-selectable.
+        // Still present, badged, and now selectable too - never disabled.
         $starterSelect = $this->variantSelectHtml($starter->getContent(), $organization, $hero->id);
-        $this->assertMatchesRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $starterSelect);
+        $this->assertDoesNotMatchRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $starterSelect);
         $this->assertStringContainsString('Modern 🔒 (Eksklusif)', $starterSelect);
     }
 
     /**
-     * A downgraded organization keeps the exclusive variants its sections were built with, so
-     * the option it is currently on must stay enabled: `selected disabled` submits no value at
-     * all, which would blank `variant` on the next save and strand the user on that layout.
+     * No option is ever disabled (see test above), so this only has to confirm the option the
+     * section is already on stays correctly marked `selected` alongside its exclusive siblings.
      */
-    public function test_the_variant_a_section_already_uses_is_never_disabled(): void
+    public function test_the_variant_a_section_already_uses_is_marked_selected(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
         $organization->load('pages.sections');
 
         $owner = User::factory()->create();
@@ -581,17 +624,17 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $select = $this->variantSelectHtml($response->getContent(), $organization, $hero->id);
         $this->assertMatchesRegularExpression('/<option value="nurul-huda" selected\s*>/', $select);
         $this->assertDoesNotMatchRegularExpression('/<option value="nurul-huda"[^<>]*disabled[^<>]*>/', $select);
-        // Its unused siblings are still locked.
-        $this->assertMatchesRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $select);
+        // Its unused siblings are pickable too, never disabled.
+        $this->assertDoesNotMatchRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $select);
     }
 
     /**
-     * The disabled <option> is only an affordance - update() must still reject a crafted POST
-     * naming a variant the plan doesn't grant, falling back to the section's existing one.
+     * Picking an exclusive variant on a lower plan is allowed - build now, pay to publish
+     * (Organization::planViolations() is the real gate, not this endpoint).
      */
-    public function test_locked_variant_cannot_be_applied_by_a_crafted_request(): void
+    public function test_an_exclusive_variant_can_be_applied_on_a_lower_plan(): void
     {
-        $organization = $this->makeOrganization();
+        $organization = $this->makeOrganization(status: OrganizationStatus::Draft);
         $organization->load('pages.sections');
 
         $owner = User::factory()->create();
@@ -611,7 +654,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
             ])
             ->assertRedirect();
 
-        $this->assertSame('standar', $hero->fresh()->variant);
+        $this->assertSame('modern', $hero->fresh()->variant);
     }
 
     public function test_premium_mosque_sections_use_the_nurul_huda_variant(): void

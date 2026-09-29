@@ -24,13 +24,26 @@ class OrganizationPlanController extends Controller
     {
         $this->authorize('manageBilling', $organization);
 
-        $usageKeys = ['posts', 'agendas', 'announcements', 'officers', 'programs', 'gallery_photos', 'sections_total'];
+        $usageKeys = ['posts', 'agendas', 'announcements', 'officers', 'programs', 'gallery_photos', 'facilities', 'donation_programs', 'achievements', 'testimonials', 'sections_total', 'pages_total'];
+
+        // 'students' only shows up for an organization whose plan actually grants it - unlike
+        // every other key above, Starter/Premium seed it at 0 (see PlanSeeder), and it's only
+        // relevant to the SD Madya template, so it would otherwise read as a real limitation to
+        // the vast majority of organizations that will never touch this resource.
+        if ($planLimitService->effectiveLimit($organization, 'students') !== 0) {
+            $usageKeys[] = 'students';
+        }
 
         $plans = Plan::with('limits')->where('is_active', true)->orderBy('price_monthly')->get();
 
         return view('organizations.plan.edit', [
             'organization' => $organization,
             'plans' => $plans,
+            // Empty for a site that's simply never been published yet (a Draft org with no
+            // violations at all shouldn't see a "why can't I publish" panel it hasn't earned).
+            // Only rendered when there's something to explain - see the "why blocked" panel in
+            // the view, which reads this instead of re-deriving anything from violatesPlanRules().
+            'planViolations' => $organization->planViolations(),
             // used/limit are the raw, unclamped figures (unlike remaining(), which floors at
             // 0) so the view can tell "at the limit" apart from "N over the limit" - see
             // PlanLimitService::currentCount()/effectiveLimit().

@@ -507,22 +507,22 @@
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
                         previewKey: null,
-                        {{-- Plan-gated sections stay in the list but are marked `locked` so they
-                             render greyed out with a badge rather than vanishing - an owner on a
-                             lower plan can still see (and preview) what upgrading would unlock.
-                             OrganizationSectionController::store() is the real enforcement. --}}
+                        {{-- Exclusive sections stay addable from any plan (build now, pay to
+                             publish - Organization::planViolations() is the real gate) but keep
+                             an informational badge here, so an owner on a lower plan knows this
+                             component will block publishing until they upgrade. --}}
                         options: @js(collect($sectionRegistry)
                             ->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))
                             ->map(fn ($meta, $key) => [
                                 'label' => $meta['label'],
-                                'locked' => ! empty($meta['exclusive']) && ! $organization->canUseExclusiveTemplates(),
+                                'exclusive' => ! empty($meta['exclusive']) && ! $organization->canUseExclusiveTemplates(),
                             ])),
                         openPicker() {
                             this.previewKey = Object.keys(this.options)[0] ?? null;
                             this.open = true;
                         },
                         choose(key) {
-                            if (! key || this.options[key]?.locked) {
+                            if (! key) {
                                 return;
                             }
                             this.previewKey = key;
@@ -595,14 +595,11 @@
                             <ul class="flex-1 overflow-y-auto px-2.5 pb-2">
                                 <template x-for="(meta, key) in options" :key="key">
                                     <li>
-                                        {{-- Still selectable so the preview pane works: browsing a
-                                             locked section is how an owner decides to upgrade. Only
-                                             the confirm button is disabled. --}}
                                         <button type="button" @click="previewKey = key" :data-tip="meta.label"
                                             class="w-full flex items-center gap-2 text-left px-3 py-2.5 rounded-lg text-sm transition"
-                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : (meta.locked ? 'text-gray-400 hover:bg-gray-50' : 'text-gray-600 hover:bg-gray-50')">
+                                            :class="previewKey === key ? 'bg-primary/20 text-primary font-semibold' : 'text-gray-600 hover:bg-gray-50'">
                                             <span class="truncate" x-text="meta.label"></span>
-                                            <template x-if="meta.locked">
+                                            <template x-if="meta.exclusive">
                                                 <span class="ml-auto shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
                                                         <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
@@ -616,18 +613,19 @@
                             </ul>
 
                             <div class="p-4 border-t border-gray-100 shrink-0">
-                                <template x-if="previewKey && options[previewKey]?.locked">
+                                <template x-if="previewKey && options[previewKey]?.exclusive">
                                     <p class="mb-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                        Komponen ini tersedia di paket Eksklusif.
+                                        Komponen ini bisa dipakai sekarang, tapi situs tidak bisa dipublikasikan
+                                        selama komponen ini ada dan paket Anda bukan Eksklusif.
                                         <a href="{{ route('organizations.plan.edit', $organization) }}"
                                             class="font-semibold underline underline-offset-2 hover:text-amber-900">Upgrade paket</a>
-                                        untuk memakainya.
+                                        kapan saja.
                                     </p>
                                 </template>
                                 <button type="button" @click="choose(previewKey)"
-                                    :disabled="!previewKey || options[previewKey]?.locked"
-                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-sm"
-                                    x-text="previewKey && options[previewKey]?.locked ? 'Perlu paket Eksklusif' : 'Pilih komponen ini'">
+                                    :disabled="!previewKey"
+                                    class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-sm">
+                                    Pilih komponen ini
                                 </button>
                             </div>
                         </div>
@@ -922,14 +920,13 @@
                                         $variantOptions[$variantKey] = $variantMeta;
                                     }
 
-                                    // Variants the organization's plan doesn't grant are shown but disabled,
-                                    // rather than filtered out - same treatment as the "Tambah Section"
-                                    // picker, so an owner on a lower plan can see what upgrading unlocks
-                                    // instead of a premium layout silently not existing. Each variant's own
-                                    // explicit `exclusive` flag decides this (never inferred from its name);
-                                    // OrganizationSectionController::update() is the real enforcement, via
-                                    // SectionVariantResolver::isExclusive() - a disabled <option> is only a
-                                    // UI affordance and a crafted POST must still be rejected there.
+                                    // Exclusive variants are pickable from any plan (build now, pay to
+                                    // publish - Organization::planViolations() is the real gate), but
+                                    // still carry a badge here - same treatment as the "Tambah Section"
+                                    // picker - so an owner on a lower plan knows picking this layout
+                                    // will block publishing until they upgrade. Each variant's own
+                                    // explicit `exclusive` flag decides this (never inferred from its
+                                    // name).
                                     $canUseExclusive = $organization->canUseExclusiveTemplates();
 
                                     // The section's own variant can still be missing from the options after
@@ -954,21 +951,13 @@
                                     <select name="variant" @change="saveSection($event.target.form, $data)"
                                         class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                         @foreach ($variantOptions as $variantKey => $variantMeta)
-                                            {{-- Never disable the variant the section is already on: a
-                                                 `selected disabled` option submits no value at all, which
-                                                 would both blank out `variant` on save and trap the user on
-                                                 a layout they can't switch away from. This happens for real
-                                                 whenever an Eksklusif organization downgrades - its
-                                                 sections keep the exclusive variant they were built with. --}}
-                                            @php $variantLocked = ! $canUseExclusive
-                                                && ($variantMeta['exclusive'] ?? false)
-                                                && $variantKey !== $currentVariant; @endphp
                                             {{-- A padlock plus the plan name, the same cue the "Tambah
                                                  Section" picker uses - an <option> can't carry markup, so
-                                                 the emoji stands in for that list's badge. --}}
-                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)
-                                                @disabled($variantLocked)>
-                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}{{ $variantLocked ? ' 🔒 (Eksklusif)' : '' }}
+                                                 the emoji stands in for that list's badge. Informational
+                                                 only: the option is always selectable. --}}
+                                            @php $variantIsExclusive = ! $canUseExclusive && ($variantMeta['exclusive'] ?? false); @endphp
+                                            <option value="{{ $variantKey }}" @selected($currentVariant === $variantKey)>
+                                                {{ ucfirst(str_replace('-', ' ', $variantKey)) }}{{ $variantIsExclusive ? ' 🔒 (Eksklusif)' : '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -1124,18 +1113,19 @@
                                             + Tambah dokter
                                         </button>
                                     </div>
-                                @elseif ($field === 'facilities' && $section->key === 'akad-venue')
+                                @elseif (($field === 'facilities' && $section->key === 'akad-venue') || ($field === 'values' && $section->key === 'tentang-organisasi'))
                                         {{-- A list editor, not the generic text input this field used
                                              to fall through to: that input wrote a bare string into
-                                             content[facilities], and the section renders it with
+                                             content[{{ $field }}], and the section renders it with
                                              foreach(), so saving the panel once was enough to 500 the
-                                             page. Stored as a flat list of strings, matching what
-                                             akad-venue/nurul-huda.blade.php reads. --}}
-                                        <div x-data="{ items: @js(array_values(array_filter((array) ($section->content['facilities'] ?? []), 'is_string'))) }" class="space-y-2">
+                                             page. Stored as a flat list of strings - facilities matches
+                                             what akad-venue/nurul-huda.blade.php reads, values matches
+                                             tentang-organisasi/sd-madya.blade.php. --}}
+                                        <div x-data="{ items: @js(array_values(array_filter((array) ($section->content[$field] ?? []), 'is_string'))) }" class="space-y-2">
                                             <template x-for="(item, index) in items" :key="index">
                                                 <div class="flex items-center gap-2">
-                                                    <input type="text" placeholder="Fasilitas, mis. Sound system" x-model="items[index]"
-                                                        :name="`content[facilities][${index}]`"
+                                                    <input type="text" placeholder="{{ $field === 'values' ? 'Nilai, mis. Amanah' : 'Fasilitas, mis. Sound system' }}" x-model="items[index]"
+                                                        :name="`content[{{ $field }}][${index}]`"
                                                         class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                                     <button type="button" @click="items.splice(index, 1)"
                                                         class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
@@ -1144,14 +1134,14 @@
                                                 </div>
                                             </template>
                                             {{-- An empty list must still submit the key, otherwise
-                                                 removing every row leaves content[facilities] absent
+                                                 removing every row leaves content[{{ $field }}] absent
                                                  and the section silently falls back to its defaults. --}}
                                             <template x-if="items.length === 0">
-                                                <input type="hidden" name="content[facilities]" value="">
+                                                <input type="hidden" name="content[{{ $field }}]" value="">
                                             </template>
                                             <button type="button" @click="items.push('')"
                                                 class="w-full rounded-xl border border-dashed border-gray-200 px-3.5 py-2.5 text-xs font-semibold text-gray-500 hover:border-primary/40 hover:text-primary transition">
-                                                + Tambah fasilitas
+                                                {{ $field === 'values' ? '+ Tambah nilai' : '+ Tambah fasilitas' }}
                                             </button>
                                         </div>
                                 @elseif ($field === 'stats')

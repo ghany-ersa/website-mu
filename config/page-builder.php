@@ -27,10 +27,12 @@
 // own editor still shows and lets existing instances be edited/removed, so in-progress work isn't
 // blocked - only end-user-facing surfaces are gated.
 //
-// `exclusive` (bool, default false), when true, marks a section only an organization on a plan
-// with `has_exclusive_templates` may add - Organization::canUseExclusiveTemplates(). The "Tambah
-// Section" picker still lists it, greyed out and badged, so the capability is discoverable rather
-// than invisible; OrganizationSectionController::store() is what actually enforces it. This is a
+// `exclusive` (bool, default false) marks a section that requires a plan with
+// `has_exclusive_templates` (Organization::canUseExclusiveTemplates()) - but addable from ANY
+// plan: OrganizationSectionController::store() lets it through regardless, and the entitlement
+// is enforced only at publish time via Organization::planViolations(), the same "build now, pay
+// to publish" split as an is_exclusive template. The "Tambah Section" picker badges it (never
+// disables it) so the owner knows upgrading will eventually be required. This is a
 // *section*-level gate and is deliberately separate from the variant-level `is_exclusive` column
 // (see below): that one only governs which layout may be picked for a section the organization
 // already has, so on its own it let any plan add these sections and simply render their sole

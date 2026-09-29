@@ -8,6 +8,7 @@ use App\Enums\PlanChangeRequestStatus;
 use App\Models\Concerns\InvalidatesTenantPageCache;
 use App\Services\CmsSampleDataSeeder;
 use App\Services\PlanLimitService;
+use App\Services\SectionVariantResolver;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -381,7 +382,7 @@ class Organization extends Model
     /**
      * Human-readable list of ways this organization currently breaks its own plan's rules —
      * derived fresh on every call rather than stored, since content counts and plan_expires_at
-     * change independently of each other. Four kinds of violation:
+     * change independently of each other. Six kinds of violation:
      *
      *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) - happens after a
      *    downgrade, since PlanLimitService::canCreate() only blocks *new* creation and never
@@ -394,6 +395,13 @@ class Organization extends Model
      *    admin approves its first PlanChangeRequest.
      *  - An is_exclusive template on a plan without that entitlement - the picker lets anyone
      *    start building on a premium design, so the gate lands here at publish time instead.
+     *  - An `exclusive`-flagged section (config/page-builder.php - e.g. fasilitas-masjid) added
+     *    while on a plan without the entitlement - same "build now, pay to publish" split as
+     *    the template check, enforced by OrganizationSectionController::store() letting the add
+     *    through regardless of plan.
+     *  - An `is_exclusive` section *variant* (SectionVariantResolver - e.g. hero's "modern"
+     *    layout) picked while on a plan without the entitlement - same split again, via
+     *    OrganizationSectionController::update().
      *
      * Used by OrganizationController::publish() to block publishing while any of these hold,
      * and by the public tenant page (_document.blade.php) to show a violation badge on an
@@ -475,6 +483,32 @@ class Organization extends Model
         // the moment an upgrade is approved, with no template change needed.
         if ($this->template?->is_exclusive && ! $this->canUseExclusiveTemplates()) {
             $violations[] = 'Template ini memerlukan paket Eksklusif';
+        }
+
+        if (! $this->canUseExclusiveTemplates()) {
+            $sections = $this->pages->flatMap->sections;
+
+            // Same "build now, pay to publish" split as the template check above:
+            // OrganizationSectionController::store()/update() deliberately let any plan add an
+            // `exclusive`-flagged section (config/page-builder.php) or switch to an
+            // `is_exclusive` variant (SectionVariantResolver), so the entitlement is enforced
+            // here instead of at the moment the owner picks it.
+            $exclusiveSectionCount = $sections
+                ->filter(fn (OrganizationSection $section) => config("page-builder.sections.{$section->key}.exclusive", false))
+                ->count();
+
+            if ($exclusiveSectionCount > 0) {
+                $violations[] = "Ada {$exclusiveSectionCount} komponen eksklusif yang memerlukan paket Eksklusif";
+            }
+
+            $exclusiveVariantCount = $sections
+                ->filter(fn (OrganizationSection $section) => $section->variant
+                    && SectionVariantResolver::isExclusive($section->key, $section->variant))
+                ->count();
+
+            if ($exclusiveVariantCount > 0) {
+                $violations[] = "Ada {$exclusiveVariantCount} tampilan komponen eksklusif yang memerlukan paket Eksklusif";
+            }
         }
 
         return $violations;

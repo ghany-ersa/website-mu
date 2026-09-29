@@ -14,16 +14,24 @@ use Illuminate\View\View;
  * discarded and re-cloned from the new template, but each cloned section whose `key` matches one
  * the organization already had keeps that section's own content instead of the new template's
  * default, so switching template restyles the site without silently discarding what the owner
- * already wrote in. Only the Owner may do this (see OrganizationPolicy::update() is too broad for
- * something this destructive - gated separately below), and templates marked
- * Template::is_exclusive are only selectable when the org's plan grants that entitlement
- * (Organization::canUseExclusiveTemplates()).
+ * already wrote in. Gated by OrganizationPolicy::manageBuilder() rather than update(), the same
+ * as the page builder - restructuring this destructively while the site is live isn't allowed,
+ * so a member has to unpublish (Draft) first.
+ *
+ * An is_exclusive template is selectable from any plan - the same "build now, pay to publish"
+ * split as picking one at organization-creation time (StoreOrganizationRequest) and the page
+ * builder's exclusive sections/variants (Organization::planViolations()): switching onto it here
+ * never checks canUseExclusiveTemplates(), and the entitlement is enforced only when publishing.
+ * Before this, creating a new organization let you pick an exclusive template freely but
+ * switching an existing one to the same template was blocked outright - two different rules for
+ * reaching the identical end state (an org on an exclusive template, unpublished, on a plan that
+ * doesn't cover it) made the block feel arbitrary rather than a real limitation.
  */
 class OrganizationTemplateController extends Controller
 {
     public function edit(Organization $organization): View
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         $templates = Template::where('is_active', true)
             // is_public excludes templates meant only as an organization-creation picker option
@@ -31,42 +39,25 @@ class OrganizationTemplateController extends Controller
             // already-designed organization onto a blank template would just discard everything
             // it has for nothing - that option belongs at creation time only, not here.
             ->where('is_public', true)
-            ->where(function ($query) use ($organization) {
-                $query->where('is_exclusive', false);
-
-                if ($organization->canUseExclusiveTemplates()) {
-                    $query->orWhere('is_exclusive', true);
-                }
-            })
+            ->orderBy('is_exclusive')
             ->orderBy('name')
             ->get();
-
-        $lockedTemplates = $organization->canUseExclusiveTemplates()
-            ? collect()
-            : Template::where('is_active', true)->where('is_exclusive', true)->orderBy('name')->get();
 
         return view('organizations.template.edit', [
             'organization' => $organization,
             'templates' => $templates,
-            'lockedTemplates' => $lockedTemplates,
         ]);
     }
 
     public function update(Request $request, Organization $organization): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         $validated = $request->validate([
             'template_id' => ['required', 'integer', 'exists:templates,id'],
         ]);
 
         $template = Template::findOrFail($validated['template_id']);
-
-        if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates()) {
-            return back()->withErrors([
-                'template_id' => 'Template ini hanya tersedia untuk paket Eksklusif. Upgrade paket organisasi Anda terlebih dahulu.',
-            ]);
-        }
 
         if ($template->id === $organization->template_id) {
             return redirect()
@@ -76,8 +67,17 @@ class OrganizationTemplateController extends Controller
 
         $organization->replaceTemplateKeepingContent($template);
 
+        $status = 'Template berhasil diganti. Section dengan jenis yang sama mempertahankan isi sebelumnya; section lain mengikuti template baru.';
+
+        // Same "build now, pay to publish" split as everywhere else this entitlement is
+        // checked (Organization::planViolations()) - flag it here too, right when it becomes
+        // true, rather than leaving the owner to discover it only from a failed publish attempt.
+        if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates()) {
+            $status .= ' Template ini bersifat eksklusif - situs bisa terus dirancang dengannya, tapi publikasi memerlukan paket Eksklusif.';
+        }
+
         return redirect()
             ->route('organizations.show', $organization)
-            ->with('status', 'Template berhasil diganti. Section dengan jenis yang sama mempertahankan isi sebelumnya; section lain mengikuti template baru.');
+            ->with('status', $status);
     }
 }

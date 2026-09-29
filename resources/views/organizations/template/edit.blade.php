@@ -34,16 +34,17 @@
             </p>
         </div>
 
-        @if ($lockedTemplates->isNotEmpty())
+        @if (! $organization->canUseExclusiveTemplates())
             <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 text-primary rounded-2xl p-4 sm:p-5 mb-8 text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0 mt-0.5">
                     <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
                 </svg>
                 <p>
-                    Ada {{ $lockedTemplates->count() }} template eksklusif yang hanya tersedia untuk paket dengan akses
-                    template eksklusif.
+                    Template bertanda <span class="font-semibold">Eksklusif</span> tetap bisa dipilih dan dipakai sekarang
+                    juga - situs hanya tidak bisa dipublikasikan dengannya sampai organisasi berlangganan paket
+                    <span class="font-semibold">Eksklusif</span>.
                     <a href="{{ route('organizations.plan.edit', $organization) }}" class="font-semibold underline">Upgrade paket organisasi</a>
-                    untuk membukanya.
+                    kapan saja.
                 </p>
             </div>
         @endif
@@ -81,6 +82,9 @@
                             @if ($template->organizationType)
                                 <p class="text-xs text-gray-400 mt-0.5">{{ $template->organizationType->name }}</p>
                             @endif
+                            @if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates())
+                                <p class="text-xs text-amber-600 mt-2">Bisa langsung dipakai &mdash; perlu paket Eksklusif saat dipublikasikan.</p>
+                            @endif
                             <a href="{{ route('templates.preview', $template->slug) }}" target="_blank"
                                class="inline-block text-xs text-primary font-semibold mt-2 hover:underline"
                                @click.stop>
@@ -95,37 +99,6 @@
                             </svg>
                         </div>
                     </label>
-                @endforeach
-
-                @foreach ($lockedTemplates as $template)
-                    <div class="relative block rounded-2xl border-2 border-transparent overflow-hidden bg-white shadow-soft opacity-60">
-                        <div class="aspect-[4/3] bg-gray-100">
-                            @if ($template->thumbnailUrl())
-                                <img src="{{ $template->thumbnailUrl() }}" alt="{{ $template->name }}" class="w-full h-full object-cover grayscale">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 8.25v8.25a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V8.25m-18 0V6a1.5 1.5 0 0 1 1.5-1.5h15a1.5 1.5 0 0 1 1.5 1.5v2.25m-18 0h18M9.75 6.75h.008v.008H9.75V6.75Z" />
-                                    </svg>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="p-4">
-                            <div class="flex items-center justify-between gap-2">
-                                <p class="font-bold text-gray-800 text-sm">{{ $template->name }}</p>
-                                <span class="shrink-0 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-bold">Eksklusif</span>
-                            </div>
-                            @if ($template->organizationType)
-                                <p class="text-xs text-gray-400 mt-0.5">{{ $template->organizationType->name }}</p>
-                            @endif
-                            <p class="text-xs text-gray-400 mt-2">Perlu upgrade paket</p>
-                        </div>
-                        <div class="absolute top-3 right-3 w-6 h-6 rounded-full bg-gray-800/70 text-white flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
-                                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
                 @endforeach
             </div>
 

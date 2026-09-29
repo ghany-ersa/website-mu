@@ -114,6 +114,15 @@ class OrganizationController extends Controller
 
         $organization->members()->attach(Auth::id(), ['role' => OrganizationRole::Owner->value]);
 
+        // Clones the template's pages/sections (and CmsSampleDataSeeder's sample CMS records)
+        // right away, rather than leaving it to whenever the owner first opens the builder
+        // (OrganizationBuilderController::edit() is otherwise the only caller of this) - without
+        // it, the dashboard's CMS sidebar links (which key off $organization->pages->...
+        // ->sections, see layouts/organization.blade.php) stay empty until that first builder
+        // visit, even though the organization already has a template and should show them
+        // immediately.
+        $organization->ensureHomePageExists();
+
         return redirect()
             ->route('organizations.show', $organization)
             ->with('status', 'Organisasi berhasil dibuat.');
@@ -126,7 +135,7 @@ class OrganizationController extends Controller
     {
         $this->authorize('view', $organization);
 
-        $organization->load(['organizationType', 'template', 'members']);
+        $organization->load(['organizationType', 'template', 'members', 'pages.sections']);
 
         return view('organizations.show', [
             'organization' => $organization,
@@ -158,7 +167,7 @@ class OrganizationController extends Controller
         if ($publishing && (blank($organization->plan_id) || $organization->violatesPlanRules())) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('error', 'Situs belum bisa dipublikasikan. Selesaikan pembayaran atau sesuaikan konten dengan batas paket terlebih dahulu.');
+                ->with('error', 'Situs belum bisa dipublikasikan. Lihat rincian di bawah.');
         }
 
         $organization->publish($publishing);

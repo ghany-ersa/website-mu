@@ -113,6 +113,15 @@ class Plan extends Model
             'officers' => 'Data Pengurus',
             'programs' => 'Program/Layanan',
             'gallery_photos' => 'Foto Galeri',
+            'facilities' => 'Fasilitas',
+            'donation_programs' => 'Program Donasi',
+            'achievements' => 'Prestasi',
+            'testimonials' => 'Testimoni',
+            // 'students' is left out here deliberately: it's only relevant to the SD Madya
+            // template (see Organization::planViolations()'s $resources comment), and every
+            // plan but Eksklusif seeds it at 0 - listing "Data Siswa Tidak Tersedia" on every
+            // plan's pricing card would read as a real limitation to the vast majority of
+            // organizations that will never touch this resource.
         ];
 
         $features = [];
@@ -133,6 +142,20 @@ class Plan extends Model
             $features[] = ['label' => "Maks. {$sectionsTotal} Komponen per Situs", 'available' => true];
         } elseif ($sectionsTotal === 0) {
             $features[] = ['label' => 'Komponen Situs Tidak Tersedia', 'available' => false];
+        }
+
+        // pages_total is the one PlanSeeder limit that isn't a gradually-scaled quota (see
+        // PlanSeeder's own doc comment): Starter/Premium are both capped at the single-page
+        // baseline, and only Eksklusif unlocks the multi-page builder - so this reads as a
+        // distinct "1 halaman" vs. "10 Halaman (multi-halaman)" bullet rather than folding into
+        // the generic {$max} {$label} pattern above, which would hide that it's an
+        // architectural unlock, not just a bigger number.
+        $pagesTotal = $this->limitFor('pages_total');
+
+        if ($pagesTotal !== null && $pagesTotal > 1) {
+            $features[] = ['label' => "{$pagesTotal} Halaman (Multi-Halaman)", 'available' => true];
+        } elseif ($pagesTotal !== null) {
+            $features[] = ['label' => '1 Halaman', 'available' => true];
         }
 
         $features[] = $this->hide_branding

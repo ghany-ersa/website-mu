@@ -8,7 +8,17 @@
 @php
     $content = $section['content'] ?? [];
     $stats = $content['stats'] ?? [];
+    // Normalised rather than used as-is: `values` is a list, but before the builder's properties
+    // panel had a proper editor for it, saving the section wrote whatever the generic text input
+    // held - a bare string - and this section then died on foreach() with a 500 (same failure
+    // mode as akad-venue/nurul-huda.blade.php's `facilities`). Tolerate that older shape too: a
+    // string (one-per-line, the most forgiving reading of what someone typed) and a list with
+    // blank rows.
     $values = $content['values'] ?? [];
+    $values = collect(is_string($values) ? preg_split('/\r\n|\r|\n/', $values) : (array) $values)
+        ->map(fn ($value) => is_string($value) ? trim($value) : (is_array($value) ? ($value['label'] ?? null) : null))
+        ->filter()
+        ->values();
 @endphp
 
 <section class="section-y bg-surface">
@@ -48,7 +58,7 @@
                     {{ $content['body'] ?? 'Deskripsi singkat sejarah, visi, dan misi organisasi.' }}
                 </p>
 
-                @if (! empty($content['vision_body']) || $values)
+                @if (! empty($content['vision_body']) || $values->isNotEmpty())
                     <div class="reveal grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-1 sm:pt-2" style="transition-delay: 180ms">
                         @if (! empty($content['vision_body']))
                             <div class="bg-surface-container-low p-4 sm:p-5 rounded-2xl">
@@ -57,14 +67,14 @@
                             </div>
                         @endif
 
-                        @if ($values)
+                        @if ($values->isNotEmpty())
                             <div class="bg-surface-container-low p-4 sm:p-5 rounded-2xl">
                                 <h3 class="font-headline font-bold text-primary text-[15px] mb-2">{{ $content['values_title'] ?? 'Nilai Utama' }}</h3>
                                 <ul class="font-body text-on-surface-variant text-sm space-y-1.5">
                                     @foreach ($values as $value)
                                         <li class="flex items-start gap-2">
                                             <span class="w-1.5 h-1.5 bg-secondary rounded-full shrink-0 mt-[0.45rem]"></span>
-                                            {{ is_array($value) ? ($value['label'] ?? '') : $value }}
+                                            {{ $value }}
                                         </li>
                                     @endforeach
                                 </ul>

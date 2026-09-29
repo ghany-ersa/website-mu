@@ -17,7 +17,7 @@ class OrganizationPageController extends Controller
      */
     public function store(Request $request, Organization $organization): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         if (! $this->planLimitService->canCreate($organization, 'pages_total')) {
             return redirect()
@@ -49,7 +49,7 @@ class OrganizationPageController extends Controller
      */
     public function update(Request $request, Organization $organization, OrganizationPage $page): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -66,7 +66,7 @@ class OrganizationPageController extends Controller
      */
     public function destroy(Organization $organization, OrganizationPage $page): RedirectResponse
     {
-        $this->authorize('update', $organization);
+        $this->authorize('manageBuilder', $organization);
 
         if ($page->is_home) {
             return back()->with('status', 'Halaman utama (Beranda) tidak bisa dihapus.');

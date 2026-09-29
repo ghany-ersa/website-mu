@@ -15,7 +15,13 @@
             'officers' => 'Data Pengurus',
             'programs' => 'Program/Layanan',
             'gallery_photos' => 'Foto Galeri',
+            'facilities' => 'Fasilitas',
+            'donation_programs' => 'Program Donasi',
+            'achievements' => 'Prestasi',
+            'testimonials' => 'Testimoni',
+            'students' => 'Data Siswa',
             'sections_total' => 'Komponen di Situs',
+            'pages_total' => 'Jumlah Halaman',
         ];
         $usageIcons = [
             'posts' => 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z',
@@ -25,6 +31,12 @@
             'programs' => 'M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437 5.61 5.61a1 1 0 0 1 0 1.414l-.708.707a1 1 0 0 1-1.414 0l-5.61-5.61',
             'gallery_photos' => 'M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 8.25v8.25a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V8.25m-18 0V6a1.5 1.5 0 0 1 1.5-1.5h15a1.5 1.5 0 0 1 1.5 1.5v2.25m-18 0h18M9.75 6.75h.008v.008H9.75V6.75Z',
             'sections_total' => 'M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z',
+            'facilities' => 'M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21',
+            'donation_programs' => 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z',
+            'achievements' => 'M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.75A1.125 1.125 0 0 1 9 13.5v-1.5m6.75 6.75v-3.375c0-.621.504-1.125 1.125-1.125h.75c.621 0 1.125-.504 1.125-1.125V9.75M9 12h6.75M9 12a3 3 0 0 1-3-3V4.5h13.5V9a3 3 0 0 1-3 3',
+            'testimonials' => 'M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z',
+            'students' => 'M4.26 10.147a60.436 60.436 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5',
+            'pages_total' => 'M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z',
         ];
     @endphp
 
@@ -42,6 +54,55 @@
             <h1 class="text-3xl font-extrabold text-gray-900 mt-3">Kelola Paket {{ $organization->name }}</h1>
             <p class="text-sm text-gray-500 mt-1">Pantau pemakaian kuota dan pilih paket yang paling sesuai kebutuhan organisasi.</p>
         </div>
+
+        @php
+            // Read once here, reused below to badge the Eksklusif card specifically - see that
+            // card's own comment for why this stops short of auto-selecting it.
+            $needsExclusivePlan = collect($planViolations)->contains(fn (string $v) => str_contains($v, 'memerlukan paket Eksklusif'));
+        @endphp
+
+        {{-- "Why can't I publish" panel - tied to the real, current state (planViolations()),
+             not session('error') from a failed publish attempt: that flash only survives one
+             request, so a plain refresh made the panel vanish while the underlying problem
+             (unpaid plan, exclusive template on the wrong tier, ...) was still there - the org
+             looked "fixed" when nothing had changed. Showing it for any violation, always, is
+             deliberate too: even a brand-new org whose only violation is "payment not yet
+             confirmed" benefits from being told that plainly, rather than that being withheld as
+             a false alarm it hasn't earned. --}}
+        @if (filled($planViolations))
+            <div class="rounded-[2rem] p-6 md:p-8 mb-6 bg-red-50 border border-red-200/70">
+                <div class="flex items-start gap-4">
+                    <div class="w-11 h-11 rounded-2xl bg-red-100 text-red-500 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold text-red-900">Situs belum bisa dipublikasikan</p>
+                        <ul class="text-sm text-red-700 mt-2 space-y-1.5 list-disc list-inside">
+                            @foreach ($planViolations as $violation)
+                                <li>{{ $violation }}</li>
+                            @endforeach
+                        </ul>
+                        @if ($needsExclusivePlan)
+                            <p class="text-sm text-red-700 mt-3 leading-relaxed">
+                                Template atau tampilan komponen yang Anda pakai bersifat eksklusif - situs bisa terus
+                                dirancang dengannya di paket apa pun, tapi hanya bisa dipublikasikan setelah organisasi
+                                berlangganan paket <span class="font-semibold">Eksklusif</span>.
+                            </p>
+                            {{-- Points at the card, doesn't pick it for them - see
+                                 $needsExclusivePlan's own comment above for why. --}}
+                            <a href="#pricing-cards" class="inline-flex items-center gap-1 text-sm font-semibold text-red-800 hover:text-red-900 hover:underline mt-3">
+                                Lihat paket Eksklusif
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                                </svg>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Usage overview: visual progress bars instead of plain numbers, so a near-full quota is obvious at a glance. --}}
         <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-soft border border-gray-100 p-5 sm:p-6 md:p-8 mb-6 sm:mb-8">
@@ -249,7 +310,7 @@
                 x-data below, since that attribute is one long single-line HTML string - a JS
                 line comment there swallows the rest of the line as text instead of code.)
             --}}
-            <form action="{{ route('organizations.plan.store', $organization) }}" method="POST"
+            <form id="pricing-cards" action="{{ route('organizations.plan.store', $organization) }}" method="POST"
                   x-data='{
                       "selected": {{ $organization->plan_id ?? 'null' }},
                       "confirming": false,
@@ -353,6 +414,21 @@
                                     <span class="inline-flex items-center gap-1 text-xs font-extrabold px-3 py-1 rounded-full {{ $isFeatured ? 'bg-white text-primary' : 'bg-secondary/10 text-secondary' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $isFeatured ? 'bg-primary' : 'bg-secondary' }} animate-pulse"></span>
                                         Aktif
+                                    </span>
+                                @elseif ($isFeatured && $needsExclusivePlan)
+                                    {{-- Names the fix directly rather than the generic "✦
+                                         Rekomendasi" below - this card isn't just recommended,
+                                         it's specifically the plan that clears the violation(s)
+                                         listed in the panel above. Still just a badge: the owner
+                                         still has to click the card themselves (see
+                                         $needsExclusivePlan's own comment for why this stops
+                                         short of pre-selecting it via `selected` in x-data
+                                         above). --}}
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-200">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        </svg>
+                                        Paket yang Anda butuhkan
                                     </span>
                                 @elseif ($isFeatured)
                                     <span class="text-xs font-bold text-amber-200">✦ Rekomendasi</span>
