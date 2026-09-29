@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  * admin-authored articles in production, cover images included) instead of Faker lorem text or
  * invented copy, since Article is the platform's own public-facing blog (see
  * resources/views/articles/*.blade.php) and its content shows up verbatim in generated
- * pages/screenshots — seeding should reproduce what actually exists, not placeholder samples.
+ * pages/screenshots - seeding should reproduce what actually exists, not placeholder samples.
  */
 class ArticleFactory extends Factory
 {

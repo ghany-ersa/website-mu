@@ -34,7 +34,7 @@
             <template x-if="!addingCategory">
                 <select id="category" x-model="category" @change="onCategoryChange()"
                         class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    <option value="">— Tanpa kategori —</option>
+                    <option value="">- Tanpa kategori -</option>
                     @foreach ($categories as $existingCategory)
                         <option value="{{ $existingCategory }}">{{ $existingCategory }}</option>
                     @endforeach

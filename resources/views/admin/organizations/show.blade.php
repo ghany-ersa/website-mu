@@ -25,7 +25,7 @@
             <div>
                 <p class="text-xs text-gray-400">Aktif Hingga</p>
                 <p class="font-semibold text-gray-800">
-                    {{ $organization->plan_expires_at?->translatedFormat('d M Y, H:i') ?? '—' }}
+                    {{ $organization->plan_expires_at?->translatedFormat('d M Y, H:i') ?? '-' }}
                 </p>
             </div>
             <div>
@@ -106,8 +106,8 @@
                         </div>
                         <p class="text-xs text-gray-500 mt-0.5">
                             oleh {{ $log->admin->name }}
-                            &mdash; {{ $log->fromPlan?->name ?? '—' }} ({{ $log->from_expires_at?->translatedFormat('d M Y') ?? '—' }})
-                            &rarr; {{ $log->toPlan?->name ?? '—' }} ({{ $log->to_expires_at?->translatedFormat('d M Y') ?? '—' }})
+                            &mdash; {{ $log->fromPlan?->name ?? '-' }} ({{ $log->from_expires_at?->translatedFormat('d M Y') ?? '-' }})
+                            &rarr; {{ $log->toPlan?->name ?? '-' }} ({{ $log->to_expires_at?->translatedFormat('d M Y') ?? '-' }})
                         </p>
                         @if ($log->note)
                             <p class="text-xs text-gray-400 mt-1 italic">&ldquo;{{ $log->note }}&rdquo;</p>

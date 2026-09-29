@@ -45,7 +45,7 @@
                             <p class="text-xs text-gray-400">{{ $template->slug }}</p>
                         </td>
                         <td class="px-5 py-4 text-gray-600">
-                            {{ $template->organizationType?->name ?? '—' }}
+                            {{ $template->organizationType?->name ?? '-' }}
                         </td>
                         <td class="px-5 py-4 space-x-1.5">
                             @if ($template->is_active)

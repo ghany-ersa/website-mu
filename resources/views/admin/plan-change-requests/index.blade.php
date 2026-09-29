@@ -47,7 +47,7 @@
                         </td>
                         <td class="px-5 py-4">
                             <p class="font-semibold text-gray-800">{{ $request->organization->name }}</p>
-                            <p class="text-xs text-gray-400">Paket saat ini: {{ $request->organization->plan?->name ?? '—' }}</p>
+                            <p class="text-xs text-gray-400">Paket saat ini: {{ $request->organization->plan?->name ?? '-' }}</p>
                         </td>
                         <td class="px-5 py-4 text-gray-600">
                             <p>{{ $request->requestedBy->name }}</p>
@@ -191,7 +191,7 @@
                                 </div>
                             @else
                                 <span class="text-xs text-gray-400">
-                                    Diproses oleh {{ $request->reviewedBy?->name ?? '—' }}
+                                    Diproses oleh {{ $request->reviewedBy?->name ?? '-' }}
                                 </span>
                             @endif
                         </td>

@@ -1,6 +1,6 @@
 {{--
     Auto-binds to the organization's published posts (PRD §12: "Berita Terbaru otomatis
-    menampilkan post terbaru yang sudah diterbitkan") when $organization is in scope —
+    menampilkan post terbaru yang sudah diterbitkan") when $organization is in scope -
     i.e. when rendered as a tenant page (organizations/pages/_render.blade.php). Falls
     back to $content['items'] sample data in template-preview context (templates/preview.blade.php),
     which has no organization yet.

@@ -99,7 +99,7 @@ class OrganizationController extends Controller
     /**
      * Store a newly created organization and attach the creator as Owner.
      *
-     * Defaults to plan_id 1 (Starter, the cheapest paid plan) rather than leaving it null —
+     * Defaults to plan_id 1 (Starter, the cheapest paid plan) rather than leaving it null -
      * there's no free tier, so every organization needs a real plan from the moment it's
      * created, not just once an admin later approves a PlanChangeRequest. Hardcoded to id 1
      * rather than looked up by key: this app has exactly one database, so the id is stable,

@@ -26,7 +26,7 @@ class PlanChangeRequestService
             return;
         }
 
-        // Extend from the current expiry only for a same-plan renewal made before it lapses —
+        // Extend from the current expiry only for a same-plan renewal made before it lapses -
         // so a timely renewal doesn't lose paid-for time, matching how hosting renewals work.
         // A switch to a *different* plan (upgrade or downgrade) always starts from now instead:
         // inheriting the old plan's remaining time would let an upgrade bought partway through

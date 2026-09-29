@@ -68,7 +68,7 @@
                                 @if ($variant->is_default)
                                     <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-semibold whitespace-nowrap">Default</span>
                                 @else
-                                    <span class="text-gray-300">—</span>
+                                    <span class="text-gray-300">-</span>
                                 @endif
                             </td>
                             <td class="px-5 py-3">

@@ -166,7 +166,7 @@
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
         // Exposed globally so the parent builder page can re-run it after swapping
-        // #canvas-body's content in place (new elements need to be (re-)observed —
+        // #canvas-body's content in place (new elements need to be (re-)observed -
         // ones already marked .reveal-visible are harmlessly re-queried and skipped).
         window.observeRevealElements = () => {
             document.querySelectorAll('.reveal:not(.reveal-visible)').forEach((el) => revealObserver.observe(el));

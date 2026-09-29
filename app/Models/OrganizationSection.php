@@ -58,7 +58,7 @@ class OrganizationSection extends Model
     }
 
     /**
-     * Resolve a text field's display value: the section's own saved content, or - when empty —
+     * Resolve a text field's display value: the section's own saved content, or - when empty -
      * this section key's configured default (config/page-builder.php), with {org_name}
      * substituted in so a freshly-added section reads naturally before the user edits it.
      */

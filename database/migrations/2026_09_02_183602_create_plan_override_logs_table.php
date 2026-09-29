@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             // Set only when this row was created by the "retry approve" action on a stuck
-            // PlanChangeRequest (see PlanChangeRequestStatus::PaymentReceivedNeedsReview) —
+            // PlanChangeRequest (see PlanChangeRequestStatus::PaymentReceivedNeedsReview) -
             // null for a direct admin plan override that bypasses PlanChangeRequest entirely.
             $table->foreignId('plan_change_request_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('admin_user_id')->constrained('users')->cascadeOnDelete();

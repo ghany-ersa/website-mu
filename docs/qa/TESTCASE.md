@@ -1,4 +1,4 @@
-# QA Test Case — Website-mu
+# QA Test Case - Website-mu
 
 **Versi dokumen:** 1.0
 **Tanggal:** 2026-09-16
@@ -278,9 +278,9 @@ Kolom **Status**: `AUTO` = tercover tes otomatis, `NEW` = tes otomatis ditambahk
 
 | ID | Ringkasan | Test case terkait | Severity | Status |
 |---|---|---|---|---|
-| **DEF-01** | Detail pengumuman tenant 404 — `withoutMiddleware('web')` ikut membuang `SubstituteBindings` dari grup `tenant`, sehingga parameter terikat tiba sebagai string | TEN-02 | Major | ✅ **Diperbaiki** |
-| **DEF-02** | Detail agenda tenant 404 — akar masalah sama dengan DEF-01 | TEN-03 | Major | ✅ **Diperbaiki** |
-| **DEF-03** | `Organization::phone` — kolom & method bernama sama; melempar `must return a relationship instance` saat atribut belum ter-load. Berlaku juga untuk `email`, `whatsapp`, `address` (4 method; accessor URL sosial tidak terdampak) | BRD-08 | Major | ✅ **Diperbaiki** |
+| **DEF-01** | Detail pengumuman tenant 404 - `withoutMiddleware('web')` ikut membuang `SubstituteBindings` dari grup `tenant`, sehingga parameter terikat tiba sebagai string | TEN-02 | Major | ✅ **Diperbaiki** |
+| **DEF-02** | Detail agenda tenant 404 - akar masalah sama dengan DEF-01 | TEN-03 | Major | ✅ **Diperbaiki** |
+| **DEF-03** | `Organization::phone` - kolom & method bernama sama; melempar `must return a relationship instance` saat atribut belum ter-load. Berlaku juga untuk `email`, `whatsapp`, `address` (4 method; accessor URL sosial tidak terdampak) | BRD-08 | Major | ✅ **Diperbaiki** |
 
 Rincian akar masalah, perbaikan yang diterapkan, dan verifikasinya ada di
 [`COVERAGE-REPORT.md`](COVERAGE-REPORT.md) §5. Ketiganya dikunci oleh

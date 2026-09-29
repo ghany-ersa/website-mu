@@ -38,13 +38,13 @@
                             <p class="text-xs text-gray-400">{{ $article->slug }}</p>
                         </td>
                         <td class="px-5 py-4 text-gray-600">
-                            {{ $article->category ?? '—' }}
+                            {{ $article->category ?? '-' }}
                         </td>
                         <td class="px-5 py-4">
                             <x-ui.status-badge :status="$article->status" />
                         </td>
                         <td class="px-5 py-4 text-gray-500">
-                            {{ $article->published_at?->translatedFormat('d M Y') ?? '—' }}
+                            {{ $article->published_at?->translatedFormat('d M Y') ?? '-' }}
                         </td>
                         <td class="px-5 py-4 text-right space-x-3">
                             <a href="{{ route('admin.articles.edit', $article) }}" class="text-gray-600 font-medium hover:underline">Edit</a>

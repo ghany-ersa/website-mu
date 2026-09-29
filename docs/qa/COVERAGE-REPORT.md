@@ -1,4 +1,4 @@
-# QA Coverage Report — Website-mu
+# QA Coverage Report - Website-mu
 
 **Tanggal eksekusi:** 2026-09-16
 **Commit diuji:** `1c2bed9` (branch `main`)
@@ -35,7 +35,7 @@ publikasi, serta halaman detail publik terbukti benar di bawah pengujian.
 
 Coverage diukur riil, bukan estimasi:
 
-- Driver: **PCOV 1.0.12** di PHP 8.4.25 (Homebrew), dipasang khusus untuk pengukuran ini —
+- Driver: **PCOV 1.0.12** di PHP 8.4.25 (Homebrew), dipasang khusus untuk pengukuran ini -
   PHP herd-lite yang dipakai sehari-hari adalah binary statis tanpa `phpize`, sehingga tidak
   bisa memuat ekstensi coverage.
 - Perintah:
@@ -51,13 +51,13 @@ Runtime aplikasi sehari-hari **tidak diubah**. Tidak ada perubahan pada `compose
 ### Catatan soal angka 71,9% vs 84,7%
 
 `app/Services/Samples/*` (618 baris) dan `CmsSampleDataSeeder` (452 baris) berisi **konten
-literal** — teks profil, agenda, dan berita contoh untuk template tertentu — bukan logika.
+literal** - teks profil, agenda, dan berita contoh untuk template tertentu - bukan logika.
 Baris-baris itu hanya tereksekusi bila seeder template yang bersangkutan dijalankan sebuah tes.
 Keduanya menyumbang 27% dari total baris `app/` dan menekan angka gabungan. **84,7%** adalah
 angka yang lebih representatif untuk logika aplikasi; 71,9% dilaporkan sebagai angka mentah.
 
 Menaikkan angka mentah lebih jauh akan menuntut tes yang menjalankan seluruh seeder template,
-yang hanya memvalidasi konstanta teks — angka naik tanpa jaminan mutu yang setara. Itu sengaja
+yang hanya memvalidasi konstanta teks - angka naik tanpa jaminan mutu yang setara. Itu sengaja
 tidak dikejar.
 
 ---
@@ -67,7 +67,7 @@ tidak dikejar.
 | Subsistem | Coverage | Penilaian |
 |---|---|---|
 | `app/Models` | 92,3% | Baik |
-| `app/Policies` | 95,9% | Baik — otorisasi terverifikasi |
+| `app/Policies` | 95,9% | Baik - otorisasi terverifikasi |
 | `app/Http/Requests` | 89,7% | Baik |
 | `app/Http/Controllers` | 85,0% | Baik |
 | `app/Services` (logika, tanpa data sampel) | 75,9% | Cukup |
@@ -93,7 +93,7 @@ Komponen individual pada jalur berisiko tinggi:
 | `Admin\PlanController` | 55,6% | **92,6%** | |
 | `PlanLimitService` | 83,7% | **88,4%** | |
 | `Admin\PlanChangeRequestController` | 56,4% | **83,3%** | |
-| `MidtransService` | 11,4% | 25,0% | Diterima — sisanya panggilan HTTP ke Midtrans |
+| `MidtransService` | 11,4% | 25,0% | Diterima - sisanya panggilan HTTP ke Midtrans |
 
 ---
 
@@ -101,7 +101,7 @@ Komponen individual pada jalur berisiko tinggi:
 
 188 test method baru dalam 12 file, semuanya lulus.
 
-### Gelombang 1 — jalur kritikal (108 test)
+### Gelombang 1 - jalur kritikal (108 test)
 
 | File | Test | Cakupan |
 |---|---|---|
@@ -115,11 +115,11 @@ Komponen individual pada jalur berisiko tinggi:
 | `PublishingGateAndAdminOpsTest.php` | 10 | Publish/unpublish, stempel `published_at`, blokir saat over-limit/kedaluwarsa, override plan + audit log, reject request, admin CRUD |
 | `RegistrationTest.php` | 9 | Registrasi, hash password, bukan admin secara default, email duplikat, konfirmasi password, logout |
 
-### Gelombang 2 — halaman form, admin, dan sisa gap (80 test)
+### Gelombang 2 - halaman form, admin, dan sisa gap (80 test)
 
 | File | Test | Cakupan |
 |---|---|---|
-| `CmsFormPagesTest.php` | 53 | Halaman `index`/`create`/`edit` keenam resource CMS yang sebelumnya tidak pernah di-GET — sehingga Blade form-nya benar-benar dikompilasi; 404 saat section tidak ada; penolakan non-member; redirect + peringatan saat kuota habis; konteks `?from=builder`; pemisahan `?type=program`/`layanan`; reorder; penolakan submission kosong; **update & delete keenam resource** berikut guard kepemilikan lintas-organisasi |
+| `CmsFormPagesTest.php` | 53 | Halaman `index`/`create`/`edit` keenam resource CMS yang sebelumnya tidak pernah di-GET - sehingga Blade form-nya benar-benar dikompilasi; 404 saat section tidak ada; penolakan non-member; redirect + peringatan saat kuota habis; konteks `?from=builder`; pemisahan `?type=program`/`layanan`; reorder; penolakan submission kosong; **update & delete keenam resource** berikut guard kepemilikan lintas-organisasi |
 | `AdminCrudTest.php` | 11 | CRUD paket (termasuk round-trip diskon durasi & limit), penolakan key duplikat, penolakan hapus paket yang masih dipakai, CRUD artikel + tayang di blog publik, toggle & preview variant, retry-approve beserta audit log, batas percobaan retry, daftar request di semua status |
 | `TemplateSwitchTest.php` | 7 | Picker mengunci template eksklusif pada paket rendah; ganti template mengganti halaman; **re-pilih template yang sama tidak menghapus apa pun**; template eksklusif ditolak sebelum aksi destruktif; penolakan non-member |
 | `GoogleMapsEmbedResolverTest.php` (Unit) | 9 | Penolakan URL non-Google Maps (termasuk `javascript:`), ekstraksi koordinat & nama tempat, fail-closed saat jaringan gagal, percent-encoding |
@@ -134,7 +134,7 @@ Komponen individual pada jalur berisiko tinggi:
 - **Tulis CMS satu tenant tidak menginvalidasi cache tenant lain.**
 - **Organisasi sandbox tidak dapat dijangkau publik** maupun muncul di `sitemap.xml`.
 - **Editor tidak dapat mempromosikan dirinya sendiri** menjadi Owner.
-- **Owner terakhir tidak dapat diturunkan atau dihapus** — organisasi tidak bisa terkunci.
+- **Owner terakhir tidak dapat diturunkan atau dihapus** - organisasi tidak bisa terkunci.
 - **Override plan admin selalu menulis audit log** berisi pelaku, perubahan, dan alasan.
 - **Re-pilih template yang sedang dipakai tidak menghapus halaman.** Ganti template menghapus
   seluruh halaman; guard short-circuit terbukti berjalan sebelum penghapusan, sehingga klik ganda
@@ -144,22 +144,22 @@ Komponen individual pada jalur berisiko tinggi:
   yang menunjuk baris paket yang hilang.
 - **`javascript:` dan URL non-Google Maps ditolak** oleh resolver peta, tidak diteruskan ke
   `iframe src`.
-- **Seluruh halaman form CMS ter-render** — form Blade yang rusak kini ketahuan tes, bukan oleh
+- **Seluruh halaman form CMS ter-render** - form Blade yang rusak kini ketahuan tes, bukan oleh
   pengguna.
 
 ---
 
 ## 5. Defect
 
-Ketiganya **pre-existing** — reproduksi pada `HEAD` bersih tanpa perubahan siklus QA ini.
+Ketiganya **pre-existing** - reproduksi pada `HEAD` bersih tanpa perubahan siklus QA ini.
 **Seluruhnya sudah diperbaiki dan diverifikasi** pada siklus ini; masing-masing dikunci oleh tes
 regresi di `tests/Feature/DefectRegressionTest.php`.
 
 ---
 
-### DEF-01 / DEF-02 — Halaman detail pengumuman & agenda tenant selalu 404
+### DEF-01 / DEF-02 - Halaman detail pengumuman & agenda tenant selalu 404
 
-- **Severity:** Major — blocker rilis
+- **Severity:** Major - blocker rilis
 - **Test case:** TEN-02, TEN-03
 - **Status:** ✅ **Diperbaiki**
 - **Lokasi perbaikan:** [routes/web.php](../../routes/web.php)
@@ -170,7 +170,7 @@ pengumuman/agenda yang published pada organisasi yang published.
 **Akar masalah.** Bukan pada controller, melainkan pada konfigurasi middleware route group.
 Grup tenant didaftarkan dengan `->withoutMiddleware('web')`. `Router::resolveMiddleware()`
 meng-*expand* sebuah grup yang dikecualikan menjadi daftar kelas anggotanya, lalu menolak setiap
-kelas itu dari **seluruh** stack — termasuk yang berasal dari grup lain. Karena grup `web` dan
+kelas itu dari **seluruh** stack - termasuk yang berasal dari grup lain. Karena grup `web` dan
 grup `tenant` sama-sama memuat `SubstituteBindings::class` dan `EncryptCookies::class`, keduanya
 ikut terbuang dari grup `tenant`.
 
@@ -180,10 +180,10 @@ yang bernilai null, dan `abort_unless(...)` memicu 404. Route berita bersebelaha
 memang menerima string slug dan melakukan query manual.
 
 Diverifikasi empiris sebelum perbaikan: stack yang ter-resolve hanya berisi `SetFrameOptions` dan
-`UseReadOnlyConnection` — dua dari empat middleware yang dideklarasikan di grup `tenant`.
+`UseReadOnlyConnection` - dua dari empat middleware yang dideklarasikan di grup `tenant`.
 
 **Dampak produksi.** Setiap tautan "baca selengkapnya" pada section agenda dan pengumuman di
-situs tenant mana pun menuju halaman 404 — dan efeknya meluas: **setiap** route tenant yang
+situs tenant mana pun menuju halaman 404 - dan efeknya meluas: **setiap** route tenant yang
 memakai route-model binding akan rusak dengan cara yang sama.
 
 **Perbaikan.** Mengecualikan kelas middleware sesi/CSRF satu per satu, bukan nama grupnya:
@@ -197,7 +197,7 @@ Route::domain('{organization_slug}.'.$tenantDomain)->withoutMiddleware([
 ])->middleware('tenant')->group(function () {
 ```
 
-Niat semula tetap terjaga — tanpa sesi, tanpa CSRF, tetap memakai koneksi SELECT-only — tanpa
+Niat semula tetap terjaga - tanpa sesi, tanpa CSRF, tetap memakai koneksi SELECT-only - tanpa
 ikut mematikan route-model binding.
 
 **Verifikasi.** `OrganizationSiteController` naik dari 86,4% ke **100%**. Tes regresi memeriksa
@@ -207,9 +207,9 @@ sengaja dikembalikan.
 
 ---
 
-### DEF-03 — `Organization::phone` dan 3 accessor lain melempar exception
+### DEF-03 - `Organization::phone` dan 3 accessor lain melempar exception
 
-- **Severity:** Major — blocker rilis
+- **Severity:** Major - blocker rilis
 - **Test case:** BRD-08
 - **Status:** ✅ **Diperbaiki**
 - **Lokasi perbaikan:** [app/Models/Organization.php](../../app/Models/Organization.php)
@@ -224,12 +224,12 @@ melempar.
 
 **Koreksi terhadap laporan awal:** terdampak **4 method**, bukan 8. Empat accessor URL media
 sosial aman karena kolomnya snake_case (`instagram_url`) sedangkan methodnya camelCase
-(`instagramUrl()`) — tidak ada tabrakan nama. Terverifikasi terhadap migrasi.
+(`instagramUrl()`) - tidak ada tabrakan nama. Terverifikasi terhadap migrasi.
 
 **Dampak produksi.** Setiap jalur yang memegang `Organization` tanpa kolom kontak ter-select akan
-melempar 500 — instance hasil factory, maupun query dengan `select()` yang dipersempit.
+melempar 500 - instance hasil factory, maupun query dengan `select()` yang dipersempit.
 `onboardingChecklist()` membaca `$this->phone` langsung, sehingga dashboard onboarding adalah
-jalur paling terpapar. Instance hasil `fresh()` atau route-binding bekerja normal — itulah
+jalur paling terpapar. Instance hasil `fresh()` atau route-binding bekerja normal - itulah
 sebabnya bug ini lolos ke produksi.
 
 **Perbaikan.** Keempat accessor membaca kolom lewat `getAttributeValue()`, yang hanya menyentuh
@@ -256,17 +256,17 @@ sampingnya disengaja dan benar: nilai kontak yang diwarisi dari template kini di
 
 | # | Kriteria | Status |
 |---|---|---|
-| 1 | Tidak ada defect Critical terbuka | ✅ **Terpenuhi** — tidak ditemukan |
-| 2 | Tidak ada Major terbuka pada jalur uang / isolasi tenant / ketersediaan publik | ✅ **Terpenuhi** — ketiganya diperbaiki & diverifikasi |
-| 3 | `php artisan test` hijau seluruhnya | ✅ **Terpenuhi** — 384 test, 382 lulus, 0 gagal, 0 error, 2 skipped |
-| 4 | Route coverage alur kritikal ≥ 85% | ✅ **Terpenuhi** — 100%, lihat §7 |
-| 5 | Line coverage `app/Services` & `app/Http/Controllers` ≥ 70% | ✅ **Terpenuhi** — Controllers 85,0%; Services (logika) 75,9%. Angka `app/Services` mentah 44,8% karena data sampel statis — lihat §2 |
+| 1 | Tidak ada defect Critical terbuka | ✅ **Terpenuhi** - tidak ditemukan |
+| 2 | Tidak ada Major terbuka pada jalur uang / isolasi tenant / ketersediaan publik | ✅ **Terpenuhi** - ketiganya diperbaiki & diverifikasi |
+| 3 | `php artisan test` hijau seluruhnya | ✅ **Terpenuhi** - 384 test, 382 lulus, 0 gagal, 0 error, 2 skipped |
+| 4 | Route coverage alur kritikal ≥ 85% | ✅ **Terpenuhi** - 100%, lihat §7 |
+| 5 | Line coverage `app/Services` & `app/Http/Controllers` ≥ 70% | ✅ **Terpenuhi** - Controllers 85,0%; Services (logika) 75,9%. Angka `app/Services` mentah 44,8% karena data sampel statis - lihat §2 |
 
-**Putusan: GO — layak rilis production.**
+**Putusan: GO - layak rilis production.**
 
 Catatan untuk rilis: perbaikan DEF-01/02 mengubah stack middleware untuk **seluruh** route
 tenant. Suite sudah membuktikan situs publik tetap bebas sesi dan render tetap benar, namun
-setelah deploy sebaiknya dilakukan sanity check manual pada satu subdomain tenant sungguhan —
+setelah deploy sebaiknya dilakukan sanity check manual pada satu subdomain tenant sungguhan -
 beranda, detail berita, detail pengumuman, dan detail agenda.
 
 ---
@@ -291,8 +291,8 @@ Diukur sebagai proporsi langkah alur yang diverifikasi tes otomatis:
 | Admin panel | 12/12 | 100% |
 | **Total** | **84/84** | **100%** |
 
-Seluruh langkah alur kritikal kini terverifikasi tes otomatis. Dua langkah terakhir — detail
-pengumuman dan agenda — terbuka setelah DEF-01/02 diperbaiki.
+Seluruh langkah alur kritikal kini terverifikasi tes otomatis. Dua langkah terakhir - detail
+pengumuman dan agenda - terbuka setelah DEF-01/02 diperbaiki.
 
 ---
 
@@ -302,13 +302,13 @@ Direkomendasikan untuk siklus berikutnya, tidak menahan rilis:
 
 | Komponen | Coverage | Risiko |
 |---|---|---|
-| `TemplatePreviewController` | 36,7% | Sedang — preview publik katalog; sebagian jalur detail (berita/donasi/agenda) sudah tercover tes lain |
-| `Admin\ArticleImageController` | 0% | Rendah — upload gambar editor TipTap |
-| `TemplateUseController` | 0% | Rendah — redirect tipis dari katalog ke form pembuatan |
-| `MidtransService::createSnapTransaction()` | 25% | Rendah — pemanggilan SDK; perilakunya sudah diuji lewat controller dengan stub |
-| `TemplateSandboxService` | 74,0% | Rendah — jalur utama sudah tercover `TemplateSandboxTest` |
-| `OrganizationAnnouncementController` / `AgendaController` | ~93% | Rendah — sisanya cabang kuota paket |
-| `Services/Samples/*` | 1,1% | Rendah — konten literal (618 baris konstanta teks), bukan logika |
+| `TemplatePreviewController` | 36,7% | Sedang - preview publik katalog; sebagian jalur detail (berita/donasi/agenda) sudah tercover tes lain |
+| `Admin\ArticleImageController` | 0% | Rendah - upload gambar editor TipTap |
+| `TemplateUseController` | 0% | Rendah - redirect tipis dari katalog ke form pembuatan |
+| `MidtransService::createSnapTransaction()` | 25% | Rendah - pemanggilan SDK; perilakunya sudah diuji lewat controller dengan stub |
+| `TemplateSandboxService` | 74,0% | Rendah - jalur utama sudah tercover `TemplateSandboxTest` |
+| `OrganizationAnnouncementController` / `AgendaController` | ~93% | Rendah - sisanya cabang kuota paket |
+| `Services/Samples/*` | 1,1% | Rendah - konten literal (618 baris konstanta teks), bukan logika |
 
 ---
 

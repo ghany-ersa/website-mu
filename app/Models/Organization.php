@@ -380,7 +380,7 @@ class Organization extends Model
     }
 
     /**
-     * Human-readable list of ways this organization currently breaks its own plan's rules —
+     * Human-readable list of ways this organization currently breaks its own plan's rules -
      * derived fresh on every call rather than stored, since content counts and plan_expires_at
      * change independently of each other. Seven kinds of violation:
      *

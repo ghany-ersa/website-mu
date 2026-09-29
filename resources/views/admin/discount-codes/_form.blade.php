@@ -119,7 +119,7 @@
      Vite/npm and exposed as window.Litepicker (see resources/js/admin.js). Deferred to
      DOMContentLoaded because admin.js is loaded as a `type="module"` script (implicitly
      deferred by the browser) from the layout's <head>, while this inline classic script sits
-     in the body and would otherwise run first — leaving window.Litepicker still undefined. --}}
+     in the body and would otherwise run first - leaving window.Litepicker still undefined. --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const rangeInput = document.getElementById('valid_range');

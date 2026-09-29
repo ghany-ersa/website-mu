@@ -42,14 +42,14 @@
                             <p class="text-xs text-gray-400">{{ $organization->slug }}</p>
                         </td>
                         <td class="px-5 py-4 text-gray-600">
-                            {{ $organization->organizationType?->name ?? '—' }}
+                            {{ $organization->organizationType?->name ?? '-' }}
                         </td>
                         <td class="px-5 py-4 text-gray-600">
                             @if ($owner)
                                 <p>{{ $owner->name }}</p>
                                 <p class="text-xs text-gray-400">{{ $owner->email }}</p>
                             @else
-                                —
+                                -
                             @endif
                         </td>
                         <td class="px-5 py-4">

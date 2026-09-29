@@ -5,7 +5,7 @@
     ($template set instead) - every field below falls back gracefully when $organization is absent.
 
     Trust-building layout: prominent logo/name, verifiable contact channels (each a real tel:/
-    wa.me/mailto/maps link, not decoration), and social proof via Instagram/Facebook when set —
+    wa.me/mailto/maps link, not decoration), and social proof via Instagram/Facebook when set -
     all signal "this is a real, reachable organization" to a first-time visitor.
 
     The "Dibuat dengan website-mu.id" badge is deliberate platform branding/attribution, not

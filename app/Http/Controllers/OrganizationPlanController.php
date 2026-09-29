@@ -86,7 +86,7 @@ class OrganizationPlanController extends Controller
     }
 
     /**
-     * Submits a plan change and immediately redirects to Midtrans Snap to pay for it —
+     * Submits a plan change and immediately redirects to Midtrans Snap to pay for it -
      * organizations.plan_id is not touched here. Only PlanChangeRequestService::approve()
      * (called from MidtransWebhookController once payment settles, or by an admin retrying it)
      * actually flips it.

@@ -30,7 +30,7 @@
         <label class="block text-sm font-semibold text-gray-700 mb-1" for="organization_type_id">Jenis Organisasi</label>
         <select name="organization_type_id" id="organization_type_id"
                 class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-            <option value="">— Generik (semua jenis) —</option>
+            <option value="">- Generik (semua jenis) -</option>
             @foreach ($organizationTypes as $type)
                 <option value="{{ $type->id }}" @selected(old('organization_type_id', $template->organization_type_id ?? '') == $type->id)>
                     {{ $type->name }} ({{ $type->category->label() }})
@@ -108,7 +108,7 @@
 
     <details class="rounded-lg border border-gray-200" @if ($errors->has('structure')) open @endif>
         <summary class="cursor-pointer px-4 py-3 text-sm font-semibold text-gray-700">
-            Struktur Halaman (JSON) — Lanjutan
+            Struktur Halaman (JSON) - Lanjutan
         </summary>
         <div class="px-4 pb-4">
             @isset($template)

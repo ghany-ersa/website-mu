@@ -22,7 +22,7 @@ class StoreOrganizationRequest extends FormRequest
     /**
      * organization_type_id is listed even though the form never posts it: prepareForValidation()
      * derives it from the chosen template, and keeping a rule for it is what lets it through
-     * validated() into the insert — plus it turns a failed derivation into a validation error
+     * validated() into the insert - plus it turns a failed derivation into a validation error
      * rather than a NOT NULL violation from the database.
      *
      * @return array<string, mixed>
@@ -74,7 +74,7 @@ class StoreOrganizationRequest extends FormRequest
 
     /**
      * Templates carrying no organization type, rejected because organizations.organization_type_id
-     * is NOT NULL while templates.organization_type_id is nullable — and since prepareForValidation()
+     * is NOT NULL while templates.organization_type_id is nullable - and since prepareForValidation()
      * now derives the organization's type *from* the template, such a template would otherwise reach
      * the insert with a null type and fail as a raw SQL error instead of a readable message.
      *
@@ -95,7 +95,7 @@ class StoreOrganizationRequest extends FormRequest
      * Also derives organization_type_id *from* the chosen template, rather than the other way
      * around. The create form used to ask for the organization type and auto-pick a template
      * from it; that asked the user an abstract question ("what kind of organization are you?")
-     * whose only real consequence — which template they got — they never saw. The flow now
+     * whose only real consequence - which template they got - they never saw. The flow now
      * opens with a visual template picker (OrganizationController::createTemplate()) and the
      * type falls out of that choice, so it is no longer a form field at all. The column stays
      * on organizations because the admin panel, the public catalog filter and the org badge
@@ -103,7 +103,7 @@ class StoreOrganizationRequest extends FormRequest
      *
      * Any organization_type_id posted alongside is discarded: trusting it would let a request
      * pair a template with a contradicting type. typelessTemplateIds() covers the one case this
-     * derivation cannot satisfy — a template with no type of its own.
+     * derivation cannot satisfy - a template with no type of its own.
      *
      * Once a template is resolved, its brand colors (structure.brand.primary/secondary)
      * are copied into primary_color/secondary_color too - per prd.md §6, brand colors

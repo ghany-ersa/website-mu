@@ -184,7 +184,7 @@ return [
         'daftar-berita' => [
             'label' => 'Daftar Berita',
             // `category_filter`, when set, restricts the live-organization query (see
-            // standar.blade.php/ringkas.blade.php) to posts whose `category` matches exactly —
+            // standar.blade.php/ringkas.blade.php) to posts whose `category` matches exactly -
             // lets two daftar-berita instances on the same page (e.g. "Berita" vs "Opini") pull
             // from disjoint sets of posts instead of both showing the same unfiltered list.
             'fields' => ['title', 'items', 'limit', 'category_filter'],

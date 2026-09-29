@@ -64,7 +64,7 @@ class SectionVariantResolver
     }
 
     /**
-     * Whether picking $variant for $key requires Organization::canUseExclusiveTemplates() —
+     * Whether picking $variant for $key requires Organization::canUseExclusiveTemplates() -
      * read from that variant's own `is_exclusive` column, never inferred from its name. Pickable
      * from any plan (OrganizationSectionController::update() doesn't gate it); the entitlement
      * is enforced only at publish time (Organization::planViolations(), which calls this same

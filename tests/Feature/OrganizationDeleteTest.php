@@ -37,9 +37,9 @@ class OrganizationDeleteTest extends TestCase
      * Regression test: the delete button previously used an Alpine confirmAction() modal whose
      *
      * @submit.prevent expression had `&quot;` around the org name inside a JS template literal
-     * — Blade renders that as a literal 6-character string, not a real quote character, making
+     * - Blade renders that as a literal 6-character string, not a real quote character, making
      * the resulting JS a syntax error (button silently did nothing when clicked). Switched to a
-     * plain onsubmit="return confirm(...)" with string concatenation (not a template literal —
+     * plain onsubmit="return confirm(...)" with string concatenation (not a template literal -
      * a backtick in the org name would otherwise terminate it early), with the name passed
      * through Illuminate\Support\Js::from() so it's safe regardless of quotes/backticks in it.
      */
@@ -88,7 +88,7 @@ class OrganizationDeleteTest extends TestCase
     {
         $admin = User::factory()->create(['is_admin' => true]);
         $org = Organization::factory()->create();
-        // Deliberately no membership row for $admin — proving the delete works via the
+        // Deliberately no membership row for $admin - proving the delete works via the
         // Gate::before bypass (AppServiceProvider), not because the admin happens to also be Owner.
         $this->assertNull($org->fresh()->roleFor($admin));
 

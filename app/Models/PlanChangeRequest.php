@@ -100,7 +100,7 @@ class PlanChangeRequest extends Model
     }
 
     /**
-     * The exact gross_amount sent to Midtrans and expected back on the settlement webhook —
+     * The exact gross_amount sent to Midtrans and expected back on the settlement webhook -
      * totalPrice() plus the flat gateway surcharge (see config('billing.midtrans.admin_fee')).
      */
     public function gatewayAmount(): int

@@ -181,7 +181,7 @@
             {{-- Left group: leave builder, org identity, page switcher. --}}
             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                 {{-- Mobile: while the properties panel is open, back means "close this
-                     section and return to the preview", not "leave the builder" —
+                     section and return to the preview", not "leave the builder" -
                      otherwise it's easy to accidentally exit while editing. lg+: all
                      panels are visible at once, so back always leaves the builder. --}}
                 <a href="{{ route('organizations.show', $organization) }}"
@@ -1378,7 +1378,7 @@
 
             // The canvas lives in its own <iframe> (see organizations/builder/canvas.blade.php)
             // so it can carry the organization's brand colors independently of the builder
-            // chrome. Same-origin, so the parent can reach straight into contentDocument —
+            // chrome. Same-origin, so the parent can reach straight into contentDocument -
             // no postMessage needed.
             function canvasDocument() {
                 return document.getElementById('canvas-frame')?.contentDocument ?? null;
