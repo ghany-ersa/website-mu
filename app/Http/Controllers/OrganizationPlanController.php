@@ -238,6 +238,30 @@ class OrganizationPlanController extends Controller
     }
 
     /**
+     * Lets the tenant cancel their own pending request and pick a different plan/duration
+     * instead of being stuck waiting - e.g. they picked the wrong plan, or changed their mind
+     * before paying. Deliberately narrower than PlanChangeRequestService::reject() rules imply:
+     * only reachable from Pending, not PaymentConfirmed - once the tenant has claimed a manual
+     * transfer, cancelling it themselves could hide a payment that actually landed from the
+     * admin who still needs to verify it, so that state can only be resolved by an admin (see
+     * Admin\PlanChangeRequestController::reject()). Pending has no payment claim of any kind
+     * attached yet, so there's nothing an admin would need to reconcile.
+     */
+    public function cancel(Organization $organization, PlanChangeRequest $planChangeRequest, PlanChangeRequestService $planChangeRequestService): RedirectResponse
+    {
+        $this->authorize('manageBilling', $organization);
+
+        abort_unless($planChangeRequest->organization_id === $organization->id, 404);
+        abort_unless($planChangeRequest->status === PlanChangeRequestStatus::Pending, 409, 'Permintaan ini sudah diproses dan tidak bisa dibatalkan sendiri.');
+
+        $planChangeRequestService->reject($planChangeRequest, Auth::user(), 'Dibatalkan sendiri oleh organisasi sebelum pembayaran.');
+
+        return redirect()
+            ->route('organizations.plan.edit', $organization)
+            ->with('status', 'Permintaan dibatalkan. Silakan pilih paket lain.');
+    }
+
+    /**
      * Live-validates a voucher against the plan/duration currently picked in the form, so the
      * owner sees the real discount before submitting rather than only "verified at submission."
      * Doesn't touch any records - the code is re-validated again in store() as the final guard.

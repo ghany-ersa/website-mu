@@ -88,14 +88,16 @@ class CmsSampleDataCapTest extends TestCase
         $this->assertLessThanOrEqual(1, $organization->donationPrograms()->count());
         $this->assertLessThanOrEqual(2, $organization->announcements()->count());
 
-        // Only the content-quota violations matter here. An unpaid plan, an exclusive template,
-        // and exclusive sections/variants on a Starter plan are separate conditions this
-        // organization has by construction (no PlanChangeRequest was ever approved for it, and
-        // the exclusive masjid template it's built from carries exclusive sections/variants).
+        // Only the CMS content-quota violations matter here. An unpaid plan, an exclusive
+        // template, exclusive sections/variants, and a pages_total overage are separate
+        // conditions this organization has by construction (no PlanChangeRequest was ever
+        // approved for it; the exclusive masjid template it's built from carries exclusive
+        // sections/variants and more pages than Starter's pages_total of 1 allows).
         $quotaViolations = array_values(array_filter(
             $organization->planViolations(),
             fn (string $violation) => ! str_contains($violation, 'Pembayaran')
-                && ! str_contains($violation, 'memerlukan paket Eksklusif'),
+                && ! str_contains($violation, 'memerlukan paket Eksklusif')
+                && ! str_contains($violation, 'Halaman melebihi'),
         ));
 
         $this->assertSame([], $quotaViolations);

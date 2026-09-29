@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrganizationStatus;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use App\Services\PlanLimitService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -16,10 +18,13 @@ class OrganizationBuilderController extends Controller
      * Show the page builder for an organization's page, ensuring it owns a home page
      * (cloned from its template, or a blank "Beranda") on first visit.
      */
-    public function edit(Organization $organization, ?OrganizationPage $page = null): View
+    public function edit(Organization $organization, ?OrganizationPage $page = null): View|RedirectResponse
     {
         $this->authorize('manageBuilder', $organization);
-
+        $builderLocked = $organization->status === OrganizationStatus::Published;
+        if ($builderLocked) {
+            return redirect()->route('organizations.show', $organization)->with('error', 'Halaman builder tidak dapat diakses saat situs sedang dipublikasikan. Silakan ubah status situs menjadi Draft terlebih dahulu untuk mengubah struktur halaman.');
+        }
         $organization->ensureHomePageExists();
         $organization->load('pages.sections');
 

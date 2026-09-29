@@ -232,6 +232,8 @@ Route::middleware('auth')->group(function () {
             ->name('organizations.plan.pay');
         Route::post('organizations/{organization}/plan/{planChangeRequest}/confirm-manual-payment', [OrganizationPlanController::class, 'confirmManualPayment'])
             ->name('organizations.plan.confirm-manual-payment');
+        Route::delete('organizations/{organization}/plan/{planChangeRequest}', [OrganizationPlanController::class, 'cancel'])
+            ->name('organizations.plan.cancel');
     });
 
     // Outside scopeBindings(): that group derives the parent relation from the parameter name

@@ -25,12 +25,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
             </svg>
             <p>
-                Mengganti template akan menyusun ulang halaman mengikuti susunan template baru. <strong>Isi yang sudah
-                Anda tulis pada widget dengan jenis yang sama tetap dipertahankan</strong> (mis. teks di widget
-                "Tentang Organisasi" tetap ada bila template baru juga punya widget itu); tampilannya mengikuti
-                desain template baru. Widget yang tidak ada pada template baru ikut hilang, dan widget baru yang
-                belum pernah ada sebelumnya tampil dengan isi bawaan template. Berita, agenda, pengurus, dan konten
-                CMS lain yang sudah tersimpan tidak pernah terhapus.
+                Mengganti template menyusun ulang halaman mengikuti template baru. <strong>Isi widget dengan jenis
+                yang sama tetap dipertahankan</strong>, tampilannya mengikuti desain baru. Widget yang tidak ada di
+                template baru ikut hilang; widget baru tampil dengan isi bawaan. Berita, agenda, pengurus, dan
+                konten CMS lain tidak pernah terhapus.
             </p>
         </div>
 

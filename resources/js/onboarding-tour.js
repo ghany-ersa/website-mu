@@ -70,7 +70,7 @@ const TOUR_STEPS = {
             element: '#btn-open-builder',
             popover: {
                 title: 'Buka Builder',
-                description: 'Di sinilah Anda menyusun tampilan situs dengan drag-and-drop, mengedit section demi section.',
+                description: 'Di sinilah Anda menyusun tampilan situs dengan drag-and-drop, mengedit widget demi widget.',
                 side: 'bottom',
             },
         },
@@ -93,16 +93,16 @@ const TOUR_STEPS = {
         {
             element: '#section-sidebar',
             popover: {
-                title: 'Daftar Section',
-                description: 'Semua section halaman Anda ada di sini. Seret untuk mengubah urutan tampil di situs.',
+                title: 'Daftar Widget',
+                description: 'Semua widget halaman Anda ada di sini. Seret untuk mengubah urutan tampil di situs.',
                 side: 'right',
             },
         },
         {
             element: '#btn-add-section',
             popover: {
-                title: 'Tambah Section',
-                description: 'Tekan tombol ini untuk menambahkan komponen baru ke halaman, seperti galeri atau agenda.',
+                title: 'Tambah Widget',
+                description: 'Tekan tombol ini untuk menambahkan widget baru ke halaman, seperti galeri atau agenda.',
                 side: 'bottom',
             },
         },
@@ -118,7 +118,7 @@ const TOUR_STEPS = {
             element: '#properties-panel',
             popover: {
                 title: 'Panel Pengaturan',
-                description: 'Pilih sebuah section untuk mengedit isinya di sini - teks, gambar, dan pengaturan lainnya.',
+                description: 'Pilih sebuah widget untuk mengedit isinya di sini - teks, gambar, dan pengaturan lainnya.',
                 side: 'left',
             },
         },

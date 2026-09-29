@@ -86,9 +86,9 @@
                         </ul>
                         @if ($needsExclusivePlan)
                             <p class="text-sm text-red-700 mt-3 leading-relaxed">
-                                Template atau tampilan widget yang Anda pakai bersifat eksklusif - situs bisa terus
-                                dirancang dengannya di paket apa pun, tapi hanya bisa dipublikasikan setelah organisasi
-                                berlangganan paket <span class="font-semibold">Eksklusif</span>.
+                                Template atau widget yang Anda pakai bersifat eksklusif - bisa terus dirancang di
+                                paket apa pun, tapi baru bisa dipublikasikan setelah berlangganan paket
+                                <span class="font-semibold">Eksklusif</span>.
                             </p>
                             {{-- Points at the card, doesn't pick it for them - see
                                  $needsExclusivePlan's own comment above for why. --}}
@@ -295,6 +295,21 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- Only reachable from Pending (OrganizationPlanController::cancel()) - once a
+                     manual transfer is claimed (PaymentConfirmed), the tenant can no longer
+                     cancel on their own, since that would hide a payment an admin may still need
+                     to reconcile. Pending carries no payment claim yet, so there's nothing to
+                     lose by letting the tenant back out and pick a different plan. --}}
+                <form action="{{ route('organizations.plan.cancel', [$organization, $pendingRequest]) }}" method="POST"
+                      class="mt-5 pt-5 border-t border-amber-200/70"
+                      x-data @submit.prevent="if (await confirmAction('Batalkan permintaan ini? Anda bisa memilih paket lain setelahnya.', { confirmLabel: 'Ya, Batalkan' })) $el.submit()">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors">
+                        Batalkan &amp; pilih paket lain
+                    </button>
+                </form>
             </div>
         @else
             {{--

@@ -23,15 +23,34 @@
 
     @php
         // Menu items with a 'section' key only show up when the organization's builder pages
-        // actually contain that section - an org whose template never included e.g. galeri or
-        // jaringan-aum-ortom shouldn't see a CMS menu for content it has no section to display.
+// actually contain that section - an org whose template never included e.g. galeri or
+// jaringan-aum-ortom shouldn't see a CMS menu for content it has no section to display.
         // Dashboard (and any item without a 'section' key) is always shown.
         $activeSectionKeys = $organization->pages->flatMap->sections->pluck('key')->unique();
+        $builderLocked = $organization->status === \App\Enums\OrganizationStatus::Published;
 
         $orgMenu = [
-            ['route' => 'organizations.show', 'pattern' => 'organizations.show', 'label' => 'Dashboard', 'icon' => 'M3.75 12l8.25-8.25L20.25 12M5.25 9.75V19.5a.75.75 0 0 0 .75.75h4.5v-6h3v6h4.5a.75.75 0 0 0 .75-.75V9.75'],
-            ['route' => 'organizations.builder.edit', 'pattern' => 'organizations.builder.*', 'label' => 'Page Builder', 'icon' => 'M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5'],
-            ['route' => 'organizations.brand.edit', 'pattern' => 'organizations.brand.*', 'label' => 'Brand Settings', 'icon' => 'M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M4.098 19.902a3.75 3.75 0 0 1 0-5.304l6.401-6.402m-6.401 6.402L14.802 4.5a3.75 3.75 0 1 1 5.304 5.304l-9.594 9.594'],
+            [
+                'route' => 'organizations.show',
+                'pattern' => 'organizations.show',
+                'label' => 'Dashboard',
+                'icon' =>
+                    'M3.75 12l8.25-8.25L20.25 12M5.25 9.75V19.5a.75.75 0 0 0 .75.75h4.5v-6h3v6h4.5a.75.75 0 0 0 .75-.75V9.75',
+            ],
+            [
+                'route' => 'organizations.builder.edit',
+                'pattern' => 'organizations.builder.*',
+                'label' => 'Page Builder',
+                'icon' =>
+                    'M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5',
+            ],
+            [
+                'route' => 'organizations.brand.edit',
+                'pattern' => 'organizations.brand.*',
+                'label' => 'Brand Settings',
+                'icon' =>
+                    'M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M4.098 19.902a3.75 3.75 0 0 1 0-5.304l6.401-6.402m-6.401 6.402L14.802 4.5a3.75 3.75 0 1 1 5.304 5.304l-9.594 9.594',
+            ],
             // ['route' => 'organizations.edit.edit', 'pattern' => 'organizations.edit.*', 'label' => 'Edit Organisasi', 'icon' => 'M16.862 4.487 18.549 2.8a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125'],
             [
                 'route' => config('page-builder.sections.daftar-berita.cms.route'),
@@ -51,21 +70,24 @@
                 'route' => config('page-builder.sections.pengumuman.cms.route'),
                 'pattern' => 'organizations.announcements.*',
                 'label' => config('page-builder.sections.pengumuman.cms.label'),
-                'icon' => 'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
+                'icon' =>
+                    'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
                 'section' => 'pengumuman',
             ],
             [
                 'route' => config('page-builder.sections.galeri.cms.route'),
                 'pattern' => 'organizations.gallery.*',
                 'label' => config('page-builder.sections.galeri.cms.label'),
-                'icon' => 'M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L17.5 10 20 12.5M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5',
+                'icon' =>
+                    'M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L17.5 10 20 12.5M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5',
                 'section' => 'galeri',
             ],
             [
                 'route' => config('page-builder.sections.struktur-pengurus.cms.route'),
                 'pattern' => 'organizations.officers.*',
                 'label' => config('page-builder.sections.struktur-pengurus.cms.label'),
-                'icon' => 'M17 20h5v-2a4 4 0 0 0-3-3.87M9 20H4v-2a4 4 0 0 1 3-3.87m5-1.63a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7-2.13a4 4 0 0 0-3-7.75M5 8.13a4 4 0 0 1 3-7.75',
+                'icon' =>
+                    'M17 20h5v-2a4 4 0 0 0-3-3.87M9 20H4v-2a4 4 0 0 1 3-3.87m5-1.63a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7-2.13a4 4 0 0 0-3-7.75M5 8.13a4 4 0 0 1 3-7.75',
                 'section' => 'struktur-pengurus',
             ],
             [
@@ -76,38 +98,43 @@
                 'section' => 'jaringan-aum-ortom',
             ],
             [
-                'url' => route(config('page-builder.sections.program-unggulan.cms.route'), $organization).'?type=program',
+                'url' =>
+                    route(config('page-builder.sections.program-unggulan.cms.route'), $organization) . '?type=program',
                 'pattern' => request()->routeIs('organizations.programs.*') && request('type') !== 'layanan',
                 'label' => 'Program Unggulan',
                 'icon' => 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
                 'section' => 'program-unggulan',
             ],
             [
-                'url' => route(config('page-builder.sections.layanan.cms.route'), $organization).'?type=layanan',
+                'url' => route(config('page-builder.sections.layanan.cms.route'), $organization) . '?type=layanan',
                 'pattern' => request()->routeIs('organizations.programs.*') && request('type') === 'layanan',
                 'label' => config('page-builder.sections.layanan.cms.label'),
-                'icon' => 'M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437 5.87 8.293c.288.288.657.469 1.052.535m-8.03-8.03-8.03 8.03',
+                'icon' =>
+                    'M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437 5.87 8.293c.288.288.657.469 1.052.535m-8.03-8.03-8.03 8.03',
                 'section' => 'layanan',
             ],
             [
-                'url' => route(config('page-builder.sections.kegiatan.cms.route'), $organization).'?type=kegiatan',
+                'url' => route(config('page-builder.sections.kegiatan.cms.route'), $organization) . '?type=kegiatan',
                 'pattern' => request()->routeIs('organizations.programs.*') && request('type') === 'kegiatan',
                 'label' => config('page-builder.sections.kegiatan.cms.label'),
-                'icon' => 'M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25',
+                'icon' =>
+                    'M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25',
                 'section' => 'kegiatan',
             ],
             [
                 'route' => config('page-builder.sections.prestasi.cms.route'),
                 'pattern' => 'organizations.achievements.*',
                 'label' => config('page-builder.sections.prestasi.cms.label'),
-                'icon' => 'M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0',
+                'icon' =>
+                    'M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0',
                 'section' => 'prestasi',
             ],
             [
                 'route' => config('page-builder.sections.testimoni.cms.route'),
                 'pattern' => 'organizations.testimonials.*',
                 'label' => config('page-builder.sections.testimoni.cms.label'),
-                'icon' => 'M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z',
+                'icon' =>
+                    'M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z',
                 'section' => 'testimoni',
             ],
             [
@@ -121,21 +148,24 @@
                 'route' => config('page-builder.sections.donasi-progress.cms.route'),
                 'pattern' => 'organizations.donations.*',
                 'label' => config('page-builder.sections.donasi-progress.cms.label'),
-                'icon' => 'M12 8c-1.657 0-3 .672-3 1.5S10.343 11 12 11s3 .672 3 1.5-1.343 1.5-3 1.5m0-6V6m0 8v1.5m0-9.5C7.582 3 4 5.686 4 9s3.582 6 8 6 8-2.686 8-6-3.582-6-8-6Z',
+                'icon' =>
+                    'M12 8c-1.657 0-3 .672-3 1.5S10.343 11 12 11s3 .672 3 1.5-1.343 1.5-3 1.5m0-6V6m0 8v1.5m0-9.5C7.582 3 4 5.686 4 9s3.582 6 8 6 8-2.686 8-6-3.582-6-8-6Z',
                 'section' => 'donasi-progress',
             ],
             [
                 'route' => config('page-builder.sections.laporan-keuangan.cms.route'),
                 'pattern' => 'organizations.financial-reports.*',
                 'label' => config('page-builder.sections.laporan-keuangan.cms.label'),
-                'icon' => 'M9 17V9m4 8V5m4 12v-3M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z',
+                'icon' =>
+                    'M9 17V9m4 8V5m4 12v-3M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z',
                 'section' => 'laporan-keuangan',
             ],
             [
                 'route' => 'organizations.plan.edit',
                 'pattern' => 'organizations.plan.*',
                 'label' => 'Langganan',
-                'icon' => 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z',
+                'icon' =>
+                    'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z',
             ],
         ];
 
@@ -143,8 +173,8 @@
             $orgMenu,
             // 'section' may list more than one key: one CMS can be backed by several sections,
             // and the menu should show if the organization has any of them.
-            fn ($item) => ! isset($item['section'])
-                || collect((array) $item['section'])->intersect($activeSectionKeys)->isNotEmpty()
+            fn($item) => !isset($item['section']) ||
+                collect((array) $item['section'])->intersect($activeSectionKeys)->isNotEmpty(),
         );
     @endphp
 
@@ -153,7 +183,8 @@
         <div class="px-4 sm:px-6 py-4 lg:py-6">
             <a href="{{ route('organizations.index') }}" class="flex items-center">
                 <img src="{{ asset('logo.png') }}" alt="Website-mu" class="h-8 w-auto">
-                <span class="text-xl font-extrabold text-primary tracking-tight">website-mu<span class="text-secondary">.id</span></span>
+                <span class="text-xl font-extrabold text-primary tracking-tight">website-mu<span
+                        class="text-secondary">.id</span></span>
             </a>
             <p class="text-xs text-gray-400 mt-0.5 truncate">{{ $organization->name }}</p>
         </div>
@@ -175,12 +206,22 @@
                 @php
                     $href = $item['url'] ?? route($item['route'], $organization);
                     $isActive = is_bool($item['pattern']) ? $item['pattern'] : request()->routeIs($item['pattern']);
+                    $isDisabled = $builderLocked === true && ($item['route'] ?? null) === 'organizations.builder.edit';
                 @endphp
-                <a href="{{ $href }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap {{ $isActive ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:bg-gray-50 hover:text-primary' }}">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <a href="{{ $href }}" @class([
+                    'flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap',
+                    'bg-primary/10 text-primary' => $isActive,
+                    'text-gray-500 hover:bg-gray-50 hover:text-primary' =>
+                        !$isActive && !$isDisabled,
+                    'pointer-events-none opacity-50 cursor-not-allowed' => $isDisabled,
+                ])
+                    @if ($isDisabled) aria-disabled="true"
+            tabindex="-1" @endif>
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}" />
                     </svg>
+
                     {{ $item['label'] }}
                 </a>
             @endforeach
@@ -201,9 +242,11 @@
                 @keydown.escape.window="open = false">
                 <div @click.outside="open = false"
                     class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
-                    <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center mx-auto mb-4">
+                    <div
+                        class="w-12 h-12 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center mx-auto mb-4">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                         </svg>
                     </div>
                     <h3 class="font-bold text-gray-800 mb-1">Batas Paket Tercapai</h3>

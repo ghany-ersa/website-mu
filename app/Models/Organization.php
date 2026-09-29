@@ -382,11 +382,15 @@ class Organization extends Model
     /**
      * Human-readable list of ways this organization currently breaks its own plan's rules —
      * derived fresh on every call rather than stored, since content counts and plan_expires_at
-     * change independently of each other. Six kinds of violation:
+     * change independently of each other. Seven kinds of violation:
      *
      *  - CMS content over the plan's limit (e.g. 25 posts on a 20-post plan) - happens after a
      *    downgrade, since PlanLimitService::canCreate() only blocks *new* creation and never
-     *    deletes existing over-limit content.
+     *    deletes existing over-limit content. Includes 'pages_total' (builder pages, not a CMS
+     *    resource, but counted the exact same way via PlanLimitService::currentCount()) - a
+     *    downgrade from Eksklusif (pages_total 10) to Starter/Premium (pages_total 1) is the
+     *    common way to reach this, since OrganizationPageController never deletes existing pages
+     *    on its own.
      *  - Total page-builder sections over 'sections_total' - same downgrade scenario, for
      *    components instead of CMS records.
      *  - The paid period has lapsed (see planIsExpired()), or has never started at all (see
@@ -423,6 +427,7 @@ class Organization extends Model
             'students' => ['students', 'Data Siswa'],
             'achievements' => ['achievements', 'Prestasi'],
             'testimonials' => ['testimonials', 'Testimoni'],
+            'pages_total' => ['pages', 'Halaman'],
         ];
 
         // effectiveLimit() (not Plan::limitFor() directly) so a paid-for limits_snapshot is
@@ -472,7 +477,7 @@ class Organization extends Model
         if ($this->planIsExpired()) {
             $violations[] = 'Masa aktif paket langganan telah berakhir';
         } elseif (! $this->hasPaidForCurrentPlan()) {
-            $violations[] = 'Pembayaran paket langganan belum dikonfirmasi';
+            $violations[] = 'Pembayaran paket belum dikonfirmasi';
         }
 
         // An exclusive template on a plan that doesn't grant them. Reachable because the
@@ -498,7 +503,7 @@ class Organization extends Model
                 ->count();
 
             if ($exclusiveSectionCount > 0) {
-                $violations[] = "Ada {$exclusiveSectionCount} widget eksklusif yang memerlukan paket Eksklusif";
+                $violations[] = "{$exclusiveSectionCount} widget memerlukan paket Eksklusif";
             }
 
             $exclusiveVariantCount = $sections
@@ -507,7 +512,7 @@ class Organization extends Model
                 ->count();
 
             if ($exclusiveVariantCount > 0) {
-                $violations[] = "Ada {$exclusiveVariantCount} tampilan widget eksklusif yang memerlukan paket Eksklusif";
+                $violations[] = "{$exclusiveVariantCount} tampilan widget memerlukan paket Eksklusif";
             }
         }
 
