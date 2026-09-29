@@ -486,9 +486,9 @@ class Organization extends Model
         // publishing that's gated, not choosing. Not a template the plan simply "hasn't paid
         // for yet" - canUseExclusiveTemplates() reads the entitlement, so this clears itself
         // the moment an upgrade is approved, with no template change needed.
-        if ($this->template?->is_exclusive && ! $this->canUseExclusiveTemplates()) {
-            $violations[] = 'Template ini memerlukan paket Eksklusif';
-        }
+        // if ($this->template?->is_exclusive && ! $this->canUseExclusiveTemplates()) {
+        //     $violations[] = 'Template ini memerlukan paket Eksklusif';
+        // }
 
         if (! $this->canUseExclusiveTemplates()) {
             $sections = $this->pages->flatMap->sections;
