@@ -287,7 +287,7 @@
                                 </button>
                                 @unless ($p->is_home)
                                     <form action="{{ route('organizations.pages.destroy', [$organization, $p]) }}"
-                                        method="POST" x-data @submit.prevent="if (await confirmAction('Hapus halaman &quot;{{ $p->name }}&quot;? Semua section di dalamnya juga akan terhapus.')) $el.submit()">
+                                        method="POST" x-data @submit.prevent="if (await confirmAction('Hapus halaman &quot;{{ $p->name }}&quot;? Semua widget di dalamnya juga akan terhapus.')) $el.submit()">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" title="Hapus"
@@ -534,7 +534,7 @@
                                 .replace('__KEY__', key);
                         },
                     }" @keydown.escape.window="open = false">
-                    <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2.5">Tambah Section</p>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2.5">Tambah Widget</p>
 
                     <button type="button" id="btn-add-section" @click="openPicker()"
                         class="w-full flex items-center justify-between rounded-xl border border-gray-200 pl-3 pr-2.5 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition">
@@ -542,7 +542,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-primary">
                                 <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
                             </svg>
-                            Tambah Section
+                            Tambah Widget
                         </span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400">
                             <path fill-rule="evenodd"
@@ -560,13 +560,13 @@
                          mobile (no hover) and desktop. Tapping/clicking a name in the list only swaps the
                          preview pane - it never adds the section by itself - so browsing on a touch screen
                          can't misfire an add. Desktop additionally previews on hover as a shortcut; both
-                         input methods still require the explicit "Pilih komponen ini" button to confirm. --}}
+                         input methods still require the explicit "Pilih widget ini" button to confirm. --}}
                     <div x-show="open" x-cloak x-transition.opacity.duration.100ms
                         class="fixed inset-0 z-[60] bg-gray-900/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
                         @click.self="open = false">
                         <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl animate-pop-in overflow-hidden">
                             <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-                                <h3 class="font-bold text-gray-800">Pilih Komponen</h3>
+                                <h3 class="font-bold text-gray-800">Pilih Widget</h3>
                                 <button type="button" @click="open = false"
                                     class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
@@ -584,7 +584,7 @@
                             <div class="p-4 pb-2 shrink-0">
                                 <div class="rounded-xl overflow-hidden ring-1 ring-black/5" style="height: 14rem; background-color: #F1F3F9;">
                                     <template x-if="open && previewKey">
-                                        <iframe :src="previewUrlFor(previewKey)" title="Pratinjau komponen"
+                                        <iframe :src="previewUrlFor(previewKey)" title="Pratinjau widget"
                                             class="w-full border-0 pointer-events-none"
                                             style="width: 300%; height: 300%; transform: scale(.3333); transform-origin: top left;"
                                             loading="lazy"></iframe>
@@ -615,8 +615,8 @@
                             <div class="p-4 border-t border-gray-100 shrink-0">
                                 <template x-if="previewKey && options[previewKey]?.exclusive">
                                     <p class="mb-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                        Komponen ini bisa dipakai sekarang, tapi situs tidak bisa dipublikasikan
-                                        selama komponen ini ada dan paket Anda bukan Eksklusif.
+                                        Widget ini bisa dipakai sekarang, tapi situs tidak bisa dipublikasikan
+                                        selama widget ini ada dan paket Anda bukan Eksklusif.
                                         <a href="{{ route('organizations.plan.edit', $organization) }}"
                                             class="font-semibold underline underline-offset-2 hover:text-amber-900">Upgrade paket</a>
                                         kapan saja.
@@ -625,7 +625,7 @@
                                 <button type="button" @click="choose(previewKey)"
                                     :disabled="!previewKey"
                                     class="w-full px-4 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-sm hover:shadow-lg hover:shadow-primary/25 hover:bg-primary/90 active:scale-[.98] transition disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-sm">
-                                    Pilih komponen ini
+                                    Pilih widget ini
                                 </button>
                             </div>
                         </div>
@@ -717,7 +717,7 @@
                                     </form>
                                     <form
                                         action="{{ route('organizations.sections.destroy', [$organization, $section]) }}"
-                                        method="POST" x-data @submit.prevent="if (await confirmAction('Hapus section ini?')) $el.submit()" @click.stop>
+                                        method="POST" x-data @submit.prevent="if (await confirmAction('Hapus widget ini?')) $el.submit()" @click.stop>
                                         @csrf @method('DELETE')
                                         <button type="submit" title="Hapus"
                                             class="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition">
@@ -828,7 +828,7 @@
                 <div x-show="propertiesPanelCollapsed && editingSectionId !== null" x-cloak
                     class="hidden lg:flex flex-col items-center pt-4 h-full">
                     <button type="button" @click="propertiesPanelCollapsed = false"
-                        title="Buka panel Edit Section"
+                        title="Buka panel Edit Widget"
                         class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                             <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1 0 1.06L9.31 9.77a.75.75 0 0 0 0 1.06l3.48 3.48a.75.75 0 1 1-1.06 1.06l-3.48-3.48a2.25 2.25 0 0 1 0-3.18l3.48-3.48a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
@@ -844,7 +844,7 @@
                             class="sticky top-0 bg-white/90 backdrop-blur px-5 pt-5 pb-3 border-b border-gray-100 flex items-start justify-between gap-3 z-10">
                             <div class="min-w-0">
                                 <p class="text-[11px] font-bold uppercase tracking-wider text-primary/70 mb-1">Edit
-                                    Section</p>
+                                    Widget</p>
                                 <h2 class="font-bold text-gray-800 leading-tight truncate"
                                     title="{{ $sectionRegistry[$section->key]['label'] ?? $section->key }}">
                                     {{ $sectionRegistry[$section->key]['label'] ?? $section->key }}</h2>
@@ -922,7 +922,7 @@
 
                                     // Exclusive variants are pickable from any plan (build now, pay to
                                     // publish - Organization::planViolations() is the real gate), but
-                                    // still carry a badge here - same treatment as the "Tambah Section"
+                                    // still carry a badge here - same treatment as the "Tambah Widget"
                                     // picker - so an owner on a lower plan knows picking this layout
                                     // will block publishing until they upgrade. Each variant's own
                                     // explicit `exclusive` flag decides this (never inferred from its
@@ -952,7 +952,7 @@
                                         class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                         @foreach ($variantOptions as $variantKey => $variantMeta)
                                             {{-- A padlock plus the plan name, the same cue the "Tambah
-                                                 Section" picker uses - an <option> can't carry markup, so
+                                                 Widget" picker uses - an <option> can't carry markup, so
                                                  the emoji stands in for that list's badge. Informational
                                                  only: the option is always selectable. --}}
                                             @php $variantIsExclusive = ! $canUseExclusive && ($variantMeta['exclusive'] ?? false); @endphp
@@ -990,14 +990,14 @@
                                             class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                             <option value="none" @selected($currentType === 'none' || $currentType === null)>Tidak ada</option>
                                             <option value="whatsapp" @selected($currentType === 'whatsapp')>Buka WhatsApp</option>
-                                            <option value="scroll" @selected($currentType === 'scroll')>Scroll ke section lain</option>
+                                            <option value="scroll" @selected($currentType === 'scroll')>Scroll ke widget lain</option>
                                             <option value="url" @selected($currentType === 'url')>Buka URL/link</option>
                                         </select>
 
                                         <div x-show="{{ $stateVar }} === 'scroll'" x-cloak class="mt-2">
                                             <select name="content[{{ $prefix }}_section]"
                                                 class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
-                                                <option value="">Pilih section tujuan</option>
+                                                <option value="">Pilih widget tujuan</option>
                                                 @foreach ($currentPage->sections as $targetSection)
                                                     @continue($targetSection->id === $section->id)
                                                     <option value="{{ $targetSection->id }}" @selected((string) $currentSection === (string) $targetSection->id)>
@@ -1245,7 +1245,7 @@
                                 @endphp
                                 <a href="{{ $cmsUrl }}{{ $cmsSeparator }}from=builder&amp;section={{ $section->id }}"
                                     class="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3.5 py-3 text-xs text-primary font-medium flex items-center justify-between gap-2 hover:bg-primary/10 transition">
-                                    Section ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
+                                    Widget ini otomatis menampilkan {{ $cmsLabel }} terbaru yang diterbitkan
                                     <span class="font-semibold whitespace-nowrap">Kelola {{ $cmsLabel }} &rarr;</span>
                                 </a>
                             @endif
@@ -1254,7 +1254,7 @@
                                 class="flex items-center gap-2.5 text-sm text-gray-600 bg-gray-50 rounded-xl px-3.5 py-3 cursor-pointer hover:bg-gray-100 transition">
                                 <input type="checkbox" name="is_visible" value="1" @checked($section->is_visible)
                                     class="w-4 h-4 rounded text-primary focus:ring-primary/40 border-gray-300">
-                                Tampilkan section ini
+                                Tampilkan widget ini
                             </label>
 
                             <button type="submit" :disabled="saving"

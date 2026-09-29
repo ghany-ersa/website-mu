@@ -25,7 +25,7 @@ class PlanController extends Controller
         'officers' => 'Data Pengurus',
         'programs' => 'Program/Layanan',
         'gallery_photos' => 'Foto Galeri',
-        'sections_total' => 'Komponen di Situs (Total)',
+        'sections_total' => 'Widget di Situs (Total)',
     ];
 
     /**

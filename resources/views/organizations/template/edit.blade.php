@@ -26,9 +26,9 @@
             </svg>
             <p>
                 Mengganti template akan menyusun ulang halaman mengikuti susunan template baru. <strong>Isi yang sudah
-                Anda tulis pada komponen dengan jenis yang sama tetap dipertahankan</strong> (mis. teks di komponen
-                "Tentang Organisasi" tetap ada bila template baru juga punya komponen itu); tampilannya mengikuti
-                desain template baru. Komponen yang tidak ada pada template baru ikut hilang, dan komponen baru yang
+                Anda tulis pada widget dengan jenis yang sama tetap dipertahankan</strong> (mis. teks di widget
+                "Tentang Organisasi" tetap ada bila template baru juga punya widget itu); tampilannya mengikuti
+                desain template baru. Widget yang tidak ada pada template baru ikut hilang, dan widget baru yang
                 belum pernah ada sebelumnya tampil dengan isi bawaan template. Berita, agenda, pengurus, dan konten
                 CMS lain yang sudah tersimpan tidak pernah terhapus.
             </p>
@@ -51,7 +51,7 @@
 
         <form action="{{ route('organizations.template.update', $organization) }}" method="POST"
               x-data="{ selected: {{ Js::from($organization->template_id) }} }"
-              @submit.prevent="if (await confirmAction('Halaman akan disusun ulang mengikuti template baru. Isi komponen dengan jenis yang sama tetap dipertahankan. Lanjutkan?', { confirmLabel: 'Ya, Ganti Template' })) $el.submit()">
+              @submit.prevent="if (await confirmAction('Halaman akan disusun ulang mengikuti template baru. Isi widget dengan jenis yang sama tetap dipertahankan. Lanjutkan?', { confirmLabel: 'Ya, Ganti Template' })) $el.submit()">
             @csrf
             @method('PATCH')
             <input type="hidden" name="template_id" x-model="selected">

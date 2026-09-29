@@ -6,7 +6,7 @@
     <div class="mb-8">
         <h1 class="text-2xl font-extrabold text-primary">Variant Tampilan</h1>
         <p class="text-sm text-gray-500 mt-1">
-            Daftar desain per komponen halaman, dikelompokkan per komponen. Aktifkan "Eksklusif" pada
+            Daftar desain per widget halaman, dikelompokkan per widget. Aktifkan "Eksklusif" pada
             variant yang hanya boleh dipilih organisasi dengan paket berentitlement template eksklusif.
         </p>
     </div>
@@ -15,7 +15,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2">
             <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
         </svg>
-        <input type="search" id="variant-search" placeholder="Cari komponen atau variant..."
+        <input type="search" id="variant-search" placeholder="Cari widget atau variant..."
                class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
     </div>
 
@@ -30,7 +30,7 @@
             </colgroup>
             <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
                 <tr>
-                    <th class="px-5 py-3">Komponen</th>
+                    <th class="px-5 py-3">Widget</th>
                     <th class="px-5 py-3">Variant</th>
                     <th class="px-5 py-3">Status</th>
                     <th class="px-5 py-3">Eksklusif</th>
@@ -95,7 +95,7 @@
         </table>
 
         <p id="variant-empty" class="hidden text-center text-gray-400 py-10">
-            Tidak ada komponen atau variant yang cocok dengan pencarian.
+            Tidak ada widget atau variant yang cocok dengan pencarian.
         </p>
     </div>
 

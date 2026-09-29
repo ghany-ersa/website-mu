@@ -20,7 +20,7 @@
             'achievements' => 'Prestasi',
             'testimonials' => 'Testimoni',
             'students' => 'Data Siswa',
-            'sections_total' => 'Komponen di Situs',
+            'sections_total' => 'Widget di Situs',
             'pages_total' => 'Jumlah Halaman',
         ];
         $usageIcons = [
@@ -86,7 +86,7 @@
                         </ul>
                         @if ($needsExclusivePlan)
                             <p class="text-sm text-red-700 mt-3 leading-relaxed">
-                                Template atau tampilan komponen yang Anda pakai bersifat eksklusif - situs bisa terus
+                                Template atau tampilan widget yang Anda pakai bersifat eksklusif - situs bisa terus
                                 dirancang dengannya di paket apa pun, tapi hanya bisa dipublikasikan setelah organisasi
                                 berlangganan paket <span class="font-semibold">Eksklusif</span>.
                             </p>

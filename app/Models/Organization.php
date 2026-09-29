@@ -465,7 +465,7 @@ class Organization extends Model
             $sectionsOver = $service->countedSectionsTotal($this) - $sectionsLimit;
 
             if ($sectionsOver > 0) {
-                $violations[] = "Jumlah komponen situs melebihi batas paket ({$sectionsOver} kelebihan)";
+                $violations[] = "Jumlah widget situs melebihi batas paket ({$sectionsOver} kelebihan)";
             }
         }
 
@@ -498,7 +498,7 @@ class Organization extends Model
                 ->count();
 
             if ($exclusiveSectionCount > 0) {
-                $violations[] = "Ada {$exclusiveSectionCount} komponen eksklusif yang memerlukan paket Eksklusif";
+                $violations[] = "Ada {$exclusiveSectionCount} widget eksklusif yang memerlukan paket Eksklusif";
             }
 
             $exclusiveVariantCount = $sections
@@ -507,7 +507,7 @@ class Organization extends Model
                 ->count();
 
             if ($exclusiveVariantCount > 0) {
-                $violations[] = "Ada {$exclusiveVariantCount} tampilan komponen eksklusif yang memerlukan paket Eksklusif";
+                $violations[] = "Ada {$exclusiveVariantCount} tampilan widget eksklusif yang memerlukan paket Eksklusif";
             }
         }
 

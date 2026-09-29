@@ -1,5 +1,5 @@
 {{--
-    Standalone single-section document loaded into the "Tambah Section" dropdown's thumbnail
+    Standalone single-section document loaded into the "Tambah Widget" dropdown's thumbnail
     <iframe> (organizations/builder/edit.blade.php) - shows what a section type looks like,
     rendered with its registry default content, before the user adds it to the page. Lazily
     loaded per-option only once the dropdown is opened, not on initial page load, since a page

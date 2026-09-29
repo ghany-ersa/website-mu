@@ -139,9 +139,9 @@ class Plan extends Model
         $sectionsTotal = $this->limitFor('sections_total');
 
         if ($sectionsTotal !== null && $sectionsTotal > 0) {
-            $features[] = ['label' => "Maks. {$sectionsTotal} Komponen per Situs", 'available' => true];
+            $features[] = ['label' => "Maks. {$sectionsTotal} Widget per Situs", 'available' => true];
         } elseif ($sectionsTotal === 0) {
-            $features[] = ['label' => 'Komponen Situs Tidak Tersedia', 'available' => false];
+            $features[] = ['label' => 'Widget Situs Tidak Tersedia', 'available' => false];
         }
 
         // pages_total is the one PlanSeeder limit that isn't a gradually-scaled quota (see
