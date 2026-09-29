@@ -56,7 +56,9 @@
                                 <img src="{{ $head['photo'] }}" alt="{{ $head['name'] ?? '' }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full min-h-[18rem] bg-surface-container-high flex items-center justify-center">
-                                    <x-tenant.icon name="person" class="text-5xl text-on-surface-variant" />
+                                    <svg class="w-14 h-14 text-on-surface-variant" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
+                                    </svg>
                                 </div>
                             @endif
                             <div class="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent"></div>
@@ -85,7 +87,9 @@
                                      class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
-                                    <x-tenant.icon name="person" class="text-4xl text-on-surface-variant" />
+                                    <svg class="w-9 h-9 text-on-surface-variant" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z" />
+                                    </svg>
                                 </div>
                             @endif
                             @if (! empty($person['subject']))

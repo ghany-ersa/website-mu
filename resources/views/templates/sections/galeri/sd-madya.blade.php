@@ -82,7 +82,9 @@
                                  YouTube's player on every visit. --}}
                             <button type="button" @click="showVideo = true"
                                     class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-secondary text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all mb-6">
-                                <x-tenant.icon name="play_arrow" filled class="text-3xl md:text-4xl" />
+                                <svg class="w-7 h-7 md:w-9 md:h-9" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M8 5v14l11-7L8 5Z" />
+                                </svg>
                             </button>
                             <h3 class="font-headline t-h3 sm:text-xl md:text-2xl font-bold text-white mb-1.5">{{ $content['video_title'] ?? 'Video Profil' }}</h3>
                             @if (! empty($content['video_subtitle']))
@@ -128,7 +130,9 @@
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         @else
                             <span class="absolute inset-0 flex items-center justify-center">
-                                <x-tenant.icon name="image" class="text-4xl text-on-surface-variant" />
+                                <svg class="w-9 h-9 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5V6a1.5 1.5 0 0 1 1.5-1.5h15A1.5 1.5 0 0 1 21 6v12a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18v-1.5Zm0 0 5.5-5a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L18 9.5 21 12.5M9.75 9a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" />
+                                </svg>
                             </span>
                         @endif
 

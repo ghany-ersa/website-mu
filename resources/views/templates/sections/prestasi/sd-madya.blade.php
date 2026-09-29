@@ -99,7 +99,15 @@
                         @endif
                         <div class="relative z-10 p-4 sm:p-5 flex flex-col justify-between h-full">
                             <div class="w-10 h-10 {{ $chip }} rounded-full flex items-center justify-center">
-                                <x-tenant.icon name="{{ $gold ? 'music_note' : 'menu_book' }}" filled class="{{ $ink }}" />
+                                @if ($gold)
+                                    <svg class="w-5 h-5 {{ $ink }}" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M9 18V5l12-2v13M9 13l12-2M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                @else
+                                    <svg class="w-5 h-5 {{ $ink }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.5c-1.5-1-4-1.5-6-1.5v13c2 0 4.5.5 6 1.5m0-13c1.5-1 4-1.5 6-1.5v13c-2 0-4.5.5-6 1.5m0-13v13" />
+                                    </svg>
+                                @endif
                             </div>
                             <div class="mt-4">
                                 <h4 class="font-headline font-bold text-[15px] {{ $ink }}">{{ $item['title'] ?? '' }}</h4>

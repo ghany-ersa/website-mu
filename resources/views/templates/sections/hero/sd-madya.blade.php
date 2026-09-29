@@ -52,7 +52,9 @@
                  hairline border, not a plain white pill. --}}
             @if (! empty($content['badge']))
                 <span class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/20 border border-secondary/30 text-secondary font-headline font-bold uppercase text-[11px] tracking-widest">
-                    <x-tenant.icon name="stars" filled class="text-sm" />
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2l1.6 5.2L19 9l-5.4 1.8L12 16l-1.6-5.2L5 9l5.4-1.8L12 2Zm7 12 .8 2.5L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.7L19 14ZM6 15l.6 1.9L8.5 17l-1.9.6L6 19.5l-.6-1.9L3.5 17l1.9-.6L6 15Z" />
+                    </svg>
                     {{ $content['badge'] }}
                 </span>
             @endif
@@ -86,7 +88,9 @@
                         {{ $ctaHref && ($content['cta_type'] ?? null) !== 'scroll' ? 'target=_blank rel=noopener' : '' }}
                         class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 rounded-xl bg-secondary text-white font-headline font-bold shadow-ambient-lg transition-transform duration-200 hover:scale-105">
                         {{ $content['cta_label'] }}
-                        <x-tenant.icon name="arrow_forward" class="text-base" />
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-7 7 7-7 7" />
+                    </svg>
                     </a>
                 @endif
                 @if (! empty($content['cta_secondary_label']))
@@ -126,7 +130,9 @@
                 <div class="relative md:absolute md:-bottom-8 md:-left-8 mt-3 md:mt-0 bg-white p-4 md:p-5 rounded-2xl shadow-2xl md:max-w-[17rem] z-20">
                     <div class="flex gap-3 md:gap-4 items-center">
                         <div class="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">
-                            <x-tenant.icon name="workspace_premium" filled class="text-primary" />
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 2 9.5 6.5 4.5 7l3.5 3.5-1 5 5-2.6 5 2.6-1-5L19.5 7l-5-.5L12 2Zm-4 14.5V22l4-2 4 2v-5.5l-4 2-4-2Z" />
+                            </svg>
                         </div>
                         <div class="min-w-0">
                             <p class="font-headline font-bold text-primary text-[15px] leading-tight">{{ $content['highlight_title'] }}</p>
