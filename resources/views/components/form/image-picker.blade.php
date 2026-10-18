@@ -17,7 +17,7 @@
 --}}
 <div x-data="imagePicker({
         initial: @js(old($name, $value) ?? ''),
-        indexUrl: @js(route('organizations.media.index', $organization)),
+        indexUrl: @js(route('organizations.media.index', $organization, false)),
         category: @js($category),
         csrf: @js(csrf_token()),
      })">
