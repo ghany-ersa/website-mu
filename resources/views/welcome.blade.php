@@ -146,7 +146,7 @@
                     </span>
 
                     <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-[1.15] mb-6">
-                        <span class="text-gradient">Rumah Digital Muhammadiyah.</span>
+                        <span class="text-gradient">Profil Digital Muhammadiyah.</span>
                     </h1>
 
                     <p class="text-gray-600 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
