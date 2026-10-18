@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - /usr/bin/rsync -av --exclude='.git' ./ ~/public_html/
+    - /usr/bin/rsync -av --exclude='.git' ./ ~/_wildcard_.website-mu.id/
