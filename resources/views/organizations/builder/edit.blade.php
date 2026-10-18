@@ -894,6 +894,7 @@
                                         'view' => $row->view,
                                         'exclusive' => $row->is_exclusive,
                                         'default' => $row->is_default,
+                                        'visible' => $row->is_visible,
                                     ])->all();
 
                                     // Dedup by view path: keep only one key per unique view - every section's
@@ -945,6 +946,16 @@
                                         }
                                     }
 
+                                    // Hides a variant an admin has marked is_visible=false (still being
+                                    // tested - see admin/section-variants) from the dropdown, EXCEPT the
+                                    // one this section is already using: an organization that picked it
+                                    // before it was hidden keeps seeing and keeping its own choice, it just
+                                    // can't be picked again by anyone switching onto it fresh.
+                                    $variantOptions = array_filter(
+                                        $variantOptions,
+                                        fn ($optionMeta, $optionKey) => ($optionMeta['visible'] ?? true) || $optionKey === $currentVariant,
+                                        ARRAY_FILTER_USE_BOTH
+                                    );
                                 @endphp
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tampilan</label>

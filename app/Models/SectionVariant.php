@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['section_key', 'variant_key', 'view', 'is_exclusive', 'is_default'])]
+#[Fillable(['section_key', 'variant_key', 'view', 'is_exclusive', 'is_default', 'is_visible'])]
 class SectionVariant extends Model
 {
     /**
@@ -16,6 +16,7 @@ class SectionVariant extends Model
         return [
             'is_exclusive' => 'boolean',
             'is_default' => 'boolean',
+            'is_visible' => 'boolean',
         ];
     }
 }
