@@ -47,13 +47,35 @@
 
     // Page links only make sense once there's more than one page to move between; a
     // single-page site's footer stays exactly as it was.
+    //
+    // Same $previewPages-first order as header/standar.blade.php's $navItems, and for the same
+    // reason: in template-preview context (see templates/preview.blade.php) there is no real
+    // Organization yet, so TenantPageUrl::for() - which only knows the tenant-subdomain and
+    // organizations.preview/builder contexts, not templates.preview - can't resolve a link and
+    // silently drops every page, leaving this "Halaman" column empty even on a multi-page
+    // template whose header nav (built from $previewPages directly) renders correctly.
+    $previewPages = collect($previewPages ?? []);
     $pages = $organization->pages ?? collect();
-    $navPages = $pages->count() > 1
-        ? $pages->map(fn ($navPage) => [
+
+    if ($previewPages->count() > 1) {
+        $navPages = $previewPages
+            ->map(fn ($previewPage) => [
+                'label' => $previewPage['name'] ?? null,
+                'href' => route('templates.preview', [
+                    'template' => $template->slug,
+                    'page' => $previewPage['slug'] ?? null,
+                ]),
+            ])
+            ->filter(fn ($item) => filled($item['label']))
+            ->values();
+    } elseif ($pages->count() > 1) {
+        $navPages = $pages->map(fn ($navPage) => [
             'label' => $navPage->name,
             'href' => \App\Services\TenantPageUrl::for($organization, $navPage),
-        ])->filter(fn ($item) => filled($item['href']))->values()
-        : collect();
+        ])->filter(fn ($item) => filled($item['href']))->values();
+    } else {
+        $navPages = collect();
+    }
 @endphp
 
 <footer class="bg-primary text-white/70" style="background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))">

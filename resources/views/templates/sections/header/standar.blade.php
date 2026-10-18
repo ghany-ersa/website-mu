@@ -81,7 +81,7 @@
     }
 @endphp
 
-<header id="top" class="sticky top-0 z-40 bg-primary backdrop-blur" x-data="{ open: false }">
+<header id="top" class="fixed inset-x-0 z-40 bg-primary backdrop-blur" style="top: var(--plan-banner-height, 0px)" x-data="{ open: false }">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-3">
         <a href="{{ $brandHref }}" class="flex items-center gap-2">
             @if ($orgLogo)
@@ -167,3 +167,26 @@
         </nav>
     @endif
 </header>
+
+{{--
+    Reserves the fixed header's own height in the document flow, so the first real section
+    doesn't render underneath it. Measured via JS (not a fixed Tailwind height utility)
+    because the header's rendered height varies - a different brand font/logo, or the mobile
+    menu opening and adding its dropdown's height - so a hardcoded number would leave a gap
+    or an overlap depending on which of those applies. Same technique as the plan-violation
+    banner's --plan-banner-height in organizations/pages/_document.blade.php; this one is
+    scoped to its own CSS variable rather than reusing that one, since a template preview
+    has no plan banner at all and the two have to size independently when a real tenant page
+    has both.
+--}}
+<div style="height: var(--header-height, 0px)"></div>
+<script>
+    (function () {
+        const header = document.getElementById('top');
+        const setHeight = () => document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+        setHeight();
+        window.addEventListener('resize', setHeight);
+        // The mobile dropdown changes the header's height without a resize event.
+        new MutationObserver(setHeight).observe(header, { attributes: true, subtree: true });
+    })();
+</script>
