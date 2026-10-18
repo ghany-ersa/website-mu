@@ -507,6 +507,7 @@
                 <div class="p-4 border-b border-gray-100" x-data="{
                         open: false,
                         previewKey: null,
+                        search: '',
                         {{-- Exclusive sections stay addable from any plan (build now, pay to
                              publish - Organization::planViolations() is the real gate) but keep
                              an informational badge here, so an owner on a lower plan knows this
@@ -517,9 +518,20 @@
                                 'label' => $meta['label'],
                                 'exclusive' => ! empty($meta['exclusive']) && ! $organization->canUseExclusiveTemplates(),
                             ])),
+                        get filteredOptions() {
+                            const query = this.search.trim().toLowerCase();
+                            if (! query) {
+                                return this.options;
+                            }
+                            return Object.fromEntries(
+                                Object.entries(this.options).filter(([, meta]) => meta.label.toLowerCase().includes(query))
+                            );
+                        },
                         openPicker() {
+                            this.search = '';
                             this.previewKey = Object.keys(this.options)[0] ?? null;
                             this.open = true;
+                            this.$nextTick(() => this.$refs.widgetSearch?.focus());
                         },
                         choose(key) {
                             if (! key) {
@@ -592,8 +604,26 @@
                                 </div>
                             </div>
 
+                            {{-- Search filters the list client-side (options is already a small,
+                                 fully in-memory object - no need for a server round-trip). Picking
+                                 the first surviving result as the preview on every keystroke keeps
+                                 the preview pane from being stuck showing a widget the current
+                                 query no longer matches. --}}
+                            <div class="px-4 pb-2.5 shrink-0">
+                                <div class="relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">
+                                        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+                                    </svg>
+                                    <input type="search" x-ref="widgetSearch" x-model="search"
+                                        @input="previewKey = Object.keys(filteredOptions)[0] ?? null"
+                                        placeholder="Cari widget..."
+                                        class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                </div>
+                            </div>
+
                             <ul class="flex-1 overflow-y-auto px-2.5 pb-2">
-                                <template x-for="(meta, key) in options" :key="key">
+                                <template x-for="(meta, key) in filteredOptions" :key="key">
                                     <li>
                                         <button type="button" @click="previewKey = key" :data-tip="meta.label"
                                             class="w-full flex items-center gap-2 text-left px-3 py-2.5 rounded-lg text-sm transition"
@@ -610,6 +640,10 @@
                                         </button>
                                     </li>
                                 </template>
+                                <li x-show="Object.keys(filteredOptions).length === 0" x-cloak
+                                    class="px-3 py-6 text-center text-sm text-gray-400">
+                                    Tidak ada widget yang cocok dengan pencarian.
+                                </li>
                             </ul>
 
                             <div class="p-4 border-t border-gray-100 shrink-0">
