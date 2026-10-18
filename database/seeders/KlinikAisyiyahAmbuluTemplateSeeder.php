@@ -66,7 +66,7 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                 'is_exclusive' => true,
                 // The featured template for the Klinik/Rumah Sakit type - one per type, now that each
                 // has both a standard and an exclusive variant to choose between.
-                'is_featured' => true,
+                'is_featured' => false,
                 'structure' => [
                     'sample_org_name' => 'Klinik Pratama Aisyiyah Ambulu',
                     // Aisyiyah green led, now paired with the gold accent shared with the SD

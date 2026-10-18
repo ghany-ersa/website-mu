@@ -99,6 +99,7 @@ class SdMadyaTemplateSeeder extends Seeder
                 'thumbnail_path' => 'templates/thumbnails/sekolah-eksklusif.png',
                 'is_active' => true,
                 'is_exclusive' => true,
+                'is_featured' => true,
                 'structure' => [
                     'sample_org_name' => 'SD Muhammadiyah 1 Ambulu',
                     'brand' => [
