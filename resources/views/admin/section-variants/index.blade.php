@@ -8,6 +8,9 @@
         <p class="text-sm text-gray-500 mt-1">
             Daftar desain per widget halaman, dikelompokkan per widget. Aktifkan "Eksklusif" pada
             variant yang hanya boleh dipilih organisasi dengan paket berentitlement template eksklusif.
+            Nonaktifkan "Tampilkan" untuk menyembunyikan variant yang masih diuji dari pilihan
+            organisasi baru - preview tetap bisa diakses, dan organisasi yang sudah memakainya
+            tidak terpengaruh.
         </p>
     </div>
 
@@ -22,10 +25,11 @@
     <div class="bg-white rounded-2xl shadow-soft overflow-x-auto">
         <table class="w-full text-sm text-left" style="min-width: 640px">
             <colgroup>
-                <col class="w-[30%]">
                 <col class="w-[26%]">
-                <col class="w-[14%]">
-                <col class="w-[14%]">
+                <col class="w-[22%]">
+                <col class="w-[12%]">
+                <col class="w-[12%]">
+                <col class="w-[12%]">
                 <col class="w-[16%]">
             </colgroup>
             <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
@@ -33,6 +37,7 @@
                     <th class="px-5 py-3">Widget</th>
                     <th class="px-5 py-3">Variant</th>
                     <th class="px-5 py-3">Status</th>
+                    <th class="px-5 py-3">Tampilkan</th>
                     <th class="px-5 py-3">Eksklusif</th>
                     <th class="px-5 py-3 text-right">Aksi</th>
                 </tr>
@@ -63,7 +68,12 @@
                                     </div>
                                 </td>
                             @endif
-                            <td class="px-5 py-3 font-medium text-gray-800">{{ $variant->variant_key }}</td>
+                            <td class="px-5 py-3 font-medium text-gray-800">
+                                {{ $variant->variant_key }}
+                                @if (! $variant->is_visible)
+                                    <span class="ml-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold whitespace-nowrap">Disembunyikan</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-3">
                                 @if ($variant->is_default)
                                     <span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-semibold whitespace-nowrap">Default</span>
@@ -71,17 +81,33 @@
                                     <span class="text-gray-300">-</span>
                                 @endif
                             </td>
+                            {{-- Both toggles post through the SAME form (via the HTML5 form="..."
+                                 attribute, since a <form> can't wrap multiple <td> siblings as a
+                                 valid child of <tr>) so flipping either one always submits both
+                                 fields' current state together - two separate auto-submitting
+                                 forms would let changing one silently reset the other to its
+                                 unchecked default (no hidden field for it in that form at all). --}}
+                            @php $formId = 'variant-form-'.$variant->id; @endphp
                             <td class="px-5 py-3">
-                                <form action="{{ route('admin.section-variants.update', $variant) }}" method="POST">
+                                <form id="{{ $formId }}" action="{{ route('admin.section-variants.update', $variant) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
-                                    <input type="hidden" name="is_exclusive" value="0">
-                                    <label class="inline-flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" name="is_exclusive" value="1" @checked($variant->is_exclusive)
-                                               onchange="this.form.requestSubmit()"
-                                               class="rounded border-gray-300 text-primary focus:ring-primary/30">
-                                    </label>
                                 </form>
+                                <input type="hidden" name="is_visible" value="0" form="{{ $formId }}">
+                                <label class="inline-flex items-center gap-2 cursor-pointer" title="{{ $variant->is_default ? 'Variant default tidak bisa disembunyikan' : '' }}">
+                                    <input type="checkbox" name="is_visible" value="1" form="{{ $formId }}" @checked($variant->is_visible)
+                                           onchange="document.getElementById('{{ $formId }}').requestSubmit()"
+                                           {{ $variant->is_default ? 'disabled' : '' }}
+                                           class="rounded border-gray-300 text-primary focus:ring-primary/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                                </label>
+                            </td>
+                            <td class="px-5 py-3">
+                                <input type="hidden" name="is_exclusive" value="0" form="{{ $formId }}">
+                                <label class="inline-flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="is_exclusive" value="1" form="{{ $formId }}" @checked($variant->is_exclusive)
+                                           onchange="document.getElementById('{{ $formId }}').requestSubmit()"
+                                           class="rounded border-gray-300 text-primary focus:ring-primary/30">
+                                </label>
                             </td>
                             <td class="px-5 py-3 text-right">
                                 <a href="{{ route('admin.section-variants.preview', $variant) }}" target="_blank" class="text-primary font-medium hover:underline whitespace-nowrap">
