@@ -216,7 +216,8 @@ class OrganizationSectionController extends Controller
 
         $page->sections()
             ->where('order', '>', $section->order)
-            ->increment('order');
+            ->get()
+            ->each(fn (OrganizationSection $sibling) => $sibling->update(['order' => $sibling->order + 1]));
 
         $page->sections()->create([
             'key' => $section->key,
@@ -259,16 +260,20 @@ class OrganizationSectionController extends Controller
             fn (int $id) => $id !== $headerId && $id !== $footerId
         ));
 
-        if ($headerId) {
-            $page->sections()->where('id', $headerId)->update(['order' => 0]);
+        // Individual model saves, not relation-query updates: see the comment in duplicate()
+        // above - mass updates don't fire `saved`, so the tenant page cache never invalidates.
+        $sectionsById = $page->sections()->get()->keyBy('id');
+
+        if ($headerId && ($header = $sectionsById->get($headerId))) {
+            $header->update(['order' => 0]);
         }
 
         foreach ($orderedIds as $index => $sectionId) {
-            $page->sections()->where('id', $sectionId)->update(['order' => $index + 1]);
+            $sectionsById->get($sectionId)?->update(['order' => $index + 1]);
         }
 
-        if ($footerId) {
-            $page->sections()->where('id', $footerId)->update(['order' => count($orderedIds) + 1]);
+        if ($footerId && ($footer = $sectionsById->get($footerId))) {
+            $footer->update(['order' => count($orderedIds) + 1]);
         }
 
         $page->load('sections');

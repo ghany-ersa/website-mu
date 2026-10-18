@@ -77,9 +77,13 @@
         body { font-family: {!! $font['stack'] !!}; }
 
         @if ($hasPlanIssue)
-            /* Header sections render `sticky top-0` (see templates/sections/header.blade.php)
-               - the plan-violation banner sits fixed above it, so this pushes both the header
-               and the rest of the page down by the banner's own height instead of overlapping. */
+            /* Header sections render `fixed`, reading this same --plan-banner-height to sit
+               its own `top` just below this banner rather than overlapping it (see
+               templates/sections/header/standar.blade.php's own doc comment) - that moves the
+               header out from under the banner, but a `fixed` element still doesn't push the
+               rest of the page down the way flowed content would. This padding-top is what
+               reserves the banner's own height in the body's flow instead; the header section
+               separately reserves its own height right after itself for the same reason. */
             body { padding-top: var(--plan-banner-height, 0px); }
         @endif
 
