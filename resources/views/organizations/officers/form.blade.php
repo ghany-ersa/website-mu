@@ -25,7 +25,7 @@
                 <x-form.field name="role" label="Jabatan" :value="$officer->role" required
                     placeholder="mis. Ketua, Sekretaris, Kepala Sekolah, Guru Kelas 6A" />
 
-                {{-- Bidang berikut dipakai oleh varian `sd-madya` (sekolah). Untuk
+                {{-- Bidang berikut dipakai oleh varian `sekolahmu` (sekolah). Untuk
                      struktur pengurus biasa boleh dikosongkan. --}}
                 <x-form.field name="subject" label="Mata Pelajaran / Bidang" :value="$officer->subject"
                     placeholder="mis. Matematika (opsional)" />

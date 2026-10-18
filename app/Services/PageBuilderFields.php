@@ -8,7 +8,7 @@ namespace App\Services;
  *
  * config/page-builder.php's `fields` is the set EVERY variant of a section shares. A layout that
  * carries extra fields of its own declares them under `variant_fields` keyed by variant, rather
- * than widening `fields` for everybody: the hero's `sd-madya` layout is the only two-image one
+ * than widening `fields` for everybody: the hero's `sekolahmu` layout is the only two-image one
  * (`portrait` plus the highlight card over its corner), and listing those in `fields` put three
  * editors that do nothing on the other four hero variants.
  *

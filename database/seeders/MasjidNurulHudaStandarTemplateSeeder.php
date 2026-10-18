@@ -30,7 +30,7 @@ use Illuminate\Database\Seeder;
  * What the standard tier loses, and why: the five premium mosque sections
  * (fasilitas-masjid, donasi-progress, laporan-keuangan, kalkulator-zakat, akad-venue) are gated
  * BOTH by section (`exclusive` in config/page-builder.php) and by their sole variant
- * (`nurul-huda`, `is_exclusive` in SectionVariantSeeder) - unlike the cabang/klinik/portal
+ * (`masjidmu`, `is_exclusive` in SectionVariantSeeder) - unlike the cabang/klinik/portal
  * templates, where only the *variant* was exclusive and a `standar` fallback existed, a masjid
  * on this tier cannot add these sections in ANY form, not even in a lesser layout. So this
  * template doesn't approximate them - it substitutes the closest non-exclusive equivalent:
@@ -95,7 +95,7 @@ class MasjidNurulHudaStandarTemplateSeeder extends Seeder
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.
-                'thumbnail_path' => 'templates/thumbnails/b5bdb086-b964-4e4d-b65f-3db8ae4e6ce6.webp',
+                'thumbnail_path' => 'templates/thumbnails/masjid-standar.png',
                 'is_active' => true,
                 'is_exclusive' => false,
                 // The exclusive Masjid Nurul Huda template carries `is_featured` for this type.

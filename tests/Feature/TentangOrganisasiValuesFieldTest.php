@@ -15,10 +15,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Regression coverage for tentang-organisasi/sd-madya.blade.php's `values` field. The builder's
+ * Regression coverage for tentang-organisasi/sekolahmu.blade.php's `values` field. The builder's
  * properties panel had no dedicated editor for it until this fix, so saving the section wrote
  * whatever the generic text input held - a bare string - and the section then died on foreach()
- * with a 500 (the same failure mode akad-venue/nurul-huda.blade.php's `facilities` field hit
+ * with a 500 (the same failure mode akad-venue/masjidmu.blade.php's `facilities` field hit
  * before it got its own list editor). Two things had to change together: the builder now renders
  * a proper list editor for `values` (organizations/builder/edit.blade.php), and the section
  * itself tolerates the older corrupted shape so existing data doesn't keep 500ing.
@@ -67,7 +67,7 @@ class TentangOrganisasiValuesFieldTest extends TestCase
         OrganizationSection::create([
             'organization_page_id' => $page->id,
             'key' => 'tentang-organisasi',
-            'variant' => 'sd-madya',
+            'variant' => 'sekolahmu',
             'order' => 1,
             'content' => ['title' => 'Tentang Kami', 'values' => "Amanah\nJujur\nDisiplin"],
         ]);
@@ -92,7 +92,7 @@ class TentangOrganisasiValuesFieldTest extends TestCase
         $section = OrganizationSection::create([
             'organization_page_id' => $page->id,
             'key' => 'tentang-organisasi',
-            'variant' => 'sd-madya',
+            'variant' => 'sekolahmu',
             'order' => 1,
             'content' => ['title' => 'Tentang Kami', 'values' => ['Amanah', 'Jujur']],
         ]);
@@ -118,14 +118,14 @@ class TentangOrganisasiValuesFieldTest extends TestCase
         $section = OrganizationSection::create([
             'organization_page_id' => $page->id,
             'key' => 'tentang-organisasi',
-            'variant' => 'sd-madya',
+            'variant' => 'sekolahmu',
             'order' => 1,
             'content' => ['title' => 'Tentang Kami'],
         ]);
 
         $this->actingAs($owner)
             ->patch(route('organizations.sections.update', [$organization, $section]), [
-                'variant' => 'sd-madya',
+                'variant' => 'sekolahmu',
                 'content' => ['title' => 'Tentang Kami', 'values' => ['Amanah', 'Jujur']],
                 'is_visible' => true,
             ])

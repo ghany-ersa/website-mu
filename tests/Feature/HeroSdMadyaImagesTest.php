@@ -65,7 +65,7 @@ class HeroSdMadyaImagesTest extends TestCase
     }
 
     /**
-     * The second image belongs to the `sd-madya` layout alone. Every other hero variant must
+     * The second image belongs to the `sekolahmu` layout alone. Every other hero variant must
      * neither show an editor for it nor persist it - otherwise four of the five hero variants
      * carry three controls that change nothing on the page.
      */
@@ -74,9 +74,9 @@ class HeroSdMadyaImagesTest extends TestCase
         $this->seed(OrganizationTypeSeeder::class);
         $this->seed(SectionVariantSeeder::class);
 
-        $this->assertContains('portrait', PageBuilderFields::for('hero', 'sd-madya'));
+        $this->assertContains('portrait', PageBuilderFields::for('hero', 'sekolahmu'));
 
-        foreach (['standar', 'modern', 'nurul-huda', 'headline-berita', null] as $variant) {
+        foreach (['standar', 'modern', 'masjidmu', 'headline-berita', null] as $variant) {
             $fields = PageBuilderFields::for('hero', $variant);
 
             foreach (['portrait', 'highlight_title', 'highlight_subtitle'] as $extra) {
@@ -95,7 +95,7 @@ class HeroSdMadyaImagesTest extends TestCase
         );
     }
 
-    /** The builder panel shows the extra editors on sd-madya and hides them elsewhere. */
+    /** The builder panel shows the extra editors on sekolahmu and hides them elsewhere. */
     public function test_builder_shows_the_second_image_editor_only_for_sd_madya(): void
     {
         $this->seed(OrganizationTypeSeeder::class);
@@ -121,7 +121,7 @@ class HeroSdMadyaImagesTest extends TestCase
         $section = $page->sections()->where('key', 'hero')->firstOrFail();
         $url = route('organizations.builder.page', [$organization, $page]);
 
-        $this->assertSame('sd-madya', $section->variant);
+        $this->assertSame('sekolahmu', $section->variant);
         $html = $this->actingAs($user)->get($url)->assertOk()->getContent();
         $this->assertStringContainsString('Gambar Utama', $html);
         $this->assertStringContainsString('content[portrait]', $html);
@@ -141,7 +141,7 @@ class HeroSdMadyaImagesTest extends TestCase
      */
     public function test_hero_portrait_is_height_capped_so_it_cannot_overflow_the_section(): void
     {
-        $blade = file_get_contents(resource_path('views/templates/sections/hero/sd-madya.blade.php'));
+        $blade = file_get_contents(resource_path('views/templates/sections/hero/sekolahmu.blade.php'));
 
         // Capped on both axes: the box itself, and the image inside it.
         $this->assertStringContainsString('md:max-w-sm', $blade);
@@ -168,7 +168,7 @@ class HeroSdMadyaImagesTest extends TestCase
      */
     public function test_hero_gives_the_headline_enough_room_to_stay_on_one_line(): void
     {
-        $blade = file_get_contents(resource_path('views/templates/sections/hero/sd-madya.blade.php'));
+        $blade = file_get_contents(resource_path('views/templates/sections/hero/sekolahmu.blade.php'));
 
         $this->assertStringContainsString('md:grid-cols-[7fr_5fr]', $blade);
         $this->assertStringNotContainsString('md:grid-cols-2', $blade, 'an even split leaves the headline too little room');
@@ -189,7 +189,7 @@ class HeroSdMadyaImagesTest extends TestCase
     }
 
     /**
-     * Switching a hero to `sd-madya` in the same request that sets its second image must keep
+     * Switching a hero to `sekolahmu` in the same request that sets its second image must keep
      * that image: the controller resolves the variant BEFORE the field list for this reason.
      */
     public function test_switching_to_sd_madya_keeps_the_fields_that_layout_adds(): void
@@ -216,7 +216,7 @@ class HeroSdMadyaImagesTest extends TestCase
         $section = $organization->pages()->where('is_home', true)->firstOrFail()
             ->sections()->where('key', 'hero')->firstOrFail();
 
-        // Away from sd-madya: the extra fields are not this layout's, so they go.
+        // Away from sekolahmu: the extra fields are not this layout's, so they go.
         $this->actingAs($user)->patch(
             route('organizations.sections.update', [$organization, $section]),
             ['variant' => 'standar', 'content' => ['headline' => 'Tetap']]
@@ -225,17 +225,17 @@ class HeroSdMadyaImagesTest extends TestCase
         $this->assertSame('standar', $section->fresh()->variant);
         $this->assertArrayNotHasKey('portrait', $section->fresh()->content);
 
-        // Back to sd-madya, setting the image in the same request.
+        // Back to sekolahmu, setting the image in the same request.
         $this->actingAs($user)->patch(
             route('organizations.sections.update', [$organization, $section]),
-            ['variant' => 'sd-madya', 'content' => [
+            ['variant' => 'sekolahmu', 'content' => [
                 'headline' => 'Tetap',
                 'portrait' => 'https://example.test/p.jpg',
             ]]
         )->assertRedirect();
 
         $fresh = $section->fresh();
-        $this->assertSame('sd-madya', $fresh->variant);
+        $this->assertSame('sekolahmu', $fresh->variant);
         $this->assertSame('https://example.test/p.jpg', $fresh->content['portrait']);
     }
 }

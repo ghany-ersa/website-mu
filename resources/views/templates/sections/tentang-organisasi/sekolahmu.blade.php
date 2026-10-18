@@ -11,7 +11,7 @@
     // Normalised rather than used as-is: `values` is a list, but before the builder's properties
     // panel had a proper editor for it, saving the section wrote whatever the generic text input
     // held - a bare string - and this section then died on foreach() with a 500 (same failure
-    // mode as akad-venue/nurul-huda.blade.php's `facilities`). Tolerate that older shape too: a
+    // mode as akad-venue/masjidmu.blade.php's `facilities`). Tolerate that older shape too: a
     // string (one-per-line, the most forgiving reading of what someone typed) and a list with
     // blank rows.
     $values = $content['values'] ?? [];

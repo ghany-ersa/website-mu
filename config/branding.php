@@ -39,7 +39,7 @@ return [
 
         // Inter headlines over Newsreader serif-italic body copy: the editorial look of the
         // SD Muhammadiyah Ambulu site, where quotes and lead paragraphs are set in italic serif.
-        'sd-madya' => [
+        'sekolahmu' => [
             'headline' => '"Inter", sans-serif',
             'body' => '"Newsreader", serif',
             'google' => ['Inter:wght@400;500;600;700;800', 'Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600'],

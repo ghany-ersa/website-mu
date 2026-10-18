@@ -48,7 +48,7 @@
                 <x-form.textarea-field name="description" label="Deskripsi" :value="$photo->description" rows="3"
                     placeholder="Penjelasan lebih panjang (opsional)" />
 
-                {{-- Kategori dipakai sebagai filter pada galeri varian `sd-madya`. --}}
+                {{-- Kategori dipakai sebagai filter pada galeri varian `sekolahmu`. --}}
                 <x-form.select-field name="category" label="Kategori" :selected="$photo->category"
                     :options="['' => 'Tanpa kategori'] + array_combine(\App\Models\GalleryPhoto::CATEGORIES, \App\Models\GalleryPhoto::CATEGORIES)" />
 

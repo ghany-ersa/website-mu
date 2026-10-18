@@ -388,7 +388,7 @@ class SchoolCmsTest extends TestCase
     /**
      * The staff roster is the school's real org chart, so it has to survive the trip into
      * Officer rows intact - including `subject`, which seedOfficers() previously dropped, and
-     * which is what the sd-madya variant renders as the teaching-assignment chip.
+     * which is what the sekolahmu variant renders as the teaching-assignment chip.
      */
     public function test_school_staff_roster_seeds_with_roles_and_subjects(): void
     {

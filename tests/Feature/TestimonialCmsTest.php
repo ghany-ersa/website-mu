@@ -72,8 +72,8 @@ class TestimonialCmsTest extends TestCase
             config('page-builder.sections.testimoni.cms.route')
         );
 
-        $variant = SectionVariant::where('section_key', 'testimoni')->where('variant_key', 'sd-madya')->first();
-        $this->assertNotNull($variant, 'the sd-madya variant must be registered');
+        $variant = SectionVariant::where('section_key', 'testimoni')->where('variant_key', 'sekolahmu')->first();
+        $this->assertNotNull($variant, 'the sekolahmu variant must be registered');
         $this->assertTrue((bool) $variant->is_exclusive);
     }
 
@@ -139,7 +139,7 @@ class TestimonialCmsTest extends TestCase
      */
     public function test_carousel_cards_are_not_individually_scroll_revealed(): void
     {
-        foreach (['standar', 'sd-madya'] as $variant) {
+        foreach (['standar', 'sekolahmu'] as $variant) {
             $blade = file_get_contents(
                 resource_path("views/templates/sections/testimoni/{$variant}.blade.php")
             );

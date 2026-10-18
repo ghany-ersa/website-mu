@@ -47,7 +47,7 @@ class AkadVenueSectionTest extends TestCase
 
         $this->page->sections()->create([
             'key' => 'akad-venue',
-            'variant' => 'nurul-huda',
+            'variant' => 'masjidmu',
             'content' => ['facilities' => $facilities],
             'order' => 0,
         ]);
@@ -101,7 +101,7 @@ class AkadVenueSectionTest extends TestCase
     {
         $this->page->sections()->create([
             'key' => 'akad-venue',
-            'variant' => 'nurul-huda',
+            'variant' => 'masjidmu',
             'content' => ['facilities' => ['Sound system']],
             'order' => 0,
         ]);
@@ -137,7 +137,7 @@ class AkadVenueSectionTest extends TestCase
 
         $section = $this->page->sections()->create([
             'key' => 'akad-venue',
-            'variant' => 'nurul-huda',
+            'variant' => 'masjidmu',
             'content' => config('page-builder.sections.akad-venue.defaults'),
             'order' => 0,
         ]);
@@ -161,7 +161,7 @@ class AkadVenueSectionTest extends TestCase
     {
         $this->page->sections()->create([
             'key' => 'akad-venue',
-            'variant' => 'nurul-huda',
+            'variant' => 'masjidmu',
             'content' => config('page-builder.sections.akad-venue.defaults'),
             'order' => 0,
         ]);

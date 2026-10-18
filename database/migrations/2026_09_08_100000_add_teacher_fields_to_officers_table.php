@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Every column here is nullable (is_active defaults true), so the four existing templates that
  * render `struktur-pengurus` keep working untouched and existing rows stay valid. The
- * `sd-madya` variant is the one that actually reads subject/bio.
+ * `sekolahmu` variant is the one that actually reads subject/bio.
  *
  * slug is unique per organization, not globally - two schools may both have a "budi-santoso".
  * It is generated in the controller (see OrganizationPostController::uniqueSlug), matching how

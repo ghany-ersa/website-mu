@@ -22,12 +22,12 @@ use Illuminate\Database\Seeder;
  *   - Multi-page (6 pages -> 1). pages_total is 1 on starter/premium and 10 on eksklusif, so
  *     this tier is single-page by plan, not by choice. The exclusive tier's dedicated Prestasi,
  *     Akademik, Pengajar, Galeri and Kontak pages collapse into sections on one scrolling page.
- *   - The `sd-madya` variants (editorial hero, bento prestasi teaser, bento kegiatan, the
- *     sd-madya roster, the galeri with a video-profile block, the PPDB form with grade
+ *   - The `sekolahmu` variants (editorial hero, bento prestasi teaser, bento kegiatan, the
+ *     sekolahmu roster, the galeri with a video-profile block, the PPDB form with grade
  *     picker and opening hours) are all is_exclusive in SectionVariantSeeder, so every section
  *     here uses `standar`. Notably prestasi/standar is the RICHER of that section's two
  *     variants - it carries the category filter and the search box, where the exclusive
- *     `sd-madya` one is a fixed three-tile teaser - so the wall of fame is not degraded here,
+ *     `sekolahmu` one is a fixed three-tile teaser - so the wall of fame is not degraded here,
  *     only relocated onto the single page.
  *   - Pupil profile pages are dropped entirely: `students` is capped at 0 on every plan below
  *     eksklusif (PlanSeeder), so achievements on this tier list no pupil links. That is the one
@@ -86,6 +86,7 @@ class SdMadyaStandarTemplateSeeder extends Seeder
                 'organization_type_id' => $organizationType?->id,
                 'name' => 'Sekolah & Madrasah',
                 'description' => 'Satu halaman profil sekolah: identitas dan akreditasi, prestasi siswa dengan filter kategori, kegiatan dan ekstrakurikuler, profil guru, galeri, serta pendaftaran lewat WhatsApp dan peta lokasi.',
+                'thumbnail_path' => 'templates/thumbnails/sekolah-standar.png',
                 'is_active' => true,
                 'is_exclusive' => false,
                 // The exclusive SD Madya template is the featured one for this type.
@@ -94,7 +95,7 @@ class SdMadyaStandarTemplateSeeder extends Seeder
                     'sample_org_name' => 'SD Muhammadiyah 1 Ambulu',
                     // Same navy/gold identity as the exclusive tier, but with the platform
                     // default font rather than that template's Inter/Newsreader pairing - the
-                    // `sd-madya` font pair is what gives the exclusive design its editorial
+                    // `sekolahmu` font pair is what gives the exclusive design its editorial
                     // feel, and the standard tier should read as the standard tier.
                     'brand' => [
                         'primary' => '#002447',
@@ -178,7 +179,7 @@ class SdMadyaStandarTemplateSeeder extends Seeder
                                     'subtitle' => 'Pembiasaan harian dan kegiatan pengembangan diri yang diikuti siswa.',
                                 ]],
                                 // 5. Who teaches. struktur-pengurus/standar renders plain
-                                // name/role cards; the exclusive tier's `sd-madya` variant
+                                // name/role cards; the exclusive tier's `sekolahmu` variant
                                 // adds the subject and photo treatment.
                                 ['key' => 'struktur-pengurus', 'variant' => 'standar', 'content' => [
                                     'title' => 'Tim Pengajar',
@@ -191,7 +192,7 @@ class SdMadyaStandarTemplateSeeder extends Seeder
                                     'limit' => 8,
                                 ]],
                                 // 7. How to enrol. The exclusive tier has a PPDB form with a
-                                // grade picker and opening hours (formulir-kontak/sd-madya);
+                                // grade picker and opening hours (formulir-kontak/sekolahmu);
                                 // this tier uses the plain WhatsApp form, so the grade goes in
                                 // the prefilled message instead.
                                 ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [

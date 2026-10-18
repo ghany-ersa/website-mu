@@ -1,5 +1,5 @@
 {{-- Default rendering for a school's activities: the plain card grid every organization gets,
-     matching program-unggulan/standar's look. The `sd-madya` variant is the bento version.
+     matching program-unggulan/standar's look. The `sekolahmu` variant is the bento version.
 
      Auto-binds to the organization's `kegiatan`-type programs when $organization is in scope
      (tenant page render); falls back to $content['items'] in template-preview context - see

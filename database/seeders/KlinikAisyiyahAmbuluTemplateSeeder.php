@@ -61,7 +61,7 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.
-                'thumbnail_path' => 'templates/thumbnails/f433fc91-9f11-420f-886b-d3422a8af5cc.webp',
+                'thumbnail_path' => 'templates/thumbnails/klinik-eksklusif.png',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The featured template for the Klinik/Rumah Sakit type - one per type, now that each

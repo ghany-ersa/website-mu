@@ -54,7 +54,7 @@ class SuaraMuhammadiyahAmbuluStandarTemplateSeeder extends Seeder
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.
-                'thumbnail_path' => 'templates/thumbnails/b89343c3-314e-48a9-8ff9-5f866ff54dc9.webp',
+                'thumbnail_path' => 'templates/thumbnails/media-standar.png',
                 'is_active' => true,
                 'is_exclusive' => false,
                 // The exclusive Suara template carries `is_featured` for this organization type.

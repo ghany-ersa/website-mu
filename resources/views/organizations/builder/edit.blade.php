@@ -1009,7 +1009,7 @@
                                 </div>
                             @endif
 
-                            {{-- Per VARIANT, not per section: the hero's sd-madya layout is the
+                            {{-- Per VARIANT, not per section: the hero's sekolahmu layout is the
                                  only one with a second image and a highlight card, and the other
                                  four hero variants would otherwise show three editors that
                                  change nothing. Must stay in step with
@@ -1077,7 +1077,7 @@
                                             // it is the only image in every other section, and
                                             // calling it "Gambar Latar" there would be wrong.
                                             // Only the two-image hero needs the two named apart.
-                                            'image' => $section->key === 'hero' && $section->variant === 'sd-madya' ? 'Gambar Latar' : 'Gambar',
+                                            'image' => $section->key === 'hero' && $section->variant === 'sekolahmu' ? 'Gambar Latar' : 'Gambar',
                                             'portrait' => 'Gambar Utama',
                                             'highlight_title' => 'Judul Kartu Sorotan',
                                             'highlight_subtitle' => 'Subjudul Kartu Sorotan',
@@ -1096,7 +1096,7 @@
                                             value="{{ $section->scalarContent($field) }}"
                                             class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
                                         <p class="mt-1.5 text-xs text-gray-400">Gunakan format nomor internasional tanpa tanda + atau spasi, mis. 6281234567890.</p>
-                                    {{-- `portrait` is the hero/sd-madya layout's second image (the
+                                    {{-- `portrait` is the hero/sekolahmu layout's second image (the
                                          framed one in the right column), so it gets the same media
                                          picker as `image` rather than falling through to a plain
                                          URL text box. --}}
@@ -1164,8 +1164,8 @@
                                              content[{{ $field }}], and the section renders it with
                                              foreach(), so saving the panel once was enough to 500 the
                                              page. Stored as a flat list of strings - facilities matches
-                                             what akad-venue/nurul-huda.blade.php reads, values matches
-                                             tentang-organisasi/sd-madya.blade.php. --}}
+                                             what akad-venue/masjidmu.blade.php reads, values matches
+                                             tentang-organisasi/sekolahmu.blade.php. --}}
                                         <div x-data="{ items: @js(array_values(array_filter((array) ($section->content[$field] ?? []), 'is_string'))) }" class="space-y-2">
                                             <template x-for="(item, index) in items" :key="index">
                                                 <div class="flex items-center gap-2">

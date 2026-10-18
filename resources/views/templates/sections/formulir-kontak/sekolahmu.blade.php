@@ -103,21 +103,21 @@
                       }"
                       @submit.prevent="submit()">
                     <div>
-                        <label for="sd-madya-student" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Nama Lengkap Siswa</label>
-                        <input id="sd-madya-student" type="text" x-model="student" required placeholder="Sesuai akta kelahiran"
+                        <label for="sekolahmu-student" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Nama Lengkap Siswa</label>
+                        <input id="sekolahmu-student" type="text" x-model="student" required placeholder="Sesuai akta kelahiran"
                                class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 font-body text-[15px] focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all">
                     </div>
 
                     <div>
-                        <label for="sd-madya-guardian" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Nama Orang Tua / Wali</label>
-                        <input id="sd-madya-guardian" type="text" x-model="guardian" required placeholder="Nama lengkap wali"
+                        <label for="sekolahmu-guardian" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Nama Orang Tua / Wali</label>
+                        <input id="sekolahmu-guardian" type="text" x-model="guardian" required placeholder="Nama lengkap wali"
                                class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 font-body text-[15px] focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all">
                     </div>
 
                     <div>
-                        <label for="sd-madya-grade" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Mendaftar untuk</label>
+                        <label for="sekolahmu-grade" class="block font-headline font-bold text-xs text-primary uppercase tracking-wider mb-2">Mendaftar untuk</label>
                         <div class="relative">
-                            <select id="sd-madya-grade" x-model="grade" required
+                            <select id="sekolahmu-grade" x-model="grade" required
                                     class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 font-body text-[15px] focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
                                 <option value="" disabled>Pilih kelas</option>
                                 @foreach ($grades as $grade)

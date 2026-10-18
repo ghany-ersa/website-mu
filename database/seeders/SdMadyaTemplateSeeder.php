@@ -22,7 +22,7 @@ use Illuminate\Database\Seeder;
  *   - The home page's section order mirrors its pages/index.vue: hero -> profil -> prestasi
  *     -> CTA.
  *   - Brand: the school's navy/gold rather than the Muhammadiyah blue/green, plus the
- *     `sd-madya` font pairing (Inter headlines over Newsreader serif-italic body), which is
+ *     `sekolahmu` font pairing (Inter headlines over Newsreader serif-italic body), which is
  *     what gives the design its editorial feel. See config/branding.php.
  *   - Copy is lifted from that project's own Vue components.
  *
@@ -96,6 +96,7 @@ class SdMadyaTemplateSeeder extends Seeder
                 // which the catalog card already says with its amber "Eksklusif" badge, and at
                 // 347 characters it ran half again as long as the next longest.
                 'description' => 'Prestasi siswa dengan filter dan pencarian mendapat halamannya sendiri, lengkap dengan profil tiap siswa dan riwayat lombanya - plus halaman kegiatan dan ekstrakurikuler, profil tim pengajar, galeri dengan video profil, serta pendaftaran lewat WhatsApp.',
+                'thumbnail_path' => 'templates/thumbnails/sekolah-eksklusif.png',
                 'is_active' => true,
                 'is_exclusive' => true,
                 'structure' => [
@@ -103,7 +104,7 @@ class SdMadyaTemplateSeeder extends Seeder
                     'brand' => [
                         'primary' => '#002447',
                         'secondary' => '#E9C349',
-                        'font_pair' => 'sd-madya',
+                        'font_pair' => 'sekolahmu',
                         'radius' => 'soft',
                         // Same logo as SdMadyaStandarTemplateSeeder - uploaded through that
                         // tier's sandbox (organization id 12) and carried over here so both
@@ -142,7 +143,7 @@ class SdMadyaTemplateSeeder extends Seeder
                             'name' => 'Beranda',
                             'sections' => [
                                 $header,
-                                ['key' => 'hero', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'hero', 'variant' => 'sekolahmu', 'content' => [
                                     'badge' => 'Sekolah Juara',
                                     'headline' => 'SD Muhammadiyah 1 Ambulu',
                                     'subheadline' => 'Kokoh dalam Spiritual, Unggul dalam Intelektual.',
@@ -161,7 +162,7 @@ class SdMadyaTemplateSeeder extends Seeder
                                     // claim dressed up as an official one.
                                     'highlight_subtitle' => 'Predikat Unggul (BAN-S/M)',
                                 ]],
-                                ['key' => 'tentang-organisasi', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'tentang-organisasi', 'variant' => 'sekolahmu', 'content' => [
                                     'label' => 'Profil Sekolah',
                                     'title' => 'Membina Akhlak, Mengasah Logika Sejak Dini',
                                     'body' => 'Berdiri dengan semangat dakwah Muhammadiyah, kami mengintegrasikan kurikulum nasional dengan nilai-nilai spiritual yang kokoh. Sejarah panjang kami di Ambulu telah melahirkan ribuan lulusan yang berprestasi dan beradab.',
@@ -182,12 +183,12 @@ class SdMadyaTemplateSeeder extends Seeder
                                         ['value' => '1978', 'label' => 'Berdiri Sejak'],
                                     ],
                                 ]],
-                                ['key' => 'prestasi', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'prestasi', 'variant' => 'sekolahmu', 'content' => [
                                     'label' => 'Prestasi',
                                     'title' => 'Prestasi Terbaru',
                                     'subtitle' => 'Tiga capaian terbaru siswa. Daftar lengkapnya ada di halaman Prestasi.',
                                     // No 'limit' here, unlike the galeri section below: the
-                                    // sd-madya variant is a fixed 3-tile bento (one 2x2 main tile
+                                    // sekolahmu variant is a fixed 3-tile bento (one 2x2 main tile
                                     // plus two stacked beside it) and hard-codes take(3), so a
                                     // limit set here would be silently ignored rather than honored
                                     // the way prestasi/standar honors it. The full, filterable list
@@ -197,12 +198,12 @@ class SdMadyaTemplateSeeder extends Seeder
                                 // SdMadyaSamples::testimoniItems()); `items` here is only the
                                 // fallback the template PREVIEW renders, where there is no
                                 // organization to read them from.
-                                ['key' => 'testimoni', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'testimoni', 'variant' => 'sekolahmu', 'content' => [
                                     'label' => 'Suara Alumni',
                                     'title' => 'Apa Kata Mereka?',
                                     'items' => SdMadyaSamples::testimoniItems(),
                                 ]],
-                                ['key' => 'cta', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'cta', 'variant' => 'sekolahmu', 'content' => [
                                     'title' => 'Mulai Perjalanan Prestasi Anak Anda Bersama Kami',
                                     'subtitle' => 'Pendaftaran Peserta Didik Baru telah dibuka. Kuota terbatas.',
                                     // Straight to the PPDB form the school already runs, rather
@@ -247,7 +248,7 @@ class SdMadyaTemplateSeeder extends Seeder
                             'name' => 'Akademik',
                             'sections' => [
                                 $header,
-                                ['key' => 'kegiatan', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'kegiatan', 'variant' => 'sekolahmu', 'content' => [
                                     'title' => 'Kegiatan Sekolah',
                                     'subtitle' => 'Pembiasaan harian, ekstrakurikuler, dan program pembinaan yang diikuti siswa sepanjang pekan.',
                                 ]],
@@ -259,7 +260,7 @@ class SdMadyaTemplateSeeder extends Seeder
                             'name' => 'Pengajar',
                             'sections' => [
                                 $header,
-                                ['key' => 'struktur-pengurus', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'struktur-pengurus', 'variant' => 'sekolahmu', 'content' => [
                                     'label' => 'Akademik',
                                     'title' => 'Tim Pengajar',
                                     'subtitle' => 'Guru kelas dan guru mata pelajaran yang mendampingi siswa setiap hari.',
@@ -272,7 +273,7 @@ class SdMadyaTemplateSeeder extends Seeder
                             'name' => 'Galeri',
                             'sections' => [
                                 $header,
-                                ['key' => 'galeri', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'galeri', 'variant' => 'sekolahmu', 'content' => [
                                     'label' => 'Galeri',
                                     'title' => 'Galeri Kegiatan',
                                     'subtitle' => 'Dokumentasi kegiatan belajar, ekstrakurikuler, dan acara sekolah.',
@@ -289,7 +290,7 @@ class SdMadyaTemplateSeeder extends Seeder
                             'name' => 'Kontak',
                             'sections' => [
                                 $header,
-                                ['key' => 'formulir-kontak', 'variant' => 'sd-madya', 'content' => [
+                                ['key' => 'formulir-kontak', 'variant' => 'sekolahmu', 'content' => [
                                     'title' => 'Hubungi Kami',
                                     'form_title' => 'Formulir Pendaftaran Online',
                                     'form_subtitle' => 'Lengkapi data calon siswa di bawah ini. Tim kami akan menghubungi Anda melalui WhatsApp.',

@@ -1,6 +1,6 @@
-{{-- The editorial cut of the alumni testimonials, matching the rest of the sd-madya family:
+{{-- The editorial cut of the alumni testimonials, matching the rest of the sekolahmu family:
      a navy field, a gold eyebrow, and the quotes on a horizontal slide rail at every width - the
-     same plain CSS scroll-snap the prestasi filter and the sd-madya galeri use, driven by a
+     same plain CSS scroll-snap the prestasi filter and the sekolahmu galeri use, driven by a
      swipe, a trackpad or the keyboard, with no JS at all. Testimonials grow without bound as an
      organization collects more, so a rail keeps twelve quotes from becoming six screens of
      scrolling.

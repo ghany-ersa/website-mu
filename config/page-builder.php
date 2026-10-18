@@ -63,11 +63,11 @@ return [
             /*
              * Fields only SOME variants of this section have, keyed by variant.
              *
-             * `fields` above is the set every hero variant shares. The `sd-madya` layout is the
+             * `fields` above is the set every hero variant shares. The `sekolahmu` layout is the
              * only two-image one: `image` is the faded backdrop behind the headline, `portrait`
              * the framed photo in the right-hand column, and highlight_title/_subtitle the card
              * floating over its corner. Listing those in `fields` would put three editors that
-             * do nothing on the other four hero variants (standar, modern, nurul-huda,
+             * do nothing on the other four hero variants (standar, modern, masjidmu,
              * headline-berita), which all ignore them.
              *
              * They still have to be declared SOMEWHERE, because
@@ -79,7 +79,7 @@ return [
              * behaves exactly as before.
              */
             'variant_fields' => [
-                'sd-madya' => ['portrait', 'highlight_title', 'highlight_subtitle'],
+                'sekolahmu' => ['portrait', 'highlight_title', 'highlight_subtitle'],
             ],
             'defaults' => [
                 'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
@@ -98,11 +98,18 @@ return [
         ],
         'tentang-organisasi' => [
             'label' => 'Tentang Organisasi',
-            // label/vision_*/values_*: extra copy slots the `sd-madya` variant lays out
-            // (eyebrow label, a vision card and a values card); ignored by `standar`.
-            'fields' => ['title', 'body', 'image', 'stats', 'label', 'vision_title', 'vision_body', 'values_title', 'values'],
+            // `label` is shared (every variant's stats grid reads $stat['label']; sekolahmu
+            // additionally uses it as a top-level eyebrow). vision_*/values_* move to
+            // `variant_fields` below - see PageBuilderFields' doc comment for why a field only
+            // one layout lays out belongs there instead of widening `fields` for everybody.
+            'fields' => ['title', 'body', 'image', 'stats', 'label'],
+            // Extra copy slots only the `sekolahmu` variant lays out: a vision card and a
+            // values card. `standar`/`modern` ignore both - see PageBuilderFields' doc comment.
+            'variant_fields' => [
+                'sekolahmu' => ['vision_title', 'vision_body', 'values_title', 'values'],
+            ],
             // How many `stats` entries the builder's editor lets an owner add. Matches this
-            // section's stats grid, which is `grid-cols-3` in sd-madya.blade.php - a fourth entry
+            // section's stats grid, which is `grid-cols-3` in sekolahmu.blade.php - a fourth entry
             // would wrap onto a row of its own and look like a mistake. The builder reads this
             // key rather than hardcoding a number per section (see builder/edit.blade.php).
             'stats_max' => 3,
@@ -117,13 +124,22 @@ return [
         ],
         'struktur-pengurus' => [
             'label' => 'Struktur Pengurus',
-            'fields' => ['title', 'items', 'label', 'subtitle'],
+            'fields' => ['title', 'items'],
+            // `label` (an eyebrow caption) and `subtitle` are laid out only by the `sekolahmu`
+            // variant - `standar`/`modern` ignore both.
+            'variant_fields' => [
+                'sekolahmu' => ['label', 'subtitle'],
+            ],
             'defaults' => ['title' => 'Struktur Pengurus'],
             'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
         ],
         'program-unggulan' => [
             'label' => 'Program Unggulan',
-            'fields' => ['title', 'items', 'subtitle'],
+            'fields' => ['title', 'items'],
+            // Only the `sekolahmu` variant renders a subtitle under its heading.
+            'variant_fields' => [
+                'sekolahmu' => ['subtitle'],
+            ],
             'defaults' => ['title' => 'Program Unggulan'],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Program', 'params' => ['type' => 'program']],
         ],
@@ -137,7 +153,13 @@ return [
         // `kegiatan` type - see OrganizationProgramController::type().
         'kegiatan' => [
             'label' => 'Kegiatan',
-            'fields' => ['title', 'items', 'subtitle'],
+            'fields' => ['title', 'items'],
+            // Same split as program-unggulan.subtitle, which this inherits: `sekolahmu` delegates
+            // its entire layout to program-unggulan/sekolahmu.blade.php (see that file's own
+            // doc comment), which renders a subtitle; `standar` doesn't.
+            'variant_fields' => [
+                'sekolahmu' => ['subtitle'],
+            ],
             'defaults' => ['title' => 'Kegiatan Sekolah'],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Kegiatan', 'params' => ['type' => 'kegiatan']],
         ],
@@ -145,7 +167,7 @@ return [
         // so they live in the section's own `items` rather than earning a CMS table.
         // Open to every plan, gated at the VARIANT level only - the same split as hero, prestasi
         // and cta: any organization may collect testimonials and show them with the `standar`
-        // layout, while the editorial `sd-madya` one needs the exclusive entitlement. The
+        // layout, while the editorial `sekolahmu` one needs the exclusive entitlement. The
         // section itself carries no `exclusive` flag, because gating it there would close the
         // section outright and make its non-exclusive variant unreachable.
         //
@@ -160,17 +182,18 @@ return [
         ],
         'prestasi' => [
             'label' => 'Prestasi',
-            'fields' => ['title', 'subtitle', 'label', 'items', 'limit', 'stats'],
+            'fields' => ['title', 'subtitle', 'label', 'items'],
+            // `limit` and `stats` only make sense for `standar`'s full filterable list -
+            // `sekolahmu` is a fixed 3-tile homepage teaser with no "show N" control and no
+            // stats strip. See PageBuilderFields' doc comment for why a field only one layout
+            // uses belongs here rather than in `fields`.
+            'variant_fields' => [
+                'standar' => ['limit', 'stats'],
+            ],
             // Four, not three like tentang-organisasi: this section's strip is
             // `md:grid-cols-4` (standar.blade.php), and the SD Madya template seeds exactly four
             // ("500+ Trofi", "98% Lulusan Terbaik", "12 Ekskul Unggulan", "20+ Tahun
             // Pengabdian"). Capping at 3 here would make the seeded content unreachable to edit.
-            //
-            // Only the `standar` variant renders it - the `sd-madya` one is the homepage teaser
-            // (a fixed 3-tile bento with no stats strip), so the field simply has no effect
-            // there rather than being hidden per variant: the registry's `fields` are per
-            // SECTION, not per variant, and a variant that ignores a field is normal here (see
-            // tentang-organisasi's label/vision_* which `standar` ignores).
             'stats_max' => 4,
             'defaults' => ['title' => 'Prestasi'],
             'cms' => ['route' => 'organizations.achievements.index', 'label' => 'Prestasi'],
@@ -231,9 +254,15 @@ return [
         ],
         'formulir-kontak' => [
             'label' => 'Formulir Kontak',
-            // address/hours/form_*/grades/cta_label: laid out only by the `sd-madya` variant,
-            // which renders an enrolment form beside the contact details.
-            'fields' => ['title', 'subtitle', 'wa_number', 'wa_message', 'address', 'hours', 'hours_title', 'form_title', 'form_subtitle', 'grades', 'cta_label'],
+            // `title` and `wa_number` are the only fields both variants read. `subtitle` and
+            // `wa_message` (the standard "message the org on WhatsApp" copy) only make sense
+            // for `standar`'s own contact card; `sekolahmu` renders an enrolment form instead
+            // (address/hours/form_*/grades/cta_label) and has no use for either.
+            'fields' => ['title', 'wa_number'],
+            'variant_fields' => [
+                'standar' => ['subtitle', 'wa_message'],
+                'sekolahmu' => ['address', 'hours', 'hours_title', 'form_title', 'form_subtitle', 'grades', 'cta_label'],
+            ],
             'defaults' => [
                 'title' => 'Hubungi Kami',
                 'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
@@ -247,7 +276,7 @@ return [
         'fasilitas-masjid' => [
             'label' => 'Fasilitas Masjid',
             'exclusive' => true,
-            // `subtitle` is rendered under the heading by the nurul-huda variant; without it
+            // `subtitle` is rendered under the heading by the masjidmu variant; without it
             // here the builder's properties panel would never offer the field, so the copy
             // would be unreachable rather than merely empty.
             'fields' => ['title', 'subtitle', 'items', 'limit'],

@@ -3,7 +3,7 @@
      template-preview context - see struktur-pengurus/standar.blade.php for the pattern.
 
      Photos are click-to-zoom via the shared x-tenant.lightbox component (same {image,
-     caption} Alpine contract as galeri/standar.blade.php), matching the nurul-huda site
+     caption} Alpine contract as galeri/standar.blade.php), matching the masjidmu site
      where facility photos open full-size rather than being decoration only. --}}
 @php
     $content = $section['content'] ?? [];

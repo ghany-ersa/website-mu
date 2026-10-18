@@ -16,7 +16,7 @@ use Tests\TestCase;
 /**
  * Unlike PrestasiStandarIconTest (which covers the shared `standar` variants, where the icon
  * font is never loaded at all because those templates carry a plain font, not a pairing), this
- * covers the `sd-madya` variants specifically - the ones where the font IS requested
+ * covers the `sekolahmu` variants specifically - the ones where the font IS requested
  * (organizations/pages/_brand-head.blade.php loads Material Symbols whenever the template
  * declares a font_pair, and sd-madya-eksklusif does).
  *
@@ -33,14 +33,14 @@ class SdMadyaVariantIconTest extends TestCase
 
     public function test_no_sd_madya_variant_uses_the_icon_ligature_component(): void
     {
-        $files = glob(resource_path('views/templates/sections/*/sd-madya.blade.php'));
-        $this->assertNotEmpty($files, 'expected to find sd-madya section variants');
+        $files = glob(resource_path('views/templates/sections/*/sekolahmu.blade.php'));
+        $this->assertNotEmpty($files, 'expected to find sekolahmu section variants');
 
         foreach ($files as $file) {
             $this->assertStringNotContainsString(
                 'x-tenant.icon',
                 file_get_contents($file),
-                basename(dirname($file)).'/sd-madya.blade.php uses x-tenant.icon - a font that fails to '
+                basename(dirname($file)).'/sekolahmu.blade.php uses x-tenant.icon - a font that fails to '
                 .'load leaves the ligature name as visible text, so this variant must use inline SVG.'
             );
         }
@@ -77,7 +77,7 @@ class SdMadyaVariantIconTest extends TestCase
             'order' => 0,
         ]);
 
-        // Every ligature name the sd-madya family used before this fix, across hero, galeri,
+        // Every ligature name the sekolahmu family used before this fix, across hero, galeri,
         // struktur-pengurus, formulir-kontak and prestasi.
         $ligatures = [
             'stars', 'arrow_forward', 'workspace_premium', 'play_arrow', 'image', 'person',

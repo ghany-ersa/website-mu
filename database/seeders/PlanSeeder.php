@@ -77,7 +77,7 @@ class PlanSeeder extends Seeder
             ['key' => 'donation_programs', 'max_count' => 1],
             ['key' => 'students', 'max_count' => 0],
             ['key' => 'achievements', 'max_count' => 3],
-            // The `testimoni` section is open to every plan (only its sd-madya layout is gated),
+            // The `testimoni` section is open to every plan (only its sekolahmu layout is gated),
             // so this has to be a real quota: at 0 a Starter organization could add the section
             // but never put a quote in it, which is the worst of both - a visible empty state it
             // has no way to fill. 3 matches the section's own three-card row.

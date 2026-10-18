@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * type, `kegiatan`.
  *
  * `icon` (an emoji) already exists and stays the fallback when no image is set; `image` is the
- * photo the SD-Madya activity cards use. `category` groups them on the public page
+ * photo the sekolahmu activity cards use. `category` groups them on the public page
  * (Religious/Extracurricular/... in the source project); `date` is optional since a recurring
  * habit like Sholat Dhuha has no single date.
  *

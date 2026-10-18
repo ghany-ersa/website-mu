@@ -9,7 +9,6 @@ use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class OrganizationBuilderTest extends TestCase
@@ -501,10 +500,19 @@ class OrganizationBuilderTest extends TestCase
      * vanish with no indication it is still stored.
      *
      * Text-level check on the Blade sources rather than a render, so it covers variants no
-     * fixture happens to exercise. A variant may reach a field through a computed key rather
-     * than a literal one - hero/headline-berita resolves both CTAs through a $prefix.'_type'
-     * helper - so a field whose name is only a suffix of that computed form counts as read when
-     * the source builds it that way.
+     * fixture happens to exercise. Two things a literal `['field']`/`'field'` search alone
+     * would miss, both handled below:
+     *
+     *  - A variant may reach a field through a computed key rather than a literal one -
+     *    cta/sekolahmu and hero/headline-berita both resolve two CTAs through a
+     *    $prefix.'_wa_number'-style helper, where $prefix is 'cta' or 'cta_secondary'. Tried
+     *    against every underscore split of the field (not just the last one), so a multi-part
+     *    suffix like 'wa_number' in 'cta_wa_number' is still recognized as read.
+     *  - A variant may delegate its entire body to another variant via @include (kegiatan's
+     *    only layout difference from program-unggulan is which Program `type` it queries, so
+     *    kegiatan/sekolahmu just includes program-unggulan/sekolahmu rather than duplicating
+     *    it) - followed one level deep so the field is checked against the included source,
+     *    not the forwarding shim.
      */
     public function test_every_variant_of_a_section_reads_the_same_registry_fields(): void
     {
@@ -530,15 +538,11 @@ class OrganizationBuilderTest extends TestCase
                 $renders = [];
 
                 foreach ($views as $view) {
-                    $source = file_get_contents($dir.'/'.$view);
+                    $source = $this->resolveIncludedSource($dir.'/'.$view);
 
                     $renders[$view] = str_contains($source, "['".$field."']")
                         || str_contains($source, "'".$field."'")
-                        // e.g. $content[$prefix.'_type'] covers cta_type and cta_secondary_type.
-                        || (bool) preg_match('/\$\w+\s*\.\s*\x27_'.preg_quote(
-                            Str::afterLast($field, '_'),
-                            '/'
-                        ).'\x27/', $source);
+                        || $this->readsFieldViaComputedKey($field, $source);
                 }
 
                 // Only a field some variants read and others don't is a problem; one no variant
@@ -551,6 +555,59 @@ class OrganizationBuilderTest extends TestCase
         }
 
         $this->assertSame([], $inconsistent, "Some variants ignore fields their siblings render:\n".implode("\n", $inconsistent));
+    }
+
+    /**
+     * A variant source may be a thin forwarding shim to an ENTIRELY DIFFERENT section's variant
+     * rather than the actual layout - e.g. kegiatan/sekolahmu.blade.php is just
+     * `@include('program-unggulan.sekolahmu', [...])`, since the two sections differ only in
+     * which Program `type` they query, not in markup. Appended (not substituted) to the
+     * variant's own source, which still matters: daftar-berita/standar.blade.php reads `items`
+     * itself before @include-ing its own _items-standar partial to render them, so replacing its
+     * source with the partial's would lose that.
+     *
+     * Only an include naming another SECTION's variant counts - every section's own internal
+     * partial is named with a leading underscore (_items-standar, _items-ringkas) and is
+     * already part of $source via file_get_contents(), so following it here would double up.
+     * One level deep (no section's variant chains two includes deep today).
+     */
+    private function resolveIncludedSource(string $path): string
+    {
+        $source = file_get_contents($path);
+
+        if (! preg_match('/@include\(\s*[\'"]templates\.sections\.([\w-]+)\.([\w-]+)[\'"]/', $source, $m)
+            || str_starts_with($m[2], '_')) {
+            return $source;
+        }
+
+        $included = resource_path("views/templates/sections/{$m[1]}/{$m[2]}.blade.php");
+
+        return is_file($included) ? $source."\n".file_get_contents($included) : $source;
+    }
+
+    /**
+     * Whether $source reaches $field through a computed key rather than a literal one -
+     * cta/sekolahmu and hero/headline-berita both resolve two CTAs through a
+     * $prefix.'_wa_number'-style helper, where $prefix is 'cta' or 'cta_secondary', so
+     * 'cta_wa_number' is only ever written as $content[$prefix.'_wa_number'] in that source.
+     *
+     * Tried against every underscore split of $field (prefix/suffix pairs from the first
+     * underscore to the last), not just the split on the last underscore, because the dynamic
+     * suffix itself can contain an underscore ('wa_number', not just 'number').
+     */
+    private function readsFieldViaComputedKey(string $field, string $source): bool
+    {
+        $parts = explode('_', $field);
+
+        for ($i = 1; $i < count($parts); $i++) {
+            $suffix = implode('_', array_slice($parts, $i));
+
+            if (preg_match('/\$\w+\s*\.\s*\x27_'.preg_quote($suffix, '/').'\x27/', $source)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

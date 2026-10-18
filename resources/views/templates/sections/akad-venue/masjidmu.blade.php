@@ -42,7 +42,7 @@
 >
     @if ($backgroundImage)
         {{-- Photo backdrop behind the same brand gradient (now semi-transparent over it),
-             mirroring the nurul-huda venue page's image + gradient-overlay hero. --}}
+             mirroring the masjidmu venue page's image + gradient-overlay hero. --}}
         <img src="{{ $backgroundImage }}" alt="{{ $content['hero_title'] ?? 'Aula serbaguna masjid' }}" loading="lazy"
              class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-br from-primary/90 to-secondary/85"></div>

@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Widens `gallery_photos` for the SD-Madya gallery: a titled, categorised photo that can be
+ * Widens `gallery_photos` for the sekolahmu gallery: a titled, categorised photo that can be
  * filtered on the public page, rather than just an image with a caption.
  *
  * `caption` is kept as-is and stays the short overlay text; `title` is the heading shown on

@@ -56,7 +56,7 @@ class SuaraMuhammadiyahAmbuluTemplateSeeder extends Seeder
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.
-                'thumbnail_path' => 'templates/thumbnails/0e812ebc-fc38-43a5-b2f1-934d9dcafb2d.webp',
+                'thumbnail_path' => 'templates/thumbnails/media-eksklusif.png',
                 'is_active' => true,
                 'is_exclusive' => true,
                 // The featured template for the Media/Portal Berita type - one per type, now that each

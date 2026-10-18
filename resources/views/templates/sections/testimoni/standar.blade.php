@@ -1,5 +1,5 @@
 {{-- The plain cut of the testimonials, and the one any plan may use - the editorial treatment
-     (navy field, snap rail, oversized quote marks, photo chips) is the `sd-madya` variant's job.
+     (navy field, snap rail, oversized quote marks, photo chips) is the `sekolahmu` variant's job.
 
      Plain cards on a horizontal carousel: a hairline border and a rounded corner on the section's
      own background, with no shadow, no decorative quote glyph and no avatar placeholder. The card
@@ -9,7 +9,7 @@
 
      The quotes sit on a horizontal slide rail - plain CSS scroll-snap, no JS at all: it scrolls
      with a swipe, a trackpad or the keyboard, and each card snaps into place. Same mechanism the
-     prestasi filter rail and the sd-madya galeri already use. Testimonials are the one section
+     prestasi filter rail and the sekolahmu galeri already use. Testimonials are the one section
      that grows without bound as an organization collects more, so a rail keeps a page of 12
      quotes from becoming six screens of scrolling.
 

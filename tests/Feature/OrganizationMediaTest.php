@@ -100,7 +100,7 @@ class OrganizationMediaTest extends TestCase
                 continue;
             }
 
-            if (preg_match_all('/category="([^"]+)"/', file_get_contents($file->getPathname()), $m)) {
+            if (preg_match_all('/(?<![\w-])category="([^"]+)"/', file_get_contents($file->getPathname()), $m)) {
                 $categories = array_merge($categories, $m[1]);
             }
         }

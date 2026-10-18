@@ -476,7 +476,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $this->assertNotEmpty(array_filter(
             $violations,
-            fn (string $v) => str_contains($v, 'komponen eksklusif'),
+            fn (string $v) => str_contains($v, 'memerlukan paket Eksklusif'),
         ));
     }
 
@@ -539,7 +539,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
     /**
      * The builder renders a "Tampilan" <select> per section, so a page-wide regex would pick up
-     * a sibling section's options - fasilitas-masjid and donasi-progress sit on `nurul-huda`
+     * a sibling section's options - fasilitas-masjid and donasi-progress sit on `masjidmu`
      * too. Narrows the haystack to one section's own form, keyed by the update URL in its
      * action attribute, before asserting on that section's options.
      */
@@ -613,7 +613,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $page = $organization->pages()->where('is_home', true)->firstOrFail();
         $hero = $page->sections()->where('key', 'hero')->firstOrFail();
-        $this->assertSame('nurul-huda', $hero->variant);
+        $this->assertSame('masjidmu', $hero->variant);
 
         $organization->update(['plan_id' => Plan::where('key', 'starter')->firstOrFail()->id]);
 
@@ -622,8 +622,8 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $response->assertOk();
         $select = $this->variantSelectHtml($response->getContent(), $organization, $hero->id);
-        $this->assertMatchesRegularExpression('/<option value="nurul-huda" selected\s*>/', $select);
-        $this->assertDoesNotMatchRegularExpression('/<option value="nurul-huda"[^<>]*disabled[^<>]*>/', $select);
+        $this->assertMatchesRegularExpression('/<option value="masjidmu" selected\s*>/', $select);
+        $this->assertDoesNotMatchRegularExpression('/<option value="masjidmu"[^<>]*disabled[^<>]*>/', $select);
         // Its unused siblings are pickable too, never disabled.
         $this->assertDoesNotMatchRegularExpression('/<option value="modern"[^<>]*disabled[^<>]*>/', $select);
     }
@@ -668,7 +668,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
         $this->assertNotEmpty($sections);
 
         foreach ($sections as $section) {
-            $this->assertSame('nurul-huda', $section->variant, "{$section->key} is not on the nurul-huda variant");
+            $this->assertSame('masjidmu', $section->variant, "{$section->key} is not on the masjidmu variant");
         }
 
         // The renamed variant must be the section's only one, and still exclusive - a
@@ -676,8 +676,8 @@ class MasjidNurulHudaTemplateTest extends TestCase
         foreach ($keys as $key) {
             $variants = SectionVariantResolver::variantsFor($key);
 
-            $this->assertSame(['nurul-huda'], $variants->pluck('variant_key')->all());
-            $this->assertTrue(SectionVariantResolver::isExclusive($key, 'nurul-huda'));
+            $this->assertSame(['masjidmu'], $variants->pluck('variant_key')->all());
+            $this->assertTrue(SectionVariantResolver::isExclusive($key, 'masjidmu'));
             $this->assertTrue(config("page-builder.sections.{$key}.exclusive"));
         }
     }

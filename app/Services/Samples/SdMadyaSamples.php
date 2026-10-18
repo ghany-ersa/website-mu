@@ -98,7 +98,7 @@ class SdMadyaSamples
      * Eksklusif 25 - see CmsSampleDataSeeder::sampleCount()).
      *
      * `role` is the titled position and `subject` the teaching assignment, which is the split
-     * the sd-madya variant renders (see add_teacher_fields_to_officers_table).
+     * the sekolahmu variant renders (see add_teacher_fields_to_officers_table).
      *
      * `photo` stays null: the school's own headshots are not ours to publish, and
      * struktur-pengurus renders an empty avatar rather than breaking. PortraitPhotos stand-ins
@@ -162,7 +162,7 @@ class SdMadyaSamples
      * plan still matches the heading above it.
      *
      * `icon` holds an emoji, matching CmsSampleDataSeeder's generic program defaults; the
-     * bento layout (program-unggulan/sd-madya.blade.php) renders it when there is no image.
+     * bento layout (program-unggulan/sekolahmu.blade.php) renders it when there is no image.
      *
      * @return array<int, array<string, string>>
      */

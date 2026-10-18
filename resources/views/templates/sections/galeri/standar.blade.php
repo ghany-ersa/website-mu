@@ -79,7 +79,7 @@
         },
     }">
     <div class="max-w-6xl mx-auto px-6">
-        {{-- Heading matches fasilitas-masjid/nurul-huda.blade.php: an eyebrow over a
+        {{-- Heading matches fasilitas-masjid/masjidmu.blade.php: an eyebrow over a
              font-semibold title rather than the old font-extrabold text-3xl, which read as
              shouty beside the light body copy and made the two photo sections on this page
              look like they came from different templates. --}}

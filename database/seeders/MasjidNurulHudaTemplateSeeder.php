@@ -25,10 +25,10 @@ use Illuminate\Database\Seeder;
  *     -> galeri -> donasi aktif -> kajian terdekat -> ajakan donasi (CTA).
  *   - Brand: primary #2c368B, accent #1e79cc, plain sans font (no serif/Lora override like
  *     other exclusive templates), rounded-2xl white cards with a slate-100 border.
- *   - header/footer use the `nurul-huda` section variants for its cross-page top nav and
+ *   - header/footer use the `masjidmu` section variants for its cross-page top nav and
  *     app-style mobile bottom nav (see resources/views/templates/sections/header|footer/).
  *   - The five premium mosque sections it introduced (fasilitas-masjid, donasi-progress,
- *     laporan-keuangan, kalkulator-zakat, akad-venue) use the `nurul-huda` variant, which is
+ *     laporan-keuangan, kalkulator-zakat, akad-venue) use the `masjidmu` variant, which is
  *     their only one. Those sections are themselves plan-gated via config/page-builder.php's
  *     `exclusive` flag, so a lower-plan organization can't add them from the page builder.
  *   - Copy is lifted from that project's own Blade views; the matching CMS sample records
@@ -165,7 +165,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
      * The three donation programs the takmir currently runs, as edited through the builder's
      * donations CMS - NOT the five CmsSampleDataSeeder::seedDonationPrograms() originally
      * seeded (Renovasi Atap and Pembangunan Perpustakaan were removed, and Santunan Anak Yatim
-     * renamed to Bakti Sosial). Ordered the way donasi-progress/nurul-huda.blade.php sorts a
+     * renamed to Bakti Sosial). Ordered the way donasi-progress/masjidmu.blade.php sorts a
      * real organization's rows - still-running programs by largest target first, then expired
      * ones - so the preview matches what an organization on this template sees.
      *
@@ -201,7 +201,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                 // Uploaded via the admin template form (Admin\TemplateController::storeThumbnail())
                 // - kept here so migrate:fresh + seed reproduces the current thumbnail instead of
                 // leaving it blank until an admin re-uploads it by hand.
-                'thumbnail_path' => 'templates/thumbnails/74d45d94-c868-410f-9b49-4f433b775af9.webp',
+                'thumbnail_path' => 'templates/thumbnails/masjid-eksklusif.png',
                 'is_active' => true,
                 'is_exclusive' => true,
                 'is_featured' => true,
@@ -221,7 +221,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Beranda',
                             'sections' => [
                                 $header,
-                                ['key' => 'hero', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'hero', 'variant' => 'masjidmu', 'content' => [
                                     'badge' => 'Terbuka untuk seluruh jamaah',
                                     'headline' => 'Masjid Nurul Huda Ambulu',
                                     'subheadline' => 'Pusat ibadah dan kegiatan umat yang transparan dalam pengelolaan dana dan terbuka untuk seluruh jamaah.',
@@ -254,9 +254,9 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                                 // list CmsSampleDataSeeder::seedFacilities() inserts as real
                                 // MasjidFacility rows for an organization - without it, template-
                                 // preview context (no $organization, see the view's own comment)
-                                // fell back to fasilitas-masjid/nurul-huda.blade.php's generic
+                                // fell back to fasilitas-masjid/masjidmu.blade.php's generic
                                 // 3-item, photo-less placeholder instead of the real fasilitas.
-                                ['key' => 'fasilitas-masjid', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'fasilitas-masjid', 'variant' => 'masjidmu', 'content' => [
                                     'title' => 'Fasilitas Masjid',
                                     'items' => [
                                         ['name' => 'Halaman dan Teras Depan', 'photo' => self::S3.'/facilities/01M0CQ2ENVEQ1WQYZE5AQM257E.jpg', 'description' => null],
@@ -278,7 +278,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                                     'limit' => 8,
                                     'items' => self::galeriItems(),
                                 ]],
-                                ['key' => 'donasi-progress', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'donasi-progress', 'variant' => 'masjidmu', 'content' => [
                                     'title' => 'Program Donasi Aktif',
                                     'limit' => 3,
                                     'items' => self::donasiProgressItems(),
@@ -316,13 +316,13 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Donasi',
                             'sections' => [
                                 $header,
-                                ['key' => 'donasi-progress', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'donasi-progress', 'variant' => 'masjidmu', 'content' => [
                                     'title' => 'Program Donasi',
                                     'subtitle' => 'Setiap donasi yang masuk dapat dilihat riwayat dan peruntukannya secara transparan.',
                                     'limit' => 9,
                                     'items' => self::donasiProgressItems(),
                                 ]],
-                                ['key' => 'kalkulator-zakat', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'kalkulator-zakat', 'variant' => 'masjidmu', 'content' => [
                                     'title' => 'Zakat & Infaq',
                                     'cta_label' => 'Hubungi Lazismu',
                                     'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar zakat.',
@@ -335,7 +335,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Laporan Keuangan',
                             'sections' => [
                                 $header,
-                                ['key' => 'laporan-keuangan', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'laporan-keuangan', 'variant' => 'masjidmu', 'content' => [
                                     'title' => 'Laporan Keuangan',
                                 ]],
                                 $footer,
@@ -359,7 +359,7 @@ class MasjidNurulHudaTemplateSeeder extends Seeder
                             'name' => 'Akad Venue',
                             'sections' => [
                                 $header,
-                                ['key' => 'akad-venue', 'variant' => 'nurul-huda', 'content' => [
+                                ['key' => 'akad-venue', 'variant' => 'masjidmu', 'content' => [
                                     'hero_title' => 'Akad Nikah Penuh Khidmat',
                                     'hero_subtitle' => 'Langsungkan momen sakral Anda di tempat yang teduh, penuh berkah, dan siap menampung hingga 150 tamu undangan.',
                                     'availability_badge' => 'Terbuka untuk Jamaah',

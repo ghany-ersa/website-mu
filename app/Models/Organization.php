@@ -127,7 +127,7 @@ class Organization extends Model
 
     /**
      * Effective headline/body font pairing key (see config('branding.font_pairs')), or null
-     * when the template declares none - which is every template but the SD-Madya one, and the
+     * when the template declares none - which is every template but the sekolahmu one, and the
      * case in which both roles fall back to the document's own body font.
      *
      * Unlike primaryColor()/fontFamily() there is no per-organization override: a pairing is a
@@ -399,7 +399,7 @@ class Organization extends Model
      *    admin approves its first PlanChangeRequest.
      *  - A section that's either `exclusive`-flagged (config/page-builder.php - e.g.
      *    fasilitas-masjid) or using an `is_exclusive` *variant* (SectionVariantResolver - e.g.
-     *    akad-venue's "nurul-huda" layout), while on a plan without that entitlement - same
+     *    akad-venue's "masjidmu" layout), while on a plan without that entitlement - same
      *    "build now, pay to publish" split as the (deliberately disabled, see below)
      *    template-level check: OrganizationSectionController::store()/update() let the
      *    add/variant-switch through regardless of plan, so the gate lands here at publish time
@@ -504,7 +504,7 @@ class Organization extends Model
             // here instead of at the moment the owner picks it.
             //
             // A single section can trip both flags at once (e.g. akad-venue is itself exclusive
-            // *and* its nurul-huda variant is exclusive) - counted once via union, not added
+            // *and* its masjidmu variant is exclusive) - counted once via union, not added
             // twice, since the owner only sees one widget on the canvas and upgrading clears
             // both reasons in the same stroke.
             $exclusiveSections = $sections->filter(fn (OrganizationSection $section) => config("page-builder.sections.{$section->key}.exclusive", false)
