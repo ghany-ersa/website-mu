@@ -3,6 +3,7 @@
 namespace App\Logging;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Collection;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
@@ -66,6 +67,13 @@ class TelegramHandler extends AbstractProcessingHandler
             $lines[] = 'URL: '.$url;
         }
 
+        // Guest requests (most tenant page views - see CLAUDE.md on the tenant
+        // middleware group having no session) have no authenticated user, so this
+        // line is skipped rather than printed as "Guest".
+        if ($user = auth()->user()) {
+            $lines[] = sprintf('User: %s (#%d, %s)', $user->name, $user->id, $user->email);
+        }
+
         $lines[] = $record->message;
 
         $exception = $record->context['exception'] ?? null;
@@ -77,6 +85,17 @@ class TelegramHandler extends AbstractProcessingHandler
                 $exception->getFile(),
                 $exception->getLine(),
             );
+        }
+
+        // Context entries besides "exception" are whatever the call site passed
+        // explicitly (e.g. Log::error('...', ['order_id' => $id, 'exception' => $e])) -
+        // the data that was actually being processed when it failed.
+        $extra = (new Collection($record->context))
+            ->except('exception')
+            ->filter(fn ($value) => $value !== null && $value !== '');
+
+        if ($extra->isNotEmpty()) {
+            $lines[] = 'Data: '.json_encode($extra, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
 
         return implode("\n", $lines);
