@@ -9,7 +9,7 @@
 --}}
 @php
     $content = $section['content'] ?? [];
-    $goldPrice = (int) ($content['gold_price_per_gram'] ?? 1_500_000);
+    $goldPrice = (int) ($content['gold_price_per_gram'] ?? 2_500_000);
     $nisabGrams = (int) ($content['nisab_grams'] ?? 85);
     $nisabAmount = $goldPrice * $nisabGrams;
     $waNumber = $content['wa_number'] ?? ($organization->whatsapp ?? null);
