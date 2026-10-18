@@ -78,5 +78,7 @@
 
     @include('partials.confirm-modal')
 
+    @include('components.support-bubble')
+
 </body>
 </html>

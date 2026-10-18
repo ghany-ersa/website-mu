@@ -82,6 +82,8 @@
         @yield('content')
     </main>
 
+    @include('components.support-bubble')
+
     @stack('scripts')
 
 </body>

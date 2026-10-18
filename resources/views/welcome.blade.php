@@ -515,5 +515,7 @@
 
     <x-marketing.footer />
 
+    @include('components.support-bubble')
+
 </body>
 </html>

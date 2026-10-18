@@ -101,5 +101,7 @@
         @yield('content')
     </main>
 
+    @include('components.support-bubble')
+
 </body>
 </html>

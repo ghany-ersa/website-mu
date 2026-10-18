@@ -286,6 +286,8 @@
 
     @include('partials.confirm-modal')
 
+    @include('components.support-bubble')
+
     {{-- Components that register Alpine.data() push their script here (see
          components/form/image-picker.blade.php), so it's defined once per page no matter how
          many instances the form renders. --}}
