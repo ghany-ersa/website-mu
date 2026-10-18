@@ -60,12 +60,14 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                 'is_featured' => false,
                 'structure' => [
                     'sample_org_name' => 'Klinik Pratama Aisyiyah Ambulu',
-                    // Aisyiyah green led, as in the exclusive version, but with the platform
-                    // default font/radius - the standard tier should look like the standard
-                    // tier, so the exclusive template's serif/sharp identity stays distinct.
+                    // Same green/gold pairing as the exclusive version (see that seeder's own
+                    // brand comment for why it's gold now, not Muhammadiyah blue), with the
+                    // platform default font/radius - the standard tier should look like the
+                    // standard tier, so the exclusive template's serif/sharp identity stays
+                    // distinct.
                     'brand' => [
-                        'primary' => '#079C4E',
-                        'secondary' => '#2C368B',
+                        'primary' => '#04602f',
+                        'secondary' => '#E9C349',
                         'font' => 'Plus Jakarta Sans',
                         'radius' => 'sharp',
                         'logo' => 'https://storage.ambulu.or.id/organizations/6/brand/bda79c51-7293-4634-8dc7-9be52dcc9090.webp',

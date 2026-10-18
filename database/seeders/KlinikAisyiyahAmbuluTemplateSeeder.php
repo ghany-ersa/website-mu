@@ -69,12 +69,15 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                 'is_featured' => true,
                 'structure' => [
                     'sample_org_name' => 'Klinik Pratama Aisyiyah Ambulu',
-                    // Aisyiyah green led, Muhammadiyah blue as the secondary - the reverse of the
-                    // platform default pairing, so the exclusive tier reads as its own identity.
+                    // Aisyiyah green led, now paired with the gold accent shared with the SD
+                    // Madya templates (#E9C349) rather than Muhammadiyah blue - an admin edit
+                    // made directly in this template's sandbox and exported back via
+                    // TemplateBuilderController::update(), carried forward here so a database
+                    // reset (migrate:fresh --seed) doesn't revert it to the old blue pairing.
                     // Serif `Lora` + `sharp` radius match the other exclusive templates.
                     'brand' => [
-                        'primary' => '#079C4E',
-                        'secondary' => '#2C368B',
+                        'primary' => '#04602f',
+                        'secondary' => '#E9C349',
                         'font' => 'Lora',
                         'radius' => 'sharp',
                         'logo' => 'https://storage.ambulu.or.id/organizations/5/brand/9b123858-8f65-4a14-a470-577b5a5cbb74.webp',
