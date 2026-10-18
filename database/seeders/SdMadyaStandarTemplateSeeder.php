@@ -62,14 +62,16 @@ class SdMadyaStandarTemplateSeeder extends Seeder
     public const MAP_EMBED = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m2!2m1!1s-8.3530323%2C113.6036492';
 
     /**
-     * Stand-in photography from Unsplash, the same source and the same two frames the exclusive
-     * template uses, so both tiers preview the same school rather than two unrelated ones. Every
-     * section guards on an empty image, so a dead URL degrades to the empty state rather than a
-     * broken layout.
+     * The school's actual photography - same two frames SdMadyaTemplateSeeder uses (its
+     * HERO_IMAGE and ABOUT_IMAGE, uploaded through that template's sandbox, organization id 11),
+     * so both tiers preview the same school rather than two unrelated ones. Every section guards
+     * on an empty image, so a dead URL degrades to the empty state rather than a broken layout -
+     * see that seeder's doc comment on these being per-ORGANIZATION storage that 404s if the
+     * sandbox is ever cleared. Replaces the earlier Unsplash stand-ins.
      */
-    private const HERO_IMAGE = 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1600&q=80';
+    private const HERO_IMAGE = 'https://storage.ambulu.or.id/organizations/11/builder/169f07f8-f874-44ef-8e86-37d141145c5e.webp';
 
-    private const ABOUT_IMAGE = 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1000&q=80';
+    private const ABOUT_IMAGE = 'https://storage.ambulu.or.id/organizations/11/builder/178c48cf-b1f2-44e4-b505-11b37b3c1a18.webp';
 
     public function run(): void
     {
