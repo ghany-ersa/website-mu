@@ -88,7 +88,7 @@ class SdMadyaTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'SD Muhammadiyah Ambulu (Eksklusif)',
+                'name' => 'Sekolah Juara',
                 // Matches the house style of every other template's description: what the
                 // visitor sees, page by page, in one sentence - not what the template IS. The
                 // previous copy opened with "Template eksklusif multi-halaman untuk sekolah:"

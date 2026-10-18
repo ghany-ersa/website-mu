@@ -84,7 +84,7 @@ class SdMadyaStandarTemplateSeeder extends Seeder
             ['slug' => self::SLUG],
             [
                 'organization_type_id' => $organizationType?->id,
-                'name' => 'Sekolah & Madrasah',
+                'name' => 'Sekolah Kita',
                 'description' => 'Satu halaman profil sekolah: identitas dan akreditasi, prestasi siswa dengan filter kategori, kegiatan dan ekstrakurikuler, profil guru, galeri, serta pendaftaran lewat WhatsApp dan peta lokasi.',
                 'thumbnail_path' => 'templates/thumbnails/sekolah-standar.png',
                 'is_active' => true,
