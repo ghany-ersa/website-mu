@@ -91,19 +91,14 @@ class SdMadyaSamples
     }
 
     /**
-     * The school's actual staff, transcribed from its own organisational chart. Ordered by
-     * seniority rather than by the chart's left-to-right layout, because
-     * CmsSampleDataSeeder::sampleCount() truncates this list to the plan's `officers` limit
-     * (Starter 5, Premium 10, Eksklusif 25) - so the kepala sekolah must lead, not whoever
-     * happened to sit in the chart's top-left box.
+     * The school's actual staff, transcribed from its own organisational chart - trimmed, per the
+     * school's own edits in the template sandbox, to just the four people who hold a titled
+     * management post AND a teaching assignment together. Ordered by seniority, so the kepala
+     * sekolah leads on a plan tight enough to truncate this list (Starter 5, Premium 10,
+     * Eksklusif 25 - see CmsSampleDataSeeder::sampleCount()).
      *
      * `role` is the titled position and `subject` the teaching assignment, which is the split
-     * the sd-madya variant renders (see add_teacher_fields_to_officers_table). Several
-     * people hold two posts - Beni Hendarto is both kepala sekolah and guru PAI, Fais Hayu
-     * Usmawati both bendahara and guru kelas IVA, Tri Agung both wakil kepala and guru PJOK,
-     * Syahrul Dwi Arifin both operator and guru kelas VB, Amalia Virgi both tata usaha and guru
-     * kelas IIB - so each appears ONCE with their senior role and their class in `subject`,
-     * rather than twice as two different people.
+     * the sd-madya variant renders (see add_teacher_fields_to_officers_table).
      *
      * `photo` stays null: the school's own headshots are not ours to publish, and
      * struktur-pengurus renders an empty avatar rather than breaking. PortraitPhotos stand-ins
@@ -118,7 +113,7 @@ class SdMadyaSamples
             ['name' => 'Beni Hendarto, S.Pd.I', 'role' => 'Kepala Sekolah', 'subject' => 'Pendidikan Agama Islam'],
             ['name' => 'Tri Agung Misbahul Ulum, S.Pd', 'role' => 'Wakil Kepala Sekolah', 'subject' => 'Pendidikan Jasmani & Olahraga'],
             ['name' => 'Abdurachman Habibullah, S.Pd', 'role' => 'Kurikulum Sekolah', 'subject' => 'Bahasa Arab'],
-            ['name' => 'Fais Hayu Usmawati, S.Pd', 'role' => 'Bendahara Sekolah', 'subject' => 'Guru Kelas IVA'],
+            ['name' => 'Fais Hayu Usmawati, S.Pd', 'role' => 'Bendahara Sekolah', 'subject' => 'Guru Kelas 3B'],
         ];
     }
 
@@ -176,7 +171,8 @@ class SdMadyaSamples
         return [
             [
                 'title' => 'Salat Dhuha Berjamaah',
-                'category' => 'Pembiasaan',
+                // No category - matches the school's own edit in the sandbox: this and the two
+                // other entries below read fine as a plain routine without a badge over them.
                 'description' => 'Pembiasaan salat Dhuha berjamaah setiap pagi sebelum jam pelajaran pertama dimulai.',
                 'icon' => '🕌',
             ],
@@ -194,7 +190,6 @@ class SdMadyaSamples
             ],
             [
                 'title' => 'Ekstrakurikuler Hizbul Wathan',
-                'category' => 'Kepanduan',
                 'description' => 'Kepanduan khas Muhammadiyah yang melatih kemandirian, kedisiplinan, dan kerja sama.',
                 'icon' => '⛺',
             ],
@@ -206,9 +201,9 @@ class SdMadyaSamples
             ],
             [
                 'title' => 'Seni Tari dan Musik',
-                'category' => 'Seni',
                 'description' => 'Pengembangan bakat seni melalui latihan tari tradisional dan ansambel musik sekolah.',
-                'icon' => '🎭',
+                // 🎨, not 🎭 - the school's own edit in the sandbox.
+                'icon' => '🎨',
             ],
         ];
     }

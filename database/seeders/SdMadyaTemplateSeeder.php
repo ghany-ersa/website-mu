@@ -60,16 +60,20 @@ class SdMadyaTemplateSeeder extends Seeder
     public const MAP_EMBED = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m2!2m1!1s-8.3530323%2C113.6036492';
 
     /**
-     * Stand-in photography from Unsplash, consistent with the other seeded templates. The real
-     * school's own photos live in its manajemen-SD-Madya storage and arrive with the data
-     * migration; every section guards on an empty image, so a broken URL degrades to the empty
-     * state rather than a broken layout.
+     * The school's actual photography - uploaded through this template's own sandbox editor
+     * (organization id 11) rather than hotlinked from a public bucket, same as
+     * MasjidNurulHudaStandarTemplateSeeder::LOGO. Per-ORGANIZATION storage (R2, see
+     * TemplateSandboxService::sandboxFor()), so these 404 if that sandbox or its storage is ever
+     * cleared and would need re-uploading and re-pointing here; every section guards on an empty
+     * image, so a broken URL degrades to the empty state rather than a broken layout. Checked to
+     * return 200 as of this seeder's last update. Replaces the earlier Unsplash stand-ins once
+     * the school's own photos were uploaded in the sandbox.
      */
-    private const HERO_IMAGE = 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1600&q=80';
+    private const HERO_IMAGE = 'https://storage.ambulu.or.id/organizations/11/builder/169f07f8-f874-44ef-8e86-37d141145c5e.webp';
 
-    private const PORTRAIT_IMAGE = 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1000&q=80';
+    private const PORTRAIT_IMAGE = 'https://storage.ambulu.or.id/organizations/11/builder/05c9f7f0-14c8-466d-b414-09f4633880e6.webp';
 
-    private const ABOUT_IMAGE = 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1000&q=80';
+    private const ABOUT_IMAGE = 'https://storage.ambulu.or.id/organizations/11/builder/178c48cf-b1f2-44e4-b505-11b37b3c1a18.webp';
 
     private const VIDEO_POSTER = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80';
 
@@ -158,10 +162,16 @@ class SdMadyaTemplateSeeder extends Seeder
                                     'vision_body' => 'Menjadi lembaga pendidikan dasar yang unggul dalam Imtaq dan Iptek bertaraf nasional.',
                                     'values_title' => 'Nilai Utama',
                                     'values' => ['Kejujuran (Siddiq)', 'Kecerdasan (Fathanah)', 'Amanah', 'Tabligh'],
+                                    // Same facts as the standar tier's tentang-organisasi strip
+                                    // (SdMadyaStandarTemplateSeeder) - a school signing checkable
+                                    // records like these should see the same numbers on both
+                                    // tiers, not two different claims about one school. '540
+                                    // Siswa Aktif' / '32 Tenaga Pendidik' were never counts
+                                    // anyone had verified; rombel/accreditation/founding year are.
                                     'stats' => [
+                                        ['value' => '12', 'label' => 'Rombongan Belajar'],
                                         ['value' => 'A', 'label' => 'Akreditasi'],
-                                        ['value' => '540', 'label' => 'Siswa Aktif'],
-                                        ['value' => '32', 'label' => 'Tenaga Pendidik'],
+                                        ['value' => '1978', 'label' => 'Berdiri Sejak'],
                                     ],
                                 ]],
                                 ['key' => 'prestasi', 'variant' => 'sd-madya', 'content' => [
