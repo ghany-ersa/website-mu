@@ -105,6 +105,14 @@ class SdMadyaTemplateSeeder extends Seeder
                         'secondary' => '#E9C349',
                         'font_pair' => 'sd-madya',
                         'radius' => 'soft',
+                        // Same logo as SdMadyaStandarTemplateSeeder - uploaded through that
+                        // tier's sandbox (organization id 12) and carried over here so both
+                        // tiers show the school's real mark instead of only one of them having
+                        // it. Per-ORGANIZATION storage, so it 404s if that sandbox is ever
+                        // cleared - see that seeder's own note on why. header/standar.blade.php
+                        // falls back to a text wordmark when this is blank, which is what every
+                        // visitor saw here until now.
+                        'logo' => 'https://storage.ambulu.or.id/organizations/12/brand/e8756aef-3c87-40a3-99e4-289322ce48a8.webp',
                     ],
                     /*
                      * SD Muhammadiyah 1 Ambulu's real contact details and social accounts.
