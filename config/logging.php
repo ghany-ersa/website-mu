@@ -1,5 +1,6 @@
 <?php
 
+use App\Logging\TelegramHandler;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -121,6 +122,20 @@ return [
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
+        ],
+
+        // Sends error-and-above log records to a Telegram chat via the bot API, so
+        // production incidents (where APP_DEBUG=false hides errors from any UI) still
+        // reach a human in near-real-time. Add "telegram" to LOG_STACK to enable it -
+        // kept out of the default stack so local/staging logs don't spam the chat.
+        'telegram' => [
+            'driver' => 'monolog',
+            'handler' => TelegramHandler::class,
+            'level' => env('LOG_TELEGRAM_LEVEL', 'error'),
+            'with' => [
+                'botToken' => env('TELEGRAM_LOG_BOT_TOKEN'),
+                'chatId' => env('TELEGRAM_LOG_CHAT_ID'),
+            ],
         ],
 
         'emergency' => [
