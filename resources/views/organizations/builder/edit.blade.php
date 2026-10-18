@@ -1231,22 +1231,6 @@
                                                 + Tambah statistik (maks {{ $statsMax }})
                                             </button>
                                         </div>
-                                    @elseif ($field === 'times' && $section->key === 'jadwal-salat')
-                                        @php
-                                            $prayerLabels = ['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya'];
-                                            $currentTimes = $section->content['times'] ?? [];
-                                        @endphp
-                                        <div class="space-y-2">
-                                            @foreach ($prayerLabels as $i => $label)
-                                                <div class="flex items-center gap-2">
-                                                    <input type="hidden" name="content[times][{{ $i }}][label]" value="{{ $label }}">
-                                                    <span class="w-20 shrink-0 text-sm text-gray-600">{{ $label }}</span>
-                                                    <input type="time" name="content[times][{{ $i }}][time]"
-                                                        value="{{ $currentTimes[$i]['time'] ?? '' }}"
-                                                        class="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
-                                                </div>
-                                            @endforeach
-                                        </div>
                                     @elseif (in_array($field, ['items', 'times'], true))
                                         <div
                                             class="w-full rounded-xl border border-dashed border-gray-200 bg-gray-50 px-3.5 py-3 text-xs text-gray-400 flex items-center gap-2">

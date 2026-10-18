@@ -216,15 +216,6 @@ return [
             'defaults' => ['title' => 'Galeri'],
             'cms' => ['route' => 'organizations.gallery.index', 'label' => 'Galeri'],
         ],
-        'jadwal-salat' => [
-            'label' => 'Jadwal Salat',
-            'fields' => ['title', 'location', 'times'],
-            'defaults' => ['title' => 'Jadwal Salat Hari Ini'],
-            // Not yet location-aware (times are manually typed, not fetched by coordinates) -
-            // hidden from new-section picker and public render until that's built. See the
-            // `hidden` doc comment above.
-            'hidden' => true,
-        ],
         'jadwal-praktik' => [
             'label' => 'Jadwal Praktik Dokter',
             'fields' => ['title', 'doctors'],
@@ -236,14 +227,6 @@ return [
             'defaults' => [
                 'title' => 'Donasi, Zakat, dan Infak',
                 'wa_message' => 'Assalamu\'alaikum, saya ingin berdonasi untuk {org_name}. Mohon informasi caranya ya',
-            ],
-        ],
-        'ppdb' => [
-            'label' => 'PPDB',
-            'fields' => ['title', 'body', 'deadline', 'cta_label', 'wa_number', 'wa_message'],
-            'defaults' => [
-                'title' => 'Penerimaan Peserta Didik Baru',
-                'wa_message' => 'Assalamu\'alaikum, saya ingin mendaftar PPDB di {org_name}. Mohon informasi caranya ya',
             ],
         ],
         'formulir-kontak' => [

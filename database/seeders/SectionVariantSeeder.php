@@ -71,17 +71,11 @@ class SectionVariantSeeder extends Seeder
                 'standar' => ['view' => 'templates.sections.galeri.standar', 'exclusive' => false, 'default' => true],
                 'sd-madya' => ['view' => 'templates.sections.galeri.sd-madya', 'exclusive' => true],
             ],
-            'jadwal-salat' => [
-                'standar' => ['view' => 'templates.sections.jadwal-salat.standar', 'exclusive' => false, 'default' => true],
-            ],
             'jadwal-praktik' => [
                 'standar' => ['view' => 'templates.sections.jadwal-praktik.standar', 'exclusive' => false, 'default' => true],
             ],
             'donasi-zakat-infak' => [
                 'standar' => ['view' => 'templates.sections.donasi-zakat-infak.standar', 'exclusive' => false, 'default' => true],
-            ],
-            'ppdb' => [
-                'standar' => ['view' => 'templates.sections.ppdb.standar', 'exclusive' => false, 'default' => true],
             ],
             'kegiatan' => [
                 'standar' => ['view' => 'templates.sections.kegiatan.standar', 'exclusive' => false, 'default' => true],

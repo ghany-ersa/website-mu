@@ -223,11 +223,11 @@ class TemplateSandboxService
      *     `items` shape to rebuild, so a template preview genuinely cannot show real figures.
      *     Skipped deliberately, not overlooked.
      *   - Everything else (hero, cta, formulir-kontak, tentang-organisasi, sambutan-ketua,
-     *     lokasi-peta, donasi-zakat-infak, ppdb, kalkulator-zakat, header, footer, and the
-     *     array-shaped-but-CMS-less jadwal-praktik `doctors`, akad-venue `facilities`,
-     *     jadwal-salat `times`): typed straight into the section's own content by the admin,
-     *     with no model or CMS route behind them (no Doctor/prayer-time/venue model exists),
-     *     so $section->content already IS the source of truth and copying it verbatim is right.
+     *     lokasi-peta, donasi-zakat-infak, kalkulator-zakat, header, footer, and the
+     *     array-shaped-but-CMS-less jadwal-praktik `doctors`, akad-venue `facilities`):
+     *     typed straight into the section's own content by the admin, with no model or CMS
+     *     route behind them (no Doctor/venue model exists), so $section->content already IS
+     *     the source of truth and copying it verbatim is right.
      *
      * Where a key has several variants, they were checked to map the same shape (daftar-berita
      * standar/modern/ringkas, struktur-pengurus standar/modern, program-unggulan
