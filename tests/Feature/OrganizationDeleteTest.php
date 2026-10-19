@@ -34,14 +34,11 @@ class OrganizationDeleteTest extends TestCase
     }
 
     /**
-     * Regression test: the delete button previously used an Alpine confirmAction() modal whose
-     *
-     * @submit.prevent expression had `&quot;` around the org name inside a JS template literal
-     * - Blade renders that as a literal 6-character string, not a real quote character, making
-     * the resulting JS a syntax error (button silently did nothing when clicked). Switched to a
-     * plain onsubmit="return confirm(...)" with string concatenation (not a template literal -
-     * a backtick in the org name would otherwise terminate it early), with the name passed
-     * through Illuminate\Support\Js::from() so it's safe regardless of quotes/backticks in it.
+     * Regression test: the delete button's confirmAction() modal takes the org name through
+     * x-data="{ name: @js(...) }" rather than echoing it straight into the @submit.prevent JS
+     * expression - @js() (Illuminate\Support\Js) escapes quotes and backticks into "/\\` so
+     * a name containing either can't break out of the Alpine x-data object or the JS string
+     * concatenation ('Hapus organisasi ' + name + ...) that uses it.
      */
     public function test_delete_button_confirm_uses_safely_escaped_org_name(): void
     {
@@ -51,7 +48,7 @@ class OrganizationDeleteTest extends TestCase
 
         $html = $this->actingAs($owner)->get(route('organizations.show', $org))->getContent();
 
-        $this->assertStringContainsString("onsubmit=\"return confirm('Hapus organisasi ' + ", $html);
+        $this->assertStringContainsString("confirmAction('Hapus organisasi ' + name + ", $html);
         $this->assertStringContainsString(Js::from($org->name)->toHtml(), $html);
     }
 
@@ -62,7 +59,7 @@ class OrganizationDeleteTest extends TestCase
 
         $html = $this->actingAs($admin)->get(route('admin.organizations.show', $org))->getContent();
 
-        $this->assertStringContainsString("onsubmit=\"return confirm('Hapus organisasi ' + ", $html);
+        $this->assertStringContainsString("confirmAction('Hapus organisasi ' + name + ", $html);
         $this->assertStringContainsString(Js::from($org->name)->toHtml(), $html);
     }
 
