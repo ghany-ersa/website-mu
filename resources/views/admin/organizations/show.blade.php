@@ -3,10 +3,16 @@
 @section('title', $organization->name)
 
 @section('content')
-    <div class="mb-8">
-        <a href="{{ route('admin.organizations.index') }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke daftar organisasi</a>
-        <h1 class="text-2xl font-extrabold text-primary mt-2">{{ $organization->name }}</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ $organization->slug }} &middot; {{ $organization->organizationType?->name ?? 'Tanpa jenis' }}</p>
+    <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <a href="{{ route('admin.organizations.index') }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke daftar organisasi</a>
+            <h1 class="text-2xl font-extrabold text-primary mt-2">{{ $organization->name }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ $organization->slug }} &middot; {{ $organization->organizationType?->name ?? 'Tanpa jenis' }}</p>
+        </div>
+        <a href="{{ route('organizations.show', $organization) }}"
+           class="shrink-0 px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 hover:border-primary/40 hover:text-primary transition-colors">
+            Buka Dashboard Organisasi
+        </a>
     </div>
 
     @if (session('status'))
@@ -14,6 +20,47 @@
             {{ session('status') }}
         </div>
     @endif
+
+    @if (session('generatedResetLink'))
+        <div class="mb-6 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 text-sm">
+            <p class="font-semibold mb-1">Tautan reset kata sandi (berlaku 24 jam) &mdash; kirimkan manual ke pengguna via WhatsApp:</p>
+            <div class="flex items-center gap-2">
+                <input type="text" readonly value="{{ session('generatedResetLink') }}" id="generated-reset-link"
+                       class="flex-1 min-w-0 rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-mono">
+                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('generated-reset-link').value)"
+                        class="shrink-0 px-3 py-2 rounded-lg bg-amber-200 text-amber-900 text-xs font-semibold hover:bg-amber-300 cursor-pointer">
+                    Salin
+                </button>
+            </div>
+        </div>
+    @endif
+
+    <div class="bg-white rounded-2xl shadow-soft p-6 mb-6">
+        <h2 class="font-bold text-gray-800 mb-1">Anggota &amp; Reset Kata Sandi</h2>
+        <p class="text-xs text-gray-400 mb-4">
+            Gunakan saat pengguna lupa kata sandi dan meminta bantuan lewat CS. Tautan dibuat di sini, lalu Anda
+            kirimkan secara manual (misal via WhatsApp) &mdash; sistem belum terhubung ke layanan email.
+        </p>
+
+        <div class="divide-y divide-gray-100">
+            @foreach ($organization->members as $member)
+                <div class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                    <div class="min-w-0">
+                        <p class="font-medium text-gray-800 text-sm truncate">{{ $member->name }}</p>
+                        <p class="text-xs text-gray-400 truncate">{{ $member->email }}</p>
+                    </div>
+                    <form action="{{ route('admin.organizations.members.reset-password-link', [$organization, $member]) }}"
+                          method="POST" class="shrink-0"
+                          x-data="{ name: @js($member->name) }" @submit.prevent="if (await confirmAction('Buat tautan reset kata sandi untuk ' + name + '?', { danger: false })) $el.submit()">
+                        @csrf
+                        <button type="submit" class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-600 hover:border-primary/40 hover:text-primary cursor-pointer">
+                            Buat Tautan Reset
+                        </button>
+                    </form>
+                </div>
+            @endforeach
+        </div>
+    </div>
 
     <div class="bg-white rounded-2xl shadow-soft p-6 mb-6">
         <h2 class="font-bold text-gray-800 mb-4">Paket Saat Ini</h2>
@@ -125,7 +172,7 @@
             dibatalkan.
         </p>
         <form action="{{ route('admin.organizations.destroy', $organization) }}" method="POST"
-            onsubmit="return confirm('Hapus organisasi ' + {{ Illuminate\Support\Js::from($organization->name) }} + '? Tindakan ini tidak dapat dibatalkan.')">
+            x-data="{ name: @js($organization->name) }" @submit.prevent="if (await confirmAction('Hapus organisasi ' + name + '? Tindakan ini tidak dapat dibatalkan.')) $el.submit()">
             @csrf
             @method('DELETE')
             <button type="submit"

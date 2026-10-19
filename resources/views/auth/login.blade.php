@@ -36,10 +36,13 @@
                 </div>
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-gray-600">
-                <input type="checkbox" name="remember" class="rounded border-gray-300 text-primary focus:ring-primary/30">
-                Ingat saya
-            </label>
+            <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 text-sm text-gray-600">
+                    <input type="checkbox" name="remember" class="rounded border-gray-300 text-primary focus:ring-primary/30">
+                    Ingat saya
+                </label>
+                <a href="{{ route('password.forgot') }}" class="text-sm text-primary font-semibold hover:underline">Lupa kata sandi?</a>
+            </div>
 
             <button type="submit" class="w-full py-2.5 rounded-full bg-primary text-white text-sm font-semibold">
                 Masuk

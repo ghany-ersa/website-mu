@@ -18,6 +18,7 @@
     @php
         $accountMenu = [
             ['route' => 'organizations.index', 'pattern' => 'organizations.index', 'label' => 'Organisasi Saya', 'icon' => 'M9 17.25v-6.75a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 .75.75v6.75M3 10.5 12 3l9 7.5M4.5 9.75V19.5a.75.75 0 0 0 .75.75h13.5a.75.75 0 0 0 .75-.75V9.75'],
+            ['route' => 'account.password.edit', 'pattern' => 'account.password.*', 'label' => 'Ubah Kata Sandi', 'icon' => 'M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z'],
         ];
     @endphp
 

@@ -57,7 +57,7 @@ class OrganizationController extends Controller
      */
     public function show(Organization $organization): View
     {
-        $organization->load(['organizationType', 'plan', 'planOverrideLogs.admin', 'planOverrideLogs.fromPlan', 'planOverrideLogs.toPlan']);
+        $organization->load(['organizationType', 'plan', 'members', 'planOverrideLogs.admin', 'planOverrideLogs.fromPlan', 'planOverrideLogs.toPlan']);
 
         return view('admin.organizations.show', [
             'organization' => $organization,

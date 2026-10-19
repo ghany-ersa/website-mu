@@ -324,7 +324,7 @@
                             </span>
                             <form action="{{ route('organizations.members.destroy', [$organization, $member]) }}"
                                 method="POST"
-                                onsubmit="return confirm('Hapus ' + {{ Illuminate\Support\Js::from($member->name) }} + ' dari organisasi ini?')">
+                                x-data="{ name: @js($member->name) }" @submit.prevent="if (await confirmAction('Hapus ' + name + ' dari organisasi ini?')) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -368,7 +368,7 @@
                 dibatalkan.
             </p>
             <form action="{{ route('organizations.destroy', $organization) }}" method="POST"
-                onsubmit="return confirm('Hapus organisasi ' + {{ Illuminate\Support\Js::from($organization->name) }} + '? Tindakan ini tidak dapat dibatalkan.')">
+                x-data="{ name: @js($organization->name) }" @submit.prevent="if (await confirmAction('Hapus organisasi ' + name + '? Tindakan ini tidak dapat dibatalkan.')) $el.submit()">
                 @csrf
                 @method('DELETE')
                 <button type="submit"

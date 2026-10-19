@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountPasswordController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\ArticleImageController;
 use App\Http\Controllers\Admin\DiscountCodeController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\SectionVariantController;
 use App\Http\Controllers\Admin\SectionVariantPreviewController;
 use App\Http\Controllers\Admin\TemplateBuilderController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
+use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MidtransWebhookController;
@@ -104,6 +106,11 @@ Route::get('/templates/{template:slug}/use', TemplateUseController::class)
 Route::middleware('auth')->group(function () {
     Route::post('onboarding-tours', [OnboardingTourController::class, 'store'])
         ->name('onboarding-tours.store');
+
+    Route::get('account/password', [AccountPasswordController::class, 'edit'])
+        ->name('account.password.edit');
+    Route::patch('account/password', [AccountPasswordController::class, 'update'])
+        ->name('account.password.update');
 
     // Step 1 of organization creation (the template picker); the resource route's `create` below
     // is step 2 and redirects here unless it carries a usable ?template=slug. Declared first so
@@ -277,6 +284,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('organizations/{organization}', [AdminOrganizationController::class, 'show'])->name('organizations.show');
     Route::post('organizations/{organization}/override-plan', [AdminOrganizationController::class, 'overridePlan'])->name('organizations.override-plan');
     Route::delete('organizations/{organization}', [AdminOrganizationController::class, 'destroy'])->name('organizations.destroy');
+
+    Route::post('organizations/{organization}/members/{user}/reset-password-link', [UserPasswordResetController::class, 'store'])
+        ->name('organizations.members.reset-password-link');
 
     Route::get('section-variants', [SectionVariantController::class, 'index'])->name('section-variants.index');
     Route::patch('section-variants/{sectionVariant}', [SectionVariantController::class, 'update'])->name('section-variants.update');
