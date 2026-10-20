@@ -1,0 +1,1 @@
+import{t as e}from"./module.esm-DpVG9Kh7.js";import"./onboarding-tour-CKnVVDgG.js";import{t}from"./sortable.esm-DD7UL5Tv.js";import{t as n}from"./richtext-editor-NN4vloxh.js";window.Alpine=e,window.Sortable=t,e.start(),document.addEventListener(`DOMContentLoaded`,n);
