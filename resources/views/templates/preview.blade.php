@@ -70,31 +70,6 @@
     @include('partials.google-analytics')
 </head>
 <body class="bg-white text-gray-800">
-
-    {{-- Preview toolbar: not part of the template itself, only visible while previewing. Not sticky,
-         so it doesn't fight the template's own header for the top of the viewport. --}}
-    <div class="relative z-[60] bg-gray-900 text-white text-sm">
-        <div class="max-w-6xl mx-auto px-6 py-2 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-                <span class="font-semibold">{{ $template->name }}</span>
-                @if ($template->is_exclusive)
-                    <span class="inline-flex items-center gap-1 bg-amber-400 text-amber-950 text-xs font-bold px-2 py-0.5 rounded-full">
-                        <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.39 5.51 6 .59-4.5 4.02 1.32 5.88L10 14.6l-5.21 2.9 1.32-5.88-4.5-4.02 6-.59L10 1.5z"/></svg>
-                        Eksklusif
-                    </span>
-                @endif
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                @if (!$template->is_exclusive)
-                    <a href="{{ route('templates.use', $template->slug) }}"
-                       class="px-3 py-1 rounded-full bg-secondary text-white font-semibold hover:opacity-90 transition-opacity">
-                        Gunakan
-                    </a>
-                @endif
-            </div>
-        </div>
-    </div>
-
     <main>
         @foreach ($currentPage['sections'] as $section)
             @continue(config("page-builder.sections.{$section['key']}.hidden"))
@@ -110,11 +85,6 @@
                     'template' => $template,
                     'previewPages' => $pages,
                     'previewCurrentPage' => $currentPage,
-                    // The template's sandbox organization, if one exists yet (see
-                    // TemplatePreviewController::show()) - lets CMS-backed sections
-                    // (daftar-berita, donasi-progress, galeri, ...) render real seeded sample
-                    // rows and working detail links via their existing isset($organization)
-                    // branch, instead of the static content.items JSON fallback.
                     'organization' => $organization,
                 ])
             </div>
