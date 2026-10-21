@@ -12,8 +12,13 @@ class SitemapController extends Controller
     {
         $urls = collect([
             ['loc' => url('/'), 'priority' => '1.0', 'changefreq' => 'weekly'],
-            ['loc' => route('landing.masjid'), 'priority' => '0.9', 'changefreq' => 'monthly'],
-        ]);
+        ])->merge(
+            collect(array_keys(config('landing-pages.segments')))->map(fn (string $segment) => [
+                'loc' => route("landing.$segment"),
+                'priority' => '0.9',
+                'changefreq' => 'monthly',
+            ])
+        );
 
         if ($tenantDomain = config('tenancy.domain')) {
             $urls = $urls->merge(

@@ -7,7 +7,9 @@
         {{-- Crawlable internal links to the per-segment landing pages: a page linked only from the
              sitemap ranks poorly, so every marketing page points here through this shared footer. --}}
         <nav aria-label="Solusi" class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-gray-300 mb-8">
-            <a href="{{ route('landing.masjid') }}" class="hover:text-secondary transition">Website Masjid</a>
+            @foreach (config('landing-pages.segments') as $key => $segment)
+                <a href="{{ route("landing.$key") }}" class="hover:text-secondary transition">{{ $segment['name'] }}</a>
+            @endforeach
             <a href="{{ route('templates.index') }}" class="hover:text-secondary transition">Katalog Template</a>
             <a href="{{ route('articles.index') }}" class="hover:text-secondary transition">Berita &amp; Artikel</a>
         </nav>

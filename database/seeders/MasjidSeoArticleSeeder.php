@@ -2,28 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Enums\PublishStatus;
-use App\Models\Article;
-use App\Models\User;
-use Illuminate\Database\Seeder;
-
 /**
- * Three blog articles forming an SEO content cluster around /website-masjid: each targets one
- * long-tail query ("cara membuat website masjid", "laporan keuangan masjid", "donasi masjid
- * online"), links to the other two, and links to the landing page with a keyword anchor.
- *
- * Run by hand, not from DatabaseSeeder (which mirrors the articles already in production):
- *   php artisan db:seed --class=MasjidSeoArticleSeeder --force
- *
- * firstOrCreate by slug, so re-running never overwrites an admin's later edits. Seeded as Draft
- * so the copy is reviewed (and given a cover image) in the admin before going public.
- *
- * Links are root-relative ("/website-masjid") rather than route() output: the body is stored
- * HTML, and an absolute URL would bake in whatever APP_URL the seeder happened to run under.
- * The opening paragraph doubles as the meta description (articles/show.blade.php takes the
- * first 160 characters of the body), so each one leads with its target keyword.
+ * Cluster around /website-masjid: "cara membuat website masjid", "laporan keuangan masjid",
+ * "donasi masjid online". See SeoArticleClusterSeeder for the shared rules.
  */
-class MasjidSeoArticleSeeder extends Seeder
+class MasjidSeoArticleSeeder extends SeoArticleClusterSeeder
 {
     public const SLUGS = [
         'website' => 'cara-membuat-website-masjid-tanpa-coding',
@@ -31,32 +14,16 @@ class MasjidSeoArticleSeeder extends Seeder
         'donasi' => 'cara-mengelola-donasi-dan-wakaf-masjid-online',
     ];
 
-    public function run(): void
+    protected function category(): string
     {
-        $author = User::where('email', 'admin@website-mu.id')->first();
-
-        foreach ($this->articles() as $article) {
-            Article::firstOrCreate(
-                ['slug' => $article['slug']],
-                $article + [
-                    'author_id' => $author?->id,
-                    'category' => 'Masjid',
-                    'cover_image' => null,
-                    'status' => PublishStatus::Draft,
-                    'published_at' => null,
-                ],
-            );
-        }
+        return 'Masjid';
     }
 
-    /**
-     * @return array<int, array{slug: string, title: string, body: string}>
-     */
-    private function articles(): array
+    protected function articles(): array
     {
-        $website = '/berita/'.self::SLUGS['website'];
-        $keuangan = '/berita/'.self::SLUGS['keuangan'];
-        $donasi = '/berita/'.self::SLUGS['donasi'];
+        $website = self::articlePath('website');
+        $keuangan = self::articlePath('keuangan');
+        $donasi = self::articlePath('donasi');
 
         return [
             [

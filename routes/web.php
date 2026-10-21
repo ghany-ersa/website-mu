@@ -40,11 +40,11 @@ use App\Http\Controllers\OrganizationSiteController;
 use App\Http\Controllers\OrganizationStudentController;
 use App\Http\Controllers\OrganizationTemplateController;
 use App\Http\Controllers\OrganizationTestimonialController;
+use App\Http\Controllers\SegmentLandingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
-use App\Http\Controllers\WebsiteMasjidController;
 use App\Models\Article;
 use App\Models\Template;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -75,9 +75,14 @@ Route::get('/', function () {
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
-// Per-segment SEO landing pages: a flat, keyword-bearing slug ("website-masjid") rather than
-// /solusi/masjid, since the URL itself is a ranking signal for the exact query people type.
-Route::get('/website-masjid', WebsiteMasjidController::class)->name('landing.masjid');
+// Per-segment SEO landing pages from config/landing-pages.php. A flat, keyword-bearing slug
+// ("website-masjid") rather than /solusi/{segment}, since the URL itself is a ranking signal for
+// the exact query people type - hence one literal route per segment, with the key as a default.
+foreach (array_keys(config('landing-pages.segments')) as $segment) {
+    Route::get('/'.config("landing-pages.segments.$segment.path"), SegmentLandingController::class)
+        ->defaults('segment', $segment)
+        ->name("landing.$segment");
+}
 
 Route::get('/berita', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
