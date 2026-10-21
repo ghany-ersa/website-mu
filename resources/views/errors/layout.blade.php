@@ -32,6 +32,7 @@
             background-image: linear-gradient(135deg, #2C368B 0%, #079C4E 100%);
         }
     </style>
+    @include('partials.google-analytics')
 </head>
 <body class="bg-white text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white min-h-screen flex flex-col">
 

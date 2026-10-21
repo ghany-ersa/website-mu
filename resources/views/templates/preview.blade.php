@@ -67,6 +67,7 @@
         }
         .animate-float { animation: float-y 4s ease-in-out infinite; }
     </style>
+    @include('partials.google-analytics')
 </head>
 <body class="bg-white text-gray-800">
 

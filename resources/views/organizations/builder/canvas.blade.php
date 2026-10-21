@@ -10,6 +10,7 @@
 @include('organizations.pages._document', [
     'organization' => $organization,
     'page' => $page,
+    'isBuilderCanvas' => true,
     'body' => view('organizations.pages._render', [
         'organization' => $organization,
         'page' => $page,

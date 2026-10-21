@@ -110,6 +110,9 @@
         }
         .animate-float { animation: float-y 4s ease-in-out infinite; }
     </style>
+    @unless ($isBuilderCanvas ?? false)
+        @include('partials.google-analytics')
+    @endunless
 </head>
 <body class="bg-white text-gray-800">
     @if ($hasPlanIssue)

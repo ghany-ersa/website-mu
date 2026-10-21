@@ -15,6 +15,7 @@
     <style>
         body { background-color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
+    @include('partials.google-analytics')
 </head>
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 

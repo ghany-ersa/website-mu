@@ -65,6 +65,7 @@
         window.csrfToken = @json(csrf_token());
         window.onboardingTourUrl = @json(route('onboarding-tours.store'));
     </script>
+    @include('partials.google-analytics')
 </head>
 {{-- Mobile-first: below lg, only one of sections/canvas/properties shows at a time via
      activePanel + bottom tab bar. From lg upward, all three sit side by side permanently

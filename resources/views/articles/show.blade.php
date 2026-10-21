@@ -34,6 +34,7 @@
         .prose li { margin-top: 0.25em; margin-bottom: 0.25em; }
         .prose li > p { margin-top: 0.5em; margin-bottom: 0.5em; }
     </style>
+    @include('partials.google-analytics')
 </head>
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 

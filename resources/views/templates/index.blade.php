@@ -17,6 +17,7 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
     </style>
+    @include('partials.google-analytics')
 </head>
 
 <body class="bg-white text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
