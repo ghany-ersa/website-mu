@@ -49,6 +49,7 @@ use App\Models\Article;
 use App\Models\Template;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -313,6 +314,23 @@ require __DIR__.'/auth.php';
 // is unset, which keeps local `php artisan serve` (no wildcard subdomain to route) behaving
 // exactly like today with zero special-casing. See OrganizationSiteController for the lookup.
 if ($tenantDomain = config('tenancy.domain')) {
+    // www.{domain} would otherwise fall into the {organization_slug} group below as an org named
+    // "www" (reserved, so it never exists) and 404 every URL - including sitemap.xml, which made
+    // Search Console report the sitemap as HTML. A 301 to the bare domain keeps one canonical
+    // host for crawlers and anyone who types "www". Registered first so it wins over the
+    // wildcard; no session/cookies needed for a redirect.
+    Route::domain('www.'.$tenantDomain)->withoutMiddleware([
+        AddQueuedCookiesToResponse::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+    ])->group(function () use ($tenantDomain) {
+        Route::get('/{path?}', fn (Request $request) => redirect()->away(
+            $request->getScheme().'://'.$tenantDomain.$request->getRequestUri(),
+            301,
+        ))->where('path', '.*')->name('www.redirect');
+    });
+
     // 'tenant' middleware group (bootstrap/app.php), not the default 'web' group: these
     // routes are pure reads with no login/forms, so they skip session/CSRF entirely and
     // run against a SELECT-only DB connection - see UseReadOnlyConnection's docblock.

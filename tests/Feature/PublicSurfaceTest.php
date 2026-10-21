@@ -109,6 +109,27 @@ class PublicSurfaceTest extends TestCase
             ->assertDontSee($match->title, escape: false);
     }
 
+    // ---------------------------------------------------------------- www
+
+    /**
+     * www.{domain} used to land in the tenant wildcard group as an org named "www" and 404 -
+     * Search Console then read the sitemap as an HTML error page.
+     */
+    public function test_www_permanently_redirects_to_the_bare_domain_keeping_path_and_query(): void
+    {
+        $domain = config('tenancy.domain');
+
+        $this->get("http://www.$domain/")->assertStatus(301)->assertRedirect("http://$domain/");
+        $this->get("http://www.$domain/sitemap.xml?x=1")->assertStatus(301)->assertRedirect("http://$domain/sitemap.xml?x=1");
+        $this->get("http://www.$domain/website-masjid")->assertStatus(301)->assertRedirect("http://$domain/website-masjid");
+    }
+
+    /** Only www is redirected; every other subdomain still reaches the tenant group. */
+    public function test_other_subdomains_are_not_redirected(): void
+    {
+        $this->get('http://bukan-www.'.config('tenancy.domain').'/sitemap.xml')->assertNotFound();
+    }
+
     // ---------------------------------------------------------------- sitemap
 
     public function test_the_sitemap_is_valid_xml_and_lists_the_homepage(): void
