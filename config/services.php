@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'google_analytics' => [
+        // Left blank in local/testing so the gtag snippet never fires outside production.
+        'measurement_id' => env('GOOGLE_ANALYTICS_ID'),
+    ],
+
 ];

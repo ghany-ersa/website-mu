@@ -12,6 +12,7 @@
         window.csrfToken = @json(csrf_token());
         window.onboardingTourUrl = @json(route('onboarding-tours.store'));
     </script>
+    @include('partials.google-analytics')
 </head>
 <body class="bg-softBg text-gray-800 min-h-screen lg:flex">
 

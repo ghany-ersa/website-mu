@@ -8,6 +8,7 @@
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+    @include('partials.google-analytics')
 </head>
 <body class="bg-softBg text-gray-800 min-h-screen">
 
