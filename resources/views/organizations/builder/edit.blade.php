@@ -433,6 +433,28 @@
                     </form>
                 @endif
 
+                {{-- Publish from where the owner finishes designing, instead of making them return
+                     to the dashboard and find it there. Not plan-checked here: publish() already
+                     redirects a blocked organization to Kelola Paket with the reasons, so this
+                     stays one query-free button. Lands on the dashboard either way, since the
+                     builder locks once the site is live. Hidden for sandbox (template-design)
+                     organizations, which are never published. --}}
+                @if (! $organization->is_sandbox && $organization->status !== \App\Enums\OrganizationStatus::Published)
+                    @php $publishAddress = $organization->slug.(config('tenancy.domain') ? '.'.config('tenancy.domain') : ''); @endphp
+                    <form id="btn-builder-publish" action="{{ route('organizations.publish', $organization) }}" method="POST" class="shrink-0"
+                        x-data @submit.prevent="if (await confirmAction(@js('Publikasikan situs ini? Situs akan tayang di '.$publishAddress.' dan bisa diakses publik.'), { danger: false, confirmLabel: 'Ya, Publikasikan' })) $el.submit()">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary hover:opacity-90 text-white text-xs font-bold transition whitespace-nowrap">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            Publikasikan
+                        </button>
+                    </form>
+                @endif
+
                 <span class="w-px h-5 bg-white/10 mx-0.5 hidden sm:block"></span>
 
                 <button type="button" id="btn-builder-tour" @click="window.startOnboardingTour && window.startOnboardingTour('builder')"

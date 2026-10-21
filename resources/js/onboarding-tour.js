@@ -75,10 +75,10 @@ const TOUR_STEPS = {
             },
         },
         {
-            element: '#btn-publish-status',
+            element: '#site-status-card',
             popover: {
-                title: 'Publish Situs',
-                description: 'Setelah puas dengan hasilnya, tekan tombol ini untuk menerbitkan situs Anda ke publik.',
+                title: 'Alamat & Publikasi Situs',
+                description: 'Ini alamat website Anda - tekan "Ubah alamat" untuk menggantinya sebelum dipublikasikan. Setelah puas dengan hasilnya, tekan "Publikasikan Situs" agar situs bisa diakses publik.',
                 side: 'bottom',
             },
         },
@@ -127,6 +127,14 @@ const TOUR_STEPS = {
             popover: {
                 title: 'Ganti Halaman',
                 description: 'Jika situs Anda punya lebih dari satu halaman, gunakan menu ini untuk berpindah di antaranya.',
+                side: 'bottom',
+            },
+        },
+        {
+            element: '#btn-builder-publish',
+            popover: {
+                title: 'Publikasikan',
+                description: 'Sudah selesai menyusun? Tekan tombol ini untuk menerbitkan situs Anda ke publik.',
                 side: 'bottom',
             },
         },

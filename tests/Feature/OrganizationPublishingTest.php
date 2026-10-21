@@ -193,4 +193,73 @@ class OrganizationPublishingTest extends TestCase
         $publishedResponse->assertSee($organization->slug.'.'.config('tenancy.domain'));
         $publishedResponse->assertSee('Lihat Situs');
     }
+
+    /**
+     * Owners reported not knowing where to publish or change their link: the address has to be
+     * visible (and editable) while still in Draft, not only once the site is already live.
+     */
+    public function test_dashboard_shows_site_address_and_change_link_before_publishing(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::create(['key' => 'address-card-plan', 'name' => 'Address Card', 'price_monthly' => 0]);
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Draft,
+            'plan_id' => $plan->id,
+            'plan_expires_at' => now()->addMonth(),
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)->get(route('organizations.show', $organization))
+            ->assertOk()
+            ->assertSee('Belum dipublikasikan (Draft)')
+            ->assertSee($organization->slug.'.'.config('tenancy.domain'))
+            ->assertSee(route('organizations.edit.edit', $organization).'#subdomain', false)
+            // The card's publish form (its confirm label), not the button text, which is copy.
+            ->assertSee('Ya, Publikasikan');
+    }
+
+    public function test_blocked_draft_gets_a_visible_path_to_the_plan_page(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::create(['key' => 'expired-dashboard-plan', 'name' => 'Expired', 'price_monthly' => 0]);
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Draft,
+            'plan_id' => $plan->id,
+            'plan_expires_at' => now()->subDay(),
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)->get(route('organizations.show', $organization))
+            ->assertOk()
+            ->assertSee('Pilih Paket untuk Publikasi')
+            ->assertSee(route('organizations.plan.edit', $organization), false)
+            ->assertDontSee('Ya, Publikasikan');
+    }
+
+    /**
+     * The builder carries its own publish button, and a successful publish lands on the
+     * dashboard rather than back() - the builder locks once the site is Published.
+     */
+    public function test_builder_offers_publish_and_publishing_lands_on_the_dashboard(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::create(['key' => 'builder-publish-plan', 'name' => 'Builder Publish', 'price_monthly' => 0]);
+        $organization = Organization::factory()->create([
+            'status' => OrganizationStatus::Draft,
+            'plan_id' => $plan->id,
+            'plan_expires_at' => now()->addMonth(),
+        ]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)->get(route('organizations.builder.edit', $organization))
+            ->assertOk()
+            ->assertSee('id="btn-builder-publish"', false);
+
+        $this->actingAs($user)
+            ->from(route('organizations.builder.edit', $organization))
+            ->patch(route('organizations.publish', $organization))
+            ->assertRedirect(route('organizations.show', $organization));
+
+        $this->assertSame(OrganizationStatus::Published, $organization->fresh()->status);
+    }
 }

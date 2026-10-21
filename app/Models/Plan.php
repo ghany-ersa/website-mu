@@ -117,11 +117,6 @@ class Plan extends Model
             'donation_programs' => 'Program Donasi',
             'achievements' => 'Prestasi',
             'testimonials' => 'Testimoni',
-            // 'students' is left out here deliberately: it's only relevant to the SD Madya
-            // template (see Organization::planViolations()'s $resources comment), and every
-            // plan but Eksklusif seeds it at 0 - listing "Data Siswa Tidak Tersedia" on every
-            // plan's pricing card would read as a real limitation to the vast majority of
-            // organizations that will never touch this resource.
         ];
 
         $features = [];

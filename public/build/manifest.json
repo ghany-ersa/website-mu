@@ -103,8 +103,8 @@
     "file": "assets/module.esm-DpVG9Kh7.js",
     "name": "module.esm"
   },
-  "_onboarding-tour-CKnVVDgG.js": {
-    "file": "assets/onboarding-tour-CKnVVDgG.js",
+  "_onboarding-tour-BugWi0RT.js": {
+    "file": "assets/onboarding-tour-BugWi0RT.js",
     "name": "onboarding-tour",
     "css": [
       "assets/onboarding-tour-GA4EO28r.css"
@@ -203,7 +203,7 @@
     "name": "sortable.esm"
   },
   "resources/css/app.css": {
-    "file": "assets/app-tioPGu7n.css",
+    "file": "assets/app-C1Kmb9wy.css",
     "name": "app",
     "names": [
       "app.css"
@@ -221,13 +221,13 @@
     "isEntry": true
   },
   "resources/js/account.js": {
-    "file": "assets/account-latXi4wY.js",
+    "file": "assets/account-CbkuzB9c.js",
     "name": "account",
     "src": "resources/js/account.js",
     "isEntry": true,
     "imports": [
       "_module.esm-DpVG9Kh7.js",
-      "_onboarding-tour-CKnVVDgG.js"
+      "_onboarding-tour-BugWi0RT.js"
     ]
   },
   "resources/js/admin.js": {
@@ -254,24 +254,24 @@
     ]
   },
   "resources/js/builder.js": {
-    "file": "assets/builder-UWeRiHbU.js",
+    "file": "assets/builder-DYV_4lBn.js",
     "name": "builder",
     "src": "resources/js/builder.js",
     "isEntry": true,
     "imports": [
       "_module.esm-DpVG9Kh7.js",
-      "_onboarding-tour-CKnVVDgG.js",
+      "_onboarding-tour-BugWi0RT.js",
       "_sortable.esm-DD7UL5Tv.js"
     ]
   },
   "resources/js/organization.js": {
-    "file": "assets/organization-dfWYDPCy.js",
+    "file": "assets/organization-DkZh5DZr.js",
     "name": "organization",
     "src": "resources/js/organization.js",
     "isEntry": true,
     "imports": [
       "_module.esm-DpVG9Kh7.js",
-      "_onboarding-tour-CKnVVDgG.js",
+      "_onboarding-tour-BugWi0RT.js",
       "_sortable.esm-DD7UL5Tv.js",
       "_richtext-editor-NN4vloxh.js"
     ]

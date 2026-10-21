@@ -172,9 +172,17 @@ class OrganizationController extends Controller
 
         $organization->publish($publishing);
 
-        return back()->with('status', $organization->status === OrganizationStatus::Published
-            ? 'Situs berhasil dipublikasikan.'
-            : 'Situs kembali ke draft.');
+        // Publishing always lands on the dashboard rather than back(): it can be triggered from
+        // the builder, which OrganizationPolicy::manageBuilder() locks the moment the site is
+        // Published, so back() there would bounce the owner onto a page they can't use. The
+        // dashboard is also where the live address and "Lihat Situs" link now are.
+        if ($organization->status === OrganizationStatus::Published) {
+            return redirect()
+                ->route('organizations.show', $organization)
+                ->with('status', 'Situs berhasil dipublikasikan.');
+        }
+
+        return back()->with('status', 'Situs kembali ke draft.');
     }
 
     /**

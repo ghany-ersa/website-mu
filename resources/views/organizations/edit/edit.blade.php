@@ -50,7 +50,8 @@
         </div>
 
         {{-- Subdomain --}}
-        <div class="bg-white rounded-2xl shadow-soft p-6 mb-6" x-data="editableField({{ Js::from($organization->slug) }}, {{ Js::from($errors->has('slug')) }})">
+        {{-- id="subdomain": the dashboard's "Ubah alamat" link deep-links here. --}}
+        <div id="subdomain" class="bg-white rounded-2xl shadow-soft p-6 mb-6 scroll-mt-24" x-data="editableField({{ Js::from($organization->slug) }}, {{ Js::from($errors->has('slug')) }})">
             <div class="flex items-start justify-between gap-3 mb-1">
                 <div>
                     <h2 class="font-bold text-gray-800">Subdomain</h2>

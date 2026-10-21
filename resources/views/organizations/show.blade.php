@@ -17,46 +17,108 @@
 
             @php
                 $planViolations = $organization->planViolations();
-                $blockedFromPublishing = $organization->status !== \App\Enums\OrganizationStatus::Published && filled($planViolations);
+                $blockedFromPublishing =
+                    $organization->status !== \App\Enums\OrganizationStatus::Published && filled($planViolations);
                 // Specific badge copy when an exclusive template/variant is the only thing in
                 // the way - the most common cause and the one hardest to guess from "batas
-                // paket Infak dilanggar" alone, since nothing here has technically gone *over* a
+// paket Infak dilanggar" alone, since nothing here has technically gone *over* a
                 // limit.
-                $onlyExclusiveEntitlement = $blockedFromPublishing
-                    && collect($planViolations)->every(fn (string $v) => str_contains($v, 'memerlukan paket Infak Eksklusif'));
+                $onlyExclusiveEntitlement =
+                    $blockedFromPublishing &&
+                    collect($planViolations)->every(
+                        fn(string $v) => str_contains($v, 'memerlukan paket Infak Eksklusif'),
+                    );
             @endphp
-            <div class="shrink-0 flex flex-col items-end gap-1.5">
-                <div class="flex items-center gap-1.5">
-                    <button type="button" id="btn-dashboard-tour" onclick="window.startOnboardingTour('dashboard')"
-                        title="Lihat tutorial dashboard"
-                        class="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-primary hover:bg-gray-100 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                            <path fill-rule="evenodd"
-                                d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <form id="btn-publish-status" action="{{ route('organizations.publish', $organization) }}" method="POST"
-                        x-data @submit.prevent="if (await confirmAction('{{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
+            <button type="button" id="btn-dashboard-tour" onclick="window.startOnboardingTour('dashboard')"
+                title="Lihat tutorial dashboard"
+                class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-primary hover:bg-gray-100 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287a1.5 1.5 0 1 0-1.391-2.523ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        @php
+            $isPublished = $organization->status === \App\Enums\OrganizationStatus::Published;
+            $siteAddress = $organization->slug . ($tenantDomain ? '.' . $tenantDomain : '');
+        @endphp
+        <div id="site-status-card"
+            class="rounded-xl border {{ $isPublished ? 'border-secondary/30 bg-secondary/5' : 'border-gray-200 bg-gray-50' }} p-3.5 sm:p-4 mb-3 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="min-w-0 flex-1">
+                {{-- "Ubah alamat" is placed per breakpoint. On a phone it shares the status row,
+                     so the address gets the full width and wraps instead of being cut off - a
+                     truncated address is exactly what the owner came here to check. From sm the
+                     address has room, and the link sits right after it instead: on the status
+                     row it floated to the card's far edge, detached from what it edits and
+                     crowding the publish button. --}}
+                <div class="flex items-center justify-between gap-3">
+                    <p
+                        class="flex items-center gap-1.5 text-xs font-semibold {{ $isPublished ? 'text-secondary' : 'text-gray-500' }}">
+                        <span
+                            class="w-1.5 h-1.5 rounded-full shrink-0 {{ $isPublished ? 'bg-secondary animate-pulse' : 'bg-gray-400' }}"></span>
+                        {{ $isPublished ? 'Sudah tayang' : 'Belum dipublikasikan (Draft)' }}
+                    </p>
+                    <a href="{{ route('organizations.edit.edit', $organization) }}#subdomain"
+                        class="sm:hidden shrink-0 text-xs font-semibold text-primary hover:underline">Ubah alamat</a>
+                </div>
+                <p class="mt-1 text-sm sm:text-base font-bold text-gray-800 break-all">
+                    {{ $siteAddress }}
+                    <a href="{{ route('organizations.edit.edit', $organization) }}#subdomain"
+                        class="hidden sm:inline ml-2 text-xs font-semibold text-primary hover:underline whitespace-nowrap">Ubah
+                        alamat</a>
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:items-end gap-1.5 shrink-0">
+                @if ($isPublished)
+                    <div class="flex items-center gap-2">
+                        @if ($tenantDomain)
+                            <a href="https://{{ $siteAddress }}" target="_blank" rel="noopener"
+                                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-white text-sm font-bold hover:opacity-90 transition">
+                                Lihat Situs
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                </svg>
+                            </a>
+                        @endif
+                        <form id="btn-publish-status" action="{{ route('organizations.publish', $organization) }}"
+                            method="POST" x-data
+                            @submit.prevent="if (await confirmAction('Jadikan draft? Situs tidak lagi bisa diakses publik.', { danger: false, confirmLabel: 'Ya, Jadikan Draft' })) $el.submit()">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                class="px-4 py-2.5 rounded-xl ring-1 ring-inset ring-gray-300 bg-white text-gray-600 text-sm font-semibold hover:bg-gray-50 transition">
+                                Jadikan Draft
+                            </button>
+                        </form>
+                    </div>
+                @elseif ($blockedFromPublishing)
+                    <a id="btn-publish-status" href="{{ route('organizations.plan.edit', $organization) }}"
+                        class="rounded-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition">
+                        Pilih Paket Sebelum Publish
+                    </a>
+                    <span class="text-xs text-amber-700 sm:text-right">
+                        {{ $onlyExclusiveEntitlement ? 'Perlu paket Infak Eksklusif untuk publikasi' : '' }}
+                    </span>
+                @else
+                    <form id="btn-publish-status" action="{{ route('organizations.publish', $organization) }}"
+                        method="POST" x-data
+                        @submit.prevent="if (await confirmAction(@js('Publikasikan situs ini? Situs akan tayang di ' . $siteAddress . ' dan bisa diakses publik.'), { danger: false, confirmLabel: 'Ya, Publikasikan' })) $el.submit()">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" {{ $blockedFromPublishing ? 'disabled' : '' }}
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ring-1 ring-inset transition {{ $blockedFromPublishing ? 'bg-gray-50 text-gray-400 ring-gray-200 cursor-not-allowed' : 'cursor-pointer '.($organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-secondary text-white ring-secondary hover:bg-secondary/90' : 'bg-white text-gray-600 ring-gray-300 hover:bg-gray-50') }}">
-                            <span
-                                class="w-1.5 h-1.5 rounded-full {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'bg-white' : 'bg-gray-400' }}"></span>
-                            {{ $organization->status === \App\Enums\OrganizationStatus::Published ? 'Published' : 'Draft' }}
-                            <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2.5">
+                        <button type="submit"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-white text-secondary ring-1 ring-inset ring-secondary/40 sm:bg-secondary sm:text-white sm:ring-0 sm:shadow-sm text-xs font-bold hover:bg-secondary/5 sm:hover:bg-secondary sm:hover:opacity-90 transition">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 15.75c-3.183 0-6.22-.62-8.716-1.747m0 0A8.959 8.959 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
                             </svg>
+                            Publikasikan Situs
                         </button>
                     </form>
-                </div>
-                @if ($blockedFromPublishing)
-                    <a href="{{ route('organizations.plan.edit', $organization) }}" class="text-xs font-semibold text-amber-600 hover:underline whitespace-nowrap">
-                        ⚠ {{ $onlyExclusiveEntitlement ? 'Perlu paket Infak Eksklusif untuk publikasi' : 'Batas paket Infak dilanggar' }}
-                    </a>
                 @endif
             </div>
         </div>
@@ -67,9 +129,11 @@
              pointing at the same publish toggle above to unpublish first. --}}
         @php $builderLocked = $organization->status === \App\Enums\OrganizationStatus::Published; @endphp
         @if ($builderLocked)
-            <div id="btn-open-builder" class="flex items-center gap-2.5 w-full px-4 py-3.5 sm:py-3 rounded-xl bg-gray-100 text-gray-500 text-sm">
+            <div id="btn-open-builder"
+                class="flex items-center gap-2.5 w-full px-4 py-3.5 sm:py-3 rounded-xl bg-gray-100 text-gray-500 text-sm">
                 <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                 </svg>
                 <span>Builder terkunci selama situs Published. Jadikan Draft dulu untuk mengubah struktur.</span>
             </div>
@@ -88,7 +152,8 @@
         <div class="flex gap-2 mt-3 overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
             <a href="{{ route('organizations.brand.edit', $organization) }}" id="btn-brand-settings"
                 class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
-                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M4.098 19.902a3.75 3.75 0 0 1 0-5.304l6.401-6.402m-6.401 6.402L14.802 4.5a3.75 3.75 0 1 1 5.304 5.304l-9.594 9.594" />
                 </svg>
@@ -96,7 +161,8 @@
             </a>
             <a href="{{ route('organizations.edit.edit', $organization) }}" id="btn-edit-organization"
                 class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
-                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
                 </svg>
@@ -104,7 +170,8 @@
             </a>
             <a href="{{ route('organizations.template.edit', $organization) }}"
                 class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
-                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 8.25v8.25a1.5 1.5 0 0 0 1.5 1.5h15a1.5 1.5 0 0 0 1.5-1.5V8.25m-18 0V6a1.5 1.5 0 0 1 1.5-1.5h15a1.5 1.5 0 0 1 1.5 1.5v2.25m-18 0h18M9.75 6.75h.008v.008H9.75V6.75Z" />
                 </svg>
@@ -113,23 +180,14 @@
             @can('manageBilling', $organization)
                 <a href="{{ route('organizations.plan.edit', $organization) }}"
                     class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:ring-gray-300 transition-colors">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                     </svg>
                     Infak Rutin - {{ $organization->plan?->name ?? 'Belum Diatur' }}
                 </a>
             @endcan
-            @if ($organization->status === \App\Enums\OrganizationStatus::Published && $tenantDomain)
-                <a href="https://{{ $organization->slug }}.{{ $tenantDomain }}" target="_blank"
-                    class="inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full ring-1 ring-inset ring-secondary/30 text-secondary text-sm font-semibold hover:bg-secondary/5 transition-colors">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
-                    Lihat Situs
-                </a>
-            @endif
         </div>
     </div>
 
@@ -174,7 +232,8 @@
                      item is realistically already done by then anyway (every template seeds
                      sections from creation), but avoid linking into a 403 regardless. --}}
                 @if ($builderLocked)
-                    <div class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['content'] ? 'bg-secondary/5' : 'bg-gray-50' }}">
+                    <div
+                        class="flex items-center gap-3 p-3 rounded-xl {{ $checklist['content'] ? 'bg-secondary/5' : 'bg-gray-50' }}">
                         <span
                             class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold {{ $checklist['content'] ? 'bg-secondary text-white' : 'bg-white border border-gray-300 text-gray-400' }}">
                             {{ $checklist['content'] ? '✓' : '3' }}
@@ -218,7 +277,8 @@
                         @endif
                     </div>
                     <form action="{{ route('organizations.publish', $organization) }}" method="POST" class="shrink-0"
-                        x-data @submit.prevent="if (await confirmAction('{{ $checklist['published'] ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
+                        x-data
+                        @submit.prevent="if (await confirmAction('{{ $checklist['published'] ? 'Jadikan draft? Situs tidak lagi bisa diakses publik.' : 'Publikasikan situs ini? Situs akan bisa diakses publik.' }}', { danger: false, confirmLabel: 'Ya, Lanjutkan' })) $el.submit()">
                         @csrf
                         @method('PATCH')
                         <button type="submit"
@@ -233,7 +293,7 @@
 
     @php
         // Only show a content quick-link if the organization's builder pages actually contain
-        // that section - an org whose template never included e.g. galeri shouldn't see a
+// that section - an org whose template never included e.g. galeri shouldn't see a
         // content shortcut for something it has no section to display (see also the sidebar
         // filter in layouts/organization.blade.php, which applies the same rule).
         $activeSectionKeys = $organization->pages->flatMap->sections->pluck('key')->unique();
@@ -245,10 +305,7 @@
                 'label' => 'Berita',
                 'count' => $organization->posts()->count(),
                 'countLabel' => 'berita',
-                'paths' => [
-                    'M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9l5 5v9a2 2 0 0 1-2 2Z',
-                    'M9 12h6M9 16h6M9 8h2',
-                ],
+                'paths' => ['M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9l5 5v9a2 2 0 0 1-2 2Z', 'M9 12h6M9 16h6M9 8h2'],
             ],
             [
                 'route' => 'organizations.agendas.index',
@@ -256,7 +313,9 @@
                 'label' => 'Agenda',
                 'count' => $organization->agendas()->count(),
                 'countLabel' => 'agenda',
-                'paths' => ['M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z'],
+                'paths' => [
+                    'M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z',
+                ],
             ],
             [
                 'route' => 'organizations.announcements.index',
@@ -264,7 +323,9 @@
                 'label' => 'Pengumuman',
                 'count' => $organization->announcements()->count(),
                 'countLabel' => 'pengumuman',
-                'paths' => ['M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9'],
+                'paths' => [
+                    'M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9',
+                ],
             ],
             [
                 'route' => 'organizations.gallery.index',
@@ -272,10 +333,12 @@
                 'label' => 'Galeri',
                 'count' => $organization->photos()->count(),
                 'countLabel' => 'foto',
-                'paths' => ['M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L17.5 10 20 12.5M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5'],
+                'paths' => [
+                    'M4 16.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10.5M4 16.5 8.5 12a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 0 2.1 0L17.5 10 20 12.5M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5',
+                ],
                 'circle' => ['cx' => '8.5', 'cy' => '8.5', 'r' => '1.25'],
             ],
-        ])->filter(fn ($item) => $activeSectionKeys->contains($item['section']));
+        ])->filter(fn($item) => $activeSectionKeys->contains($item['section']));
     @endphp
 
     @if ($contentLinks->isNotEmpty())
@@ -318,13 +381,12 @@
 
                     @if ($canManageMembers && $member->pivot->role !== \App\Enums\OrganizationRole::Owner->value)
                         <div class="flex items-center gap-2 shrink-0">
-                            <span
-                                class="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                            <span class="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
                                 {{ \App\Enums\OrganizationRole::from($member->pivot->role)->label() }}
                             </span>
                             <form action="{{ route('organizations.members.destroy', [$organization, $member]) }}"
-                                method="POST"
-                                x-data="{ name: @js($member->name) }" @submit.prevent="if (await confirmAction('Hapus ' + name + ' dari organisasi ini?')) $el.submit()">
+                                method="POST" x-data="{ name: @js($member->name) }"
+                                @submit.prevent="if (await confirmAction('Hapus ' + name + ' dari organisasi ini?')) $el.submit()">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -353,7 +415,8 @@
                     <p class="text-xs text-gray-400 mt-1">Anggota baru akan ditambahkan sebagai
                         {{ \App\Enums\OrganizationRole::Editor->label() }}.</p>
                 </div>
-                <button type="submit" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold cursor-pointer">
+                <button type="submit"
+                    class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold cursor-pointer">
                     Tambah Anggota
                 </button>
             </form>
@@ -367,8 +430,8 @@
                 Tindakan ini akan menghapus organisasi beserta seluruh data anggotanya secara permanen dan tidak dapat
                 dibatalkan.
             </p>
-            <form action="{{ route('organizations.destroy', $organization) }}" method="POST"
-                x-data="{ name: @js($organization->name) }" @submit.prevent="if (await confirmAction('Hapus organisasi ' + name + '? Tindakan ini tidak dapat dibatalkan.')) $el.submit()">
+            <form action="{{ route('organizations.destroy', $organization) }}" method="POST" x-data="{ name: @js($organization->name) }"
+                @submit.prevent="if (await confirmAction('Hapus organisasi ' + name + '? Tindakan ini tidak dapat dibatalkan.')) $el.submit()">
                 @csrf
                 @method('DELETE')
                 <button type="submit"
