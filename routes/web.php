@@ -44,6 +44,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
+use App\Http\Controllers\WebsiteMasjidController;
 use App\Models\Article;
 use App\Models\Template;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -73,6 +74,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Per-segment SEO landing pages: a flat, keyword-bearing slug ("website-masjid") rather than
+// /solusi/masjid, since the URL itself is a ranking signal for the exact query people type.
+Route::get('/website-masjid', WebsiteMasjidController::class)->name('landing.masjid');
 
 Route::get('/berita', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/berita/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');

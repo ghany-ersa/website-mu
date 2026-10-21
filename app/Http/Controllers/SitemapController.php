@@ -12,6 +12,7 @@ class SitemapController extends Controller
     {
         $urls = collect([
             ['loc' => url('/'), 'priority' => '1.0', 'changefreq' => 'weekly'],
+            ['loc' => route('landing.masjid'), 'priority' => '0.9', 'changefreq' => 'monthly'],
         ]);
 
         if ($tenantDomain = config('tenancy.domain')) {
