@@ -99,7 +99,7 @@ class OrganizationController extends Controller
 
         return redirect()
             ->route('admin.organizations.show', $organization)
-            ->with('status', 'Paket organisasi berhasil diubah secara manual.');
+            ->with('status', 'Paket Infak organisasi berhasil diubah secara manual.');
     }
 
     /**

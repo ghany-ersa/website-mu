@@ -20,7 +20,7 @@
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 
     @php
-        $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('login');
+        $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('register');
         $articleDefaultImage = 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80';
     @endphp
 
@@ -36,7 +36,7 @@
             <div class="hidden md:flex items-center gap-3">
                 <a href="{{ route('home') }}" class="text-sm font-semibold text-gray-600 hover:text-primary transition">Beranda</a>
                 <a href="{{ $ctaUrl }}" class="bg-primary hover:bg-secondary text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-soft transition-all hover:shadow-float">
-                    Buat Web Sekarang
+                    {{ auth()->check() ? 'Buat Organisasi' : 'Coba Gratis' }}
                 </a>
             </div>
         </nav>

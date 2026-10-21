@@ -116,6 +116,6 @@ class SdMadyaStandarTemplateTest extends TestCase
         $this->assertSame($expected, $actual);
 
         // The point of this template existing: an exclusive one would add a publish-time block.
-        $this->assertNotContains('Template ini memerlukan paket Eksklusif', $organization->planViolations());
+        $this->assertNotContains('Template ini memerlukan paket Infak Eksklusif', $organization->planViolations());
     }
 }

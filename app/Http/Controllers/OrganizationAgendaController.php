@@ -38,7 +38,7 @@ class OrganizationAgendaController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'agendas')) {
             return redirect()
                 ->route('organizations.agendas.index', $organization)
-                ->with('warning', 'Batas jumlah agenda paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah agenda paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.agendas.form', [
@@ -57,7 +57,7 @@ class OrganizationAgendaController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'agendas')) {
             return redirect()
                 ->route('organizations.agendas.index', $organization)
-                ->with('warning', 'Batas jumlah agenda paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah agenda paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $organization->agendas()->create($this->validated($request));

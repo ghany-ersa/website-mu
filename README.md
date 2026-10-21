@@ -24,7 +24,7 @@ Setiap jenis organisasi punya kebutuhan komunikasi yang berbeda, jadi Website-mu
 - **Kelola konten lewat CMS** - berita, agenda, pengumuman, pengurus, program, galeri foto, fasilitas, laporan keuangan, dan program donasi - semua lewat form sederhana.
 - **Atur identitas brand** - warna, logo, font, dan sudut membulat organisasi, konsisten di seluruh halaman.
 - **Terbitkan ke subdomain publik** - situs organisasi langsung bisa diakses di `{nama-organisasi}.website-mu.id`, lengkap dengan SEO, sitemap otomatis, dan cache halaman.
-- **Pilih paket langganan** sesuai kebutuhan, dengan pembayaran lewat Midtrans Snap atau transfer manual (QRIS/bank) sebagai cadangan.
+- **Pilih paket Infak** sesuai kebutuhan, dengan pembayaran lewat Midtrans Snap atau transfer manual (QRIS/bank) sebagai cadangan.
 
 ## Dokumen referensi
 

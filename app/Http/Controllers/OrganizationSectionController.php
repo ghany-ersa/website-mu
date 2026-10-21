@@ -89,7 +89,7 @@ class OrganizationSectionController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'sections_total')) {
             return redirect()
                 ->route('organizations.builder.page', [$organization, $page])
-                ->with('warning', 'Batas jumlah widget paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah widget paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $content = config('page-builder.sections.'.$validated['key'].'.defaults', []);

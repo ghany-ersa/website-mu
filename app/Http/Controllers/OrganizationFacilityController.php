@@ -36,7 +36,7 @@ class OrganizationFacilityController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'facilities')) {
             return redirect()
                 ->route('organizations.facilities.index', $organization)
-                ->with('warning', 'Batas jumlah fasilitas paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah fasilitas paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.facilities.form', [
@@ -54,7 +54,7 @@ class OrganizationFacilityController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'facilities')) {
             return redirect()
                 ->route('organizations.facilities.index', $organization)
-                ->with('warning', 'Batas jumlah fasilitas paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah fasilitas paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $organization->facilities()->create([

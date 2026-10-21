@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="flex items-center justify-between mb-8">
-        <h1 class="text-2xl font-extrabold text-primary">Edit Paket</h1>
+        <h1 class="text-2xl font-extrabold text-primary">Edit Paket Infak</h1>
         <a href="{{ route('admin.plans.index') }}" class="text-sm text-gray-500 hover:underline">&larr; Kembali</a>
     </div>
 

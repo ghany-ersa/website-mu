@@ -15,7 +15,7 @@
 <div class="bg-white rounded-2xl shadow-soft p-6 space-y-6 mb-6">
     <div class="grid md:grid-cols-2 gap-6">
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1" for="name">Nama Paket</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1" for="name">Nama Paket Infak</label>
             <input type="text" name="name" id="name" value="{{ old('name', $plan->name ?? '') }}"
                    class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
         </div>
@@ -36,7 +36,7 @@
     </div>
 
     <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Diskon Langganan Jangka Panjang</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Diskon Infak Jangka Panjang</label>
         <p class="text-xs text-gray-400 mb-2">Potongan harga (%) dibanding harga 3 bulan, otomatis diterapkan saat organisasi memilih durasi ini. Kosongkan/0 untuk tanpa diskon.</p>
         <div class="grid grid-cols-2 gap-4 max-w-md">
             <div>
@@ -56,7 +56,7 @@
 
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1" for="description">Deskripsi</label>
-        <p class="text-xs text-gray-400 mb-2">Tampil sebagai tagline singkat di halaman langganan &amp; landing page.</p>
+        <p class="text-xs text-gray-400 mb-2">Tampil sebagai tagline singkat di halaman Infak &amp; landing page.</p>
         <textarea name="description" id="description" rows="2"
                   class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">{{ old('description', $plan->description ?? '') }}</textarea>
     </div>

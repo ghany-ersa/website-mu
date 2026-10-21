@@ -44,12 +44,6 @@
             'operatingSystem' => 'Web',
             'description' => 'Platform no-code untuk membuat, mengelola, dan menerbitkan website organisasi dalam ekosistem Muhammadiyah - PDM, PCM, PRM, Ortom, AUM sekolah, klinik, dan masjid.',
             'url' => url('/'),
-            'offers' => [
-                $atType => 'Offer',
-                'price' => '0',
-                'priceCurrency' => 'IDR',
-                'description' => 'Paket gratis dengan subdomain website-mu.id',
-            ],
             'provider' => [
                 $atType => 'Organization',
                 'name' => 'website-mu.id',
@@ -75,9 +69,12 @@
 <body class="text-gray-800 font-sans antialiased selection:bg-secondary selection:text-white">
 
     @php
-        $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('login');
-        $ctaLabel = auth()->check() ? 'Buat Organisasi' : 'Buat Web Sekarang';
-        $heroCtaLabel = auth()->check() ? 'Buat Organisasi Sekarang' : 'Buat Web Gratis Sekarang';
+        // Guests go straight to register, not login: every CTA here is pitched at someone new
+        // ("Coba Gratis"), and login made them hunt for a sign-up link first. Returning users
+        // get their own small "Masuk" link in the navbar instead.
+        $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('register');
+        $ctaLabel = auth()->check() ? 'Buat Organisasi' : 'Coba Gratis';
+        $heroCtaLabel = auth()->check() ? 'Buat Organisasi Sekarang' : 'Coba Gratis Sekarang';
     @endphp
 
     <!-- Floating Navbar -->
@@ -95,10 +92,12 @@
                 @if ($articles->isNotEmpty())
                     <a href="#berita-artikel" class="hover:text-primary transition">Berita</a>
                 @endif
-                <a href="#harga-paket" class="hover:text-primary transition">Harga Paket</a>
             </div>
 
             <div class="hidden md:flex items-center gap-3">
+                @guest
+                    <a href="{{ route('login') }}" class="text-sm font-semibold text-gray-600 hover:text-primary transition px-2">Masuk</a>
+                @endguest
                 <a href="{{ $ctaUrl }}" class="bg-primary hover:bg-secondary text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-soft transition-all hover:shadow-float">
                     {{ $ctaLabel }}
                 </a>
@@ -124,7 +123,9 @@
                 @if ($articles->isNotEmpty())
                     <a href="#berita-artikel" x-on:click="mobileOpen = false" class="hover:text-primary transition">Berita</a>
                 @endif
-                <a href="#harga-paket" x-on:click="mobileOpen = false" class="hover:text-primary transition">Harga Paket</a>
+                @guest
+                    <a href="{{ route('login') }}" class="hover:text-primary transition">Masuk</a>
+                @endguest
                 <a href="{{ $ctaUrl }}" class="bg-primary hover:bg-secondary text-white px-5 py-3 rounded-full text-center font-bold shadow-soft transition-all">
                     {{ $ctaLabel }}
                 </a>
@@ -173,9 +174,11 @@
                             <p class="text-2xl md:text-3xl font-extrabold text-secondary">&lt; 30 Menit </p>
                             <p class="text-xs md:text-sm text-gray-500 font-medium">Target Waktu Terbit</p>
                         </div>
+                        {{-- Value, not price: pricing lives in the owner dashboard (Kelola Paket), not on the
+                             marketing page, so the hero sells what the platform does instead. --}}
                         <div>
-                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Rp{{ number_format(($plans->first()->price_monthly ?? 15000) / 1000, 1, ',', '.') }}rb</p>
-                            <p class="text-xs md:text-sm text-gray-500 font-medium">Mulai dari /bulan</p>
+                            <p class="text-2xl md:text-3xl font-extrabold text-gray-800">Gratis</p>
+                            <p class="text-xs md:text-sm text-gray-500 font-medium">Coba &amp; Rancang Dulu</p>
                         </div>
                     </div>
                 </div>
@@ -403,114 +406,18 @@
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section id="harga-paket" class="scroll-mt-28 py-20 bg-softBg mx-2 px-4 my-10">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <span class="text-primary font-bold tracking-wider uppercase text-sm bg-blue-100 px-4 py-1.5 rounded-full">Investasi Dakwah</span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">Paket Berlangganan Bulanan</h2>
-                <p class="text-gray-500 mt-2">Didesain khusus agar ramah anggaran untuk Ranting, Cabang, maupun AUM.</p>
-            </div>
-
-            @php
-                // Marketing subtitle per plan key - not stored in the plans table since it's
-                // copywriting, not a limit/price the app enforces.
-                $planSubtitles = [
-                    'organization' => 'Ranting & Cabang',
-                    'professional' => 'AUM & Daerah',
-                ];
-                $featuredPlanKey = $plans->last()?->key;
-            @endphp
-
-            {{--
-                Mobile: a snap rail the cards are swiped through, since three full-width cards
-                stacked vertically pushed the comparison off-screen and buried the third plan.
-                The negative margin + matching padding lets the rail bleed to the viewport edge
-                while the first card still lines up with the section's gutter, and the narrower
-                card width leaves the next one peeking - which is what tells you it scrolls.
-
-                sm: and up it reverts to the original centred flex-wrap row - `.u-snap-rail`
-                drops its own overflow at that breakpoint (see app.css), which is what keeps the
-                featured card's badge from being clipped where it sits above the card's top edge.
-            --}}
-            <div class="u-snap-rail flex sm:flex-wrap justify-start sm:justify-center gap-6 sm:gap-8 max-w-5xl mx-auto -mx-4 px-4 sm:mx-auto sm:px-0 pt-5 pb-2 sm:pt-0 sm:pb-0">
-                @foreach ($plans as $plan)
-                    @php $featured = $plan->key === $featuredPlanKey; @endphp
-                    {{-- Width is in vw, not %, because a percentage resolves against the rail's
-                         own content box - which is narrower than the screen - and produced cards
-                         noticeably tighter than intended. 84vw leaves the next card peeking. --}}
-                    <div class="shrink-0 w-[84vw] sm:shrink sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)] bg-white p-7 sm:p-8 md:p-10 rounded-3xl {{ $featured ? 'shadow-float border-2 border-secondary relative' : 'shadow-soft border border-gray-100' }} flex flex-col justify-between">
-                        @if ($featured)
-                            <span class="absolute -top-4 right-8 bg-secondary text-white text-xs font-extrabold px-4 py-1.5 rounded-full uppercase tracking-wider">Paling Direkomendasikan</span>
-                        @endif
-                        <div>
-                            <span class="text-xs font-bold uppercase tracking-wider {{ $featured ? 'text-secondary bg-green-50' : 'text-gray-400 bg-gray-100' }} px-3 py-1 rounded-full">{{ $plan->name }}</span>
-                            <h3 class="text-2xl font-bold text-gray-800 mt-4">{{ $planSubtitles[$plan->key] ?? $plan->name }}</h3>
-                            <div class="mt-4 mb-1 flex items-center gap-3">
-                                @if ($plan->price_monthly === 0)
-                                    <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Gratis</span>
-                                @else
-                                    <span class="text-4xl font-extrabold {{ $featured ? 'text-secondary' : 'text-primary' }}">Rp {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
-                                    <span class="text-sm text-gray-400">/bln</span>
-                                @endif
-                            </div>
-                            <p class="text-xs text-gray-400 mb-6">{{ $plan->description }}</p>
-                            <ul class="space-y-4 text-sm mb-8">
-                                @foreach ($plan->pricingFeatures() as $feature)
-                                    <li class="flex items-center {{ $feature['available'] ? 'text-gray-600' : 'text-gray-400' }}">
-                                        <span class="{{ $feature['available'] ? 'text-secondary' : 'text-red-400' }} font-bold mr-3">{{ $feature['available'] ? '✓' : '✕' }}</span>
-                                        {{ $feature['label'] }}
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <a href="https://wa.me/6285183220977?text={{ urlencode('Assalamualaikum, saya tertarik dengan paket '.$plan->name.' di website-mu.id.') }}" target="_blank" rel="noopener" class="w-full {{ $featured ? 'bg-secondary hover:bg-green-700 text-white shadow-md' : 'bg-gray-100 hover:bg-gray-200 text-gray-800' }} font-bold py-3.5 rounded-2xl text-center block transition">Pilih {{ $plan->name }}</a>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- Form Konsultasi & Pemesanan -->
-    <section id="kontak" class="scroll-mt-28 py-20 container mx-auto px-4 max-w-5xl">
-        <div class="bg-primary text-white rounded-[3rem] p-8 md:p-14 shadow-float relative overflow-hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                <div class="lg:col-span-6">
-                    <span class="bg-white/10 text-green-300 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-wider">Mulai Digitalisasi</span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold mt-4 mb-4">Siap Digitalisasi Organisasi Anda?</h2>
-                    <p class="text-blue-100 text-sm leading-relaxed mb-6">Konsultasikan kebutuhan pembuatan website pimpinan atau AUM Anda secara gratis bersama tim kami.</p>
-
-                    <div class="space-y-3 text-sm">
-                        <p class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-secondary"></span> WhatsApp: +62 851-8322-0977</p>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-6">
-                    <form
-                        class="bg-white text-gray-800 p-6 md:p-8 rounded-[2rem] space-y-4 shadow-lg"
-                        x-data="{ nama: '', template: '{{ $templates->first()->name ?? 'Lainnya / Custom' }}' }"
-                        x-on:submit.prevent="window.open('https://wa.me/6285183220977?text=' + encodeURIComponent('Assalamualaikum, saya dari ' + nama + '. Saya tertarik dengan template ' + template + ' untuk website organisasi kami.'), '_blank')"
-                    >
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nama / Nama Cabang / AUM</label>
-                            <input x-model="nama" required type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary text-sm" placeholder="Contoh: PCM Ambulu / SD Muhammadiyah 1">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Template yang Diminati</label>
-                            <select x-model="template" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary text-sm bg-white">
-                                @foreach ($templates as $template)
-                                    <option>{{ $template->name }}</option>
-                                @endforeach
-                                <option>Lainnya / Custom</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full bg-secondary hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-md">
-                            Konsultasi via WhatsApp Sekarang
-                        </button>
-                        <p class="text-xs text-gray-400 text-center">Atau langsung <a href="{{ $ctaUrl }}" class="text-secondary font-bold hover:underline">{{ auth()->check() ? 'buat sendiri' : 'buat web sendiri gratis' }}</a></p>
-                    </form>
-                </div>
-            </div>
+    <!-- Closing CTA -->
+    {{-- Sign-up only: WhatsApp help is already one tap away in the support bubble on every
+         page (components.support-bubble), so a consultation form here just split the last
+         click between two actions. --}}
+    <section id="mulai" class="scroll-mt-28 py-20 container mx-auto px-4 max-w-5xl">
+        <div class="bg-primary text-white rounded-[3rem] px-6 py-12 md:p-16 shadow-float text-center">
+            <span class="bg-white/10 text-green-300 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-wider">Mulai Digitalisasi</span>
+            <h2 class="text-3xl md:text-4xl font-extrabold mt-4 mb-4">Siap Digitalisasi Organisasi Anda?</h2>
+            <p class="text-blue-100 text-sm md:text-base leading-relaxed mb-8 max-w-xl mx-auto">Coba gratis dan rancang website pimpinan atau AUM Anda sendiri sekarang - tanpa coding, siap terbit dalam hitungan menit.</p>
+            <a href="{{ $ctaUrl }}" class="w-full sm:w-auto inline-block bg-white hover:bg-green-50 text-primary px-10 py-4 rounded-full font-bold text-center shadow-float transition-all hover:scale-105">
+                {{ $heroCtaLabel }}
+            </a>
         </div>
     </section>
 

@@ -36,7 +36,7 @@ class OrganizationOfficerController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'officers')) {
             return redirect()
                 ->route('organizations.officers.index', $organization)
-                ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.officers.form', [
@@ -54,7 +54,7 @@ class OrganizationOfficerController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'officers')) {
             return redirect()
                 ->route('organizations.officers.index', $organization)
-                ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah pengurus paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $validated = $this->validated($request);

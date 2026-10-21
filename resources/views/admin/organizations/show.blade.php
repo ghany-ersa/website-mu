@@ -63,11 +63,11 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-soft p-6 mb-6">
-        <h2 class="font-bold text-gray-800 mb-4">Paket Saat Ini</h2>
+        <h2 class="font-bold text-gray-800 mb-4">Paket Infak Saat Ini</h2>
         <div class="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
             <div>
-                <p class="text-xs text-gray-400">Paket</p>
-                <p class="font-semibold text-gray-800">{{ $organization->plan?->name ?? 'Belum memilih paket' }}</p>
+                <p class="text-xs text-gray-400">Paket Infak</p>
+                <p class="font-semibold text-gray-800">{{ $organization->plan?->name ?? 'Belum memilih paket Infak' }}</p>
             </div>
             <div>
                 <p class="text-xs text-gray-400">Aktif Hingga</p>
@@ -87,9 +87,9 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-soft p-6 mb-6">
-        <h2 class="font-bold text-gray-800">Ubah Paket Manual</h2>
+        <h2 class="font-bold text-gray-800">Ubah Paket Infak Manual</h2>
         <p class="text-xs text-gray-400 mt-0.5 mb-4">
-            Mengubah paket &amp; masa aktif organisasi secara langsung, tanpa melalui pengajuan pembayaran.
+            Mengubah paket Infak &amp; masa aktif organisasi secara langsung, tanpa melalui pengajuan pembayaran.
             Gunakan untuk kasus khusus (komplain, kesepakatan di luar sistem, perbaikan data) &mdash; setiap
             perubahan tercatat di riwayat di bawah.
         </p>
@@ -105,14 +105,14 @@
         @endif
 
         <form action="{{ route('admin.organizations.override-plan', $organization) }}" method="POST"
-              x-data @submit.prevent="if (await confirmAction('Ubah paket organisasi ini secara manual?', { danger: false })) $el.submit()">
+              x-data @submit.prevent="if (await confirmAction('Ubah paket Infak organisasi ini secara manual?', { danger: false })) $el.submit()">
             @csrf
             <div class="grid sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label for="plan_id" class="block text-sm font-semibold text-gray-700 mb-1">Paket</label>
+                    <label for="plan_id" class="block text-sm font-semibold text-gray-700 mb-1">Paket Infak</label>
                     <select name="plan_id" id="plan_id" required
                             class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                        <option value="">Pilih paket&hellip;</option>
+                        <option value="">Pilih paket Infak&hellip;</option>
                         @foreach ($plans as $plan)
                             <option value="{{ $plan->id }}" @selected(old('plan_id', $organization->plan_id) == $plan->id)>
                                 {{ $plan->name }} &mdash; {{ $plan->formattedPrice() }}
@@ -139,10 +139,10 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-soft p-6">
-        <h2 class="font-bold text-gray-800 mb-4">Riwayat Perubahan Paket</h2>
+        <h2 class="font-bold text-gray-800 mb-4">Riwayat Perubahan Paket Infak</h2>
 
         @if ($organization->planOverrideLogs->isEmpty())
-            <p class="text-sm text-gray-400">Belum ada perubahan paket manual untuk organisasi ini.</p>
+            <p class="text-sm text-gray-400">Belum ada perubahan paket Infak manual untuk organisasi ini.</p>
         @else
             <div class="divide-y divide-gray-100">
                 @foreach ($organization->planOverrideLogs as $log)

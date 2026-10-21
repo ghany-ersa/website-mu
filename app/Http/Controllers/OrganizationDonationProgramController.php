@@ -37,7 +37,7 @@ class OrganizationDonationProgramController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'donation_programs')) {
             return redirect()
                 ->route('organizations.donations.index', $organization)
-                ->with('warning', 'Batas jumlah program donasi paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah program donasi paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.donations.form', [
@@ -55,7 +55,7 @@ class OrganizationDonationProgramController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'donation_programs')) {
             return redirect()
                 ->route('organizations.donations.index', $organization)
-                ->with('warning', 'Batas jumlah program donasi paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah program donasi paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $validated = $this->validated($request);

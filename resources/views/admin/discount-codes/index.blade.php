@@ -6,7 +6,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div>
             <h1 class="text-2xl font-extrabold text-primary">Kode Diskon</h1>
-            <p class="text-sm text-gray-500 mt-1">{{ $discountCodes->total() }} kode &mdash; kelola voucher yang bisa dipakai organisasi saat memilih paket.</p>
+            <p class="text-sm text-gray-500 mt-1">{{ $discountCodes->total() }} kode &mdash; kelola voucher yang bisa dipakai organisasi saat memilih paket Infak.</p>
         </div>
         <a href="{{ route('admin.discount-codes.create') }}" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold">
             + Kode Baru

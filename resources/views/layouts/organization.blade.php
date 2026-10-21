@@ -164,7 +164,7 @@
             [
                 'route' => 'organizations.plan.edit',
                 'pattern' => 'organizations.plan.*',
-                'label' => 'Langganan',
+                'label' => 'Infak Rutin',
                 'icon' =>
                     'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z',
             ],
@@ -250,7 +250,7 @@
                                 d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-gray-800 mb-1">Batas Paket Tercapai</h3>
+                    <h3 class="font-bold text-gray-800 mb-1">Batas Paket Infak Tercapai</h3>
                     <p class="text-sm text-gray-500 mb-6">{{ session('warning') }}</p>
                     <div class="flex items-center justify-center gap-3">
                         <button type="button" @click="open = false"
@@ -259,7 +259,7 @@
                         </button>
                         <a href="{{ route('organizations.plan.edit', $organization) }}"
                             class="px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors">
-                            Upgrade Paket
+                            Tingkatkan Paket Infak
                         </a>
                     </div>
                 </div>

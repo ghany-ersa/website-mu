@@ -74,7 +74,7 @@ class OrganizationTemplateController extends Controller
         // non-exclusive widgets publishes fine on any plan. This is just a heads-up that the
         // template is *labelled* exclusive, since some of its widgets/variants may require one.
         if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates()) {
-            $status .= ' Template ini berlabel eksklusif - sebagian widget/tampilannya mungkin memerlukan paket Eksklusif saat dipublikasikan.';
+            $status .= ' Template ini berlabel eksklusif - sebagian widget/tampilannya mungkin memerlukan paket Infak Eksklusif saat dipublikasikan.';
         }
 
         return redirect()

@@ -471,7 +471,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                     </svg>
                 </div>
-                <h3 class="font-bold text-gray-800 mb-1">Batas Paket Tercapai</h3>
+                <h3 class="font-bold text-gray-800 mb-1">Batas Paket Infak Tercapai</h3>
                 <p class="text-sm text-gray-500 mb-6">{{ session('warning') }}</p>
                 <div class="flex items-center justify-center gap-3">
                     <button type="button" @click="open = false"
@@ -480,7 +480,7 @@
                     </button>
                     <a href="{{ route('organizations.plan.edit', $organization) }}"
                         class="px-4 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-secondary transition-colors">
-                        Upgrade Paket
+                        Tingkatkan Paket Infak
                     </a>
                 </div>
             </div>
@@ -651,9 +651,9 @@
                                 <template x-if="previewKey && options[previewKey]?.exclusive">
                                     <p class="mb-2.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                                         Widget ini bisa dipakai sekarang, tapi situs tidak bisa dipublikasikan
-                                        selama widget ini ada dan paket Anda bukan Eksklusif.
+                                        selama widget ini ada dan paket Infak Anda bukan Eksklusif.
                                         <a href="{{ route('organizations.plan.edit', $organization) }}"
-                                            class="font-semibold underline underline-offset-2 hover:text-amber-900">Upgrade paket</a>
+                                            class="font-semibold underline underline-offset-2 hover:text-amber-900">Tingkatkan paket Infak</a>
                                         kapan saja.
                                     </p>
                                 </template>

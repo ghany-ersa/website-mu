@@ -98,7 +98,7 @@ class OrganizationPlanController extends Controller
         if ($organization->pendingPlanChangeRequest()) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('warning', 'Anda masih memiliki permintaan pergantian paket yang menunggu persetujuan.');
+                ->with('warning', 'Anda masih memiliki permintaan pergantian paket infak yang menunggu persetujuan.');
         }
 
         $validated = $request->validate([
@@ -124,7 +124,7 @@ class OrganizationPlanController extends Controller
         if ($renewalWindowNotReachedYet) {
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('warning', 'Perpanjangan paket hanya bisa diajukan paling cepat 14 hari sebelum masa aktif berakhir ('.$organization->plan_expires_at->translatedFormat('d M Y').').');
+                ->with('warning', 'Perpanjangan paket Infak hanya bisa diajukan paling cepat 14 hari sebelum masa aktif berakhir ('.$organization->plan_expires_at->translatedFormat('d M Y').').');
         }
 
         $plan = Plan::findOrFail($validated['plan_id']);
@@ -161,7 +161,7 @@ class OrganizationPlanController extends Controller
 
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('success', 'Paket berhasil diaktifkan menggunakan kode diskon.');
+                ->with('success', 'Paket Infak berhasil diaktifkan menggunakan kode diskon.');
         }
 
         // Midtrans disabled (config('billing.manual_transfer.only')) - leave the request Pending
@@ -203,7 +203,7 @@ class OrganizationPlanController extends Controller
 
             return redirect()
                 ->route('organizations.plan.edit', $organization)
-                ->with('success', 'Paket berhasil diaktifkan menggunakan kode diskon.');
+                ->with('success', 'Paket Infak berhasil diaktifkan menggunakan kode diskon.');
         }
 
         $redirectUrl = $midtrans->createSnapTransaction($planChangeRequest);
@@ -234,7 +234,7 @@ class OrganizationPlanController extends Controller
 
         return redirect()
             ->route('organizations.plan.edit', $organization)
-            ->with('success', 'Konfirmasi pembayaran terkirim. Paket akan aktif setelah tim kami memverifikasi transfer Anda.');
+            ->with('success', 'Konfirmasi pembayaran terkirim. Paket Infak akan aktif setelah tim kami memverifikasi transfer Anda.');
     }
 
     /**
@@ -258,7 +258,7 @@ class OrganizationPlanController extends Controller
 
         return redirect()
             ->route('organizations.plan.edit', $organization)
-            ->with('status', 'Permintaan dibatalkan. Silakan pilih paket lain.');
+            ->with('status', 'Permintaan dibatalkan. Silakan pilih paket Infak lain.');
     }
 
     /**

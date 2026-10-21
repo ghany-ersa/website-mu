@@ -131,11 +131,11 @@
                 </svg>
                 <span class="min-w-0">
                     @if ($organization->planIsExpired())
-                        Masa aktif paket situs ini telah berakhir. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
+                        Masa aktif paket Infak situs ini telah berakhir. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
                     @elseif (! $organization->hasPaidForCurrentPlan())
-                        Pembayaran paket situs ini belum dikonfirmasi. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
+                        Pembayaran paket Infak situs ini belum dikonfirmasi. Sebagian fitur mungkin perlu diperbarui oleh pengelola.
                     @else
-                        Situs ini melebihi batas paket yang berlaku. Sebagian konten mungkin perlu disesuaikan oleh pengelola.
+                        Situs ini melebihi batas paket Infak yang berlaku. Sebagian konten mungkin perlu disesuaikan oleh pengelola.
                     @endif
                 </span>
             </div>

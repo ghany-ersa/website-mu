@@ -39,9 +39,9 @@
                 </svg>
                 <p>
                     Template bertanda <span class="font-semibold">Eksklusif</span> tetap bisa dipilih dan dipakai sekarang
-                    juga - situs hanya tidak bisa dipublikasikan dengannya sampai organisasi berlangganan paket
+                    juga - situs hanya tidak bisa dipublikasikan dengannya sampai organisasi memilih paket Infak
                     <span class="font-semibold">Eksklusif</span>.
-                    <a href="{{ route('organizations.plan.edit', $organization) }}" class="font-semibold underline">Upgrade paket organisasi</a>
+                    <a href="{{ route('organizations.plan.edit', $organization) }}" class="font-semibold underline">Tingkatkan paket Infak organisasi</a>
                     kapan saja.
                 </p>
             </div>
@@ -81,7 +81,7 @@
                                 <p class="text-xs text-gray-400 mt-0.5">{{ $template->organizationType->name }}</p>
                             @endif
                             @if ($template->is_exclusive && ! $organization->canUseExclusiveTemplates())
-                                <p class="text-xs text-amber-600 mt-2">Bisa langsung dipakai &mdash; perlu paket Eksklusif saat dipublikasikan.</p>
+                                <p class="text-xs text-amber-600 mt-2">Bisa langsung dipakai &mdash; perlu paket Infak Eksklusif saat dipublikasikan.</p>
                             @endif
                             <a href="{{ route('templates.preview', $template->slug) }}" target="_blank"
                                class="inline-block text-xs text-primary font-semibold mt-2 hover:underline"

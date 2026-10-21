@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'Permintaan Paket')
+@section('title', 'Permintaan Paket Infak')
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-2xl font-extrabold text-primary">Permintaan Pergantian Paket</h1>
+        <h1 class="text-2xl font-extrabold text-primary">Permintaan Pergantian Paket Infak</h1>
         <p class="text-sm text-gray-500 mt-1">
             {{ $requests->total() }} permintaan &mdash;
             @if (config('billing.manual_transfer.only'))
@@ -32,7 +32,7 @@
                     <th class="px-5 py-3">#</th>
                     <th class="px-5 py-3">Organisasi</th>
                     <th class="px-5 py-3">Diajukan Oleh</th>
-                    <th class="px-5 py-3">Paket Diminta</th>
+                    <th class="px-5 py-3">Paket Infak Diminta</th>
                     <th class="px-5 py-3">Status</th>
                     <th class="px-5 py-3">Tanggal</th>
                     <th class="px-5 py-3">Masa Aktif</th>
@@ -47,7 +47,7 @@
                         </td>
                         <td class="px-5 py-4">
                             <p class="font-semibold text-gray-800">{{ $request->organization->name }}</p>
-                            <p class="text-xs text-gray-400">Paket saat ini: {{ $request->organization->plan?->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">Paket Infak saat ini: {{ $request->organization->plan?->name ?? '-' }}</p>
                         </td>
                         <td class="px-5 py-4 text-gray-600">
                             <p>{{ $request->requestedBy->name }}</p>
@@ -161,7 +161,7 @@
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.plan-change-requests.approve-manual', $request) }}" method="POST"
-                                              x-data @submit.prevent="if (await confirmAction('Setujui paket ini? Pastikan pembayaran sebesar Rp {{ number_format($request->gatewayAmount(), 0, ',', '.') }} sudah masuk.', { danger: false })) $el.submit()">
+                                              x-data @submit.prevent="if (await confirmAction('Setujui paket Infak ini? Pastikan pembayaran sebesar Rp {{ number_format($request->gatewayAmount(), 0, ',', '.') }} sudah masuk.', { danger: false })) $el.submit()">
                                             @csrf
                                             <button type="submit" class="px-3 py-1.5 rounded-full bg-secondary text-white text-xs font-semibold hover:bg-green-700 transition-colors">
                                                 Setujui
@@ -176,7 +176,7 @@
                                     @endif
                                     @if ($request->canRetryApprove())
                                         <form action="{{ route('admin.plan-change-requests.retry-approve', $request) }}" method="POST"
-                                              x-data @submit.prevent="if (await confirmAction('Coba setujui ulang paket ini?', { danger: false })) $el.submit()">
+                                              x-data @submit.prevent="if (await confirmAction('Coba setujui ulang paket Infak ini?', { danger: false })) $el.submit()">
                                             @csrf
                                             <button type="submit" class="px-3 py-1.5 rounded-full bg-secondary text-white text-xs font-semibold hover:bg-green-700 transition-colors">
                                                 Coba Lagi
@@ -185,7 +185,7 @@
                                     @else
                                         <a href="{{ route('admin.organizations.show', $request->organization) }}"
                                            class="text-xs text-primary font-semibold hover:underline">
-                                            Batas percobaan tercapai &mdash; ubah paket manual
+                                            Batas percobaan tercapai &mdash; ubah paket Infak manual
                                         </a>
                                     @endif
                                 </div>
@@ -202,7 +202,7 @@
                             @if (request('q') || request('status'))
                                 Tidak ada permintaan yang cocok dengan pencarian.
                             @else
-                                Belum ada permintaan pergantian paket.
+                                Belum ada permintaan pergantian paket Infak.
                             @endif
                         </td>
                     </tr>

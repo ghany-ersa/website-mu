@@ -464,7 +464,7 @@ class Organization extends Model
             $over = $service->currentCount($this, $key) - $limit;
 
             if ($over > 0) {
-                $violations[] = "{$label} melebihi batas paket ({$over} kelebihan)";
+                $violations[] = "{$label} melebihi batas paket Infak ({$over} kelebihan)";
             }
         }
 
@@ -474,14 +474,14 @@ class Organization extends Model
             $sectionsOver = $service->countedSectionsTotal($this) - $sectionsLimit;
 
             if ($sectionsOver > 0) {
-                $violations[] = "Jumlah widget situs melebihi batas paket ({$sectionsOver} kelebihan)";
+                $violations[] = "Jumlah widget situs melebihi batas paket Infak ({$sectionsOver} kelebihan)";
             }
         }
 
         if ($this->planIsExpired()) {
-            $violations[] = 'Masa aktif paket langganan telah berakhir';
+            $violations[] = 'Masa aktif paket Infak telah berakhir';
         } elseif (! $this->hasPaidForCurrentPlan()) {
-            $violations[] = 'Pembayaran paket belum dikonfirmasi';
+            $violations[] = 'Pembayaran paket Infak belum dikonfirmasi';
         }
 
         // An exclusive template on a plan that doesn't grant them. Reachable because the
@@ -491,7 +491,7 @@ class Organization extends Model
         // for yet" - canUseExclusiveTemplates() reads the entitlement, so this clears itself
         // the moment an upgrade is approved, with no template change needed.
         // if ($this->template?->is_exclusive && ! $this->canUseExclusiveTemplates()) {
-        //     $violations[] = 'Template ini memerlukan paket Eksklusif';
+        //     $violations[] = 'Template ini memerlukan paket Infak Eksklusif';
         // }
 
         if (! $this->canUseExclusiveTemplates()) {
@@ -512,7 +512,7 @@ class Organization extends Model
 
             if ($exclusiveSections->isNotEmpty()) {
                 $count = $exclusiveSections->count();
-                $violations[] = "{$count} widget memerlukan paket Eksklusif";
+                $violations[] = "{$count} widget memerlukan paket Infak Eksklusif";
             }
         }
 

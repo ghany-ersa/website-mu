@@ -139,7 +139,7 @@ class PublishingGateAndAdminOpsTest extends TestCase
             ->assertRedirect(route('organizations.plan.edit', $organization));
 
         $this->assertSame(OrganizationStatus::Draft, $organization->fresh()->status);
-        $this->assertContains('Masa aktif paket langganan telah berakhir', $organization->fresh()->planViolations());
+        $this->assertContains('Masa aktif paket Infak telah berakhir', $organization->fresh()->planViolations());
     }
 
     /**

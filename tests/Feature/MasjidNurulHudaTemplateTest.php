@@ -476,7 +476,7 @@ class MasjidNurulHudaTemplateTest extends TestCase
 
         $this->assertNotEmpty(array_filter(
             $violations,
-            fn (string $v) => str_contains($v, 'memerlukan paket Eksklusif'),
+            fn (string $v) => str_contains($v, 'memerlukan paket Infak Eksklusif'),
         ));
     }
 

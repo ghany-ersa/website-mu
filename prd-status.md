@@ -9,7 +9,7 @@
 
 ## 1. Ringkasan
 
-Website-mu adalah aplikasi Laravel 13 yang berfungsi penuh: pengguna mendaftar, membuat organisasi, memilih template, menyusun **beberapa halaman** lewat page builder berbasis section, mengisi konten CMS, mengatur brand, berlangganan lewat **pembayaran otomatis Midtrans**, dan menerbitkan situs ke subdomain publik yang ter-cache. Admin punya panel lengkap termasuk **editor template visual (sandbox)**.
+Website-mu adalah aplikasi Laravel 13 yang berfungsi penuh: pengguna mendaftar, membuat organisasi, memilih template, menyusun **beberapa halaman** lewat page builder berbasis section, mengisi konten CMS, mengatur brand, berInfak lewat **pembayaran otomatis Midtrans**, dan menerbitkan situs ke subdomain publik yang ter-cache. Admin punya panel lengkap termasuk **editor template visual (sandbox)**.
 
 Skala kode: ~26 model, ~44 controller, ~65 migration, ~26 jenis section, 10 template ter-seed, 167 test.
 
@@ -61,7 +61,7 @@ Model + migration + controller resource lengkap, semua ter-scope ke organisasi: 
 - Halaman publik: beranda, halaman builder lain, detail berita/pengumuman/agenda/program donasi, load-more berita & galeri, JSON-LD, SEO meta, `sitemap.xml`.
 - Halaman error kustom (401/402/403/404/419/429/500/503).
 
-### 2.7 Paket Langganan & Pembayaran
+### 2.7 Paket Infak & Pembayaran
 - **3 paket** (`key` internal / `name` tampilan): `starter`/Starter Rp 15.000, `premium`/Premium Rp 31.000, `eksklusif`/Eksklusif Rp 35.000 per bulan (`PlanSeeder`). `key` tidak pernah berubah tanpa migrasi data yang menyertainya - dipakai sebagai identifier stabil oleh `PlanLimitService`, seeder lain, dan migrasi.
 - **Harga adalah struktur decoy (asymmetric dominance) yang disengaja**, bukan tiga angka independen: Premium diberi harga dekat ke Eksklusif (Rp29.000 vs Rp34.000/bulan, selisih ~17% tanpa diskon) tanpa entitlement tambahan apa pun (`hide_branding`/`has_exclusive_templates` sama-sama `false`) - perannya membuat Eksklusif terlihat jelas lebih baik, bukan untuk laku sendiri. Diskon durasi (`discount_percent_6`/`discount_percent_12`) **naik bertingkat per plan** - Starter 5%/7%, Premium 7%/10%, Eksklusif 10%/15% - sehingga gap harga efektif Premium→Eksklusif **menyempit** seiring durasi makin panjang: 17,2% (3 bulan) → 13,5% (6 bulan) → 10,7% (12 bulan, eff. Rp26.100 vs Rp28.900/bulan). Diskon proporsional tidak bisa membalik urutan dua harga (lihat `Plan::priceForDuration()`), jadi Eksklusif tidak pernah jadi lebih murah dari Premium - tapi makin lama komitmennya, makin kecil alasan berhenti di Premium.
 - Entitlement: `hide_branding`, `has_exclusive_templates`.

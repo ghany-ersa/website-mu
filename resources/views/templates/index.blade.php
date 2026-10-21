@@ -34,14 +34,14 @@
             <a href="{{ url('/') }}"
                 class="sm:hidden text-sm font-semibold text-gray-600 hover:text-primary transition">&larr; Kembali</a>
             @php
-                $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('login');
+                $ctaUrl = auth()->check() ? route('organizations.template-picker') : route('register');
             @endphp
             <div class="hidden md:flex items-center gap-3">
                 <a href="{{ route('home') }}"
                     class="text-sm font-semibold text-gray-600 hover:text-primary transition">Beranda</a>
                 <a href="{{ $ctaUrl }}"
                     class="bg-primary hover:bg-secondary text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-soft transition-all hover:shadow-float">
-                    Buat Web Sekarang
+                    {{ auth()->check() ? 'Buat Organisasi' : 'Coba Gratis' }}
                 </a>
             </div>
         </nav>

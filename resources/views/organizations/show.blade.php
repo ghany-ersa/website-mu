@@ -20,10 +20,10 @@
                 $blockedFromPublishing = $organization->status !== \App\Enums\OrganizationStatus::Published && filled($planViolations);
                 // Specific badge copy when an exclusive template/variant is the only thing in
                 // the way - the most common cause and the one hardest to guess from "batas
-                // paket dilanggar" alone, since nothing here has technically gone *over* a
+                // paket Infak dilanggar" alone, since nothing here has technically gone *over* a
                 // limit.
                 $onlyExclusiveEntitlement = $blockedFromPublishing
-                    && collect($planViolations)->every(fn (string $v) => str_contains($v, 'memerlukan paket Eksklusif'));
+                    && collect($planViolations)->every(fn (string $v) => str_contains($v, 'memerlukan paket Infak Eksklusif'));
             @endphp
             <div class="shrink-0 flex flex-col items-end gap-1.5">
                 <div class="flex items-center gap-1.5">
@@ -55,7 +55,7 @@
                 </div>
                 @if ($blockedFromPublishing)
                     <a href="{{ route('organizations.plan.edit', $organization) }}" class="text-xs font-semibold text-amber-600 hover:underline whitespace-nowrap">
-                        ⚠ {{ $onlyExclusiveEntitlement ? 'Perlu paket Eksklusif untuk publikasi' : 'Batas paket dilanggar' }}
+                        ⚠ {{ $onlyExclusiveEntitlement ? 'Perlu paket Infak Eksklusif untuk publikasi' : 'Batas paket Infak dilanggar' }}
                     </a>
                 @endif
             </div>
@@ -117,7 +117,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                     </svg>
-                    Langganan - {{ $organization->plan?->name ?? 'Belum Diatur' }}
+                    Infak Rutin - {{ $organization->plan?->name ?? 'Belum Diatur' }}
                 </a>
             @endcan
             @if ($organization->status === \App\Enums\OrganizationStatus::Published && $tenantDomain)

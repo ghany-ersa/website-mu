@@ -57,7 +57,7 @@ class ExclusiveTemplatePublishGateTest extends TestCase
         $organization = $this->organizationWithExclusiveWidget('starter');
 
         $this->assertContains(
-            '1 widget memerlukan paket Eksklusif',
+            '1 widget memerlukan paket Infak Eksklusif',
             $organization->planViolations(),
         );
         $this->assertTrue($organization->violatesPlanRules());
@@ -87,7 +87,7 @@ class ExclusiveTemplatePublishGateTest extends TestCase
         ]);
 
         $this->assertNotContains(
-            'Template ini memerlukan paket Eksklusif',
+            'Template ini memerlukan paket Infak Eksklusif',
             $organization->planViolations(),
         );
         $this->assertFalse($organization->violatesPlanRules());
@@ -104,7 +104,7 @@ class ExclusiveTemplatePublishGateTest extends TestCase
         $organization->update(['plan_id' => Plan::where('key', 'eksklusif')->firstOrFail()->id]);
 
         $this->assertNotContains(
-            '1 widget memerlukan paket Eksklusif',
+            '1 widget memerlukan paket Infak Eksklusif',
             $organization->fresh()->planViolations(),
         );
     }
@@ -142,7 +142,7 @@ class ExclusiveTemplatePublishGateTest extends TestCase
         ]);
 
         $this->assertNotContains(
-            'Template ini memerlukan paket Eksklusif',
+            'Template ini memerlukan paket Infak Eksklusif',
             $organization->planViolations(),
         );
     }

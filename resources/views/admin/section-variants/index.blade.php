@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-extrabold text-primary">Variant Tampilan</h1>
         <p class="text-sm text-gray-500 mt-1">
             Daftar desain per widget halaman, dikelompokkan per widget. Aktifkan "Eksklusif" pada
-            variant yang hanya boleh dipilih organisasi dengan paket berentitlement template eksklusif.
+            variant yang hanya boleh dipilih organisasi dengan paket Infak berentitlement template eksklusif.
             Nonaktifkan "Tampilkan" untuk menyembunyikan variant yang masih diuji dari pilihan
             organisasi baru - preview tetap bisa diakses, dan organisasi yang sudah memakainya
             tidak terpengaruh.

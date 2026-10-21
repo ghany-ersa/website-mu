@@ -37,7 +37,7 @@ class OrganizationGalleryController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'gallery_photos')) {
             return redirect()
                 ->route('organizations.gallery.index', $organization)
-                ->with('warning', 'Batas jumlah foto galeri paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah foto galeri paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.gallery.form', [
@@ -55,7 +55,7 @@ class OrganizationGalleryController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'gallery_photos')) {
             return redirect()
                 ->route('organizations.gallery.index', $organization)
-                ->with('warning', 'Batas jumlah foto galeri paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah foto galeri paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $organization->photos()->create([

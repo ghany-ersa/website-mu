@@ -72,7 +72,7 @@ class CancelPlanChangeRequestTest extends TestCase
 
         $planPage = $this->actingAs($owner)->get(route('organizations.plan.edit', $organization));
         $planPage->assertOk();
-        $planPage->assertSee('Permintaan dibatalkan. Silakan pilih paket lain.');
+        $planPage->assertSee('Permintaan dibatalkan. Silakan pilih paket Infak lain.');
         // The picker form (id="pricing-cards"), not the "Selesaikan Pembayaran" panel.
         $planPage->assertSee('id="pricing-cards"', false);
     }

@@ -60,7 +60,7 @@ class PlanSeeder extends Seeder
         $starter = Plan::create([
             'key' => 'starter',
             'name' => 'Starter',
-            'description' => 'Paket dasar untuk memulai situs organisasi.',
+            'description' => 'Paket Infak dasar untuk memulai situs organisasi.',
             'price_monthly' => 15000,
             'discount_percent_6' => 5,
             'discount_percent_12' => 7,

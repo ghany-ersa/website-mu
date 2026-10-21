@@ -64,7 +64,7 @@ class TemplateSwitchTest extends TestCase
         $this->actingAs($owner)
             ->get(route('organizations.template.edit', $organization))
             ->assertOk()
-            ->assertDontSee('perlu paket Eksklusif saat dipublikasikan', false);
+            ->assertDontSee('perlu paket Infak Eksklusif saat dipublikasikan', false);
     }
 
     public function test_switching_template_replaces_the_existing_pages(): void
@@ -134,7 +134,7 @@ class TemplateSwitchTest extends TestCase
         $this->assertSame($exclusive->id, $organization->fresh()->template_id);
         // The template label alone isn't a violation - no exclusive widget/variant was placed.
         $this->assertNotContains(
-            'Template ini memerlukan paket Eksklusif',
+            'Template ini memerlukan paket Infak Eksklusif',
             $organization->fresh()->planViolations(),
         );
     }

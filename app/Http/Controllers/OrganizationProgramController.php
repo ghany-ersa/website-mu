@@ -86,7 +86,7 @@ class OrganizationProgramController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'programs')) {
             return redirect()
                 ->route('organizations.programs.index', ['organization' => $organization, 'type' => $type])
-                ->with('warning', 'Batas jumlah '.strtolower($this->formLabel($type)).' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah '.strtolower($this->formLabel($type)).' paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.programs.form', [
@@ -109,7 +109,7 @@ class OrganizationProgramController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'programs')) {
             return redirect()
                 ->route('organizations.programs.index', ['organization' => $organization, 'type' => $type])
-                ->with('warning', 'Batas jumlah '.strtolower($this->formLabel($type)).' paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah '.strtolower($this->formLabel($type)).' paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         $organization->programs()->create([

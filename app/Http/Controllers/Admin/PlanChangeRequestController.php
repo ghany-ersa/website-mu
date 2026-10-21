@@ -95,7 +95,7 @@ class PlanChangeRequestController extends Controller
 
         return redirect()
             ->route('admin.plan-change-requests.index')
-            ->with('status', 'Paket berhasil disetujui setelah verifikasi transfer.');
+            ->with('status', 'Paket Infak berhasil disetujui setelah verifikasi transfer.');
     }
 
     /**
@@ -115,7 +115,7 @@ class PlanChangeRequestController extends Controller
 
         return redirect()
             ->route('admin.plan-change-requests.index')
-            ->with('status', 'Permintaan pergantian paket ditolak.');
+            ->with('status', 'Permintaan pergantian paket Infak ditolak.');
     }
 
     /**
@@ -128,7 +128,7 @@ class PlanChangeRequestController extends Controller
     public function retryApprove(PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service): RedirectResponse
     {
         abort_unless($planChangeRequest->status === PlanChangeRequestStatus::PaymentReceivedNeedsReview, 409, 'Permintaan ini tidak sedang menunggu tinjauan.');
-        abort_unless($planChangeRequest->canRetryApprove(), 409, 'Batas percobaan otomatis sudah tercapai. Gunakan ubah paket manual.');
+        abort_unless($planChangeRequest->canRetryApprove(), 409, 'Batas percobaan otomatis sudah tercapai. Gunakan ubah paket Infak manual.');
 
         $admin = Auth::user();
         $fromPlanId = $planChangeRequest->organization->plan_id;
@@ -153,7 +153,7 @@ class PlanChangeRequestController extends Controller
 
             return redirect()
                 ->route('admin.plan-change-requests.index')
-                ->with('status', 'Paket berhasil disetujui.');
+                ->with('status', 'Paket Infak berhasil disetujui.');
         } catch (\Throwable $e) {
             $planChangeRequest->update(['approve_error' => $e->getMessage()]);
 

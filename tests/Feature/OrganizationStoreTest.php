@@ -111,7 +111,7 @@ class OrganizationStoreTest extends TestCase
 
         $this->assertSame($template->id, $organization->template_id);
         $this->assertNotContains(
-            'Template ini memerlukan paket Eksklusif',
+            'Template ini memerlukan paket Infak Eksklusif',
             $organization->planViolations(),
         );
     }
@@ -148,7 +148,7 @@ class OrganizationStoreTest extends TestCase
         $organization = Organization::where('name', 'Exclusive Widget Org')->firstOrFail();
 
         $this->assertContains(
-            '1 widget memerlukan paket Eksklusif',
+            '1 widget memerlukan paket Infak Eksklusif',
             $organization->planViolations(),
         );
     }

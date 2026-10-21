@@ -16,10 +16,10 @@ use Tests\TestCase;
 /**
  * When an org can't publish because a widget/section variant it uses is exclusive but its plan
  * isn't, the reason has to be legible without reading source - the raw
- * Organization::planViolations() strings ("1 widget memerlukan paket Eksklusif") don't say *why*
+ * Organization::planViolations() strings ("1 widget memerlukan paket Infak Eksklusif") don't say *why*
  * on their own, so the plan page adds a plain-language explanation alongside them (see
  * organizations/plan/edit.blade.php's "why blocked" panel) and the dashboard badge names the
- * specific reason instead of a generic "batas paket dilanggar".
+ * specific reason instead of a generic "batas paket Infak dilanggar".
  */
 class PublishBlockedExplanationTest extends TestCase
 {
@@ -67,10 +67,10 @@ class PublishBlockedExplanationTest extends TestCase
 
         $planPage->assertOk();
         $planPage->assertSee('Situs belum bisa dipublikasikan');
-        $planPage->assertSee('1 widget memerlukan paket Eksklusif');
+        $planPage->assertSee('1 widget memerlukan paket Infak Eksklusif');
         // The plain-language explanation, not just the raw violation string.
         $planPage->assertSee('bersifat eksklusif');
-        $planPage->assertSee('paket Eksklusif');
+        $planPage->assertSee('paket Infak Eksklusif');
     }
 
     public function test_dashboard_badge_names_the_exclusive_entitlement_specifically(): void
@@ -80,8 +80,8 @@ class PublishBlockedExplanationTest extends TestCase
         $dashboard = $this->actingAs($owner)->get(route('organizations.show', $organization));
 
         $dashboard->assertOk();
-        $dashboard->assertSee('Perlu paket Eksklusif untuk publikasi');
-        $dashboard->assertDontSee('Batas paket dilanggar');
+        $dashboard->assertSee('Perlu paket Infak Eksklusif untuk publikasi');
+        $dashboard->assertDontSee('Batas paket Infak dilanggar');
     }
 
     /**
@@ -101,8 +101,8 @@ class PublishBlockedExplanationTest extends TestCase
         $dashboard = $this->actingAs($owner)->get(route('organizations.show', $organization));
 
         $dashboard->assertOk();
-        $dashboard->assertSee('Batas paket dilanggar');
-        $dashboard->assertDontSee('Perlu paket Eksklusif untuk publikasi');
+        $dashboard->assertSee('Batas paket Infak dilanggar');
+        $dashboard->assertDontSee('Perlu paket Infak Eksklusif untuk publikasi');
     }
 
     /**
@@ -120,7 +120,7 @@ class PublishBlockedExplanationTest extends TestCase
 
         $planPage->assertOk();
         $planPage->assertSee('Situs belum bisa dipublikasikan');
-        $planPage->assertSee('1 widget memerlukan paket Eksklusif');
+        $planPage->assertSee('1 widget memerlukan paket Infak Eksklusif');
     }
 
     /**
@@ -152,7 +152,7 @@ class PublishBlockedExplanationTest extends TestCase
 
     /**
      * The Eksklusif card is badged as the fix and the panel links to it, but nothing pre-selects
-     * it - the owner still has to click "Pilih paket ini" themselves. Auto-selecting the most
+     * it - the owner still has to click "Pilih paket Infak ini" themselves. Auto-selecting the most
      * expensive plan on their behalf would read as a dark pattern; see the view's
      * $needsExclusivePlan comment for the full reasoning. No publish attempt needed first, same
      * as the panel above.
@@ -165,8 +165,8 @@ class PublishBlockedExplanationTest extends TestCase
         $html = $planPage->getContent();
 
         $planPage->assertOk();
-        $planPage->assertSee('Paket yang Anda butuhkan');
-        $planPage->assertSee('Lihat paket Eksklusif');
+        $planPage->assertSee('Paket Infak yang Anda butuhkan');
+        $planPage->assertSee('Lihat paket Infak Eksklusif');
         $planPage->assertSee('href="#pricing-cards"', false);
 
         // "selected" in the Alpine x-data must still be the org's current (Starter) plan id,

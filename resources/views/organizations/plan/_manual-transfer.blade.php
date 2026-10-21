@@ -75,13 +75,13 @@
     </div>
 
     <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
-        <a href="https://wa.me/{{ config('billing.manual_transfer.whatsapp') }}?text={{ urlencode('Halo, saya sudah membayar paket '.$pendingRequest->requestedPlan->name.' ('.$pendingRequest->duration_months.' bulan) sebesar Rp '.number_format($pendingRequest->gatewayAmount(), 0, ',', '.').' untuk organisasi '.$organization->name.'.') }}"
+        <a href="https://wa.me/{{ config('billing.manual_transfer.whatsapp') }}?text={{ urlencode('Halo, saya sudah membayar paket Infak '.$pendingRequest->requestedPlan->name.' ('.$pendingRequest->duration_months.' bulan) sebesar Rp '.number_format($pendingRequest->gatewayAmount(), 0, ',', '.').' untuk organisasi '.$organization->name.'.') }}"
            target="_blank" rel="noopener"
            class="flex-1 text-center px-5 py-2.5 rounded-full bg-secondary hover:bg-green-700 text-white text-xs font-bold transition-colors">
             Konfirmasi via WhatsApp
         </a>
         <form action="{{ route('organizations.plan.confirm-manual-payment', [$organization, $pendingRequest]) }}" method="POST" class="flex-1"
-              x-data @submit.prevent="if (await confirmAction('Konfirmasi bahwa Anda sudah melakukan pembayaran? Paket aktif setelah admin memverifikasi.', { danger: false })) $el.submit()">
+              x-data @submit.prevent="if (await confirmAction('Konfirmasi bahwa Anda sudah melakukan pembayaran? Paket Infak aktif setelah admin memverifikasi.', { danger: false })) $el.submit()">
             @csrf
             <button type="submit" class="w-full px-5 py-2.5 rounded-full bg-white border border-amber-300 text-amber-800 text-xs font-bold hover:bg-amber-50 transition-colors">
                 Saya Sudah Bayar

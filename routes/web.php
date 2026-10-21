@@ -45,7 +45,6 @@ use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TemplatePreviewController;
 use App\Http\Controllers\TemplateUseController;
 use App\Models\Article;
-use App\Models\Plan;
 use App\Models\Template;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -65,17 +64,12 @@ Route::get('/', function () {
         ->orderBy('name')
         ->get();
 
-    $plans = Plan::with('limits')
-        ->where('is_active', true)
-        ->orderBy('price_monthly')
-        ->get();
-
     $articles = Article::published()
         ->orderByDesc('published_at')
         ->take(4)
         ->get();
 
-    return view('welcome', ['templates' => $templates, 'plans' => $plans, 'articles' => $articles]);
+    return view('welcome', ['templates' => $templates, 'articles' => $articles]);
 })->name('home');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');

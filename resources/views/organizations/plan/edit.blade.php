@@ -1,6 +1,6 @@
 @extends('layouts.organization')
 
-@section('title', 'Langganan - '.$organization->name.' - Website-mu')
+@section('title', 'Infak Rutin - '.$organization->name.' - Website-mu')
 
 @section('content')
     @php
@@ -50,15 +50,15 @@
         </a>
 
         <div class="mb-8">
-            <span class="text-primary font-bold tracking-wider uppercase text-xs bg-blue-50 px-3 py-1 rounded-full">Langganan</span>
-            <h1 class="text-3xl font-extrabold text-gray-900 mt-3">Kelola Paket {{ $organization->name }}</h1>
-            <p class="text-sm text-gray-500 mt-1">Pantau pemakaian kuota dan pilih paket yang paling sesuai kebutuhan organisasi.</p>
+            <span class="text-primary font-bold tracking-wider uppercase text-xs bg-blue-50 px-3 py-1 rounded-full">Infak Rutin</span>
+            <h1 class="text-3xl font-extrabold text-gray-900 mt-3">Kelola Paket Infak {{ $organization->name }}</h1>
+            <p class="text-sm text-gray-500 mt-1">Pantau pemakaian kuota dan pilih paket Infak yang paling sesuai kebutuhan organisasi.</p>
         </div>
 
         @php
             // Read once here, reused below to badge the Eksklusif card specifically - see that
             // card's own comment for why this stops short of auto-selecting it.
-            $needsExclusivePlan = collect($planViolations)->contains(fn (string $v) => str_contains($v, 'memerlukan paket Eksklusif'));
+            $needsExclusivePlan = collect($planViolations)->contains(fn (string $v) => str_contains($v, 'memerlukan paket Infak Eksklusif'));
         @endphp
 
         {{-- "Why can't I publish" panel - tied to the real, current state (planViolations()),
@@ -87,13 +87,13 @@
                         @if ($needsExclusivePlan)
                             <p class="text-sm text-red-700 mt-3 leading-relaxed">
                                 Template atau widget yang Anda pakai bersifat eksklusif - bisa terus dirancang di
-                                paket apa pun, tapi baru bisa dipublikasikan setelah berlangganan paket
+                                paket Infak apa pun, tapi baru bisa dipublikasikan setelah memilih paket Infak
                                 <span class="font-semibold">Eksklusif</span>.
                             </p>
                             {{-- Points at the card, doesn't pick it for them - see
                                  $needsExclusivePlan's own comment above for why. --}}
                             <a href="#pricing-cards" class="inline-flex items-center gap-1 text-sm font-semibold text-red-800 hover:text-red-900 hover:underline mt-3">
-                                Lihat paket Eksklusif
+                                Lihat paket Infak Eksklusif
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
                                 </svg>
@@ -108,7 +108,7 @@
         <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-soft border border-gray-100 p-5 sm:p-6 md:p-8 mb-6 sm:mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
                 <div class="min-w-0">
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Paket Aktif</p>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Paket Infak Aktif</p>
                     <p class="text-lg sm:text-xl font-extrabold text-gradient truncate">{{ $organization->plan?->name ?? 'Belum Diatur' }}</p>
                 </div>
                 @if ($organization->plan)
@@ -196,9 +196,9 @@
                 <div>
                     <p class="font-bold text-blue-900">Pembayaran Diterima, Sedang Diproses</p>
                     <p class="text-sm text-blue-700 mt-1 leading-relaxed">
-                        Pembayaran Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                        Pembayaran Anda untuk paket Infak <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
                         ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->totalPrice(), 0, ',', '.') }})
-                        sudah kami terima. Paket akan aktif sebentar lagi &mdash; tim kami sedang menyelesaikan prosesnya.
+                        sudah kami terima. Paket Infak akan aktif sebentar lagi &mdash; tim kami sedang menyelesaikan prosesnya.
                     </p>
                 </div>
             </div>
@@ -213,10 +213,10 @@
                 <div>
                     <p class="font-bold text-blue-900">Menunggu Verifikasi Pembayaran</p>
                     <p class="text-sm text-blue-700 mt-1 leading-relaxed">
-                        Konfirmasi pembayaran Anda untuk paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                        Konfirmasi pembayaran Anda untuk paket Infak <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
                         ({{ $pendingRequest->duration_months }} bulan &mdash; Rp {{ number_format($pendingRequest->gatewayAmount(), 0, ',', '.') }})
                         sudah kami terima pada {{ $pendingRequest->payment_confirmed_at?->translatedFormat('d M Y, H:i') }}.
-                        Tim kami akan memverifikasi dan mengaktifkan paket Anda.
+                        Tim kami akan memverifikasi dan mengaktifkan paket Infak Anda.
                     </p>
                     @if (config('billing.manual_transfer.whatsapp'))
                         <a href="https://wa.me/{{ config('billing.manual_transfer.whatsapp') }}"
@@ -239,12 +239,12 @@
                     <div>
                         <p class="font-bold text-amber-900">Selesaikan Pembayaran</p>
                         <p class="text-sm text-amber-700 mt-1 leading-relaxed">
-                            Permintaan pindah ke paket <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
+                            Permintaan pindah ke paket Infak <span class="font-semibold">{{ $pendingRequest->requestedPlan->name }}</span>
                             ({{ $pendingRequest->duration_months }} bulan) telah dibuat.
                             @if (config('billing.manual_transfer.only'))
-                                Selesaikan pembayaran melalui QRIS atau transfer bank untuk mengaktifkan paket.
+                                Selesaikan pembayaran melalui QRIS atau transfer bank untuk mengaktifkan paket Infak.
                             @else
-                                Lanjutkan pembayaran melalui Midtrans untuk mengaktifkan paket.
+                                Lanjutkan pembayaran melalui Midtrans untuk mengaktifkan paket Infak.
                             @endif
                         </p>
                     </div>
@@ -303,11 +303,11 @@
                      lose by letting the tenant back out and pick a different plan. --}}
                 <form action="{{ route('organizations.plan.cancel', [$organization, $pendingRequest]) }}" method="POST"
                       class="mt-5 pt-5 border-t border-amber-200/70"
-                      x-data @submit.prevent="if (await confirmAction('Batalkan permintaan ini? Anda bisa memilih paket lain setelahnya.', { confirmLabel: 'Ya, Batalkan' })) $el.submit()">
+                      x-data @submit.prevent="if (await confirmAction('Batalkan permintaan ini? Anda bisa memilih paket Infak lain setelahnya.', { confirmLabel: 'Ya, Batalkan' })) $el.submit()">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors">
-                        Batalkan &amp; pilih paket lain
+                        Batalkan &amp; pilih paket Infak lain
                     </button>
                 </form>
             </div>
@@ -443,7 +443,7 @@
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                         </svg>
-                                        Paket yang Anda butuhkan
+                                        Paket Infak yang Anda butuhkan
                                     </span>
                                 @elseif ($isFeatured)
                                     <span class="text-xs font-bold text-amber-200">✦ Rekomendasi</span>
@@ -506,7 +506,7 @@
                                 </span>
                                 <span class="text-sm font-bold" :class="selected === {{ $plan->id }} ? '{{ $isFeatured ? 'text-white' : 'text-primary' }}' : '{{ $isFeatured ? 'text-white/80 font-semibold' : 'text-gray-500 font-semibold' }}'">
                                     <span x-show="selected === {{ $plan->id }}" x-cloak>✓ Terpilih</span>
-                                    <span x-show="selected !== {{ $plan->id }}">Pilih paket ini</span>
+                                    <span x-show="selected !== {{ $plan->id }}">Pilih paket Infak ini</span>
                                 </span>
                             </div>
                         </label>
@@ -523,7 +523,7 @@
                 {{-- Duration + voucher + live total, shown after the plan is picked so the
                      summary always reflects a concrete plan rather than an empty placeholder. --}}
                 <div class="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-soft border border-gray-100 p-5 sm:p-6 md:p-8 mt-6 sm:mt-8">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">Durasi Langganan</p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">Durasi Infak</p>
                     <div class="grid grid-cols-3 gap-2 sm:gap-3">
                         @foreach ([3, 6, 12] as $months)
                             <label
@@ -557,7 +557,7 @@
                                 <span x-show="applyingDiscount" x-cloak>Memeriksa&hellip;</span>
                             </button>
                         </div>
-                        <p x-show="!selected" class="text-xs text-gray-400 mt-1.5">Pilih paket terlebih dahulu untuk menerapkan voucher.</p>
+                        <p x-show="!selected" class="text-xs text-gray-400 mt-1.5">Pilih paket Infak terlebih dahulu untuk menerapkan voucher.</p>
                         <template x-if="appliedDiscount">
                             <p class="text-xs text-secondary font-semibold mt-1.5">
                                 Voucher "<span x-text="appliedDiscount.code"></span>" diterapkan &mdash; hemat <span x-text="formatRupiah(appliedDiscount.amount)"></span>.
@@ -602,9 +602,9 @@
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-6 sm:mt-8 bg-gray-50 rounded-2xl px-5 sm:px-6 py-4">
                     <p class="text-xs text-gray-500 text-center sm:text-left">
                         @if (config('billing.manual_transfer.only'))
-                            Pembayaran dilakukan via QRIS atau transfer bank. Instruksi pembayaran muncul setelah permintaan dibuat, dan paket aktif setelah admin memverifikasi.
+                            Pembayaran dilakukan via QRIS atau transfer bank. Instruksi pembayaran muncul setelah permintaan dibuat, dan paket Infak aktif setelah admin memverifikasi.
                         @else
-                            Anda akan diarahkan ke Midtrans untuk menyelesaikan pembayaran. Paket aktif otomatis setelah pembayaran berhasil.
+                            Anda akan diarahkan ke Midtrans untuk menyelesaikan pembayaran. Paket Infak aktif otomatis setelah pembayaran berhasil.
                         @endif
                     </p>
                     <div class="flex items-center gap-3 shrink-0">
@@ -631,14 +631,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                         </div>
-                        <h3 class="font-bold text-gray-800 mb-1">Konfirmasi Perubahan Paket</h3>
+                        <h3 class="font-bold text-gray-800 mb-1">Konfirmasi Perubahan Paket Infak</h3>
                         <template x-if="selected">
                             <div class="text-sm text-gray-500 mb-6 text-left space-y-3">
                                 <p>
                                     @if (config('billing.manual_transfer.only'))
-                                        Anda akan mendapat instruksi pembayaran manual untuk paket
+                                        Anda akan mendapat instruksi pembayaran manual untuk paket Infak
                                     @else
-                                        Anda akan diarahkan ke Midtrans untuk membayar paket
+                                        Anda akan diarahkan ke Midtrans untuk membayar paket Infak
                                     @endif
                                     <span class="font-semibold text-gray-800" x-text="plans[selected]?.name"></span>
                                     selama <span class="font-semibold text-gray-800" x-text="duration"></span> bulan.
@@ -671,9 +671,9 @@
                                 </div>
                                 <p class="text-xs">
                                     @if (config('billing.manual_transfer.only'))
-                                        Paket aktif setelah admin memverifikasi pembayaran Anda.
+                                        Paket Infak aktif setelah admin memverifikasi pembayaran Anda.
                                     @else
-                                        Paket aktif otomatis begitu Midtrans mengonfirmasi pembayaran berhasil.
+                                        Paket Infak aktif otomatis begitu Midtrans mengonfirmasi pembayaran berhasil.
                                     @endif
                                 </p>
                             </div>

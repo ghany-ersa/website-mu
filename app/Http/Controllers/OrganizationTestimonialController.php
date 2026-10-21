@@ -19,7 +19,7 @@ class OrganizationTestimonialController extends Controller
 {
     use BuilderAware;
 
-    private const LIMIT_REACHED = 'Batas jumlah testimoni paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.';
+    private const LIMIT_REACHED = 'Batas jumlah testimoni paket Infak Anda sudah tercapai. Tingkatkan paket Infak untuk menambah lagi.';
 
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 

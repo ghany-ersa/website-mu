@@ -75,7 +75,7 @@ class PlanController extends Controller
 
         return redirect()
             ->route('admin.plans.edit', $plan)
-            ->with('status', 'Paket berhasil dibuat.');
+            ->with('status', 'Paket Infak berhasil dibuat.');
     }
 
     /**
@@ -104,7 +104,7 @@ class PlanController extends Controller
 
         return redirect()
             ->route('admin.plans.edit', $plan)
-            ->with('status', 'Paket berhasil disimpan.');
+            ->with('status', 'Paket Infak berhasil disimpan.');
     }
 
     /**
@@ -112,13 +112,13 @@ class PlanController extends Controller
      */
     public function destroy(Plan $plan): RedirectResponse
     {
-        abort_if($plan->organizations()->exists(), 409, 'Paket ini masih dipakai organisasi - pindahkan mereka ke paket lain sebelum menghapus.');
+        abort_if($plan->organizations()->exists(), 409, 'Paket Infak ini masih dipakai organisasi - pindahkan mereka ke paket Infak lain sebelum menghapus.');
 
         $plan->delete();
 
         return redirect()
             ->route('admin.plans.index')
-            ->with('status', 'Paket berhasil dihapus.');
+            ->with('status', 'Paket Infak berhasil dihapus.');
     }
 
     /**

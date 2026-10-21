@@ -37,7 +37,7 @@ class OrganizationAchievementController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'achievements')) {
             return redirect()
                 ->route('organizations.achievements.index', $organization)
-                ->with('warning', 'Batas jumlah prestasi paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah prestasi paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         return view('organizations.achievements.form', [
@@ -56,7 +56,7 @@ class OrganizationAchievementController extends Controller
         if (! $this->planLimitService->canCreate($organization, 'achievements')) {
             return redirect()
                 ->route('organizations.achievements.index', $organization)
-                ->with('warning', 'Batas jumlah prestasi paket Anda sudah tercapai. Upgrade paket untuk menambah lagi.');
+                ->with('warning', 'Batas jumlah prestasi paket Anda sudah tercapai. Tingkatkan paket infak untuk menambah lagi.');
         }
 
         [$validated, $studentIds] = $this->validated($request, $organization);

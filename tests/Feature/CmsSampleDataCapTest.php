@@ -96,7 +96,7 @@ class CmsSampleDataCapTest extends TestCase
         $quotaViolations = array_values(array_filter(
             $organization->planViolations(),
             fn (string $violation) => ! str_contains($violation, 'Pembayaran')
-                && ! str_contains($violation, 'memerlukan paket Eksklusif')
+                && ! str_contains($violation, 'memerlukan paket Infak Eksklusif')
                 && ! str_contains($violation, 'Halaman melebihi'),
         ));
 

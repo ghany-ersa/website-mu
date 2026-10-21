@@ -99,7 +99,7 @@ class OrganizationCreateFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Template Standar')
             ->assertSee('Template Eksklusif')
-            ->assertSee('Perlu paket Eksklusif untuk publikasi', false);
+            ->assertSee('Perlu paket Infak Eksklusif untuk publikasi', false);
     }
 
     public function test_picker_hides_inactive_and_typeless_templates(): void
