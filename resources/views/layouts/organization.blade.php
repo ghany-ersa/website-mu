@@ -231,6 +231,8 @@
     </aside>
 
     <main class="flex-1 min-w-0 px-4 sm:px-6 py-10">
+        @include('partials.whatsapp-reminder')
+
         @if (session('status'))
             <div class="mb-6 rounded-lg bg-secondary/10 border border-secondary/30 text-secondary px-4 py-3 text-sm">
                 {{ session('status') }}

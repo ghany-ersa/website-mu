@@ -48,6 +48,10 @@
                             @if ($owner)
                                 <p>{{ $owner->name }}</p>
                                 <p class="text-xs text-gray-400">{{ $owner->email }}</p>
+                                @if ($owner->whatsapp)
+                                    <a href="https://wa.me/{{ $owner->whatsapp }}" target="_blank" rel="noopener"
+                                       class="text-xs text-secondary font-semibold hover:underline">WA +{{ $owner->whatsapp }}</a>
+                                @endif
                             @else
                                 -
                             @endif

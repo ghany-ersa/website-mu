@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\OrganizationType;
 use App\Models\Plan;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,18 +25,25 @@ class OrganizationController extends Controller
         $search = trim((string) request('q'));
         $typeId = request('organization_type_id');
 
+        // Lets CS paste the number a WhatsApp chat came from (08xx / +62 8xx) straight into the
+        // search box - users.whatsapp is stored normalized to 62xxx, so the raw paste wouldn't
+        // match. Gated on a phone-shaped query so a name like "SD 1" doesn't turn into a bare
+        // "1" that matches nearly every number.
+        $whatsappSearch = preg_match('/^[\d\s+\-]{6,}$/', $search) ? User::normalizeWhatsapp($search) : null;
+
         $organizations = Organization::query()
             ->excludingSandbox()
             ->with(['organizationType', 'members' => function ($query) {
                 $query->wherePivot('role', OrganizationRole::Owner->value);
             }])
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
+            ->when($search !== '', function ($query) use ($search, $whatsappSearch) {
+                $query->where(function ($query) use ($search, $whatsappSearch) {
                     $query->where('name', 'like', "%{$search}%")
                         ->orWhere('slug', 'like', "%{$search}%")
-                        ->orWhereHas('members', function ($query) use ($search) {
+                        ->orWhereHas('members', function ($query) use ($search, $whatsappSearch) {
                             $query->where('users.name', 'like', "%{$search}%")
-                                ->orWhere('users.email', 'like', "%{$search}%");
+                                ->orWhere('users.email', 'like', "%{$search}%")
+                                ->when($whatsappSearch, fn ($query) => $query->orWhere('users.whatsapp', 'like', "%{$whatsappSearch}%"));
                         });
                 });
             })

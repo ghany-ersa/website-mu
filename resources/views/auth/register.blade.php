@@ -22,6 +22,14 @@
                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
             </div>
 
+            <div>
+                <label for="whatsapp" class="block text-sm font-semibold text-gray-700 mb-1">Nomor WhatsApp</label>
+                <input type="tel" name="whatsapp" id="whatsapp" value="{{ old('whatsapp') }}" required
+                       inputmode="numeric" autocomplete="tel" placeholder="08xxxxxxxxxx"
+                       class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                <p class="text-xs text-gray-400 mt-1">Dipakai tim kami untuk membantu Anda, misalnya saat lupa kata sandi.</p>
+            </div>
+
             <div x-data="{ show: false }">
                 <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">Kata Sandi</label>
                 <div class="relative">

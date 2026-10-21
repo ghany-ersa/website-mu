@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AccountPasswordController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\ArticleImageController;
 use App\Http\Controllers\Admin\DiscountCodeController;
@@ -112,9 +112,11 @@ Route::middleware('auth')->group(function () {
     Route::post('onboarding-tours', [OnboardingTourController::class, 'store'])
         ->name('onboarding-tours.store');
 
-    Route::get('account/password', [AccountPasswordController::class, 'edit'])
-        ->name('account.password.edit');
-    Route::patch('account/password', [AccountPasswordController::class, 'update'])
+    Route::get('account', [AccountController::class, 'edit'])
+        ->name('account.edit');
+    Route::patch('account/whatsapp', [AccountController::class, 'updateWhatsapp'])
+        ->name('account.whatsapp.update');
+    Route::patch('account/password', [AccountController::class, 'updatePassword'])
         ->name('account.password.update');
 
     // Step 1 of organization creation (the template picker); the resource route's `create` below

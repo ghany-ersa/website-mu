@@ -48,6 +48,12 @@
                     <div class="min-w-0">
                         <p class="font-medium text-gray-800 text-sm truncate">{{ $member->name }}</p>
                         <p class="text-xs text-gray-400 truncate">{{ $member->email }}</p>
+                        @if ($member->whatsapp)
+                            <a href="https://wa.me/{{ $member->whatsapp }}" target="_blank" rel="noopener"
+                               class="text-xs text-secondary font-semibold hover:underline">WA +{{ $member->whatsapp }}</a>
+                        @else
+                            <p class="text-xs text-amber-600">Belum mengisi nomor WhatsApp</p>
+                        @endif
                     </div>
                     <form action="{{ route('admin.organizations.members.reset-password-link', [$organization, $member]) }}"
                           method="POST" class="shrink-0"
