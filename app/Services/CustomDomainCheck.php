@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\OrganizationDomain;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 /**
  * The admin's "Cek koneksi" for a custom domain: fetches
@@ -35,7 +36,9 @@ class CustomDomainCheck
 
         $domain->update([
             'last_check_ok' => $ok,
-            'last_check_result' => $message,
+            // Capped anyway: the resolved-IP list is unbounded in principle, and a check must
+            // never 500 on its own diagnostics (it did once, before the column became text).
+            'last_check_result' => Str::limit($message, 1000),
             'last_checked_at' => now(),
         ]);
 
