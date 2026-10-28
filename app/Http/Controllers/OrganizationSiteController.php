@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\OrganizationStatus;
 use App\Enums\PublishStatus;
+use App\Http\Middleware\ResolveTenantOrganization;
 use App\Models\Agenda;
 use App\Models\Announcement;
 use App\Models\DonationProgram;
 use App\Models\Organization;
 use App\Models\OrganizationPage;
 use App\Services\TenantPageCache;
+use App\Services\TenantUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -21,20 +21,20 @@ class OrganizationSiteController extends Controller
 {
     /**
      * Render an organization's published site at its subdomain. Unauthenticated and
-     * unauthorized by design - once Published, the site is public. The status filter
-     * lives in the lookup query itself so a Draft organization's subdomain 404s
-     * identically to one that was never claimed, instead of leaking its existence.
+     * unauthorized by design - once Published, the site is public. The published/sandbox
+     * gate runs before this action, in ResolveTenantOrganization (the 'tenant' middleware
+     * group), so a Draft organization's subdomain 404s identically to one never claimed.
      *
      * The rendered HTML itself is cached (see TenantPageCache) - unlike preview()/
      * previewDonationProgram(), which stay uncached so an owner editing the builder always
      * sees their latest save immediately. A cache lookup still costs the readonly-connection
-     * lookup in publishedOrganization() below to resolve the organization and its 404/draft
+     * lookup in ResolveTenantOrganization to resolve the organization and its 404/draft
      * gate; only the expensive part (loading pages/sections/CMS content and rendering every
      * section partial) is skipped on a hit.
      */
-    public function show(string $organization_slug): Response
+    public function show(Request $request): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $html = TenantPageCache::remember($organization, 'home', function () use ($organization) {
             $this->loadForRender($organization, ['pages.sections', 'limitOverrides', 'planChangeRequests']);
@@ -80,9 +80,9 @@ class OrganizationSiteController extends Controller
      * doc comment in the builder view for why per-page publish state was deliberately
      * removed) - any page belonging to a Published organization is public.
      */
-    public function showPage(string $organization_slug, string $page_slug): Response
+    public function showPage(Request $request, string $page_slug): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $html = TenantPageCache::remember($organization, "page:{$page_slug}", function () use ($organization, $page_slug) {
             $this->loadForRender($organization, ['pages.sections', 'limitOverrides', 'planChangeRequests']);
@@ -114,9 +114,9 @@ class OrganizationSiteController extends Controller
      * already has the answer to (see ringkas/standar.blade.php's matching comment for their own
      * initial-render use of the same trick).
      */
-    public function loadMoreBerita(Request $request, string $organization_slug): JsonResponse
+    public function loadMoreBerita(Request $request): JsonResponse
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $variant = $request->query('variant');
         abort_unless(in_array($variant, ['ringkas', 'standar'], true), 404);
@@ -135,9 +135,7 @@ class OrganizationSiteController extends Controller
                 'category' => $post->category,
                 'date' => $post->published_at?->translatedFormat('d M Y'),
                 'excerpt' => Str::limit(strip_tags($post->body), 140),
-                'url' => Route::has('tenant.posts.show')
-                    ? route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug])
-                    : '#',
+                'url' => TenantUrl::route($organization, 'tenant.posts.show', ['post_slug' => $post->slug]) ?? '#',
             ]);
 
         $hasMore = $items->count() > $limit;
@@ -167,9 +165,9 @@ class OrganizationSiteController extends Controller
      * `hasMore` comes from fetching one extra row (`take($limit + 1)`) instead of a separate
      * `count()` query, the same trick loadMoreBerita() uses - see that method's doc comment.
      */
-    public function loadMoreGaleri(Request $request, string $organization_slug): JsonResponse
+    public function loadMoreGaleri(Request $request): JsonResponse
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $offset = max(0, (int) $request->query('offset', 0));
         // Clamped the same way a builder-authored `limit` would be malformed into 0 elsewhere
@@ -209,9 +207,9 @@ class OrganizationSiteController extends Controller
         ]);
     }
 
-    public function post(string $organization_slug, string $post_slug): Response
+    public function post(Request $request, string $post_slug): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $html = TenantPageCache::remember($organization, "post:{$post_slug}", function () use ($organization, $post_slug) {
             $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages.sections']);
@@ -230,9 +228,9 @@ class OrganizationSiteController extends Controller
         return response($html);
     }
 
-    public function announcement(string $organization_slug, Announcement $announcement): Response
+    public function announcement(Request $request, Announcement $announcement): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         abort_unless($announcement->organization_id === $organization->id, 404);
         abort_unless($announcement->status === PublishStatus::Published, 404);
@@ -249,9 +247,9 @@ class OrganizationSiteController extends Controller
         return response($html);
     }
 
-    public function agenda(string $organization_slug, Agenda $agenda): Response
+    public function agenda(Request $request, Agenda $agenda): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         abort_unless($agenda->organization_id === $organization->id, 404);
         abort_unless($agenda->status === PublishStatus::Published, 404);
@@ -277,9 +275,9 @@ class OrganizationSiteController extends Controller
      * organization only creates one when it wants to collect for it, so belonging to this
      * published organization is the whole gate.
      */
-    public function donationProgram(string $organization_slug, string $program_slug): Response
+    public function donationProgram(Request $request, string $program_slug): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $html = TenantPageCache::remember($organization, "donation:{$program_slug}", function () use ($organization, $program_slug) {
             $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages']);
@@ -303,9 +301,9 @@ class OrganizationSiteController extends Controller
      * Inactive pupils 404 rather than rendering, so hiding one from the CMS also takes its
      * profile page down.
      */
-    public function student(string $organization_slug, string $student_slug): Response
+    public function student(Request $request, string $student_slug): Response
     {
-        $organization = $this->publishedOrganization($organization_slug);
+        $organization = ResolveTenantOrganization::from($request);
 
         $html = TenantPageCache::remember($organization, "student:{$student_slug}", function () use ($organization, $student_slug) {
             $this->loadForRender($organization, ['limitOverrides', 'planChangeRequests', 'pages']);
@@ -326,26 +324,8 @@ class OrganizationSiteController extends Controller
     }
 
     /**
-     * Shared published-organization lookup - status filter lives here so an
-     * unpublished organization's subdomain/detail pages 404 identically to
-     * one that was never claimed, instead of leaking its existence.
-     *
-     * Deliberately minimal (no eager loading): every caller needs this row just to resolve the
-     * slug and check the published gate before even touching TenantPageCache, so on a cache
-     * hit nothing else about the organization is used at all. See loadForRender() for the
-     * heavier eager-loading, done only inside a cache-miss closure.
-     */
-    private function publishedOrganization(string $organization_slug): Organization
-    {
-        return Organization::excludingSandbox()
-            ->where('slug', $organization_slug)
-            ->where('status', OrganizationStatus::Published)
-            ->firstOrFail();
-    }
-
-    /**
      * Eager-loads what rendering (as opposed to just resolving) an organization's tenant page
-     * needs, run only on a TenantPageCache cache miss - see publishedOrganization()'s doc
+     * needs, run only on a TenantPageCache cache miss - see ResolveTenantOrganization's doc
      * comment for why that lookup itself stays bare.
      *
      * 'plan.limits' lets PlanLimitService::effectiveLimitForFreshOrganization() (used by

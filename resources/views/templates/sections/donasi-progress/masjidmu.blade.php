@@ -34,8 +34,7 @@
                 'url' => match (true) {
                     request()->routeIs('templates.preview*') => route('templates.preview.donation', ['template' => $organization->template, 'program_slug' => $program->slug]),
                     request()->routeIs('organizations.preview*', 'organizations.builder*') => route('organizations.preview.donation', ['organization' => $organization, 'program' => $program]),
-                    \Illuminate\Support\Facades\Route::has('tenant.donations.show') => route('tenant.donations.show', ['organization_slug' => $organization->slug, 'program_slug' => $program->slug]),
-                    default => null,
+                    default => \App\Services\TenantUrl::route($organization, 'tenant.donations.show', ['program_slug' => $program->slug]),
                 },
             ])
         : ($content['items'] ?? [

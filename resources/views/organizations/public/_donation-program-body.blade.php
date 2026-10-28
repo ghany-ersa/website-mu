@@ -38,8 +38,8 @@
     if (request()->routeIs('templates.preview*')) {
         // Template-catalog preview (TemplatePreviewController) - stay inside that flow rather
         // than bouncing onto organizations.preview (owner-only, 403s for this public route) or
-        // the tenant subdomain (sandbox orgs are never published, so publishedOrganization()
-        // would 404 it anyway - see OrganizationSiteController::publishedOrganization()).
+        // the tenant subdomain (sandbox orgs are never published, so ResolveTenantOrganization
+        // would 404 it anyway).
         $backHref = $donationsPage
             ? route('templates.preview', ['template' => $organization->template, 'page' => $donationsPage->slug])
             : route('templates.preview', $organization->template);
@@ -50,11 +50,9 @@
             ? route('organizations.preview.page', ['organization' => $organization, 'page' => $donationsPage->slug])
             : route('organizations.preview', $organization);
     } else {
-        $backHref = $donationsPage && \Illuminate\Support\Facades\Route::has('tenant.pages.show')
-            ? route('tenant.pages.show', ['organization_slug' => $organization->slug, 'page_slug' => $donationsPage->slug])
-            : (\Illuminate\Support\Facades\Route::has('tenant.home')
-                ? route('tenant.home', ['organization_slug' => $organization->slug])
-                : '#');
+        $backHref = ($donationsPage
+            ? \App\Services\TenantUrl::route($organization, 'tenant.pages.show', ['page_slug' => $donationsPage->slug])
+            : \App\Services\TenantUrl::route($organization, 'tenant.home')) ?? '#';
     }
     $backLabel = $donationsPage ? 'Kembali ke Program Donasi' : 'Kembali ke beranda';
 @endphp

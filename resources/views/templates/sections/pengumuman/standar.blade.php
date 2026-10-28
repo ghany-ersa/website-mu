@@ -13,9 +13,7 @@
             'title' => $announcement->title,
             'priority' => $announcement->priority,
             'valid_until' => $announcement->valid_until?->translatedFormat('d M Y'),
-            'url' => \Illuminate\Support\Facades\Route::has('tenant.announcements.show')
-                ? route('tenant.announcements.show', ['organization_slug' => $organization->slug, 'announcement' => $announcement->id])
-                : '#',
+            'url' => \App\Services\TenantUrl::route($organization, 'tenant.announcements.show', ['announcement' => $announcement->id]) ?? '#',
         ])
         // array_fill's placeholder-card count only needs a number when there's neither a real
         // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's

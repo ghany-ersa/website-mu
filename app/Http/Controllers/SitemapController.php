@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\OrganizationStatus;
 use App\Models\Organization;
+use App\Services\TenantUrl;
 use Illuminate\Http\Response;
 
 class SitemapController extends Controller
@@ -20,10 +21,10 @@ class SitemapController extends Controller
             ])
         );
 
-        if ($tenantDomain = config('tenancy.domain')) {
+        if (config('tenancy.domain')) {
             $urls = $urls->merge(
                 Organization::excludingSandbox()->where('status', OrganizationStatus::Published)->get()->map(fn (Organization $organization) => [
-                    'loc' => "https://{$organization->slug}.{$tenantDomain}/",
+                    'loc' => 'https://'.TenantUrl::host($organization).'/',
                     'priority' => '0.8',
                     'changefreq' => 'weekly',
                 ])

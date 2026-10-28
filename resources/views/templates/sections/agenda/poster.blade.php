@@ -28,8 +28,7 @@
             'time' => $agenda->starts_at->format('H:i'),
             'url' => match (true) {
                 request()->routeIs('templates.preview*') => route('templates.preview.agenda', ['template' => $organization->template, 'agenda' => $agenda->id]),
-                \Illuminate\Support\Facades\Route::has('tenant.agendas.show') => route('tenant.agendas.show', ['organization_slug' => $organization->slug, 'agenda' => $agenda->id]),
-                default => null,
+                default => \App\Services\TenantUrl::route($organization, 'tenant.agendas.show', ['agenda' => $agenda->id]),
             },
         ])
         : ($content['items'] ?? [

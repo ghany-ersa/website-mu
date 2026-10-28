@@ -325,7 +325,8 @@ require __DIR__.'/auth.php';
 // Public tenant sites, served at {slug}.{tenancy.domain} (e.g. pcm-ambulu.website-mu.id).
 // Guarded so the route is never *registered* - not just non-matching - when TENANT_DOMAIN
 // is unset, which keeps local `php artisan serve` (no wildcard subdomain to route) behaving
-// exactly like today with zero special-casing. See OrganizationSiteController for the lookup.
+// exactly like today with zero special-casing. The paths themselves live in routes/tenant.php;
+// the organization is resolved by ResolveTenantOrganization (in the 'tenant' group).
 if ($tenantDomain = config('tenancy.domain')) {
     // www.{domain} would otherwise fall into the {organization_slug} group below as an org named
     // "www" (reserved, so it never exists) and 404 every URL - including sitemap.xml, which made
@@ -362,18 +363,5 @@ if ($tenantDomain = config('tenancy.domain')) {
         StartSession::class,
         ShareErrorsFromSession::class,
         PreventRequestForgery::class,
-    ])->middleware('tenant')->group(function () {
-        Route::get('/', [OrganizationSiteController::class, 'show'])->name('tenant.home');
-        Route::get('/berita-lebih-banyak', [OrganizationSiteController::class, 'loadMoreBerita'])->name('tenant.posts.load-more');
-        Route::get('/galeri-lebih-banyak', [OrganizationSiteController::class, 'loadMoreGaleri'])->name('tenant.galleries.load-more');
-        Route::get('/berita/{post_slug}', [OrganizationSiteController::class, 'post'])->name('tenant.posts.show');
-        Route::get('/pengumuman/{announcement}', [OrganizationSiteController::class, 'announcement'])->name('tenant.announcements.show');
-        Route::get('/agenda/{agenda}', [OrganizationSiteController::class, 'agenda'])->name('tenant.agendas.show');
-        Route::get('/donasi/{program_slug}', [OrganizationSiteController::class, 'donationProgram'])->name('tenant.donations.show');
-        Route::get('/siswa/{student_slug}', [OrganizationSiteController::class, 'student'])->name('tenant.students.show');
-
-        // Catch-all for any other builder page (e.g. /donasi, /laporan-keuangan) - must stay
-        // last in this group so it never shadows the specific routes above.
-        Route::get('/{page_slug}', [OrganizationSiteController::class, 'showPage'])->name('tenant.pages.show');
-    });
+    ])->middleware('tenant')->group(base_path('routes/tenant.php'));
 }

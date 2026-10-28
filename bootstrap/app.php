@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\ResolveTenantOrganization;
 use App\Http\Middleware\SetSecurityHeaders;
 use App\Http\Middleware\UseReadOnlyConnection;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -28,11 +29,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // also rules out ever giving that path a SELECT-only DB user. This group keeps
         // just cookie decryption (so shared cookies from the main domain don't error)
         // and route-model binding, then UseReadOnlyConnection swaps the DB connection.
+        // ResolveTenantOrganization comes last so its lookup already runs read-only.
         $middleware->group('tenant', [
             EncryptCookies::class,
             SubstituteBindings::class,
             SetSecurityHeaders::class,
             UseReadOnlyConnection::class,
+            ResolveTenantOrganization::class,
         ]);
 
         $middleware->append(SetSecurityHeaders::class);

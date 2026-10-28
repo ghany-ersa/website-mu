@@ -64,7 +64,7 @@
             this.loading = true;
             try {
                 @if (isset($organization))
-                    const url = new URL(@js(route('tenant.galleries.load-more', ['organization_slug' => $organization->slug])));
+                    const url = new URL(@js(\App\Services\TenantUrl::route($organization, 'tenant.galleries.load-more')));
                     url.searchParams.set('offset', this.offset);
                     url.searchParams.set('limit', @js($limit));
                     const response = await fetch(url);

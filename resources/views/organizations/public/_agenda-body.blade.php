@@ -1,6 +1,6 @@
 @php
     // See _donation-program-body.blade.php's matching comment for why this isn't just
-    // route('tenant.home', ...) unconditionally - that only resolves a real, published,
+    // TenantUrl::route(..., 'tenant.home') unconditionally - that only resolves a real, published,
     // non-sandbox organization's subdomain, which 404s (or isn't even registered) for both the
     // owner-preview and template-catalog-preview contexts this partial also renders in.
     if (request()->routeIs('templates.preview*')) {
@@ -8,9 +8,7 @@
     } elseif (request()->routeIs('organizations.preview*')) {
         $backHref = route('organizations.preview', $organization);
     } else {
-        $backHref = \Illuminate\Support\Facades\Route::has('tenant.home')
-            ? route('tenant.home', ['organization_slug' => $organization->slug])
-            : '#';
+        $backHref = \App\Services\TenantUrl::route($organization, 'tenant.home') ?? '#';
     }
 @endphp
 <article class="py-16 bg-softBg">

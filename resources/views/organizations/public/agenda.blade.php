@@ -19,10 +19,7 @@
     // organization's subdomain.
     $agendaUrl = request()->routeIs('templates.preview*')
         ? route('templates.preview.agenda', ['template' => $organization->template, 'agenda' => $agenda->id])
-        : route('tenant.agendas.show', [
-            'organization_slug' => $organization->slug,
-            'agenda' => $agenda->id,
-        ]);
+        : \App\Services\TenantUrl::route($organization, 'tenant.agendas.show', ['agenda' => $agenda->id]);
 @endphp
 @include('organizations.pages._document', [
     'organization' => $organization,

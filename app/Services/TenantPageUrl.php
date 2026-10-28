@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Organization;
 use App\Models\OrganizationPage;
-use Illuminate\Support\Facades\Route;
 
 /**
  * Resolves the URL of one of an organization's builder pages, for links rendered inside
@@ -12,7 +11,8 @@ use Illuminate\Support\Facades\Route;
  *
  * The same partial renders in three contexts and each needs a different URL:
  *
- *  - Public tenant site: the page's own subdomain URL (tenant.home / tenant.pages.show).
+ *  - Public tenant site: the page's own tenant URL (tenant.home / tenant.pages.show), built
+ *    through TenantUrl so it follows whichever host the organization is served on.
  *  - Owner preview / builder on the main app domain: the equivalent preview route, because
  *    wildcard subdomains aren't routable under `php artisan serve`, so a tenant URL would be
  *    a dead link for anyone checking their site locally.
@@ -32,13 +32,9 @@ class TenantPageUrl
                 : route('organizations.preview.page', ['organization' => $organization, 'page' => $page->slug]);
         }
 
-        if (! Route::has('tenant.home')) {
-            return null;
-        }
-
         return $page->is_home
-            ? route('tenant.home', ['organization_slug' => $organization->slug])
-            : route('tenant.pages.show', ['organization_slug' => $organization->slug, 'page_slug' => $page->slug]);
+            ? TenantUrl::route($organization, 'tenant.home')
+            : TenantUrl::route($organization, 'tenant.pages.show', ['page_slug' => $page->slug]);
     }
 
     /**
@@ -49,13 +45,10 @@ class TenantPageUrl
      */
     public static function student(?Organization $organization, string $slug): ?string
     {
-        if (! $organization || ! $organization->exists || ! Route::has('tenant.students.show')) {
+        if (! $organization || ! $organization->exists) {
             return null;
         }
 
-        return route('tenant.students.show', [
-            'organization_slug' => $organization->slug,
-            'student_slug' => $slug,
-        ]);
+        return TenantUrl::route($organization, 'tenant.students.show', ['student_slug' => $slug]);
     }
 }

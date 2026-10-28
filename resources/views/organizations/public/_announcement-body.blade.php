@@ -8,7 +8,7 @@
 
 <article class="py-16">
     <div class="max-w-3xl mx-auto px-6">
-        <a href="{{ route('tenant.home', ['organization_slug' => $organization->slug]) }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
+        <a href="{{ \App\Services\TenantUrl::route($organization, 'tenant.home') ?? '#' }}" class="text-sm text-secondary font-semibold hover:underline">&larr; Kembali ke beranda</a>
 
         <div class="border-l-4 {{ $priorityColor }} rounded-r-xl p-6 mt-6">
             <h1 class="text-2xl font-extrabold text-primary mb-2">{{ $announcement->title }}</h1>

@@ -26,8 +26,7 @@
             'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->body), 140),
             'url' => match (true) {
                 request()->routeIs('templates.preview*') => route('templates.preview.post', ['template' => $organization->template, 'post_slug' => $post->slug]),
-                \Illuminate\Support\Facades\Route::has('tenant.posts.show') => route('tenant.posts.show', ['organization_slug' => $organization->slug, 'post_slug' => $post->slug]),
-                default => '#',
+                default => \App\Services\TenantUrl::route($organization, 'tenant.posts.show', ['post_slug' => $post->slug]) ?? '#',
             },
         ])
         // array_fill's placeholder-card count only needs a number when there's neither a real
