@@ -1500,7 +1500,12 @@
                 state.saving = false;
 
                 if (!res.ok) {
-                    alert('Gagal menyimpan perubahan. Coba lagi.');
+                    // A 422 carries the field's own message (e.g. an unrecognised Google Maps
+                    // link) - showing it tells the tenant what to fix instead of "try again".
+                    const body = await res.json().catch(() => null);
+                    alert(body?.errors
+                        ? Object.values(body.errors).flat().join(' ')
+                        : 'Gagal menyimpan perubahan. Coba lagi.');
                     return;
                 }
 

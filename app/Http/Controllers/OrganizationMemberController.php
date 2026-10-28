@@ -31,7 +31,10 @@ class OrganizationMemberController extends Controller
 
         $organization->members()->attach($member, ['role' => OrganizationRole::Editor->value]);
 
-        return back()->with('status', "{$member->name} ditambahkan sebagai ".OrganizationRole::Editor->label().'.');
+        // Echoes the email the owner typed, not the account's name: anyone can create an
+        // organization and become its owner, so naming the account here would let them look
+        // up the real name behind any registered email address.
+        return back()->with('status', "{$validated['email']} ditambahkan sebagai ".OrganizationRole::Editor->label().'.');
     }
 
     /**

@@ -1,4 +1,10 @@
-@php $content = $section['content'] ?? []; @endphp
+@php
+    $content = $section['content'] ?? [];
+    // Re-checked at render time, not just on save: an <iframe src="javascript:..."> runs on
+    // load in this page's origin, and rows saved before the save-time check existed may still
+    // hold one. Anything but a Google Maps embed URL falls back to the placeholder below.
+    $mapEmbed = \App\Services\SafeUrl::mapEmbed($content['map_embed'] ?? null);
+@endphp
 
 <section class="py-16">
     <div class="max-w-6xl mx-auto px-6">
@@ -10,9 +16,9 @@
         @else
             <div class="mb-8"></div>
         @endif
-        @if (! empty($content['map_embed']))
+        @if ($mapEmbed)
             <div class="reveal aspect-[21/9] rounded-brand overflow-hidden" style="transition-delay: 120ms">
-                <iframe src="{{ $content['map_embed'] }}" class="w-full h-full border-0" loading="lazy"
+                <iframe src="{{ $mapEmbed }}" class="w-full h-full border-0" loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
             </div>
         @else

@@ -60,6 +60,31 @@ class DiscountCode extends Model
     }
 
     /**
+     * Atomically takes one use of this code, returning false if the cap was already reached.
+     *
+     * A single conditional UPDATE instead of isUsable() followed by increment(): between that
+     * check and that write, concurrent checkouts could each still see a free slot and all
+     * redeem it - so a code capped at N uses (a 100% one especially, since a fully discounted
+     * request is approved without payment) could be redeemed more than N times.
+     */
+    public function claimUse(): bool
+    {
+        return static::whereKey($this->getKey())
+            ->where(fn ($query) => $query->whereNull('max_uses')->orWhereColumn('used_count', '<', 'max_uses'))
+            ->increment('used_count') === 1;
+    }
+
+    /**
+     * Gives back a use claimed by a request that never got paid for (cancelled, rejected,
+     * expired) - otherwise an owner could exhaust a limited code for everyone else just by
+     * creating and cancelling requests.
+     */
+    public function releaseUse(): void
+    {
+        static::whereKey($this->getKey())->where('used_count', '>', 0)->decrement('used_count');
+    }
+
+    /**
      * Rupiah amount this code knocks off a given price - clamped so a fixed-amount code
      * never discounts below zero.
      */

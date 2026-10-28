@@ -135,7 +135,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('organizations/{organization}/publish', [OrganizationController::class, 'publish'])
         ->name('organizations.publish');
 
+    // Throttled because adding a member is also an "is this email registered?" oracle - see
+    // OrganizationMemberController::store().
     Route::post('organizations/{organization}/members', [OrganizationMemberController::class, 'store'])
+        ->middleware('throttle:10,1')
         ->name('organizations.members.store');
     Route::patch('organizations/{organization}/members/{user}', [OrganizationMemberController::class, 'update'])
         ->name('organizations.members.update');
@@ -177,6 +180,7 @@ Route::middleware('auth')->group(function () {
         Route::get('organizations/{organization}/media', [MediaController::class, 'index'])
             ->name('organizations.media.index');
         Route::post('organizations/{organization}/media', [MediaController::class, 'store'])
+            ->middleware('throttle:30,1')
             ->name('organizations.media.store');
         Route::delete('organizations/{organization}/media/{media}', [MediaController::class, 'destroy'])
             ->name('organizations.media.destroy');
@@ -238,9 +242,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('organizations/{organization}/plan', [OrganizationPlanController::class, 'edit'])
             ->name('organizations.plan.edit');
+        // Both accept a discount code, so both are throttled - otherwise either one lets an
+        // owner enumerate codes by brute force.
         Route::post('organizations/{organization}/plan', [OrganizationPlanController::class, 'store'])
+            ->middleware('throttle:10,1')
             ->name('organizations.plan.store');
         Route::post('organizations/{organization}/plan/apply-discount', [OrganizationPlanController::class, 'applyDiscount'])
+            ->middleware('throttle:20,1')
             ->name('organizations.plan.apply-discount');
         Route::get('organizations/{organization}/plan/{planChangeRequest}/pay', [OrganizationPlanController::class, 'pay'])
             ->name('organizations.plan.pay');
@@ -270,7 +278,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('organizations/{organization}/donations/{donation}/transactions/{transaction}', [OrganizationDonationTransactionController::class, 'destroy'])
         ->name('organizations.donations.transactions.destroy');
 
+    // Throttled because a save with a Google Maps short link makes the server follow it over
+    // HTTP (GoogleMapsEmbedResolver) - generous enough for normal editing.
     Route::patch('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'update'])
+        ->middleware('throttle:60,1')
         ->name('organizations.sections.update');
     Route::delete('organizations/{organization}/sections/{section}', [OrganizationSectionController::class, 'destroy'])
         ->name('organizations.sections.destroy');

@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    // Per-IP cap on account creation: each account can publish a site on a website-mu.id
+    // subdomain, so unthrottled sign-up is a cheap way to mass-produce spam/phishing pages.
+    Route::post('register', [RegisteredUserController::class, 'store'])->middleware('throttle:5,1');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
@@ -21,7 +23,7 @@ Route::middleware('guest')->group(function () {
     Route::view('forgot-password', 'auth.forgot-password')->name('password.forgot');
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->middleware('throttle:6,1')->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {

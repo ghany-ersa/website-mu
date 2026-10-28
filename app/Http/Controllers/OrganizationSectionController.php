@@ -9,10 +9,12 @@ use App\Services\CmsSampleDataSeeder;
 use App\Services\GoogleMapsEmbedResolver;
 use App\Services\PageBuilderFields;
 use App\Services\PlanLimitService;
+use App\Services\SafeUrl;
 use App\Services\SectionVariantResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrganizationSectionController extends Controller
@@ -150,8 +152,26 @@ class OrganizationSectionController extends Controller
                 : ($section->content[$field] ?? null);
         }
 
+        $this->ensureContentShape($content);
+
+        // Never fall back to the raw input when this can't resolve it: the value becomes an
+        // <iframe src>, where a `javascript:` URL runs on page load in the embedding origin -
+        // the builder and preview on the main domain included, where an admin may be viewing.
         if (in_array('map_embed', $fields, true) && filled($content['map_embed'] ?? null)) {
-            $content['map_embed'] = GoogleMapsEmbedResolver::resolve($content['map_embed']) ?? $content['map_embed'];
+            $content['map_embed'] = GoogleMapsEmbedResolver::resolve($content['map_embed'])
+                ?? throw ValidationException::withMessages([
+                    'content.map_embed' => 'Link Google Maps tidak dikenali. Tempel link dari tombol Bagikan di Google Maps.',
+                ]);
+        }
+
+        // Button links (`cta_url`, `cta_secondary_url`, ...) render straight into an href, so
+        // they get the same scheme check the partials apply again at render time (SafeUrl).
+        foreach ($fields as $field) {
+            if (str_ends_with($field, '_url') && filled($content[$field] ?? null) && SafeUrl::href($content[$field]) === null) {
+                throw ValidationException::withMessages([
+                    "content.$field" => 'Link tidak valid. Gunakan alamat yang diawali https://, atau /halaman untuk halaman sendiri.',
+                ]);
+            }
         }
 
         foreach ($fields as $field) {
@@ -184,6 +204,55 @@ class OrganizationSectionController extends Controller
         return redirect()
             ->route('organizations.builder.page', [$organization, $section->page])
             ->with('status', 'Section berhasil diperbarui.');
+    }
+
+    /**
+     * `content` is free-form JSON copied field by field from the request, so without this a
+     * single save could store megabytes, objects nested arbitrarily deep, or a non-string where
+     * every partial expects a string. Repeater fields (`items`, `stats`, `doctors`, ...) are
+     * legitimately a list of small objects, hence the depth of 3 rather than flat scalars only.
+     */
+    private const MAX_CONTENT_STRING_LENGTH = 20000;
+
+    private const MAX_CONTENT_DEPTH = 3;
+
+    private const MAX_CONTENT_BYTES = 200_000;
+
+    /**
+     * @param  array<string, mixed>  $content
+     */
+    private function ensureContentShape(array $content): void
+    {
+        $tooLarge = strlen((string) json_encode($content)) > self::MAX_CONTENT_BYTES;
+
+        if ($tooLarge || ! $this->isWellShaped($content, 0)) {
+            throw ValidationException::withMessages([
+                'content' => 'Isi section terlalu besar atau formatnya tidak valid.',
+            ]);
+        }
+    }
+
+    private function isWellShaped(mixed $value, int $depth): bool
+    {
+        if ($value === null || is_bool($value) || is_int($value) || is_float($value)) {
+            return true;
+        }
+
+        if (is_string($value)) {
+            return mb_strlen($value) <= self::MAX_CONTENT_STRING_LENGTH;
+        }
+
+        if (is_array($value) && $depth < self::MAX_CONTENT_DEPTH) {
+            foreach ($value as $item) {
+                if (! $this->isWellShaped($item, $depth + 1)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

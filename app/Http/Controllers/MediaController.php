@@ -59,7 +59,10 @@ class MediaController extends Controller
 
         $validated = $request->validate([
             'files' => ['required', 'array'],
-            'files.*' => ['image', 'max:10240'],
+            // The dimensions cap is read from the header without decoding, so it rejects a
+            // small, highly compressed file that would expand to gigabytes of pixels in
+            // decodePath() below and exhaust PHP's memory.
+            'files.*' => ['image', 'max:10240', 'dimensions:max_width=8000,max_height=8000'],
             'category' => ['nullable', 'string', 'in:'.implode(',', self::CATEGORIES)],
         ]);
 

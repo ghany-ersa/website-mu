@@ -6,6 +6,7 @@ use App\Models\Organization;
 use App\Models\Template;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -54,7 +55,9 @@ class OrganizationTemplateController extends Controller
         $this->authorize('manageBuilder', $organization);
 
         $validated = $request->validate([
-            'template_id' => ['required', 'integer', 'exists:templates,id'],
+            // Same filters as edit()'s list: without them a member could switch onto a
+            // deactivated or unreleased template just by posting its id.
+            'template_id' => ['required', 'integer', Rule::exists('templates', 'id')->where('is_active', true)->where('is_public', true)],
         ]);
 
         $template = Template::findOrFail($validated['template_id']);

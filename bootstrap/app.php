@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsAdmin;
-use App\Http\Middleware\SetFrameOptions;
+use App\Http\Middleware\SetSecurityHeaders;
 use App\Http\Middleware\UseReadOnlyConnection;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
@@ -31,11 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->group('tenant', [
             EncryptCookies::class,
             SubstituteBindings::class,
-            SetFrameOptions::class,
+            SetSecurityHeaders::class,
             UseReadOnlyConnection::class,
         ]);
 
-        $middleware->append(SetFrameOptions::class);
+        $middleware->append(SetSecurityHeaders::class);
 
         // Midtrans calls this directly (no session, no CSRF token) - signature verification
         // in MidtransWebhookController is the actual auth for this route.
@@ -44,7 +44,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Registering this callback REPLACES Laravel's default check ($request->expectsJson())
+        // rather than adding to it - with only is('api/*') here, a validation error on a fetch()
+        // that sends Accept: application/json (builder section save, media upload, image picker)
+        // came back as a 302 to the previous page instead of a 422 with `errors`, so the
+        // front-end's error handling never saw the message. Keep both conditions.
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();

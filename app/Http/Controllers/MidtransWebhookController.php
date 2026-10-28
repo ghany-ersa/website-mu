@@ -61,8 +61,8 @@ class MidtransWebhookController extends Controller
 
         match ($status->transaction_status) {
             'settlement', 'capture' => $this->handleSettlement($planChangeRequest, $planChangeRequestService, (int) $status->gross_amount),
-            'expire', 'cancel' => $planChangeRequest->update(['status' => PlanChangeRequestStatus::Expired]),
-            'deny' => $planChangeRequest->update([
+            'expire', 'cancel' => $this->closeUnpaid($planChangeRequest, ['status' => PlanChangeRequestStatus::Expired]),
+            'deny' => $this->closeUnpaid($planChangeRequest, [
                 'status' => PlanChangeRequestStatus::Rejected,
                 'admin_note' => 'Ditolak oleh Midtrans.',
             ]),
@@ -70,6 +70,24 @@ class MidtransWebhookController extends Controller
         };
 
         return response()->json(['message' => 'ok']);
+    }
+
+    /**
+     * Only a request still waiting on payment can be closed as unpaid. Each Snap retry gets a
+     * new order_id (MidtransService::createSnapTransaction()), so an earlier, abandoned order's
+     * late "expire" can arrive after a later order already settled - without this guard it would
+     * flip an Approved, paid-for request to Expired in the admin queue.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    private function closeUnpaid(PlanChangeRequest $planChangeRequest, array $attributes): void
+    {
+        if (! in_array($planChangeRequest->status, [PlanChangeRequestStatus::Pending, PlanChangeRequestStatus::PaymentConfirmed], true)) {
+            return;
+        }
+
+        $planChangeRequest->releaseDiscountCode();
+        $planChangeRequest->update($attributes);
     }
 
     private function handleSettlement(PlanChangeRequest $planChangeRequest, PlanChangeRequestService $service, int $grossAmount): void

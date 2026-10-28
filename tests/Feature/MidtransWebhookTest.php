@@ -219,6 +219,23 @@ class MidtransWebhookTest extends TestCase
         $this->assertNull($request->organization->fresh()->plan_expires_at);
     }
 
+    /**
+     * Every Snap retry gets a new order_id, so an abandoned earlier order's "expire" can land
+     * after the request was already approved - it must not relabel a paid request as Expired.
+     */
+    public function test_a_late_expiry_does_not_overwrite_an_approved_request(): void
+    {
+        $request = $this->pendingRequest();
+        $request->update(['status' => PlanChangeRequestStatus::Approved]);
+        $amount = $request->gatewayAmount();
+        $this->fakeStatus('expire', $amount);
+
+        $this->postJson(route('webhooks.midtrans'), $this->payload($request->midtrans_order_id, (string) $amount))
+            ->assertOk();
+
+        $this->assertSame(PlanChangeRequestStatus::Approved, $request->fresh()->status);
+    }
+
     public function test_a_cancelled_transaction_marks_the_request_expired(): void
     {
         $request = $this->pendingRequest();

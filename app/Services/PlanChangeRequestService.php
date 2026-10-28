@@ -66,6 +66,11 @@ class PlanChangeRequestService
 
     public function reject(PlanChangeRequest $request, User $admin, ?string $note = null): void
     {
+        // Approved consumed the use for real; Rejected/Expired already gave it back.
+        if (! in_array($request->status, [PlanChangeRequestStatus::Approved, PlanChangeRequestStatus::Rejected, PlanChangeRequestStatus::Expired], true)) {
+            $request->releaseDiscountCode();
+        }
+
         $request->update([
             'status' => PlanChangeRequestStatus::Rejected,
             'reviewed_by_user_id' => $admin->id,

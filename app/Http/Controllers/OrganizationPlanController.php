@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -132,22 +133,28 @@ class OrganizationPlanController extends Controller
         $discountAmount = 0;
 
         if (filled($validated['discount_code'] ?? null)) {
-            $discountCode = $this->findUsableDiscountCode($validated['discount_code']);
+            $discountCode = $this->findUsableDiscountCode($validated['discount_code'], $organization);
             $discountAmount = $discountCode->amountFor($plan->priceForDuration($validated['duration_months']));
         }
 
-        $planChangeRequest = $organization->planChangeRequests()->create([
-            'requested_plan_id' => $validated['plan_id'],
-            'duration_months' => $validated['duration_months'],
-            'discount_code_id' => $discountCode?->id,
-            'discount_amount' => $discountAmount,
-            'requested_by_user_id' => Auth::id(),
-            'status' => PlanChangeRequestStatus::Pending,
-        ]);
+        // The use is claimed atomically (DiscountCode::claimUse()) in the same transaction that
+        // creates the request, so a lost race on the last slot leaves no request behind.
+        $planChangeRequest = DB::transaction(function () use ($organization, $validated, $discountCode, $discountAmount) {
+            if ($discountCode && ! $discountCode->claimUse()) {
+                throw ValidationException::withMessages([
+                    'discount_code' => 'Kode diskon tidak valid atau sudah tidak berlaku.',
+                ]);
+            }
 
-        if ($discountCode) {
-            $discountCode->increment('used_count');
-        }
+            return $organization->planChangeRequests()->create([
+                'requested_plan_id' => $validated['plan_id'],
+                'duration_months' => $validated['duration_months'],
+                'discount_code_id' => $discountCode?->id,
+                'discount_amount' => $discountAmount,
+                'requested_by_user_id' => Auth::id(),
+                'status' => PlanChangeRequestStatus::Pending,
+            ]);
+        });
 
         // A discount that fully covers the plan's price (plus admin fee, if any) leaves nothing
         // to charge - Midtrans' Snap API rejects a zero gross_amount, so approve directly
@@ -276,7 +283,7 @@ class OrganizationPlanController extends Controller
             'duration_months' => ['required', 'integer', Rule::in([3, 6, 12])],
         ]);
 
-        $discountCode = $this->findUsableDiscountCode($validated['discount_code']);
+        $discountCode = $this->findUsableDiscountCode($validated['discount_code'], $organization);
         $plan = Plan::findOrFail($validated['plan_id']);
         $amount = $discountCode->amountFor($plan->priceForDuration($validated['duration_months']));
 
@@ -289,15 +296,32 @@ class OrganizationPlanController extends Controller
     }
 
     /**
-     * @throws ValidationException if no active, in-window, under-cap code matches.
+     * Each organization may redeem a given code once. A request that was cancelled, rejected or
+     * expired doesn't count - it never got the discount, and its use was handed back
+     * (DiscountCode::releaseUse()). Without this, one owner could apply an uncapped code on
+     * every renewal. A code meant to be scarce across organizations needs `max_uses` as well.
+     *
+     * @throws ValidationException if no active, in-window, under-cap code matches, or this
+     *                             organization has already used it.
      */
-    private function findUsableDiscountCode(string $code): DiscountCode
+    private function findUsableDiscountCode(string $code, Organization $organization): DiscountCode
     {
         $discountCode = DiscountCode::whereRaw('lower(code) = ?', [strtolower($code)])->first();
 
         if (! $discountCode || ! $discountCode->isUsable()) {
             throw ValidationException::withMessages([
                 'discount_code' => 'Kode diskon tidak valid atau sudah tidak berlaku.',
+            ]);
+        }
+
+        $alreadyUsed = $organization->planChangeRequests()
+            ->where('discount_code_id', $discountCode->id)
+            ->whereNotIn('status', [PlanChangeRequestStatus::Rejected, PlanChangeRequestStatus::Expired])
+            ->exists();
+
+        if ($alreadyUsed) {
+            throw ValidationException::withMessages([
+                'discount_code' => 'Kode diskon ini sudah pernah dipakai oleh organisasi ini.',
             ]);
         }
 

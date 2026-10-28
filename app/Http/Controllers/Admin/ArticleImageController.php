@@ -28,7 +28,8 @@ class ArticleImageController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'file' => ['required', 'image', 'max:10240'],
+            // See MediaController::store() for why the dimensions cap matters.
+            'file' => ['required', 'image', 'max:10240', 'dimensions:max_width=8000,max_height=8000'],
         ]);
 
         $manager = new ImageManager(new Driver);

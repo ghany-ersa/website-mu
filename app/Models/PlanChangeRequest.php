@@ -68,6 +68,15 @@ class PlanChangeRequest extends Model
     }
 
     /**
+     * Returns this request's discount-code use to the pool - see DiscountCode::releaseUse().
+     * Callers invoke it only when moving a never-approved request to Rejected/Expired.
+     */
+    public function releaseDiscountCode(): void
+    {
+        $this->discountCode?->releaseUse();
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function requestedBy(): BelongsTo

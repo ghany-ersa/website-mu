@@ -14,7 +14,7 @@
                 str_replace('{org_name}', $orgName, $content[$prefix.'_wa_message'] ?? config("page-builder.sections.hero.defaults.{$prefix}_wa_message", ''))
             ),
             'scroll' => \App\Services\SectionAnchor::href($content[$prefix.'_section'] ?? null, $organization === null),
-            'url' => filled($content[$prefix.'_url'] ?? null) ? $content[$prefix.'_url'] : null,
+            'url' => \App\Services\SafeUrl::href($content[$prefix.'_url'] ?? null),
             default => null,
         };
     };
