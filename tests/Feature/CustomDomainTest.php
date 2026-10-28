@@ -210,6 +210,19 @@ class CustomDomainTest extends TestCase
         $this->assertStringStartsWith('Gagal', $domain->last_check_result);
     }
 
+    public function test_a_cloudflare_origin_error_explains_the_proxy_instead_of_the_document_root(): void
+    {
+        $organization = $this->organizationWithDomain(active: false);
+        Http::fake(['https://pcmambulu.or.id/*' => Http::response('error code: 525', 525, ['Server' => 'cloudflare'])]);
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->post(route('admin.organizations.domain.check', $organization));
+
+        $domain = $organization->customDomain()->first();
+        $this->assertFalse($domain->last_check_ok);
+        $this->assertStringContainsString('DNS only', $domain->last_check_result);
+    }
+
     public function test_changing_the_hostname_deactivates_it_until_rechecked(): void
     {
         $organization = $this->organizationWithDomain();

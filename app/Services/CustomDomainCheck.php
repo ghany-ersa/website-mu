@@ -65,6 +65,17 @@ class CustomDomainCheck
             return [true, 'Berhasil: domain sudah terhubung ke Website-mu dengan HTTPS.'];
         }
 
+        // 520-527 are Cloudflare's own "couldn't reach/handshake with the origin" pages, served
+        // when the owner's record is proxied (orange cloud). Seen in practice as a 525 on a
+        // domain that *was* correctly attached in cPanel but had no certificate yet - and it
+        // can't get one while proxied, since AutoSSL's validation hits the same failing
+        // handshake. The generic "wrong document root" advice below sent the admin the wrong way.
+        if ($response->status() >= 520 && $response->status() <= 527 && str_contains(strtolower($response->header('Server')), 'cloudflare')) {
+            return [false, 'Gagal: Cloudflare tidak bisa terhubung aman ke server (HTTP '.$response->status().'). '
+                .'Ubah record domain di Cloudflare menjadi DNS only (awan abu-abu), jalankan AutoSSL di cPanel, lalu cek lagi. '
+                .'Setelah aktif, proxy boleh dinyalakan kembali dengan SSL Full (strict). '.$where];
+        }
+
         return [false, 'Gagal: domain merespons (HTTP '.$response->status().'), tetapi bukan dari aplikasi Website-mu - '
             .'pastikan domain sudah ditambahkan di cPanel dengan document root yang sama seperti wildcard subdomain. '.$where];
     }

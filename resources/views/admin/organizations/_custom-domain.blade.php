@@ -135,7 +135,8 @@
             <li>
                 Pemilik domain menambahkan record DNS: <code>A @</code> ke IP server
                 @if ($serverIp) (terdeteksi: <code>{{ $serverIp }}</code>, cocokkan dengan "Shared IP Address" di cPanel) @endif
-                dan <code>CNAME www</code> ke domain tersebut.
+                dan <code>CNAME www</code> ke domain tersebut. Jika DNS domain dikelola di Cloudflare, set keduanya
+                <strong>DNS only (awan abu-abu)</strong> sampai domain aktif - jika di-proxy, AutoSSL gagal dan Cek Koneksi berakhir HTTP 525.
             </li>
             <li>
                 Di cPanel &rarr; Domains &rarr; Create A New Domain: masukkan domain, lalu arahkan Document Root ke folder yang
