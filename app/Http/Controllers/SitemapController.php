@@ -23,7 +23,7 @@ class SitemapController extends Controller
 
         if (config('tenancy.domain')) {
             $urls = $urls->merge(
-                Organization::excludingSandbox()->where('status', OrganizationStatus::Published)->get()->map(fn (Organization $organization) => [
+                Organization::excludingSandbox()->where('status', OrganizationStatus::Published)->with('customDomain')->get()->map(fn (Organization $organization) => [
                     'loc' => 'https://'.TenantUrl::host($organization).'/',
                     'priority' => '0.8',
                     'changefreq' => 'weekly',

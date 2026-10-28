@@ -42,7 +42,8 @@
 
         @php
             $isPublished = $organization->status === \App\Enums\OrganizationStatus::Published;
-            $siteAddress = $organization->slug . ($tenantDomain ? '.' . $tenantDomain : '');
+            // TenantUrl::host() so an activated custom domain shows (and links) here too.
+            $siteAddress = $tenantDomain ? \App\Services\TenantUrl::host($organization) : $organization->slug;
         @endphp
         <div id="site-status-card"
             class="rounded-xl border {{ $isPublished ? 'border-secondary/30 bg-secondary/5' : 'border-gray-200 bg-gray-50' }} p-3.5 sm:p-4 mb-3 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -271,7 +272,7 @@
                             class="text-sm font-semibold {{ $checklist['published'] ? 'text-gray-500 line-through' : 'text-gray-800' }}">
                             Publish Situs</p>
                         @if ($checklist['published'] && $tenantDomain)
-                            <p class="text-xs text-gray-400 truncate">{{ $organization->slug }}.{{ $tenantDomain }}</p>
+                            <p class="text-xs text-gray-400 truncate">{{ $siteAddress }}</p>
                         @else
                             <p class="text-xs text-gray-400">Tampilkan situs Anda ke publik</p>
                         @endif

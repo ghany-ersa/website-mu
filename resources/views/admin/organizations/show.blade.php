@@ -92,6 +92,8 @@
         </div>
     </div>
 
+    @include('admin.organizations._custom-domain')
+
     <div class="bg-white rounded-2xl shadow-soft p-6 mb-6">
         <h2 class="font-bold text-gray-800">Ubah Paket Infak Manual</h2>
         <p class="text-xs text-gray-400 mt-0.5 mb-4">

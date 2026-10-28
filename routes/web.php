@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\ArticleImageController;
 use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
+use App\Http\Controllers\Admin\OrganizationDomainController;
 use App\Http\Controllers\Admin\PlanChangeRequestController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\SectionVariantController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\TemplateBuilderController;
 use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
 use App\Http\Controllers\Admin\UserPasswordResetController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CustomDomainCheckController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\OnboardingTourController;
@@ -301,6 +303,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('organizations', [AdminOrganizationController::class, 'index'])->name('organizations.index');
     Route::get('organizations/{organization}', [AdminOrganizationController::class, 'show'])->name('organizations.show');
     Route::post('organizations/{organization}/override-plan', [AdminOrganizationController::class, 'overridePlan'])->name('organizations.override-plan');
+    Route::put('organizations/{organization}/domain', [OrganizationDomainController::class, 'update'])->name('organizations.domain.update');
+    Route::post('organizations/{organization}/domain/check', [OrganizationDomainController::class, 'check'])->name('organizations.domain.check');
+    Route::post('organizations/{organization}/domain/activate', [OrganizationDomainController::class, 'activate'])->name('organizations.domain.activate');
+    Route::post('organizations/{organization}/domain/deactivate', [OrganizationDomainController::class, 'deactivate'])->name('organizations.domain.deactivate');
+    Route::delete('organizations/{organization}/domain', [OrganizationDomainController::class, 'destroy'])->name('organizations.domain.destroy');
     Route::delete('organizations/{organization}', [AdminOrganizationController::class, 'destroy'])->name('organizations.destroy');
 
     Route::post('organizations/{organization}/members/{user}/reset-password-link', [UserPasswordResetController::class, 'store'])
@@ -364,4 +371,48 @@ if ($tenantDomain = config('tenancy.domain')) {
         ShareErrorsFromSession::class,
         PreventRequestForgery::class,
     ])->middleware('tenant')->group(base_path('routes/tenant.php'));
+
+    // Organizations' own domains (e.g. pcmambulu.or.id), attached by an admin - see
+    // OrganizationDomain. Same routes/tenant.php paths, same 'tenant' middleware; only how the
+    // organization is found differs (by Host, in ResolveTenantOrganization).
+    //
+    // The host pattern has to *exclude* every platform host explicitly rather than rely on
+    // registration order: Laravel matches every domain-constrained route before any
+    // domain-less one (RouteCollection::get(), and the same order under route:cache), so a
+    // bare {custom_host} would swallow website-mu.id itself - homepage, login, dashboard - and
+    // 404 them all. Excluded: the tenant domain and anything under it (already served by the
+    // groups above), the main app's own host, localhost, and bare IPv4 (direct-IP hits on the
+    // server). Anything else reaching this app is either an activated custom domain or a 404.
+    //
+    // "End of host" is written (?:\./|$), never a bare $: under route:cache Symfony's compiled
+    // matcher tests one combined subject, "{host}.{path}" (CompiledUrlMatcherTrait), so a $
+    // inside this lookahead would mean end-of-*path* there, the exclusion would never fire,
+    // and website-mu.id/ would land here and 404 - while the uncached matcher (and so a
+    // plain test run) looked fine. [^./] keeps the subdomain segments from running into the
+    // path. CustomDomainTest exercises both matchers.
+    //
+    // Named 'custom-domain.*' so these duplicates never take over the 'tenant.*' names, which
+    // TenantUrl relies on to resolve a path from the subdomain route.
+    if (config('tenancy.custom_domains')) {
+        $platformHosts = collect([$tenantDomain, parse_url(config('app.url'), PHP_URL_HOST)])
+            ->filter()->unique()->map(fn (string $host) => preg_quote($host, '#'))->implode('|');
+
+        Route::domain('{custom_host}')
+            ->where(['custom_host' => '(?!(?:[^./]+\.)*(?:'.$platformHosts.'|localhost|\d+\.\d+\.\d+\.\d+)(?:\./|$))[a-z0-9.-]+'])
+            ->withoutMiddleware([
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                ShareErrorsFromSession::class,
+                PreventRequestForgery::class,
+            ])
+            ->name('custom-domain.')
+            ->group(function () {
+                // Outside the 'tenant' group on purpose: the admin's connection check calls this
+                // *before* the domain is activated (that's the point of the check), when
+                // ResolveTenantOrganization would still 404 it. Needs no database at all.
+                Route::get('/.well-known/website-mu-check', CustomDomainCheckController::class)->name('check');
+
+                Route::middleware('tenant')->group(base_path('routes/tenant.php'));
+            });
+    }
 }

@@ -120,10 +120,10 @@ Diverifikasi tidak ada di codebase (bukan sekadar "belum dicek"):
 
 | Area | Status |
 |---|---|
-| Domain kustom (custom domain) | **Tidak ada.** Hanya subdomain platform. Tidak ada kolom, config, maupun kode terkait. |
+| Domain kustom (custom domain) | **Ada, khusus admin.** Tabel `organization_domains` (1 per organisasi), panel di Admin → Organisasi → detail (daftar → Cek Koneksi → Aktifkan), grup route `{custom_host}`, redirect 301 subdomain → custom domain. Dinyalakan lewat `CUSTOM_DOMAINS_ENABLED`, kuota slot hosting lewat `CUSTOM_DOMAIN_SLOTS`. Pemasangan di hosting (alias cPanel + AutoSSL) tetap manual. |
 | AI Co-Pilot | **Tidak ada.** Tidak ada integrasi LLM apa pun. |
 | Analytics untuk tenant | **Tidak ada.** |
-| Verifikasi DNS/SSL | **Tidak ada** (mengikuti custom domain). |
+| Verifikasi DNS/SSL | **Sebagian.** Tidak ada verifikasi kepemilikan (TXT) karena hanya admin yang mendaftarkan domain; "Cek Koneksi" memastikan DNS + alias + SSL lewat satu request HTTPS (`CustomDomainCheck`). SSL sendiri diterbitkan AutoSSL cPanel. |
 | Template marketplace | **Tidak ada.** |
 | Organization Network (parent-child, syndication) | Model `OrganizationNetwork` ada, tapi hanya sebagai **daftar tautan jaringan AUM/Ortom untuk ditampilkan**, bukan relasi organisasi bertingkat maupun distribusi konten. |
 | Role selain Owner/Editor | Hanya 2 role; PRD §15 menyebut lebih banyak. |

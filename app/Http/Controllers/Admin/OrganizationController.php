@@ -6,6 +6,7 @@ use App\Enums\OrganizationRole;
 use App\Enums\PlanOverrideAction;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
+use App\Models\OrganizationDomain;
 use App\Models\OrganizationType;
 use App\Models\Plan;
 use App\Models\User;
@@ -65,11 +66,13 @@ class OrganizationController extends Controller
      */
     public function show(Organization $organization): View
     {
-        $organization->load(['organizationType', 'plan', 'members', 'planOverrideLogs.admin', 'planOverrideLogs.fromPlan', 'planOverrideLogs.toPlan']);
+        $organization->load(['organizationType', 'plan', 'members', 'planOverrideLogs.admin', 'planOverrideLogs.fromPlan', 'planOverrideLogs.toPlan', 'customDomain.activatedBy']);
 
         return view('admin.organizations.show', [
             'organization' => $organization,
             'plans' => Plan::where('is_active', true)->orderBy('price_monthly')->get(),
+            'customDomainSlots' => config('tenancy.custom_domain_slots'),
+            'customDomainsUsed' => OrganizationDomain::count(),
         ]);
     }
 

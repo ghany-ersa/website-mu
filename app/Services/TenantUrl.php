@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\URL;
  * route('tenant.*', ['organization_slug' => ...]) directly.
  *
  * Why not just route(): the tenant routes are registered under the subdomain pattern, so
- * route() can only ever produce {slug}.{tenancy.domain}. Custom domains (planned) need the
- * same paths on a different host - so the path comes from the named route (relative,
+ * route() can only ever produce {slug}.{tenancy.domain}. A custom domain needs the same paths
+ * on a different host - so the path comes from the named subdomain route (relative,
  * absolute=false, keeping routes/tenant.php the single definition of every tenant path) and
- * the host comes from host(), which is the only thing that has to change to point links at
- * an organization's own domain.
+ * the host comes from host().
  */
 class TenantUrl
 {
@@ -44,14 +43,19 @@ class TenantUrl
     }
 
     /**
-     * The host this organization's public site is served on, or null when tenant routing is
-     * off (TENANT_DOMAIN unset).
+     * The host this organization's public site is served on: its activated custom domain if
+     * it has one, otherwise its subdomain - or null when tenant routing is off (TENANT_DOMAIN
+     * unset).
      */
     public static function host(Organization $organization): ?string
     {
         $domain = config('tenancy.domain');
 
-        return $domain ? $organization->slug.'.'.$domain : null;
+        if (! $domain) {
+            return null;
+        }
+
+        return $organization->activeCustomHostname() ?? $organization->slug.'.'.$domain;
     }
 
     /**

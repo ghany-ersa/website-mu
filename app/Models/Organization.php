@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 #[Fillable([
@@ -298,6 +299,33 @@ class Organization extends Model
     public function planOverrideLogs(): HasMany
     {
         return $this->hasMany(PlanOverrideLog::class)->latest('created_at');
+    }
+
+    /**
+     * Named customDomain rather than domain(): a relation sharing a name with a column falls
+     * through to relationship resolution whenever the attribute isn't loaded (the phone()/
+     * $this->phone shadowing noted in CLAUDE.md), so this stays clear of any column name.
+     *
+     * @return HasOne<OrganizationDomain, $this>
+     */
+    public function customDomain(): HasOne
+    {
+        return $this->hasOne(OrganizationDomain::class);
+    }
+
+    /**
+     * The custom hostname this organization's public site is served on, or null while it has
+     * none, it isn't activated yet, or the feature is switched off (tenancy.custom_domains).
+     * TenantUrl::host() and the subdomain-to-custom-domain redirect both read this, so the two
+     * can never disagree about where the site lives.
+     */
+    public function activeCustomHostname(): ?string
+    {
+        if (! config('tenancy.custom_domains')) {
+            return null;
+        }
+
+        return $this->customDomain?->is_active ? $this->customDomain->hostname : null;
     }
 
     /**
