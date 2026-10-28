@@ -137,7 +137,11 @@
                 @if ($serverIp) (terdeteksi: <code>{{ $serverIp }}</code>, cocokkan dengan "Shared IP Address" di cPanel) @endif
                 dan <code>CNAME www</code> ke domain tersebut.
             </li>
-            <li>Di cPanel &rarr; Domains &rarr; Create A New Domain: masukkan domain dan centang <em>Share document root</em> dengan domain utama.</li>
+            <li>
+                Di cPanel &rarr; Domains &rarr; Create A New Domain: masukkan domain, lalu arahkan Document Root ke folder yang
+                <strong>sama persis dengan <code>*.{{ config('tenancy.domain') }}</code></strong> (folder <code>public/</code> aplikasi).
+                Cocokkan di daftar Domains; jika sama dengan domain utama, cukup centang <em>Share document root</em>.
+            </li>
             <li>Di cPanel &rarr; SSL/TLS Status: jalankan <em>Run AutoSSL</em> untuk domain dan www-nya.</li>
             <li>Daftarkan domain di form ini, klik <strong>Cek Koneksi</strong> sampai berhasil, lalu <strong>Aktifkan</strong>.</li>
         </ol>

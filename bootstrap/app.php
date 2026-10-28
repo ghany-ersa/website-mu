@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\ResolveTenantOrganization;
 use App\Http\Middleware\SetSecurityHeaders;
 use App\Http\Middleware\UseReadOnlyConnection;
+use App\Support\Cloudflare;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -39,6 +40,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(SetSecurityHeaders::class);
+
+        // Real client IP and scheme behind Cloudflare - see App\Support\Cloudflare for why.
+        // Only X-Forwarded-For/-Proto: X-Forwarded-Host stays untrusted, because the tenant
+        // site is chosen by host (ResolveTenantOrganization) and absolute URLs are built from
+        // it, so a client-supplied forwarded host must never be able to change either.
+        $middleware->trustProxies(
+            at: Cloudflare::TRUSTED_PROXIES,
+            headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PROTO,
+        );
 
         // Midtrans calls this directly (no session, no CSRF token) - signature verification
         // in MidtransWebhookController is the actual auth for this route.

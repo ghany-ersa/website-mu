@@ -66,6 +66,6 @@ class CustomDomainCheck
         }
 
         return [false, 'Gagal: domain merespons (HTTP '.$response->status().'), tetapi bukan dari aplikasi Website-mu - '
-            .'pastikan domain sudah ditambahkan di cPanel dengan document root yang sama. '.$where];
+            .'pastikan domain sudah ditambahkan di cPanel dengan document root yang sama seperti wildcard subdomain. '.$where];
     }
 }
