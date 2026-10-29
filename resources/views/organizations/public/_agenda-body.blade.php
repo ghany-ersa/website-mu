@@ -30,27 +30,32 @@
 
         <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-soft mt-6">
             <div class="w-16 h-16 shrink-0 rounded-xl bg-primary text-white flex flex-col items-center justify-center leading-none">
-                <span class="text-xl font-extrabold">{{ $agenda->starts_at->format('d') }}</span>
-                <span class="text-xs uppercase">{{ $agenda->starts_at->translatedFormat('M') }}</span>
+                @if ($agenda->repeats_weekly)
+                    <span class="text-[10px] uppercase">Setiap</span>
+                    <span class="text-sm font-extrabold mt-0.5">{{ $agenda->dayName() }}</span>
+                @else
+                    <span class="text-xl font-extrabold">{{ $agenda->starts_at->format('d') }}</span>
+                    <span class="text-xs uppercase">{{ $agenda->starts_at->translatedFormat('M') }}</span>
+                @endif
             </div>
             <div class="flex-1">
                 <h1 class="text-2xl font-extrabold text-primary mb-1">{{ $agenda->title }}</h1>
-                <p class="text-sm text-gray-500 mb-4">
-                    {{ $agenda->starts_at->translatedFormat('d M Y, H:i') }}
+                @if ($agenda->speaker)
+                    <p class="text-sm text-gray-600">Narasumber: <span class="font-semibold">{{ $agenda->speaker }}</span></p>
+                @endif
+                <p class="text-sm text-gray-500">
+                    {{ $agenda->scheduleLabel() }}
                     @if ($agenda->location)
                         &middot; {{ $agenda->location }}
                     @endif
                 </p>
 
                 @if ($agenda->description)
-                    <div class="prose max-w-none text-gray-700 leading-relaxed mb-4">
+                    <div class="prose max-w-none text-gray-700 leading-relaxed mb-4 mt-4">
                         {!! $agenda->description !!}
                     </div>
                 @endif
 
-                @if ($agenda->contact_person)
-                    <p class="text-sm text-gray-600">Kontak: {{ $agenda->contact_person }}</p>
-                @endif
 
                 @if ($agenda->registration_url)
                     <a href="{{ $agenda->registration_url }}" target="_blank" rel="noopener"

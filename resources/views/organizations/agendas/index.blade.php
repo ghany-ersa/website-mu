@@ -23,7 +23,7 @@
                     <div class="min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                             <x-ui.status-badge :status="$agenda->status" />
-                            <span class="text-xs text-gray-400">{{ $agenda->starts_at->translatedFormat('d M Y, H:i') }}</span>
+                            <span class="text-xs text-gray-400">{{ $agenda->scheduleLabel() }}</span>
                         </div>
                         <p class="font-semibold text-gray-800 truncate">{{ $agenda->title }}</p>
                         @if ($agenda->location)

@@ -3,8 +3,8 @@
      $content['items'] sample data in template-preview context - see daftar-berita.blade.php
      for the full rationale.
 
-     Unlike daftar-berita/donasi-progress, cards here never link anywhere: title, date, time and
-     location - everything an agenda detail page (organizations/public/_agenda-body.blade.php)
+     Unlike daftar-berita/donasi-progress, cards here never link anywhere: title, date, time,
+     location and speaker - everything an agenda detail page (organizations/public/_agenda-body.blade.php)
      would show beyond a poster - already fits on the card itself. The `poster` variant is the
      one that needs a detail page (see agenda/poster.blade.php's doc comment). --}}
 @php
@@ -14,14 +14,7 @@
     // LIMIT clause entirely, and array_slice(..., 0, null) returns every item.
     $limit = filled($content['limit'] ?? null) ? (int) $content['limit'] : null;
     $items = isset($organization)
-        ? $organization->agendas()->published()->take($limit)->get()->map(fn ($agenda) => [
-            'title' => $agenda->title,
-            'date_day' => $agenda->starts_at->format('d'),
-            'date_month' => $agenda->starts_at->translatedFormat('M'),
-            'date_year' => $agenda->starts_at->format('Y'),
-            'location' => $agenda->location,
-            'time' => $agenda->starts_at->format('H:i'),
-        ])
+        ? $organization->agendas()->published()->take($limit)->get()->map(fn ($agenda) => $agenda->sectionItem())
         // array_fill's placeholder-card count only needs a number when there's neither a real
         // `items` sample list nor a `limit` to size it by - 3 keeps that specific edge case's
         // look unchanged; it never caps a real (or genuinely limitless) `items` list.
@@ -45,9 +38,16 @@
             @foreach ($items as $item)
                 <div class="reveal bg-white rounded-brand p-5 flex items-center gap-5 shadow-soft"
                    style="transition-delay: {{ $loop->index * 80 }}ms">
+                    {{-- A weekly agenda (kajian rutin) has no date to show, so the badge carries
+                         its weekday instead - see Agenda::sectionItem(). --}}
                     <div class="w-14 h-14 shrink-0 rounded-brand bg-secondary text-white flex flex-col items-center justify-center leading-none">
-                        <span class="text-lg font-extrabold">{{ $item['date_day'] ?? (10 + $loop->iteration) }}</span>
-                        <span class="text-[10px] uppercase">{{ $item['date_month'] ?? 'Bulan' }}</span>
+                        @if (! empty($item['day_name']))
+                            <span class="text-[10px] uppercase">Setiap</span>
+                            <span class="text-sm font-extrabold mt-0.5">{{ $item['day_name'] }}</span>
+                        @else
+                            <span class="text-lg font-extrabold">{{ $item['date_day'] ?? (10 + $loop->iteration) }}</span>
+                            <span class="text-[10px] uppercase">{{ $item['date_month'] ?? 'Bulan' }}</span>
+                        @endif
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">{{ $item['title'] ?? 'Agenda contoh '.$loop->iteration }}</p>
@@ -56,6 +56,9 @@
                             {{ $item['location'] ?? 'Lokasi kegiatan' }}
                             @if (! empty($item['time'])) &middot; {{ $item['time'] }} @endif
                         </p>
+                        @if (! empty($item['speaker']))
+                            <p class="text-sm text-gray-500">Narasumber: {{ $item['speaker'] }}</p>
+                        @endif
                     </div>
                 </div>
             @endforeach

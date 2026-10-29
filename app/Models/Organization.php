@@ -643,7 +643,10 @@ class Organization extends Model
      */
     public function agendas(): HasMany
     {
-        return $this->hasMany(Agenda::class)->orderBy('starts_at');
+        // Kajian rutin first: a weekly agenda's starts_at is only an anchor that falls further
+        // behind every week (see Agenda::nextOccurrence()), so sorting it among dated agendas
+        // would bury it under past events in the CMS and drop it out of a limited section.
+        return $this->hasMany(Agenda::class)->orderByDesc('repeats_weekly')->orderBy('starts_at');
     }
 
     /**

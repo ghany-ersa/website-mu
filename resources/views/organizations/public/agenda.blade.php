@@ -12,7 +12,7 @@
     // description empty, which is common for a recurring kajian.
     $agendaDescription = $agenda->description
         ? \Illuminate\Support\Str::limit(strip_tags($agenda->description), 160)
-        : $agenda->title.' pada '.$agenda->starts_at->translatedFormat('d M Y').(($agenda->location) ? ' di '.$agenda->location : '');
+        : $agenda->title.($agenda->repeats_weekly ? ', setiap '.$agenda->dayName() : ' pada '.$agenda->starts_at->translatedFormat('d M Y')).(($agenda->location) ? ' di '.$agenda->location : '');
 
     // See _agenda-body.blade.php's matching comment for why this isn't unconditionally
     // tenant.agendas.show - that route only resolves a real, published, non-sandbox

@@ -20,12 +20,7 @@
 
     $items = isset($organization)
         ? $organization->agendas()->published()->take($limit)->get()->map(fn ($agenda) => [
-            'title' => $agenda->title,
-            'poster' => $agenda->poster,
-            'date_day' => $agenda->starts_at->format('d'),
-            'date_month' => $agenda->starts_at->translatedFormat('M'),
-            'location' => $agenda->location,
-            'time' => $agenda->starts_at->format('H:i'),
+            ...$agenda->sectionItem(),
             'url' => match (true) {
                 request()->routeIs('templates.preview*') => route('templates.preview.agenda', ['template' => $organization->template, 'agenda' => $agenda->id]),
                 default => \App\Services\TenantUrl::route($organization, 'tenant.agendas.show', ['agenda' => $agenda->id]),
@@ -77,8 +72,13 @@
                                  block standar would have used, so a half-filled CMS still reads
                                  as a deliberate grid rather than a broken one. --}}
                             <div class="aspect-[4/3] bg-secondary/10 flex flex-col items-center justify-center text-secondary">
-                                <span class="text-4xl font-extrabold leading-none">{{ $item['date_day'] ?? '--' }}</span>
-                                <span class="text-xs uppercase tracking-widest mt-1">{{ $item['date_month'] ?? '' }}</span>
+                                @if (! empty($item['day_name']))
+                                    <span class="text-xs uppercase tracking-widest mb-1">Setiap</span>
+                                    <span class="text-3xl font-extrabold leading-none">{{ $item['day_name'] }}</span>
+                                @else
+                                    <span class="text-4xl font-extrabold leading-none">{{ $item['date_day'] ?? '--' }}</span>
+                                    <span class="text-xs uppercase tracking-widest mt-1">{{ $item['date_month'] ?? '' }}</span>
+                                @endif
                             </div>
                         @endif
 
@@ -91,9 +91,17 @@
                                 @endif
                             </h3>
                             <p class="mt-1.5 text-xs text-gray-500">
-                                {{ $item['date_day'] ?? '' }} {{ $item['date_month'] ?? '' }}
+                                @if (! empty($item['day_name']))
+                                    Setiap {{ $item['day_name'] }}
+                                @else
+                                    {{ $item['date_day'] ?? '' }} {{ $item['date_month'] ?? '' }}
+                                @endif
                                 @if (! empty($item['time'])) &middot; {{ $item['time'] }} @endif
                             </p>
+
+                            @if (! empty($item['speaker']))
+                                <p class="text-xs text-gray-500">Narasumber: {{ $item['speaker'] }}</p>
+                            @endif
                             @if (! empty($item['location']))
                                 <p class="text-xs text-gray-500">{{ $item['location'] }}</p>
                             @endif

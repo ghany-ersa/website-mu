@@ -11,7 +11,12 @@
         '@context' => 'https://schema.org',
         '@type' => 'Event',
         'name' => $agenda->title,
-        'startDate' => $agenda->starts_at?->toIso8601String(),
+        // A weekly agenda's starts_at is only an anchor (see Agenda::nextOccurrence()), so
+        // Google gets the coming session rather than a date that may already be past - as a
+        // bare date, since its time is free text ("Ba'da Maghrib") with no clock time to send.
+        'startDate' => $agenda->repeats_weekly
+            ? $agenda->nextOccurrence()->toDateString()
+            : $agenda->starts_at->toIso8601String(),
         'eventStatus' => 'https://schema.org/EventScheduled',
         'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
         'description' => $description,
@@ -22,6 +27,7 @@
             'name' => $agenda->location,
             'address' => $agenda->location,
         ] : null,
+        'performer' => $agenda->speaker ? ['@type' => 'Person', 'name' => $agenda->speaker] : null,
         'organizer' => [
             '@type' => 'Organization',
             'name' => $organization->name,
