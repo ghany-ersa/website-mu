@@ -231,7 +231,7 @@ class OrganizationPublishingTest extends TestCase
 
         $this->actingAs($user)->get(route('organizations.show', $organization))
             ->assertOk()
-            ->assertSee('Pilih Paket untuk Publikasi')
+            ->assertSee('Pilih Paket Sebelum Publish')
             ->assertSee(route('organizations.plan.edit', $organization), false)
             ->assertDontSee('Ya, Publikasikan');
     }

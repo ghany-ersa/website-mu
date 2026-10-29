@@ -32,6 +32,9 @@ class CmsFormPagesTest extends TestCase
      * Each row: [route-segment name, section key that must exist, plan limit key or null,
      * a minimal valid create payload].
      *
+     * Every test using this provider declares all four parameters, even ones it ignores:
+     * PHPUnit 12 warns when a data set passes more arguments than the method accepts.
+     *
      * @return array<string, array{0: string, 1: string, 2: ?string, 3: array<string, mixed>}>
      */
     public static function resources(): array
@@ -55,7 +58,7 @@ class CmsFormPagesTest extends TestCase
                 'name' => 'SD Muhammadiyah 1', 'type' => 'Pendidikan',
             ]],
             'gallery' => ['gallery', 'galeri', 'gallery_photos', [
-                'url' => 'https://example.test/foto.jpg', 'caption' => 'Bakti sosial',
+                'url' => 'https://example.test/foto.jpg', 'title' => 'Bakti sosial',
             ]],
         ];
     }
@@ -80,7 +83,7 @@ class CmsFormPagesTest extends TestCase
     }
 
     #[DataProvider('resources')]
-    public function test_the_index_and_create_pages_render(string $resource, string $sectionKey): void
+    public function test_the_index_and_create_pages_render(string $resource, string $sectionKey, ?string $limitKey, array $payload): void
     {
         $owner = User::factory()->create();
         $organization = $this->organizationWithSection($owner, $sectionKey);
@@ -111,7 +114,7 @@ class CmsFormPagesTest extends TestCase
      * content that has nowhere to appear.
      */
     #[DataProvider('resources')]
-    public function test_the_pages_404_when_the_section_is_absent(string $resource): void
+    public function test_the_pages_404_when_the_section_is_absent(string $resource, string $sectionKey, ?string $limitKey, array $payload): void
     {
         $owner = User::factory()->create();
         // A hero-only organization: published, renderable, but without this resource's section.
@@ -122,7 +125,7 @@ class CmsFormPagesTest extends TestCase
     }
 
     #[DataProvider('resources')]
-    public function test_a_non_member_cannot_open_the_pages(string $resource, string $sectionKey): void
+    public function test_a_non_member_cannot_open_the_pages(string $resource, string $sectionKey, ?string $limitKey, array $payload): void
     {
         $owner = User::factory()->create();
         $outsider = User::factory()->create();
@@ -176,7 +179,7 @@ class CmsFormPagesTest extends TestCase
      * back-link returns to the canvas - a separate render path through BuilderAware.
      */
     #[DataProvider('resources')]
-    public function test_the_pages_render_in_builder_context(string $resource, string $sectionKey): void
+    public function test_the_pages_render_in_builder_context(string $resource, string $sectionKey, ?string $limitKey, array $payload): void
     {
         $owner = User::factory()->create();
         $organization = $this->organizationWithSection($owner, $sectionKey);

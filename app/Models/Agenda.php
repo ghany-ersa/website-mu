@@ -92,15 +92,17 @@ class Agenda extends Model
     }
 
     /**
-     * "Setiap Kamis, Ba'da Maghrib" or "12 Okt 2026, 18:30" - for the CMS list and the detail
-     * page.
+     * The time line on the detail page: "Dimulai Pukul 18:30" for a one-off, the tenant's own
+     * wording ("Ba'da Maghrib") for a weekly agenda - empty when none was given. The day/date
+     * is deliberately left out: the badge beside it already shows it.
      */
     public function scheduleLabel(): string
     {
         if (! $this->repeats_weekly) {
-            return "Dimulai Pukul ".$this->starts_at->translatedFormat('H:i');
+            return 'Dimulai Pukul '.$this->starts_at->format('H:i');
         }
-        return ($this->timeLabel() ? $this->timeLabel() : '');
+
+        return $this->timeLabel() ?? '';
     }
 
     /**

@@ -81,7 +81,6 @@ class PublishBlockedExplanationTest extends TestCase
 
         $dashboard->assertOk();
         $dashboard->assertSee('Perlu paket Infak Eksklusif untuk publikasi');
-        $dashboard->assertDontSee('Batas paket Infak dilanggar');
     }
 
     /**
@@ -100,8 +99,10 @@ class PublishBlockedExplanationTest extends TestCase
 
         $dashboard = $this->actingAs($owner)->get(route('organizations.show', $organization));
 
+        // The dashboard no longer spells out a plain quota overage - its button leads to the plan
+        // page, whose violation panel lists the details. The exclusive-only copy must not show.
         $dashboard->assertOk();
-        $dashboard->assertSee('Batas paket Infak dilanggar');
+        $dashboard->assertSee(route('organizations.plan.edit', $organization), false);
         $dashboard->assertDontSee('Perlu paket Infak Eksklusif untuk publikasi');
     }
 

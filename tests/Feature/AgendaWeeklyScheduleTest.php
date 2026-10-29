@@ -67,7 +67,8 @@ class AgendaWeeklyScheduleTest extends TestCase
         $this->assertSame(Carbon::THURSDAY, $agenda->starts_at->dayOfWeek);
         $this->assertSame("Ba'da Maghrib", $agenda->time_label);
         $this->assertSame('Ustadz Fulan, Lc.', $agenda->speaker);
-        $this->assertSame("Setiap Kamis, Ba'da Maghrib", $agenda->scheduleLabel());
+        // The weekday sits in the date badge beside this label, so the label is the time alone.
+        $this->assertSame("Ba'da Maghrib", $agenda->scheduleLabel());
     }
 
     public function test_a_weekly_agenda_needs_a_day_but_no_date_or_time(): void
@@ -128,12 +129,20 @@ class AgendaWeeklyScheduleTest extends TestCase
         $this->assertSame('2026-11-05', $agenda->nextOccurrence()->toDateString());
     }
 
-    public function test_a_weekly_agenda_without_a_time_shows_just_the_day(): void
+    public function test_a_weekly_agenda_without_a_time_has_no_time_label(): void
     {
         $agenda = Agenda::factory()->weekly()->make(['starts_at' => '2026-01-01', 'time_label' => null]);
 
-        $this->assertSame('Setiap Kamis', $agenda->scheduleLabel());
+        $this->assertSame('', $agenda->scheduleLabel());
         $this->assertNull($agenda->sectionItem()['time']);
+        $this->assertSame('Kamis', $agenda->sectionItem()['day_name']);
+    }
+
+    public function test_a_one_off_agenda_label_is_its_start_time(): void
+    {
+        $agenda = Agenda::factory()->make(['starts_at' => '2026-12-01 08:00', 'repeats_weekly' => false]);
+
+        $this->assertSame('Dimulai Pukul 08:00', $agenda->scheduleLabel());
     }
 
     public function test_the_section_shows_the_weekday_and_speaker_instead_of_a_date(): void
