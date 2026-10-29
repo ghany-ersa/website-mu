@@ -6,6 +6,7 @@ use App\Models\Concerns\InvalidatesTenantPageCache;
 use Database\Factories\GalleryPhotoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,9 +15,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class GalleryPhoto extends Model
 {
     /**
-     * Filter buttons on the public gallery, and the allowed values for `category`. Stored as a
-     * plain string column (see the migration), so this list - not a DB constraint - is what
-     * keeps the values honest; the controller validates against it.
+     * Starter suggestions for `category`, offered alongside whatever categories the
+     * organization has already typed. `category` is free text (each distinct value becomes a
+     * filter button on the public gallery) - a fixed list proved too narrow for real
+     * organizations, so this is only the seed for the form's datalist, not a whitelist.
      *
      * @var list<string>
      */
@@ -35,6 +37,34 @@ class GalleryPhoto extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * The text shown for a photo on the public gallery and the CMS list. The form no longer
+     * asks for a separate `caption` (title + description cover it), but rows created before
+     * that still carry one - falling back keeps those photos labelled without a data migration.
+     *
+     * @return Attribute<string|null, never>
+     */
+    protected function label(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->title ?: $this->caption);
+    }
+
+    /**
+     * Category suggestions for the form: the starter list plus every category this
+     * organization already uses, so a tag typed once is offered (with the same spelling)
+     * the next time.
+     *
+     * @return list<string>
+     */
+    public static function categoryOptions(Organization $organization): array
+    {
+        return collect(self::CATEGORIES)
+            ->merge($organization->photos()->whereNotNull('category')->distinct()->pluck('category'))
+            ->unique(fn (string $category) => mb_strtolower($category))
+            ->values()
+            ->all();
     }
 
     /**

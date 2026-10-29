@@ -27,7 +27,7 @@
     $items = isset($organization)
         ? $organization->photos()->take($limit === null ? null : $limit + 1)->get()->map(fn ($photo) => [
             'image' => $photo->url,
-            'caption' => $photo->caption,
+            'caption' => $photo->label,
         ])
         // array_fill's placeholder-card count only needs a number when there's neither a real
         // `items` sample list nor a `limit` to size it by - 4 keeps that specific edge case's

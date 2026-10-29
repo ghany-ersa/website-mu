@@ -176,7 +176,7 @@ class OrganizationSiteController extends Controller
 
         $photos = $organization->photos()
             ->skip($offset)->take($limit + 1)->get()
-            ->map(fn ($photo) => ['image' => $photo->url, 'caption' => $photo->caption]);
+            ->map(fn ($photo) => ['image' => $photo->url, 'caption' => $photo->label]);
 
         $hasMore = $photos->count() > $limit;
         $photos = $hasMore ? $photos->take($limit) : $photos;

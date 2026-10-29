@@ -42,15 +42,22 @@
                 <x-form.field name="title" label="Judul" :value="$photo->title"
                     placeholder="mis. Wisuda Tahfidz Angkatan ke-8 (opsional)" />
 
-                <x-form.field name="caption" label="Keterangan" :value="$photo->caption"
-                    placeholder="mis. Kegiatan bakti sosial, Januari 2026" />
-
                 <x-form.textarea-field name="description" label="Deskripsi" :value="$photo->description" rows="3"
                     placeholder="Penjelasan lebih panjang (opsional)" />
 
-                {{-- Kategori dipakai sebagai filter pada galeri varian `sekolahmu`. --}}
-                <x-form.select-field name="category" label="Kategori" :selected="$photo->category"
-                    :options="['' => 'Tanpa kategori'] + array_combine(\App\Models\GalleryPhoto::CATEGORIES, \App\Models\GalleryPhoto::CATEGORIES)" />
+                {{-- Kategori dipakai sebagai filter pada galeri varian `sekolahmu`. Input bebas
+                     dengan datalist: pilih yang sudah ada atau ketik kategori baru. --}}
+                <div>
+                    <x-form.field name="category" label="Kategori" :value="$photo->category"
+                        list="gallery-category-options" autocomplete="off" maxlength="50"
+                        placeholder="Pilih atau ketik kategori baru (opsional)" />
+                    <datalist id="gallery-category-options">
+                        @foreach ($categoryOptions as $option)
+                            <option value="{{ $option }}"></option>
+                        @endforeach
+                    </datalist>
+                    <p class="text-xs text-gray-400 mt-1">Ketik nama baru untuk menambah kategori, mis. Olahraga atau Kajian.</p>
+                </div>
 
                 <label class="flex items-start gap-3 cursor-pointer pt-1">
                     <input type="hidden" name="is_active" value="0">

@@ -8,7 +8,6 @@ use App\Models\Organization;
 use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class OrganizationGalleryController extends Controller
@@ -43,6 +42,7 @@ class OrganizationGalleryController extends Controller
         return view('organizations.gallery.form', [
             'organization' => $organization,
             'photo' => new GalleryPhoto,
+            'categoryOptions' => GalleryPhoto::categoryOptions($organization),
             ...$this->builderViewData($request),
         ]);
     }
@@ -59,7 +59,7 @@ class OrganizationGalleryController extends Controller
         }
 
         $organization->photos()->create([
-            ...$this->validated($request),
+            ...$this->validated($request, $organization),
             'order' => $organization->photos()->max('order') + 1,
         ]);
 
@@ -76,6 +76,7 @@ class OrganizationGalleryController extends Controller
         return view('organizations.gallery.form', [
             'organization' => $organization,
             'photo' => $photo,
+            'categoryOptions' => GalleryPhoto::categoryOptions($organization),
             ...$this->builderViewData($request),
         ]);
     }
@@ -85,7 +86,7 @@ class OrganizationGalleryController extends Controller
         $this->authorize('update', $photo);
         $this->ensureBelongsToOrganization($organization, $photo);
 
-        $photo->update($this->validated($request));
+        $photo->update($this->validated($request, $organization));
 
         return redirect()
             ->route('organizations.gallery.index', $this->builderIndexParams($request, ['organization' => $organization]))
@@ -128,16 +129,24 @@ class OrganizationGalleryController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function validated(Request $request): array
+    private function validated(Request $request, Organization $organization): array
     {
         $validated = $request->validate([
             'url' => ['required', 'string'],
             'title' => ['nullable', 'string', 'max:255'],
-            'caption' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'category' => ['nullable', Rule::in(GalleryPhoto::CATEGORIES)],
+            'category' => ['nullable', 'string', 'max:50'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        // Each distinct category is its own filter button on the public gallery, so "kegiatan"
+        // typed next to an existing "Kegiatan" would split one filter into two. Snap to the
+        // spelling already in use when one matches case-insensitively.
+        if (filled($validated['category'] ?? null)) {
+            $validated['category'] = collect(GalleryPhoto::categoryOptions($organization))
+                ->first(fn (string $option) => mb_strtolower($option) === mb_strtolower($validated['category']))
+                ?? $validated['category'];
+        }
 
         // An unchecked checkbox posts nothing, which on update would leave is_active untouched
         // and keep a photo the user just hid still visible.
