@@ -268,8 +268,14 @@ return [
                 'wa_message' => 'Assalamu\'alaikum, saya ingin berdonasi untuk {org_name}. Mohon informasi caranya ya',
             ],
         ],
+        // Labelled for both of its jobs: `standar` is a WhatsApp contact card (klinik, masjid,
+        // PCM/PCA templates; the header's "Kontak" menu item points here), `sekolahmu` is a PPDB
+        // enrolment form. Only the label changed when the school use case arrived - the key is
+        // internal and stays `formulir-kontak`, since renaming it would mean migrating every
+        // organization_sections row, section_variants row, template structure and CTA
+        // `cta_section` target that names it, for no visible difference.
         'formulir-kontak' => [
-            'label' => 'Formulir Kontak',
+            'label' => 'Kontak & Pendaftaran',
             // `title` and `wa_number` are the only fields both variants read. `subtitle` and
             // `wa_message` (the standard "message the org on WhatsApp" copy) only make sense
             // for `standar`'s own contact card; `sekolahmu` renders an enrolment form instead
