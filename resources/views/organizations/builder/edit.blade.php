@@ -540,13 +540,17 @@
                         {{-- Exclusive sections stay addable from any plan (build now, pay to
                              publish - Organization::planViolations() is the real gate) but keep
                              an informational badge here, so an owner on a lower plan knows this
-                             component will block publishing until they upgrade. --}}
+                             component will block publishing until they upgrade.
+                             Ordered by config('page-builder.picker_order') - see that list for
+                             why. Keys are non-numeric strings, so the JS object keeps this
+                             insertion order. --}}
                         options: @js(collect($sectionRegistry)
                             ->filter(fn ($meta) => empty($meta['locked']) && empty($meta['hidden']))
                             ->map(fn ($meta, $key) => [
                                 'label' => $meta['label'],
                                 'exclusive' => ! empty($meta['exclusive']) && ! $organization->canUseExclusiveTemplates(),
-                            ])),
+                            ])
+                            ->sortBy(fn ($meta, $key) => array_flip(config('page-builder.picker_order', []))[$key] ?? PHP_INT_MAX)),
                         get filteredOptions() {
                             const query = this.search.trim().toLowerCase();
                             if (! query) {

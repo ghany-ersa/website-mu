@@ -327,7 +327,7 @@ return [
             ],
         ],
         'cta' => [
-            'label' => 'CTA',
+            'label' => 'Call To Action',
             'fields' => [
                 'title', 'subtitle',
                 'cta_label', 'cta_type', 'cta_section', 'cta_url', 'cta_wa_number', 'cta_wa_message',
@@ -337,6 +337,40 @@ return [
                 'cta_wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar {org_name}.',
             ],
         ],
+    ],
+
+    // Order of the "Tambah Widget" picker: roughly where each section tends to sit on a page,
+    // top to bottom (opening -> profile -> what the org does -> content -> giving -> contact ->
+    // closing CTA), so the likely next pick is near where the user is in building a page.
+    // Kept as its own list rather than by reordering `sections` above, whose entries are grouped
+    // by feature with long comments that moving around would scatter. Alphabetical was tried
+    // and rejected - it put CTA near the top and Hero mid-list.
+    // A section missing from this list is still offered, after these, in registry order.
+    'picker_order' => [
+        'hero',
+        'tentang-organisasi',
+        'sambutan-ketua',
+        'struktur-pengurus',
+        'program-unggulan',
+        'layanan',
+        'kegiatan',
+        'prestasi',
+        'fasilitas-masjid',
+        'jadwal-praktik',
+        'jaringan-aum-ortom',
+        'daftar-berita',
+        'agenda',
+        'pengumuman',
+        'galeri',
+        'testimoni',
+        'donasi-zakat-infak',
+        'donasi-progress',
+        'laporan-keuangan',
+        'kalkulator-zakat',
+        'akad-venue',
+        'formulir-kontak',
+        'lokasi-peta',
+        'cta',
     ],
 
 ];

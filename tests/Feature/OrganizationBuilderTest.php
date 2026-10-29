@@ -28,6 +28,29 @@ class OrganizationBuilderTest extends TestCase
         $this->assertSame(1, $organization->pages()->count());
     }
 
+    public function test_widget_picker_follows_page_flow_order(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create(['template_id' => Template::factory()->create()->id]);
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+
+        $this->actingAs($user)->get(route('organizations.builder.edit', $organization))
+            ->assertOk()
+            ->assertSeeInOrder(['Hero', 'Tentang Organisasi', 'Sambutan Ketua', 'Lokasi', 'Call To Action'], false);
+    }
+
+    public function test_every_addable_section_is_placed_in_the_picker_order(): void
+    {
+        // A section missing from picker_order still shows, but only after the closing CTA -
+        // this catches a new section that was added to the registry and forgotten here.
+        $addable = collect(config('page-builder.sections'))
+            ->reject(fn ($meta) => ! empty($meta['locked']) || ! empty($meta['hidden']))
+            ->keys()
+            ->all();
+
+        $this->assertEqualsCanonicalizing($addable, config('page-builder.picker_order'));
+    }
+
     public function test_non_member_is_denied(): void
     {
         $stranger = User::factory()->create();
