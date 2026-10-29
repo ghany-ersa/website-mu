@@ -56,31 +56,6 @@ class OrganizationOrgDataTest extends TestCase
         $this->assertSame(1, $organization->officers()->count());
     }
 
-    public function test_member_can_create_program_and_layanan_as_separate_pools(): void
-    {
-        $user = User::factory()->create();
-        $organization = Organization::factory()->create();
-        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
-        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
-        $page->sections()->create(['key' => 'program-unggulan', 'content' => [], 'order' => 0]);
-        $page->sections()->create(['key' => 'program-unggulan', 'content' => ['source' => 'layanan'], 'order' => 1]);
-
-        $this->actingAs($user)
-            ->post(route('organizations.programs.store', $organization).'?type=program', [
-                'title' => 'Program Beasiswa',
-            ])
-            ->assertRedirect();
-
-        $this->actingAs($user)
-            ->post(route('organizations.programs.store', $organization).'?type=layanan', [
-                'title' => 'Layanan Konsultasi',
-            ])
-            ->assertRedirect();
-
-        $this->assertSame(1, $organization->programs()->ofType('program')->count());
-        $this->assertSame(1, $organization->programs()->ofType('layanan')->count());
-    }
-
     public function test_member_can_create_update_and_delete_network_entries(): void
     {
         $user = User::factory()->create();
@@ -211,41 +186,25 @@ class OrganizationOrgDataTest extends TestCase
         $response->assertSee('Budi Santoso');
     }
 
-    public function test_program_unggulan_and_layanan_sections_auto_bind_to_separate_pools(): void
+    public function test_program_unggulan_is_one_list_with_no_source_choice(): void
     {
         $user = User::factory()->create();
         $organization = Organization::factory()->create();
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
         $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
-        $page->sections()->create(['key' => 'program-unggulan', 'content' => [], 'order' => 0]);
-        $page->sections()->create(['key' => 'program-unggulan', 'content' => ['source' => 'layanan'], 'order' => 1]);
-
-        Program::factory()->create(['organization_id' => $organization->id, 'type' => 'program', 'title' => 'Program Beasiswa Piatu']);
-        Program::factory()->service()->create(['organization_id' => $organization->id, 'title' => 'Layanan Konsultasi Keluarga']);
-
-        $response = $this->actingAs($user)->get(route('organizations.builder.canvas', [$organization, $page]));
-
-        $response->assertOk();
-        $response->assertSee('Program Beasiswa Piatu');
-        $response->assertSee('Layanan Konsultasi Keluarga');
-    }
-
-    public function test_program_unggulan_with_layanan_source_links_to_the_layanan_cms(): void
-    {
-        $user = User::factory()->create();
-        $organization = Organization::factory()->create();
-        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
-        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        // A leftover `source` from before the fold must not split the list any more.
         $page->sections()->create(['key' => 'program-unggulan', 'content' => ['source' => 'layanan'], 'order' => 0]);
+        Program::factory()->create(['organization_id' => $organization->id, 'type' => 'program', 'title' => 'Poli Gigi']);
 
         $this->actingAs($user)->get(route('organizations.builder.edit', $organization))
             ->assertOk()
-            ->assertSee('Sumber Data')
-            ->assertSee('Kelola Layanan')
-            ->assertDontSee('Kelola Program');
+            ->assertDontSee('Sumber Data')
+            ->assertSee('Kelola Program')
+            ->assertDontSee('?type=layanan', false);
 
-        // Only the layanan pool is on this site, so the program CMS stays closed.
-        $this->actingAs($user)->get(route('organizations.programs.index', $organization).'?type=program')->assertNotFound();
+        $this->actingAs($user)->get(route('organizations.builder.canvas', [$organization, $page]))
+            ->assertOk()
+            ->assertSee('Poli Gigi');
     }
 
     public function test_jaringan_aum_ortom_section_auto_binds_on_tenant_page(): void

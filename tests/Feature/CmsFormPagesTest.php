@@ -67,17 +67,14 @@ class CmsFormPagesTest extends TestCase
      * An organization owned by $owner whose home page carries $sectionKey - every one of these
      * controllers 404s before authorizing when the section is absent.
      */
-    /**
-     * @param  array<string, mixed>  $content
-     */
-    private function organizationWithSection(User $owner, string $sectionKey, array $content = []): Organization
+    private function organizationWithSection(User $owner, string $sectionKey): Organization
     {
         $organization = Organization::factory()->withOwner($owner)->create();
 
         OrganizationPage::factory()
             ->create(['organization_id' => $organization->id, 'slug' => 'home', 'is_home' => true])
             ->sections()
-            ->create(['key' => $sectionKey, 'content' => $content, 'order' => 0]);
+            ->create(['key' => $sectionKey, 'content' => [], 'order' => 0]);
 
         return $organization->fresh();
     }
@@ -208,24 +205,19 @@ class CmsFormPagesTest extends TestCase
     // ------------------------------------------------------ programs: ?type=
 
     /**
-     * Programs and layanan are one controller and one table split by ?type=, each gated on a
-     * program-unggulan section with the matching `source` - so the pages have to be exercised
-     * in both modes, and each mode must 404 when only the *other* source is on the site.
+     * Program and kegiatan are one controller and one table split by ?type=. The retired
+     * `layanan` type must land on the program pool rather than 404 or open an empty list.
      */
-    public function test_program_pages_render_for_both_types(): void
+    public function test_program_pages_render_and_old_layanan_links_fall_back_to_program(): void
     {
         $owner = User::factory()->create();
 
         $programOrg = $this->organizationWithSection($owner, 'program-unggulan');
         $this->actingAs($owner)->get(route('organizations.programs.index', $programOrg))->assertOk();
         $this->actingAs($owner)->get(route('organizations.programs.create', $programOrg))->assertOk();
-        // 'layanan' mode is gated on a section this organization doesn't have.
-        $this->actingAs($owner)->get(route('organizations.programs.index', $programOrg).'?type=layanan')->assertNotFound();
-
-        $layananOrg = $this->organizationWithSection($owner, 'program-unggulan', ['source' => 'layanan']);
-        $this->actingAs($owner)->get(route('organizations.programs.index', $layananOrg).'?type=layanan')->assertOk();
-        $this->actingAs($owner)->get(route('organizations.programs.create', $layananOrg).'?type=layanan')->assertOk();
-        $this->actingAs($owner)->get(route('organizations.programs.index', $layananOrg))->assertNotFound();
+        $this->actingAs($owner)->get(route('organizations.programs.index', $programOrg).'?type=layanan')
+            ->assertOk()
+            ->assertSee('Program Unggulan');
     }
 
     public function test_a_program_can_be_edited_and_deleted_through_its_pages(): void

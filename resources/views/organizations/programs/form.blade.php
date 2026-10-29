@@ -18,7 +18,7 @@
         }">
         <x-crud.back-link
             :href="route('organizations.programs.index', $organization).$indexQuery"
-            :label="'Kembali ke '.match ($type) { 'layanan' => 'Layanan', 'kegiatan' => 'Kegiatan', default => 'Program Unggulan' }" />
+            :label="'Kembali ke '.match ($type) { 'kegiatan' => 'Kegiatan', default => 'Program Unggulan' }" />
 
         <x-crud.page-header
             :title="$program->exists ? 'Edit '.$label : 'Tambah '.$label"

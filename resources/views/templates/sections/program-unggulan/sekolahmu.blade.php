@@ -7,7 +7,7 @@
      to $content['items'] in template-preview context, where no organization exists. --}}
 @php
     $content = $section['content'] ?? [];
-    $type = $programType ?? \App\Models\OrganizationSection::programSource($content);
+    $type = $programType ?? 'program';
 
     $items = isset($organization)
         ? $organization->programs()->ofType($type)->get()->map(fn ($program) => [
@@ -34,7 +34,7 @@
     <div class="shell shell-wide">
         <div class="text-center mb-8 sm:mb-10">
             <h2 class="reveal font-headline t-h2 font-extrabold text-primary uppercase tracking-[0.15em] mb-3">
-                {{ $content['title'] ?? ($type === 'layanan' ? 'Layanan' : 'Program Unggulan') }}
+                {{ $content['title'] ?? 'Program Unggulan' }}
             </h2>
             <div class="h-0.5 w-14 bg-secondary mx-auto"></div>
             @if (! empty($content['subtitle']))

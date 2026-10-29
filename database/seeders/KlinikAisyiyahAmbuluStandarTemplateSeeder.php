@@ -110,7 +110,6 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                 // common reason for the visit.
                                 ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Klinik',
-                                    'source' => 'layanan',
                                     'items' => Samples::layananItems(),
                                 ]],
                                 // 3. When to come, and for whom.
@@ -129,10 +128,9 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                         ['value' => 'Gratis', 'label' => 'Layanan Ambulans'],
                                     ],
                                 ]],
-                                // 5. News and health education. (The "Program Sosial Klinik"
-                                // section that sat here was dropped: on one page next to the
-                                // services grid it read as a second, near-identical card list.
-                                // The exclusive clinic template keeps it, on its own page.)
+                                // 5. News and health education. (A "Program Sosial Klinik" grid
+                                // used to sit here; dropped once services and programs became
+                                // one Program list, where it would only repeat the grid above.)
                                 ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kabar & Edukasi Kesehatan',
                                     'limit' => 3,

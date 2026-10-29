@@ -3,22 +3,13 @@
      see daftar-berita.blade.php for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
-    // `programType` (passed by a delegating partial, e.g. kegiatan) wins over the section's own
-    // `source` - see config/page-builder.php's program-unggulan entry.
-    $type = $programType ?? \App\Models\OrganizationSection::programSource($content);
-    $dummyItems = $type === 'layanan'
-        ? [
-            ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
-            ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
-            ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
-        ]
-        : [
-            ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
-            ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
-            ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
-        ];
+    $dummyItems = [
+        ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
+        ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
+        ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
+    ];
     $items = isset($organization)
-        ? $organization->programs()->ofType($type)->get()->map(fn ($program) => [
+        ? $organization->programs()->ofType($programType ?? 'program')->get()->map(fn ($program) => [
             'title' => $program->title,
             'description' => $program->description,
             'icon' => $program->icon,
@@ -31,7 +22,7 @@
         <div class="reveal text-center mb-16">
             <span class="block w-10 h-px bg-secondary mx-auto mb-6"></span>
             <h2 class="text-3xl md:text-4xl text-primary">
-                {{ $content['title'] ?? ($type === 'layanan' ? 'Layanan' : 'Program Unggulan') }}
+                {{ $content['title'] ?? 'Program Unggulan' }}
             </h2>
         </div>
         <div class="grid md:grid-cols-3 gap-x-10 gap-y-12">

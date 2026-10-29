@@ -125,13 +125,11 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                                     'image' => 'https://storage.ambulu.or.id/organizations/5/builder/10a6626c-27c4-4372-9965-651e93261b50.webp',
                                 ]],
                                 // `items` here is a preview-only fallback (this section
-                                // auto-binds to Organization::programs()->ofType('layanan') for
-                                // a real organization, via `source` - see
-                                // program-unggulan/standar.blade.php), kept so the template's
-                                // own preview shows real content.
+                                // auto-binds to Organization::programs() for a real
+                                // organization - see program-unggulan/standar.blade.php), kept
+                                // so the template's own preview shows real content.
                                 ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Unggulan',
-                                    'source' => 'layanan',
                                     'items' => Samples::layananItems(),
                                 ]],
                                 ['key' => 'jadwal-praktik', 'variant' => 'standar', 'content' => [
@@ -160,12 +158,7 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                                 $header,
                                 ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Katalog Layanan Klinik',
-                                    'source' => 'layanan',
                                     'items' => Samples::layananItems(),
-                                ]],
-                                ['key' => 'program-unggulan', 'variant' => 'modern', 'content' => [
-                                    'title' => 'Program Sosial Klinik',
-                                    'items' => Samples::programItems(),
                                 ]],
                                 // Room/facility photos, previously on the removed 'kegiatan' page's
                                 // galeri section (which was about activities, not the clinic

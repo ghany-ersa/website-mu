@@ -144,25 +144,18 @@ return [
             'defaults' => ['title' => 'Struktur Pengurus'],
             'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
         ],
-        // Also absorbs the old `layanan` section: the two were the same card grid over the same
-        // Program table, differing only in which `type` they read. `source` picks that type,
-        // so the data pools stay separate - a clinic still lists its medical services and its
-        // social programs as two sections - while there is one widget (with all three layouts)
-        // instead of two. `cms` here is the `program` default; OrganizationSection::cmsConfig()
-        // swaps in the `sources` entry's type and label. A section with source `layanan` counts
-        // as `layanan` wherever CMS access is decided (OrganizationSection::dataKey()).
+        // Also absorbs the old `layanan` section and its data: the two were the same card grid
+        // over the same Program table, and keeping services and programs as separate pools
+        // turned out to be more distinction than users wanted - layanan rows were folded into
+        // `program` (see the fold_layanan_programs_into_program migration).
         'program-unggulan' => [
             'label' => 'Program Unggulan',
-            'fields' => ['title', 'source', 'items'],
+            'fields' => ['title', 'items'],
             // Only the `sekolahmu` variant renders a subtitle under its heading.
             'variant_fields' => [
                 'sekolahmu' => ['subtitle'],
             ],
             'defaults' => ['title' => 'Program Unggulan'],
-            'sources' => [
-                'program' => ['label' => 'Program', 'data_key' => 'program-unggulan'],
-                'layanan' => ['label' => 'Layanan', 'data_key' => 'layanan'],
-            ],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Program', 'params' => ['type' => 'program']],
         ],
         // A school's activities. Same Program model as program-unggulan, keyed by the

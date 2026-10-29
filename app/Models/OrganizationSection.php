@@ -58,63 +58,6 @@ class OrganizationSection extends Model
     }
 
     /**
-     * Which Program `type` a program-unggulan section shows: its `source` when that is one of
-     * the registry's `sources` (config/page-builder.php), else the first - `program` - so a
-     * section saved before `source` existed, or with a tampered value, keeps its old behaviour.
-     * Static because template structures and the partials only have the content array.
-     *
-     * @param  array<string, mixed>|null  $content
-     */
-    public static function programSource(?array $content): string
-    {
-        $sources = array_keys(config('page-builder.sections.program-unggulan.sources', []));
-        $source = $content['source'] ?? null;
-
-        return in_array($source, $sources, true) ? $source : ($sources[0] ?? 'program');
-    }
-
-    /**
-     * The key that decides which CMS this section is backed by: the section key itself, except
-     * a program-unggulan section reading `layanan` rows counts as `layanan` (the section that
-     * used to exist for them). CMS gating, the sidebar menu and sample seeding all go through
-     * this, so the Layanan CMS opens exactly when some section on the site shows layanan.
-     *
-     * @param  array<string, mixed>|null  $content
-     */
-    public static function dataKeyFor(string $key, ?array $content): string
-    {
-        if ($key !== 'program-unggulan') {
-            return $key;
-        }
-
-        return config('page-builder.sections.program-unggulan.sources.'.self::programSource($content).'.data_key', $key);
-    }
-
-    public function dataKey(): string
-    {
-        return self::dataKeyFor($this->key, $this->content);
-    }
-
-    /**
-     * The registry's `cms` entry for this section, with a program-unggulan section's `source`
-     * applied - its "Kelola ..." link must open the pool it actually displays.
-     *
-     * @return array{route: string, label: string, params?: array<string, string>}|null
-     */
-    public function cmsConfig(): ?array
-    {
-        $cms = config("page-builder.sections.{$this->key}.cms");
-
-        if ($cms && $this->key === 'program-unggulan') {
-            $source = self::programSource($this->content);
-            $cms['params']['type'] = $source;
-            $cms['label'] = config("page-builder.sections.program-unggulan.sources.{$source}.label", $cms['label']);
-        }
-
-        return $cms;
-    }
-
-    /**
      * Copy this section's content, variant and visibility onto the same section key on every
      * other page of the organization - a no-op unless the registry marks the key `shared` (see
      * config/page-builder.php). Updated one model at a time rather than with a bulk query so

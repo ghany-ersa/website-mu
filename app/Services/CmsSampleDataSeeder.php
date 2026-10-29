@@ -291,31 +291,23 @@ class CmsSampleDataSeeder
             self::seedAchievements($organization, $limits, $isSdMadya ? SdMadyaSamples::prestasiItems() : null);
         }
 
-        // `$keys` are OrganizationSection::dataKey()s, so 'layanan' here is a program-unggulan
-        // section whose source is layanan. Both are handled in ONE call: 'program' and 'layanan' share a single
-        // 'programs' plan quota, and seedPrograms() guards on that combined count, so seeding
-        // them as two independent calls meant whichever ran second was skipped outright - a
-        // page with both sections (e.g. the exclusive clinic template) rendered its 'layanan'
-        // section empty on the live site. Passing both types lets the one call split the
-        // available quota between them instead.
+        // 'program' and 'kegiatan' share a single 'programs' plan quota, and seedPrograms()
+        // guards on that combined count - so both go through ONE call that splits the quota,
+        // rather than two where whichever ran second was skipped outright.
         $requestedPrograms = [];
 
         if (in_array('program-unggulan', $keys, true)) {
             $requestedPrograms['program'] = match (true) {
-                $isKlinik => KlinikAisyiyahAmbuluSamples::programItems(),
+                $isKlinik => KlinikAisyiyahAmbuluSamples::layananItems(),
                 $isPcm => PcmAmbuluSamples::programItems(),
                 $isPca => PcaAmbuluSamples::programItems(),
                 default => null,
             };
         }
 
-        if (in_array('layanan', $keys, true)) {
-            $requestedPrograms['layanan'] = $isKlinik ? KlinikAisyiyahAmbuluSamples::layananItems() : null;
-        }
-
-        // 'kegiatan' is a third Program type (see config/page-builder.php, where the section maps
+        // 'kegiatan' is a second Program type (see config/page-builder.php, where the section maps
         // to programs.index with params.type=kegiatan). It goes through the same single
-        // seedPrograms() call as the other two so they keep sharing one 'programs' quota - seeding
+        // seedPrograms() call as 'program' so the two keep sharing one 'programs' quota - seeding
         // it separately would hit that method's `programs()->exists()` guard and be skipped.
         if (in_array('kegiatan', $keys, true)) {
             $requestedPrograms['kegiatan'] = $isSdMadya ? SdMadyaSamples::kegiatanItems() : null;
@@ -619,7 +611,7 @@ class CmsSampleDataSeeder
     /**
      * Seeds sample programs for every requested type in one pass.
      *
-     * `$requested` maps each wanted Program type ('program' and/or 'layanan') to its custom
+     * `$requested` maps each wanted Program type ('program' and/or 'kegiatan') to its custom
      * sample list, or null to use that type's generic placeholders. Both types are handled
      * together because they share ONE plan quota: 'programs' is the PlanLimitService key for
      * both (see RESOURCE_RELATIONS and Organization::programs(), which counts them together),
@@ -627,8 +619,8 @@ class CmsSampleDataSeeder
      *
      * The quota is split evenly, with any remainder going to the earlier type, and any share a
      * type doesn't use (its sample list being shorter than its share) returned to the pool for
-     * the other - so a 5-program budget across 3 'program' + 6 'layanan' samples seeds all 3
-     * programs and 2 services, rather than 3 and none.
+     * the other - so a 5-program budget across 3 'program' + 6 'kegiatan' samples seeds all 3
+     * programs and 2 activities, rather than 3 and none.
      *
      * @param  array<string, array<int, array{title: string, description: string, icon: string}>|null>  $requested
      */
@@ -752,11 +744,6 @@ class CmsSampleDataSeeder
                 ['title' => 'Program Unggulan 1', 'description' => 'Deskripsi singkat program unggulan pertama.', 'icon' => '⭐'],
                 ['title' => 'Program Unggulan 2', 'description' => 'Deskripsi singkat program unggulan kedua.', 'icon' => '🎯'],
                 ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
-            ],
-            'layanan' => [
-                ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
-                ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
-                ['title' => 'Layanan Sosial', 'description' => 'Bantuan dan pemberdayaan bagi warga kurang mampu.', 'icon' => '❤️'],
             ],
             'kegiatan' => [
                 ['title' => 'Kegiatan Rutin 1', 'description' => 'Deskripsi singkat kegiatan rutin pertama.', 'icon' => '📅'],

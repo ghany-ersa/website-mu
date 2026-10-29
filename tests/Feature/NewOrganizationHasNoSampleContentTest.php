@@ -86,7 +86,7 @@ class NewOrganizationHasNoSampleContentTest extends TestCase
     /**
      * The whole catalogue, driven through the real create-then-open-builder flow. Templates
      * differ in which CMS-backed sections they carry (only the masjid ones have
-     * fasilitas-masjid/donasi-progress, only the klinik ones source program-unggulan from layanan), so a single template
+     * fasilitas-masjid/donasi-progress), so a single template
      * could pass while another still leaked.
      */
     public function test_no_template_copies_its_sample_cms_content_into_a_new_organization(): void

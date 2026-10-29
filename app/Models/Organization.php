@@ -611,15 +611,6 @@ class Organization extends Model
     }
 
     /**
-     * Like hasSection(), but by OrganizationSection::dataKey() - which CMS a section is backed
-     * by - so `layanan` matches a program-unggulan section whose source is layanan.
-     */
-    public function hasDataSection(string ...$keys): bool
-    {
-        return $this->pages->flatMap->sections->map->dataKey()->intersect($keys)->isNotEmpty();
-    }
-
-    /**
      * The variant key an organization is using for a given section, e.g. 'poster' vs 'standar'
      * for 'agenda' - lets a CMS form (OrganizationAgendaController) show/hide fields that only
      * one variant's Blade partial renders, instead of every field for every variant regardless
@@ -850,9 +841,7 @@ class Organization extends Model
         $preserveContentByKey = $this->pages()->with('sections')->get()
             ->flatMap->sections
             ->reduce(function (array $carry, OrganizationSection $section) {
-                // By dataKey(), not key: a program-unggulan section showing layanan must hand its
-                // content to the new template's layanan-sourced one, not to its program one.
-                $carry[$section->dataKey()][] = $section->content;
+                $carry[$section->key][] = $section->content;
 
                 return $carry;
             }, []);
@@ -995,14 +984,13 @@ class Organization extends Model
                 foreach (($survivingByPage->get($pageIndex) ?? collect())->values() as $sectionOrder => $section) {
                     $sectionData = $section['data'];
                     $key = $sectionData['key'];
-                    $dataKey = OrganizationSection::dataKeyFor($key, $sectionData['content'] ?? []);
 
                     // array_shift rather than a plain lookup: consumes one queued content per
                     // key per section created, so a key appearing more than once (e.g. two
                     // 'daftar-berita' sections on different pages) pairs old sections with new
                     // ones in the same relative order instead of every match reusing entry #0.
-                    $preservedContent = ! empty($preserveContentByKey[$dataKey])
-                        ? array_shift($preserveContentByKey[$dataKey])
+                    $preservedContent = ! empty($preserveContentByKey[$key])
+                        ? array_shift($preserveContentByKey[$key])
                         : null;
 
                     $page->sections()->create([
@@ -1012,7 +1000,7 @@ class Organization extends Model
                         'order' => $sectionOrder,
                     ]);
 
-                    $sectionKeys[] = $dataKey;
+                    $sectionKeys[] = $key;
                 }
 
                 $page->ensureHeader();

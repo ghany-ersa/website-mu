@@ -62,8 +62,8 @@ class KlinikAisyiyahAmbuluSamples
     /**
      * The clinic's advertised service lines ("Poli umum | Rawat Luka | Poli Gigi | KB Suntik |
      * Laboratorium", plus the 24-hour UGD/rawat inap and free ambulance it leads with). Used
-     * both as the template's `layanan` section content and as the organization's own
-     * `layanan`-type Program records.
+     * both as the template's program-unggulan section content and as the organization's own
+     * Program records - for a clinic, its service lines are its programs.
      *
      * @return array<int, array{title: string, description: string, icon: string}>
      */
@@ -76,22 +76,6 @@ class KlinikAisyiyahAmbuluSamples
             ['title' => 'Poli Gigi', 'description' => 'Pemeriksaan, perawatan, dan tindakan kesehatan gigi bersama dokter gigi.', 'icon' => '🦷'],
             ['title' => 'Rawat Luka & KB Suntik', 'description' => 'Perawatan luka serta layanan keluarga berencana suntik oleh bidan dan perawat.', 'icon' => '💉'],
             ['title' => 'Laboratorium', 'description' => 'Pemeriksaan laboratorium penunjang diagnosis dengan hasil cepat.', 'icon' => '🔬'],
-        ];
-    }
-
-    /**
-     * The clinic's social programs - what it does beyond paid service lines. Used both as the
-     * template's `program-unggulan` section content and as the organization's own
-     * `program`-type Program records.
-     *
-     * @return array<int, array{title: string, description: string, icon: string}>
-     */
-    public static function programItems(): array
-    {
-        return [
-            ['title' => 'Ambulans Gratis', 'description' => 'Layanan antar-jemput pasien tanpa biaya bagi warga yang membutuhkan.', 'icon' => '🚑'],
-            ['title' => 'Baksos Kesehatan', 'description' => 'Pemeriksaan dan pengobatan gratis berkala di desa-desa sekitar Ambulu.', 'icon' => '🤝'],
-            ['title' => 'Posyandu & Penyuluhan', 'description' => 'Pendampingan posyandu balita dan lansia bersama kader Aisyiyah.', 'icon' => '👶'],
         ];
     }
 

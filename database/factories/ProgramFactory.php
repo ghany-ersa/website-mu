@@ -27,9 +27,4 @@ class ProgramFactory extends Factory
             'order' => 0,
         ];
     }
-
-    public function service(): static
-    {
-        return $this->state(fn (array $attributes) => ['type' => 'layanan']);
-    }
 }
