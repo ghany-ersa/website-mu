@@ -178,7 +178,8 @@ class TemplateSandboxService
                 // Locked sections (header/footer) carry no editable fields, and existing seeded
                 // templates omit `content` for them entirely - keep that shape.
                 if (filled($section->content)) {
-                    $data['content'] = $this->refreshBoundItems($sandbox, $section->key, $section->content);
+                    // dataKey(): a program-unggulan section showing layanan rebuilds from layanan rows.
+                    $data['content'] = $this->refreshBoundItems($sandbox, $section->dataKey(), $section->content);
                 }
 
                 return $data;
@@ -191,7 +192,8 @@ class TemplateSandboxService
     /**
      * Rebuilds `content['items']` from the sandbox's own CMS records for every section key
      * that auto-binds to one (see each partial's own "Auto-binds to the organization's ..."
-     * doc comment - daftar-berita, program-unggulan, layanan, struktur-pengurus,
+     * doc comment - daftar-berita, program-unggulan (and its layanan source, keyed `layanan`
+     * here via OrganizationSection::dataKey()), struktur-pengurus,
      * jaringan-aum-ortom, agenda, pengumuman, galeri, fasilitas-masjid, donasi-progress).
      *
      * Without this, `content['items']` in $section->content is whatever was last written to

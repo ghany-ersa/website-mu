@@ -18,9 +18,12 @@ class OrganizationProgramController extends Controller
     public function __construct(private readonly PlanLimitService $planLimitService) {}
 
     /**
-     * Program, Layanan and Kegiatan are the same entity (type column), each rendered by its own
-     * section partial - see prd.md for the rationale. ?type= switches the whole index/form to
-     * that pool; anything unrecognised defaults to "program".
+     * Program, Layanan and Kegiatan are the same entity (type column). Program and Layanan are
+     * kept as separate pools because one organization can need both - a clinic lists its
+     * medical services (layanan) apart from its social programs (program) - but they share one
+     * widget, program-unggulan, whose `source` picks the pool (config/page-builder.php).
+     * Kegiatan keeps its own widget. ?type= switches the whole index/form to that pool;
+     * anything unrecognised defaults to "program".
      *
      * `kegiatan` is a school's activities (the Activity entity of the standalone
      * comprof-SD-Madya project), which adds the image/category/date columns; program and
@@ -33,6 +36,10 @@ class OrganizationProgramController extends Controller
         return in_array($type, ['layanan', 'kegiatan'], true) ? $type : 'program';
     }
 
+    /**
+     * The OrganizationSection::dataKey() that must exist on the site for this pool's CMS to
+     * open - `layanan` is a program-unggulan section with source layanan, not its own key.
+     */
     private function sectionKey(string $type): string
     {
         return match ($type) {
@@ -63,7 +70,7 @@ class OrganizationProgramController extends Controller
     public function index(Request $request, Organization $organization): View
     {
         $type = $this->type($request);
-        abort_unless($organization->hasSection($this->sectionKey($type)), 404);
+        abort_unless($organization->hasDataSection($this->sectionKey($type)), 404);
 
         $this->authorize('viewAny', [Program::class, $organization]);
 
@@ -79,7 +86,7 @@ class OrganizationProgramController extends Controller
     public function create(Request $request, Organization $organization): View|RedirectResponse
     {
         $type = $this->type($request);
-        abort_unless($organization->hasSection($this->sectionKey($type)), 404);
+        abort_unless($organization->hasDataSection($this->sectionKey($type)), 404);
 
         $this->authorize('create', [Program::class, $organization]);
 
@@ -102,7 +109,7 @@ class OrganizationProgramController extends Controller
     {
 
         $type = $this->type($request);
-        abort_unless($organization->hasSection($this->sectionKey($type)), 404);
+        abort_unless($organization->hasDataSection($this->sectionKey($type)), 404);
 
         $this->authorize('create', [Program::class, $organization]);
 

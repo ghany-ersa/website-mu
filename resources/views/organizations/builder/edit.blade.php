@@ -1117,6 +1117,7 @@
                                             'portrait' => 'Gambar Utama',
                                             'highlight_title' => 'Judul Kartu Sorotan',
                                             'highlight_subtitle' => 'Subjudul Kartu Sorotan',
+                                            'source' => 'Sumber Data',
                                         ][$field] ?? ucfirst(str_replace('_', ' ', $field)) }}</label>
                                     @if (in_array($field, ['body', 'sambutan', 'subheadline', 'wa_message'], true))
                                         @php
@@ -1158,6 +1159,18 @@
                                                 </button>
                                             </div>
                                         </div>
+                                    {{-- program-unggulan's `source`: which Program pool the section
+                                         shows (see config/page-builder.php). Options come from the
+                                         registry's `sources`, so adding a pool needs no view change. --}}
+                                    @elseif ($field === 'source' && ($sources = config("page-builder.sections.{$section->key}.sources")))
+                                        @php $currentSource = \App\Models\OrganizationSection::programSource($section->content); @endphp
+                                        <select name="content[{{ $field }}]"
+                                            class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 focus:bg-white transition">
+                                            @foreach ($sources as $sourceKey => $sourceMeta)
+                                                <option value="{{ $sourceKey }}" @selected($currentSource === $sourceKey)>{{ $sourceMeta['label'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        <p class="mt-1.5 text-xs text-gray-400">Program dan Layanan dikelola sebagai daftar terpisah di CMS.</p>
                                     @elseif ($field === 'items' && config("page-builder.sections.{$section->key}.cms"))
                                         {{-- Nothing: `items` on a CMS-backed section has no inline
                                              editor, and the "Kelola ..." link that used to live here
@@ -1300,7 +1313,7 @@
                                  exactly that case - its CMS existed and was reachable from the
                                  sidebar, but not from the section being edited. --}}
                             @php
-                                $cmsConfig = config("page-builder.sections.{$section->key}.cms");
+                                $cmsConfig = $section->cmsConfig();
                             @endphp
                             @if ($cmsConfig)
                                 @php

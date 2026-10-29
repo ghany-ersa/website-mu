@@ -108,8 +108,9 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                 ]],
                                 // 2. What the clinic treats. High, because it is the most
                                 // common reason for the visit.
-                                ['key' => 'layanan', 'variant' => 'standar', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Klinik',
+                                    'source' => 'layanan',
                                     'items' => Samples::layananItems(),
                                 ]],
                                 // 3. When to come, and for whom.
@@ -128,26 +129,23 @@ class KlinikAisyiyahAmbuluStandarTemplateSeeder extends Seeder
                                         ['value' => 'Gratis', 'label' => 'Layanan Ambulans'],
                                     ],
                                 ]],
-                                // 5. The free ambulance and the baksos - what the clinic does
-                                // beyond paid service lines.
-                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
-                                    'title' => 'Program Sosial Klinik',
-                                    'items' => Samples::programItems(),
-                                ]],
-                                // 6. News and health education.
+                                // 5. News and health education. (The "Program Sosial Klinik"
+                                // section that sat here was dropped: on one page next to the
+                                // services grid it read as a second, near-identical card list.
+                                // The exclusive clinic template keeps it, on its own page.)
                                 ['key' => 'daftar-berita', 'variant' => 'standar', 'content' => [
                                     'title' => 'Kabar & Edukasi Kesehatan',
                                     'limit' => 3,
                                     'items' => Samples::beritaItems(),
                                 ]],
-                                // 7. Registration and scheduling questions.
+                                // 6. Registration and scheduling questions.
                                 ['key' => 'formulir-kontak', 'variant' => 'standar', 'content' => [
                                     'title' => 'Hubungi Klinik',
                                     'subtitle' => 'Untuk pendaftaran, konsultasi jadwal, atau permintaan ambulans, hubungi kami langsung via WhatsApp.',
                                     'wa_number' => Samples::WHATSAPP,
                                     'wa_message' => 'Assalamu\'alaikum, saya ingin bertanya seputar layanan Klinik Pratama Aisyiyah Ambulu.',
                                 ]],
-                                // 8. How to get there - the last thing needed, and the one a
+                                // 7. How to get there - the last thing needed, and the one a
                                 // patient opens on the way.
                                 ['key' => 'lokasi-peta', 'variant' => 'standar', 'content' => [
                                     'title' => 'Lokasi Klinik',

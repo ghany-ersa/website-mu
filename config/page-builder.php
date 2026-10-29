@@ -144,23 +144,28 @@ return [
             'defaults' => ['title' => 'Struktur Pengurus'],
             'cms' => ['route' => 'organizations.officers.index', 'label' => 'Pengurus'],
         ],
+        // Also absorbs the old `layanan` section: the two were the same card grid over the same
+        // Program table, differing only in which `type` they read. `source` picks that type,
+        // so the data pools stay separate - a clinic still lists its medical services and its
+        // social programs as two sections - while there is one widget (with all three layouts)
+        // instead of two. `cms` here is the `program` default; OrganizationSection::cmsConfig()
+        // swaps in the `sources` entry's type and label. A section with source `layanan` counts
+        // as `layanan` wherever CMS access is decided (OrganizationSection::dataKey()).
         'program-unggulan' => [
             'label' => 'Program Unggulan',
-            'fields' => ['title', 'items'],
+            'fields' => ['title', 'source', 'items'],
             // Only the `sekolahmu` variant renders a subtitle under its heading.
             'variant_fields' => [
                 'sekolahmu' => ['subtitle'],
             ],
             'defaults' => ['title' => 'Program Unggulan'],
+            'sources' => [
+                'program' => ['label' => 'Program', 'data_key' => 'program-unggulan'],
+                'layanan' => ['label' => 'Layanan', 'data_key' => 'layanan'],
+            ],
             'cms' => ['route' => 'organizations.programs.index', 'label' => 'Program', 'params' => ['type' => 'program']],
         ],
-        'layanan' => [
-            'label' => 'Layanan',
-            'fields' => ['title', 'items'],
-            'defaults' => ['title' => 'Layanan'],
-            'cms' => ['route' => 'organizations.programs.index', 'label' => 'Layanan', 'params' => ['type' => 'layanan']],
-        ],
-        // A school's activities. Same Program model as program-unggulan/layanan, keyed by the
+        // A school's activities. Same Program model as program-unggulan, keyed by the
         // `kegiatan` type - see OrganizationProgramController::type().
         'kegiatan' => [
             'label' => 'Kegiatan Sekolah',
@@ -363,7 +368,6 @@ return [
         'sambutan-ketua',
         'struktur-pengurus',
         'program-unggulan',
-        'layanan',
         'kegiatan',
         'prestasi',
         'fasilitas-masjid',

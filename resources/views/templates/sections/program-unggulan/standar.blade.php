@@ -3,7 +3,10 @@
      see daftar-berita.blade.php for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
-    $dummyItems = ($programType ?? 'program') === 'layanan'
+    // `programType` (passed by a delegating partial, e.g. kegiatan) wins over the section's own
+    // `source` - see config/page-builder.php's program-unggulan entry.
+    $type = $programType ?? \App\Models\OrganizationSection::programSource($content);
+    $dummyItems = $type === 'layanan'
         ? [
             ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
             ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
@@ -15,7 +18,7 @@
             ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
         ];
     $items = isset($organization)
-        ? $organization->programs()->ofType($programType ?? 'program')->get()->map(fn ($program) => [
+        ? $organization->programs()->ofType($type)->get()->map(fn ($program) => [
             'title' => $program->title,
             'description' => $program->description,
             'icon' => $program->icon,
@@ -26,7 +29,7 @@
 <section class="py-16 bg-softBg">
     <div class="max-w-6xl mx-auto px-6">
         <h2 class="reveal text-3xl font-extrabold text-primary mb-10 text-center">
-            {{ $content['title'] ?? 'Program Unggulan' }}
+            {{ $content['title'] ?? ($type === 'layanan' ? 'Layanan' : 'Program Unggulan') }}
         </h2>
         <div class="grid md:grid-cols-3 gap-6">
             @foreach ($items as $item)

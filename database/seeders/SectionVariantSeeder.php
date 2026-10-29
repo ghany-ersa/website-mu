@@ -49,9 +49,6 @@ class SectionVariantSeeder extends Seeder
                 'modern' => ['view' => 'templates.sections.program-unggulan.modern', 'exclusive' => true],
                 'sekolahmu' => ['view' => 'templates.sections.program-unggulan.sekolahmu', 'exclusive' => true],
             ],
-            'layanan' => [
-                'standar' => ['view' => 'templates.sections.layanan.standar', 'exclusive' => false, 'default' => true],
-            ],
             'jaringan-aum-ortom' => [
                 'standar' => ['view' => 'templates.sections.jaringan-aum-ortom.standar', 'exclusive' => false, 'default' => true],
             ],

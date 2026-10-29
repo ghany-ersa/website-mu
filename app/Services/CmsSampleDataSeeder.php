@@ -291,7 +291,8 @@ class CmsSampleDataSeeder
             self::seedAchievements($organization, $limits, $isSdMadya ? SdMadyaSamples::prestasiItems() : null);
         }
 
-        // Both section keys are handled in ONE call: 'program' and 'layanan' share a single
+        // `$keys` are OrganizationSection::dataKey()s, so 'layanan' here is a program-unggulan
+        // section whose source is layanan. Both are handled in ONE call: 'program' and 'layanan' share a single
         // 'programs' plan quota, and seedPrograms() guards on that combined count, so seeding
         // them as two independent calls meant whichever ran second was skipped outright - a
         // page with both sections (e.g. the exclusive clinic template) rendered its 'layanan'

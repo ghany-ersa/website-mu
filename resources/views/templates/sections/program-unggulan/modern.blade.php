@@ -3,7 +3,10 @@
      see daftar-berita.blade.php for the full rationale. --}}
 @php
     $content = $section['content'] ?? [];
-    $dummyItems = ($programType ?? 'program') === 'layanan'
+    // `programType` (passed by a delegating partial, e.g. kegiatan) wins over the section's own
+    // `source` - see config/page-builder.php's program-unggulan entry.
+    $type = $programType ?? \App\Models\OrganizationSection::programSource($content);
+    $dummyItems = $type === 'layanan'
         ? [
             ['title' => 'Layanan Konsultasi', 'description' => 'Konsultasi dan pendampingan bagi masyarakat.', 'icon' => '🗣️'],
             ['title' => 'Layanan Administrasi', 'description' => 'Pengurusan surat dan dokumen organisasi.', 'icon' => '📄'],
@@ -15,7 +18,7 @@
             ['title' => 'Program Unggulan 3', 'description' => 'Deskripsi singkat program unggulan ketiga.', 'icon' => '🚀'],
         ];
     $items = isset($organization)
-        ? $organization->programs()->ofType($programType ?? 'program')->get()->map(fn ($program) => [
+        ? $organization->programs()->ofType($type)->get()->map(fn ($program) => [
             'title' => $program->title,
             'description' => $program->description,
             'icon' => $program->icon,
@@ -28,7 +31,7 @@
         <div class="reveal text-center mb-16">
             <span class="block w-10 h-px bg-secondary mx-auto mb-6"></span>
             <h2 class="text-3xl md:text-4xl text-primary">
-                {{ $content['title'] ?? 'Program Unggulan' }}
+                {{ $content['title'] ?? ($type === 'layanan' ? 'Layanan' : 'Program Unggulan') }}
             </h2>
         </div>
         <div class="grid md:grid-cols-3 gap-x-10 gap-y-12">

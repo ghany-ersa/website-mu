@@ -63,7 +63,7 @@ class OrganizationOrgDataTest extends TestCase
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
         $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
         $page->sections()->create(['key' => 'program-unggulan', 'content' => [], 'order' => 0]);
-        $page->sections()->create(['key' => 'layanan', 'content' => [], 'order' => 1]);
+        $page->sections()->create(['key' => 'program-unggulan', 'content' => ['source' => 'layanan'], 'order' => 1]);
 
         $this->actingAs($user)
             ->post(route('organizations.programs.store', $organization).'?type=program', [
@@ -218,7 +218,7 @@ class OrganizationOrgDataTest extends TestCase
         $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
         $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
         $page->sections()->create(['key' => 'program-unggulan', 'content' => [], 'order' => 0]);
-        $page->sections()->create(['key' => 'layanan', 'content' => [], 'order' => 1]);
+        $page->sections()->create(['key' => 'program-unggulan', 'content' => ['source' => 'layanan'], 'order' => 1]);
 
         Program::factory()->create(['organization_id' => $organization->id, 'type' => 'program', 'title' => 'Program Beasiswa Piatu']);
         Program::factory()->service()->create(['organization_id' => $organization->id, 'title' => 'Layanan Konsultasi Keluarga']);
@@ -228,6 +228,24 @@ class OrganizationOrgDataTest extends TestCase
         $response->assertOk();
         $response->assertSee('Program Beasiswa Piatu');
         $response->assertSee('Layanan Konsultasi Keluarga');
+    }
+
+    public function test_program_unggulan_with_layanan_source_links_to_the_layanan_cms(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $page = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $page->sections()->create(['key' => 'program-unggulan', 'content' => ['source' => 'layanan'], 'order' => 0]);
+
+        $this->actingAs($user)->get(route('organizations.builder.edit', $organization))
+            ->assertOk()
+            ->assertSee('Sumber Data')
+            ->assertSee('Kelola Layanan')
+            ->assertDontSee('Kelola Program');
+
+        // Only the layanan pool is on this site, so the program CMS stays closed.
+        $this->actingAs($user)->get(route('organizations.programs.index', $organization).'?type=program')->assertNotFound();
     }
 
     public function test_jaringan_aum_ortom_section_auto_binds_on_tenant_page(): void

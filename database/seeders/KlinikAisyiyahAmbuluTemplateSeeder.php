@@ -126,10 +126,12 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                                 ]],
                                 // `items` here is a preview-only fallback (this section
                                 // auto-binds to Organization::programs()->ofType('layanan') for
-                                // a real organization - see layanan/standar.blade.php), kept so
-                                // the template's own preview shows real content.
-                                ['key' => 'layanan', 'variant' => 'standar', 'content' => [
+                                // a real organization, via `source` - see
+                                // program-unggulan/standar.blade.php), kept so the template's
+                                // own preview shows real content.
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Layanan Unggulan',
+                                    'source' => 'layanan',
                                     'items' => Samples::layananItems(),
                                 ]],
                                 ['key' => 'jadwal-praktik', 'variant' => 'standar', 'content' => [
@@ -156,8 +158,9 @@ class KlinikAisyiyahAmbuluTemplateSeeder extends Seeder
                             'name' => 'Layanan',
                             'sections' => [
                                 $header,
-                                ['key' => 'layanan', 'variant' => 'standar', 'content' => [
+                                ['key' => 'program-unggulan', 'variant' => 'standar', 'content' => [
                                     'title' => 'Katalog Layanan Klinik',
+                                    'source' => 'layanan',
                                     'items' => Samples::layananItems(),
                                 ]],
                                 ['key' => 'program-unggulan', 'variant' => 'modern', 'content' => [
