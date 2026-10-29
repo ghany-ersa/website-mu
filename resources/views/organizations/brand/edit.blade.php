@@ -222,6 +222,8 @@
                         <input type="file" accept="image/*" multiple class="hidden"
                                @change="upload($event.target.files); $event.target.value = ''">
                     </label>
+                    <p x-show="picker.error" x-cloak x-text="picker.error"
+                       style="white-space: pre-line" class="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></p>
                 </div>
                 <div class="flex-1 overflow-y-auto p-5">
                     <div x-show="picker.loading" class="text-center text-sm text-gray-400 py-8">Memuat…</div>
@@ -278,7 +280,7 @@
                     const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
                     return luminance > 0.85;
                 },
-                picker: { open: false, loading: false, items: [], fetched: false },
+                picker: { open: false, loading: false, items: [], fetched: false, error: '' },
                 async openPicker() {
                     this.picker.open = true;
                     if (this.picker.fetched) return;
@@ -296,17 +298,27 @@
                     [...files].forEach((file) => formData.append('files[]', file));
                     formData.append('category', 'brand');
                     this.picker.loading = true;
-                    const res = await fetch(@json(route('organizations.media.store', $organization)), {
-                        method: 'POST',
-                        headers: {
-                            Accept: 'application/json',
-                            'X-CSRF-TOKEN': @json(csrf_token()),
-                        },
-                        body: formData,
-                    });
-                    const uploaded = await res.json();
-                    this.picker.items = [...uploaded, ...this.picker.items];
-                    this.picker.loading = false;
+                    this.picker.error = '';
+                    try {
+                        const res = await fetch(@json(route('organizations.media.store', $organization)), {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'X-CSRF-TOKEN': @json(csrf_token()),
+                            },
+                            body: formData,
+                        });
+                        if (!res.ok) {
+                            this.picker.error = await uploadErrorMessage(res);
+                            return;
+                        }
+                        const uploaded = await res.json();
+                        this.picker.items = [...uploaded, ...this.picker.items];
+                    } catch (e) {
+                        this.picker.error = 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.';
+                    } finally {
+                        this.picker.loading = false;
+                    }
                 },
                 async deleteMedia(item) {
                     if (!(await confirmAction('Hapus gambar ini dari galeri?'))) return;

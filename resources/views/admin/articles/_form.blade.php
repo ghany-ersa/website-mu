@@ -80,6 +80,8 @@
                 Hapus
             </button>
         </div>
+        <p x-show="uploadError" x-cloak x-text="uploadError"
+           class="mt-2 max-w-md text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></p>
         <input type="hidden" name="cover_image" x-model="coverImage">
         @error('cover_image')
             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
@@ -100,6 +102,7 @@
             newCategory: '',
             coverImage: @json(old('cover_image', $article->cover_image ?? '')),
             uploading: false,
+            uploadError: '',
 
             init() {
                 const existingCategories = @json($categories);
@@ -150,6 +153,7 @@
                 const formData = new FormData();
                 formData.append('file', files[0]);
                 this.uploading = true;
+                this.uploadError = '';
                 try {
                     const res = await fetch(@json(route('admin.articles.images.store')), {
                         method: 'POST',
@@ -159,11 +163,14 @@
                         },
                         body: formData,
                     });
-                    if (! res.ok) throw new Error('Upload gagal');
+                    if (! res.ok) {
+                        this.uploadError = await uploadErrorMessage(res);
+                        return;
+                    }
                     const data = await res.json();
                     this.coverImage = data.url;
                 } catch (e) {
-                    alert('Gagal mengunggah gambar. Coba lagi.');
+                    this.uploadError = 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.';
                 } finally {
                     this.uploading = false;
                 }

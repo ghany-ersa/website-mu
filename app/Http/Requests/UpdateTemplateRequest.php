@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ImageFitsInMemory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +26,7 @@ class UpdateTemplateRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', Rule::unique('templates', 'slug')->ignore($this->route('template'))],
             'description' => ['nullable', 'string'],
-            'thumbnail' => ['nullable', 'image', 'max:5120', 'dimensions:max_width=8000,max_height=8000'],
+            'thumbnail' => ['nullable', 'image', 'max:5120', new ImageFitsInMemory],
             'remove_thumbnail' => ['nullable', 'boolean'],
             'structure' => ['required', 'json'],
             'is_active' => ['nullable', 'boolean'],

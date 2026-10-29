@@ -78,5 +78,6 @@
     </main>
 
     @include('partials.confirm-modal')
+    @include('partials.upload-error')
 </body>
 </html>

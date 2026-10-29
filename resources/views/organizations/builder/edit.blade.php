@@ -116,6 +116,7 @@
             items: [],
             onPick: null,
             fetched: false,
+            error: '',
             async show(onPick) {
                 this.onPick = onPick;
                 this.open = true;
@@ -138,26 +139,31 @@
                 [...files].forEach((file) => formData.append('files[]', file));
                 formData.append('category', 'builder');
                 this.loading = true;
-                const res = await fetch(window.mediaStoreUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': window.csrfToken,
-                    },
-                    body: formData,
-                });
-                this.loading = false;
-                if (!res.ok) {
-                    const body = await res.json().catch(() => null);
-                    const message = body?.errors
-                        ? Object.values(body.errors).flat().join(' ')
-                        : (body?.message || `Unggah gagal (${res.status}).`);
-                    alert(message);
-                    return;
+                this.error = '';
+                // Shown inside the modal rather than alert(): the message stays next to the
+                // upload box while the user picks a smaller/JPG file, instead of a blocking
+                // native dialog that disappears once dismissed.
+                try {
+                    const res = await fetch(window.mediaStoreUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': window.csrfToken,
+                        },
+                        body: formData,
+                    });
+                    if (!res.ok) {
+                        this.error = await uploadErrorMessage(res);
+                        return;
+                    }
+                    const uploaded = await res.json();
+                    this.items = [...uploaded, ...this.items];
+                } catch (e) {
+                    this.error = 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.';
+                } finally {
+                    this.loading = false;
                 }
-                const uploaded = await res.json();
-                this.items = [...uploaded, ...this.items];
             },
             async deleteMedia(item) {
                 if (!(await confirmAction('Hapus gambar ini dari galeri?'))) return;
@@ -1391,10 +1397,12 @@
                             <path fill-rule="evenodd" d="M10 2a.75.75 0 0 1 .75.75v8.69l2.72-2.72a.75.75 0 1 1 1.06 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06l2.72 2.72V2.75A.75.75 0 0 1 10 2ZM3 15.25a.75.75 0 0 1 .75.75v1.5c0 .414.336.75.75.75h11a.75.75 0 0 0 .75-.75v-1.5a.75.75 0 0 1 1.5 0v1.5A2.25 2.25 0 0 1 15.5 19h-11A2.25 2.25 0 0 1 2.25 17.5v-1.5A.75.75 0 0 1 3 15.25Z" clip-rule="evenodd" />
                         </svg>
                         <span class="text-sm font-semibold text-gray-600">Unggah gambar baru</span>
-                        <span class="text-xs text-gray-400">PNG, JPG, atau WebP. Maks 5MB.</span>
+                        <span class="text-xs text-gray-400">PNG, JPG, atau WebP. Maks 10MB.</span>
                         <input type="file" accept="image/*" multiple class="hidden"
                             @change="mediaPicker.upload($event.target.files); $event.target.value = ''">
                     </label>
+                    <p x-show="mediaPicker.error" x-cloak x-text="mediaPicker.error" style="white-space: pre-line"
+                       class="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></p>
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-5">
@@ -1568,6 +1576,7 @@
     </script>
 
     @include('partials.confirm-modal')
+    @include('partials.upload-error')
 
 </body>
 

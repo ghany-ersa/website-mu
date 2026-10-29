@@ -66,7 +66,7 @@
                 {{-- Without this the upload()'s error state would be set but never shown, which
                      is the failure mode that hid the rejected-category bug in the first place. --}}
                 <p x-show="picker.error" x-cloak x-text="picker.error"
-                   class="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></p>
+                   style="white-space: pre-line" class="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></p>
             </div>
             <div class="flex-1 overflow-y-auto p-5">
                 <div x-show="picker.loading" class="text-center text-sm text-gray-400 py-8">Memuat…</div>
@@ -131,15 +131,7 @@
                             });
 
                             if (!res.ok) {
-                                let message = 'Gagal mengunggah foto. Coba lagi.';
-                                try {
-                                    const body = await res.json();
-                                    // Laravel 422 shape: {message, errors: {field: [msg, ...]}}
-                                    message = Object.values(body?.errors ?? {}).flat()[0] ?? body?.message ?? message;
-                                } catch (e) {
-                                    if (res.status === 413) message = 'Ukuran file terlalu besar. Maks 10MB.';
-                                }
-                                this.picker.error = message;
+                                this.picker.error = await uploadErrorMessage(res);
                                 return;
                             }
 

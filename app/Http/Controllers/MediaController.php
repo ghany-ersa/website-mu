@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Media;
 use App\Models\Organization;
+use App\Rules\ImageFitsInMemory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -59,10 +60,9 @@ class MediaController extends Controller
 
         $validated = $request->validate([
             'files' => ['required', 'array'],
-            // The dimensions cap is read from the header without decoding, so it rejects a
-            // small, highly compressed file that would expand to gigabytes of pixels in
-            // decodePath() below and exhaust PHP's memory.
-            'files.*' => ['image', 'max:10240', 'dimensions:max_width=8000,max_height=8000'],
+            // Checked from the header without decoding, so a small, highly compressed file
+            // that would expand past memory_limit in decodePath() below is refused up front.
+            'files.*' => ['image', 'max:10240', new ImageFitsInMemory],
             'category' => ['nullable', 'string', 'in:'.implode(',', self::CATEGORIES)],
         ]);
 

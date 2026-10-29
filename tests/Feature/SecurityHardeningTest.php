@@ -10,10 +10,13 @@ use App\Models\OrganizationPage;
 use App\Models\Plan;
 use App\Models\Template;
 use App\Models\User;
+use App\Rules\ImageFitsInMemory;
 use App\Services\GoogleMapsEmbedResolver;
 use App\Services\SafeUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 /**
@@ -260,6 +263,65 @@ class SecurityHardeningTest extends TestCase
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
             ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
             ->assertHeader('Content-Security-Policy');
+    }
+
+    // ---------------------------------------------------------------- #10 image bombs
+
+    /**
+     * A PNG that is only a header declaring the given size - getimagesize() reads no further,
+     * so this stands in for a highly compressed "decompression bomb" without ever allocating it.
+     */
+    private function pngHeader(int $width, int $height): UploadedFile
+    {
+        $ihdr = 'IHDR'.pack('NNCCCCC', $width, $height, 8, 2, 0, 0, 0);
+        $bytes = "\x89PNG\r\n\x1a\n".pack('N', 13).$ihdr.pack('N', crc32($ihdr));
+
+        $path = tempnam(sys_get_temp_dir(), 'bomb');
+        file_put_contents($path, $bytes);
+
+        return new UploadedFile($path, 'bom.png', 'image/png', null, true);
+    }
+
+    public function test_a_decompression_bomb_upload_is_refused_with_a_readable_message(): void
+    {
+        $owner = User::factory()->create();
+        $organization = Organization::factory()->withOwner($owner)->create();
+
+        $this->actingAs($owner)
+            ->postJson(route('organizations.media.store', $organization), ['files' => [$this->pngHeader(30000, 30000)]])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors', fn (array $errors) => str_contains(implode(' ', array_merge(...array_values($errors))), 'terlalu besar'));
+    }
+
+    /**
+     * HEIC passes Laravel's `image` rule but getimagesize() can't read it. The size check must
+     * not be the thing that rejects it (that produced "invalid image dimensions") - the
+     * decoder's own "simpan ulang sebagai JPG" message is the one that explains what to do.
+     */
+    public function test_an_image_whose_size_cannot_be_read_is_left_to_the_decoder(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'heic');
+        file_put_contents($path, "\x00\x00\x00\x18ftypheic".str_repeat("\x00", 64));
+        $file = new UploadedFile($path, 'foto.heic', 'image/heic', null, true);
+
+        $this->assertTrue(Validator::make(['file' => $file], ['file' => [new ImageFitsInMemory]])->passes());
+    }
+
+    public function test_an_ordinary_large_photo_still_fits(): void
+    {
+        // The rule budgets against memory_limit minus what's already in use, and a long test
+        // run holds far more than a real upload request does (~22MB) - so give it a limit that
+        // reflects a request's headroom instead of whatever the runner has accumulated.
+        $previous = ini_set('memory_limit', '512M');
+
+        try {
+            $this->assertTrue(Validator::make(
+                ['file' => $this->pngHeader(4000, 3000)],
+                ['file' => [new ImageFitsInMemory]],
+            )->passes());
+        } finally {
+            ini_set('memory_limit', (string) $previous);
+        }
     }
 
     // ---------------------------------------------------------------- #9 template switch

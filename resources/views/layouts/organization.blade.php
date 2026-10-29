@@ -288,6 +288,7 @@
     </main>
 
     @include('partials.confirm-modal')
+    @include('partials.upload-error')
 
     @include('components.support-bubble')
 
