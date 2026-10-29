@@ -27,10 +27,13 @@
                 <div class="p-5 flex items-center gap-4" data-photo-id="{{ $photo->id }}">
                     <span class="cursor-move text-gray-300 hover:text-gray-500 shrink-0 touch-none select-none">⠿</span>
                     <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                        <img src="{{ $photo->url }}" alt="{{ $photo->caption }}" class="w-full h-full object-cover">
+                        <img src="{{ $photo->url }}" alt="{{ $photo->label }}" class="w-full h-full object-cover">
                     </div>
                     <div class="min-w-0 flex-1">
-                        <p class="font-semibold text-gray-800 truncate">{{ $photo->caption ?: 'Tanpa keterangan' }}</p>
+                        <p class="font-semibold text-gray-800 truncate">{{ $photo->label ?: 'Tanpa judul' }}</p>
+                        @if ($photo->category)
+                            <p class="text-xs text-gray-400 truncate">{{ $photo->category }}</p>
+                        @endif
                     </div>
                     <x-crud.row-actions
                         :edit-href="route('organizations.gallery.edit', [$organization, $photo]).$builderQuery"

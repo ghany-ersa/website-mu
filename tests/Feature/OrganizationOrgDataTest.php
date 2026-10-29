@@ -116,7 +116,8 @@ class OrganizationOrgDataTest extends TestCase
         $this->actingAs($user)
             ->post(route('organizations.gallery.store', $organization), [
                 'url' => 'https://example.test/foto-1.jpg',
-                'caption' => 'Kegiatan bakti sosial',
+                'title' => 'Kegiatan bakti sosial',
+                'category' => 'Olahraga',
             ])
             ->assertRedirect();
 
@@ -126,10 +127,14 @@ class OrganizationOrgDataTest extends TestCase
         $this->actingAs($user)
             ->patch(route('organizations.gallery.update', [$organization, $photo]), [
                 'url' => 'https://example.test/foto-1.jpg',
-                'caption' => 'Bakti sosial Ramadan',
+                'title' => 'Bakti sosial Ramadan',
+                'category' => 'kegiatan',
             ])
             ->assertRedirect();
-        $this->assertSame('Bakti sosial Ramadan', $photo->fresh()->caption);
+        $this->assertSame('Olahraga', $photo->category);
+        $this->assertSame('Bakti sosial Ramadan', $photo->fresh()->title);
+        // Free-text category snaps to the existing spelling so the public filter doesn't split.
+        $this->assertSame('Kegiatan', $photo->fresh()->category);
 
         $second = GalleryPhoto::factory()->create(['organization_id' => $organization->id, 'order' => 1]);
         $ids = [$second->id, $photo->id];

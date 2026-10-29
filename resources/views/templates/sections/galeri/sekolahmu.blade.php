@@ -14,8 +14,7 @@
     $items = isset($organization)
         ? $organization->photos()->active()->take($limit)->get()->map(fn ($photo) => [
             'image' => $photo->url,
-            'title' => $photo->title,
-            'caption' => $photo->caption,
+            'title' => $photo->label,
             'category' => $photo->category,
         ])->all()
         : ($content['items'] ?? [
