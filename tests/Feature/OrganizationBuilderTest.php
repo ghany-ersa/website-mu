@@ -164,6 +164,40 @@ class OrganizationBuilderTest extends TestCase
         $this->assertSame([['title' => 'Contoh Berita']], $fresh->content['items']);
     }
 
+    public function test_header_and_footer_settings_are_shared_across_pages(): void
+    {
+        $user = User::factory()->create();
+        $organization = Organization::factory()->create();
+        $organization->members()->attach($user->id, ['role' => OrganizationRole::Owner->value]);
+        $home = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'home']);
+        $other = OrganizationPage::factory()->create(['organization_id' => $organization->id, 'slug' => 'kontak']);
+        foreach ([$home, $other] as $page) {
+            $page->ensureHeader();
+            $page->ensureFooter();
+        }
+        $somethingElse = $other->sections()->create(['key' => 'hero', 'content' => ['title' => 'Tetap'], 'order' => 1]);
+
+        foreach (['header', 'footer'] as $key) {
+            $this->actingAs($user)
+                ->patch(route('organizations.sections.update', [$organization, $home->sections()->where('key', $key)->first()]), [
+                    'content' => ['org_name' => 'PCM Singkat'],
+                    'is_visible' => '1',
+                ])
+                ->assertRedirect();
+
+            $this->assertSame('PCM Singkat', $other->sections()->where('key', $key)->first()->content['org_name']);
+        }
+        $this->assertSame('Tetap', $somethingElse->fresh()->content['title']);
+
+        // A page created afterwards starts from the site's header/footer, not registry defaults.
+        $this->actingAs($user)
+            ->post(route('organizations.pages.store', $organization), ['name' => 'Profil', 'slug' => 'profil'])
+            ->assertRedirect();
+        $new = $organization->pages()->where('slug', 'profil')->firstOrFail();
+        $this->assertSame('PCM Singkat', $new->sections()->where('key', 'header')->first()->content['org_name']);
+        $this->assertSame('PCM Singkat', $new->sections()->where('key', 'footer')->first()->content['org_name']);
+    }
+
     public function test_updating_a_section_via_ajax_returns_rendered_canvas_instead_of_redirecting(): void
     {
         $user = User::factory()->create();
@@ -371,7 +405,7 @@ class OrganizationBuilderTest extends TestCase
         $response->assertSee('https://instagram.com/pcmambulu', false);
         $response->assertSee('https://facebook.com/pcmambulu', false);
         $response->assertSee('website-mu.id');
-        $response->assertSee('Seluruh hak cipta dilindungi');
+        $response->assertSee('All Rights Reserved');
     }
 
     public function test_home_page_cannot_be_deleted(): void

@@ -74,15 +74,7 @@ class OrganizationPage extends Model
      */
     public function ensureHeader(): void
     {
-        if ($this->sections()->where('key', 'header')->exists()) {
-            return;
-        }
-
-        $this->sections()->create([
-            'key' => 'header',
-            'content' => config('page-builder.sections.header.defaults', []),
-            'order' => 0,
-        ]);
+        $this->ensureSharedSection('header', 0);
     }
 
     /**
@@ -92,14 +84,33 @@ class OrganizationPage extends Model
      */
     public function ensureFooter(): void
     {
-        if ($this->sections()->where('key', 'footer')->exists()) {
+        $this->ensureSharedSection('footer', fn () => $this->sections()->max('order') + 1);
+    }
+
+    /**
+     * Header and footer are `shared` (config/page-builder.php): one setting for the whole site.
+     * So a new page copies an existing page's copy - content, variant and visibility - and only
+     * falls back to registry defaults on the organization's very first page.
+     *
+     * @param  int|\Closure(): int  $order
+     */
+    private function ensureSharedSection(string $key, int|\Closure $order): void
+    {
+        if ($this->sections()->where('key', $key)->exists()) {
             return;
         }
 
+        $existing = OrganizationSection::query()
+            ->where('key', $key)
+            ->whereHas('page', fn ($query) => $query->where('organization_id', $this->organization_id))
+            ->first();
+
         $this->sections()->create([
-            'key' => 'footer',
-            'content' => config('page-builder.sections.footer.defaults', []),
-            'order' => $this->sections()->max('order') + 1,
+            'key' => $key,
+            'variant' => $existing?->variant,
+            'content' => $existing->content ?? config("page-builder.sections.{$key}.defaults", []),
+            'is_visible' => $existing->is_visible ?? true,
+            'order' => value($order),
         ]);
     }
 }

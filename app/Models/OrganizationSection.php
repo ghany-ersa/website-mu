@@ -58,6 +58,30 @@ class OrganizationSection extends Model
     }
 
     /**
+     * Copy this section's content, variant and visibility onto the same section key on every
+     * other page of the organization - a no-op unless the registry marks the key `shared` (see
+     * config/page-builder.php). Updated one model at a time rather than with a bulk query so
+     * each write still fires InvalidatesTenantPageCache.
+     */
+    public function syncAcrossPages(): void
+    {
+        if (! config("page-builder.sections.{$this->key}.shared", false)) {
+            return;
+        }
+
+        self::query()
+            ->where('key', $this->key)
+            ->whereKeyNot($this->getKey())
+            ->whereHas('page', fn ($query) => $query->where('organization_id', $this->page->organization_id))
+            ->get()
+            ->each(fn (self $sibling) => $sibling->update([
+                'content' => $this->content,
+                'variant' => $this->variant,
+                'is_visible' => $this->is_visible,
+            ]));
+    }
+
+    /**
      * Resolve a text field's display value: the section's own saved content, or - when empty -
      * this section key's configured default (config/page-builder.php), with {org_name}
      * substituted in so a freshly-added section reads naturally before the user edits it.

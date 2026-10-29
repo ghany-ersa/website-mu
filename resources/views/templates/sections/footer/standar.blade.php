@@ -192,7 +192,7 @@
 
     <div class="border-t border-white/10">
         <div class="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/60">
-            <span>&copy; {{ date('Y') }} {{ $orgName }}. Seluruh hak cipta dilindungi.</span>
+            <span>&copy; {{ date('Y') }} {{ $orgName }}. <i>All Rights Reserved.</i></span>
             @unless ($hideBranding)
                 <a href="https://website-mu.id" target="_blank" rel="noopener"
                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-brand bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors">

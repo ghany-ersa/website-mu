@@ -39,6 +39,15 @@
 // variant. The premium mosque sections (fasilitas-masjid, donasi-progress, laporan-keuangan,
 // kalkulator-zakat, akad-venue) need both flags.
 //
+// `shared` (bool, default false) marks a section that is one setting for the whole site even
+// though every page still stores its own row: saving it on any page copies its content, variant
+// and visibility to the same section on every other page (OrganizationSection::
+// syncAcrossPages()), and a new page starts from an existing page's copy rather than registry
+// defaults (OrganizationPage::ensureHeader()/ensureFooter()). `header` and `footer` are shared -
+// a wordmark or layout that changed from page to page read as a bug to users. Rows-per-page was
+// kept over moving the setting onto Organization so rendering, the builder canvas and template
+// export/import all keep working on plain page sections, untouched.
+//
 // `cms`, when present, is the single source of truth for a section whose `items` field is backed
 // by a separate CMS resource (e.g. agenda items are managed at organizations.agendas.*, not
 // inline in the builder) - both edit.blade.php's "Kelola X ->" link and layouts/organization.blade.php's
@@ -90,11 +99,13 @@ return [
             'label' => 'Header',
             'fields' => ['org_name'],
             'locked' => true,
+            'shared' => true,
         ],
         'footer' => [
             'label' => 'Footer',
             'fields' => ['org_name'],
             'locked' => true,
+            'shared' => true,
         ],
         'tentang-organisasi' => [
             'label' => 'Tentang Organisasi',
@@ -152,7 +163,7 @@ return [
         // A school's activities. Same Program model as program-unggulan/layanan, keyed by the
         // `kegiatan` type - see OrganizationProgramController::type().
         'kegiatan' => [
-            'label' => 'Kegiatan',
+            'label' => 'Kegiatan Sekolah',
             'fields' => ['title', 'items'],
             // Same split as program-unggulan.subtitle, which this inherits: `sekolahmu` delegates
             // its entire layout to program-unggulan/sekolahmu.blade.php (see that file's own
@@ -220,7 +231,7 @@ return [
         // lower plan still gets its agenda list - it just doesn't get the flyer grid.
         // `subtitle` is read by the poster variant only.
         'agenda' => [
-            'label' => 'Agenda / Jadwal',
+            'label' => 'Agenda Kegiatan',
             'fields' => ['title', 'subtitle', 'items', 'limit'],
             'defaults' => ['title' => 'Agenda Kegiatan'],
             'cms' => ['route' => 'organizations.agendas.index', 'label' => 'Agenda'],

@@ -915,6 +915,9 @@
                                 <h2 class="font-bold text-gray-800 leading-tight truncate"
                                     title="{{ $sectionRegistry[$section->key]['label'] ?? $section->key }}">
                                     {{ $sectionRegistry[$section->key]['label'] ?? $section->key }}</h2>
+                                @if (! empty($sectionRegistry[$section->key]['shared']))
+                                    <p class="text-xs text-gray-400 mt-1">Berlaku untuk semua halaman.</p>
+                                @endif
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
                                 {{-- Desktop-only collapse toggle: hides the panel down to a thin rail

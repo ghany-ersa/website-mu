@@ -188,6 +188,7 @@ class OrganizationSectionController extends Controller
             'variant' => $variant,
             'is_visible' => $request->boolean('is_visible', true),
         ]);
+        $section->syncAcrossPages();
 
         if ($request->wantsJson()) {
             $page = $section->page->load('sections');
