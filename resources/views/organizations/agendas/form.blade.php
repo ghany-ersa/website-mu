@@ -37,12 +37,45 @@
                         aspect="aspect-[4/3] w-64" />
                 @endif
 
-                <x-form.field type="datetime-local" name="starts_at" label="Tanggal &amp; Waktu"
-                    :value="$agenda->starts_at?->format('Y-m-d\TH:i')" required />
+                {{-- Both sets of inputs stay in the DOM and are only hidden: the controller's
+                     exclude_unless rules drop whichever set doesn't match `schedule`, and
+                     x-bind:required keeps the browser from demanding the hidden one. --}}
+                <div x-data="{ schedule: @js(old('schedule', $agenda->repeats_weekly ? 'weekly' : 'once')) }" class="space-y-4">
+                    <div>
+                        <span class="block text-sm font-semibold text-gray-700 mb-1">Jadwal</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer"
+                                   :class="schedule === 'once' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="schedule" value="once" x-model="schedule">
+                                Sekali (tanggal tertentu)
+                            </label>
+                            <label class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer"
+                                   :class="schedule === 'weekly' ? 'border-primary bg-primary/5 text-primary font-semibold' : 'border-gray-200 text-gray-600'">
+                                <input type="radio" name="schedule" value="weekly" x-model="schedule">
+                                Rutin setiap minggu
+                            </label>
+                        </div>
+                    </div>
+
+                    <div x-show="schedule === 'once'">
+                        <x-form.field type="datetime-local" name="starts_at" label="Tanggal &amp; Waktu"
+                            :value="$agenda->repeats_weekly ? null : $agenda->starts_at?->format('Y-m-d\TH:i')"
+                            x-bind:required="schedule === 'once'" />
+                    </div>
+
+                    <div x-show="schedule === 'weekly'" x-cloak class="grid grid-cols-2 gap-3">
+                        <x-form.select-field name="day_of_week" label="Hari"
+                            :options="\App\Models\Agenda::DAY_NAMES"
+                            :selected="$agenda->repeats_weekly ? $agenda->starts_at->dayOfWeek : null" />
+                        <x-form.field name="time_label" label="Waktu" :value="$agenda->time_label"
+                            maxlength="100" placeholder="Mis. 18.30 atau Ba'da Maghrib" />
+                    </div>
+                </div>
 
                 <x-form.field name="location" label="Lokasi" :value="$agenda->location" />
 
-                <x-form.field name="contact_person" label="Narahubung" :value="$agenda->contact_person" />
+                <x-form.field name="speaker" label="Narasumber" :value="$agenda->speaker"
+                    placeholder="Mis. Ustadz Fulan, Lc." />
 
                 <x-form.richtext-field name="description" label="Deskripsi" :value="$agenda->description" />
 

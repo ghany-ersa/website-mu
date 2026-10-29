@@ -24,11 +24,19 @@ class AgendaFactory extends Factory
             'title' => fake()->sentence(4),
             'starts_at' => fake()->dateTimeBetween('now', '+2 months'),
             'location' => fake()->city(),
-            'contact_person' => fake()->name(),
+            'speaker' => fake()->name(),
             'description' => fake()->sentence(),
             'registration_url' => null,
             'status' => PublishStatus::Draft,
         ];
+    }
+
+    /**
+     * A kajian rutin: only starts_at's weekday and time matter.
+     */
+    public function weekly(): static
+    {
+        return $this->state(fn (array $attributes) => ['repeats_weekly' => true]);
     }
 
     public function published(): static

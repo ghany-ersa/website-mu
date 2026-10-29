@@ -109,18 +109,43 @@ class OrganizationAgendaController extends Controller
      */
     private function validated(Request $request): array
     {
+        // A form posted before the schedule switch existed (an open tab across a deploy) only
+        // ever meant a one-off date.
+        $request->mergeIfMissing(['schedule' => 'once']);
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             // A media-library URL, same contract as masjid_facilities.photo - the picker writes
             // the chosen file's URL into this field rather than uploading through this request.
             'poster' => ['nullable', 'string'],
-            'starts_at' => ['required', 'date'],
+            // 'weekly' = kajian rutin: the form sends a weekday and a free-text time instead of
+            // a date; the weekday is folded into starts_at below (see the
+            // add_speaker_and_weekly_schedule migration).
+            'schedule' => ['required', 'in:once,weekly'],
+            'starts_at' => ['exclude_unless:schedule,once', 'required', 'date'],
+            'day_of_week' => ['exclude_unless:schedule,weekly', 'required', 'integer', 'between:0,6'],
+            'time_label' => ['exclude_unless:schedule,weekly', 'nullable', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:255'],
-            'contact_person' => ['nullable', 'string', 'max:255'],
+            'speaker' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'registration_url' => ['nullable', 'url', 'max:255'],
             'status' => ['required', 'in:draft,published'],
+        ], [
+            'starts_at.required' => 'Isi tanggal dan waktu agenda.',
+            'day_of_week.required' => 'Pilih hari agenda rutin.',
         ]);
+
+        $data['repeats_weekly'] = $data['schedule'] === 'weekly';
+
+        if ($data['repeats_weekly']) {
+            $data['starts_at'] = Agenda::weeklyAnchor((int) $data['day_of_week']);
+        } else {
+            // exclude_unless dropped it from $data, so without this a weekly agenda switched to
+            // a one-off would keep its stale time_label.
+            $data['time_label'] = null;
+        }
+
+        unset($data['schedule'], $data['day_of_week']);
 
         if (array_key_exists('description', $data)) {
             $data['description'] = $this->sanitizeRichText($data['description']);

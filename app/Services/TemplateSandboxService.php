@@ -273,13 +273,7 @@ class TemplateSandboxService
             // ignores date_year - neither variant minds the extra key, so one shape here keeps
             // a template's flyers intact even if an admin switches variant after exporting.
             'agenda' => $sandbox->agendas()->published()->get()->map(fn ($agenda) => [
-                'title' => $agenda->title,
-                'poster' => $agenda->poster,
-                'date_day' => $agenda->starts_at->format('d'),
-                'date_month' => $agenda->starts_at->translatedFormat('M'),
-                'date_year' => $agenda->starts_at->format('Y'),
-                'location' => $agenda->location,
-                'time' => $agenda->starts_at->format('H:i'),
+                ...$agenda->sectionItem(),
                 'url' => null,
             ])->all(),
             'pengumuman' => $sandbox->announcements()->published()->get()->map(fn ($announcement) => [
