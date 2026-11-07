@@ -10,7 +10,6 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
-    @include('partials.google-analytics')
 </head>
 <body class="bg-softBg text-gray-800 min-h-screen lg:flex">
 
