@@ -49,7 +49,10 @@ class OrganizationController extends Controller
                 });
             })
             ->when($typeId, fn ($query) => $query->where('organization_type_id', $typeId))
-            ->orderBy('name')
+            // Newest first: admins mostly come here to follow up on fresh sign-ups. `id` breaks
+            // ties for rows seeded/imported in the same second so pagination stays stable.
+            ->latest()
+            ->latest('id')
             ->paginate(20)
             ->withQueryString();
 
